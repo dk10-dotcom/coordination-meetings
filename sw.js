@@ -1,5 +1,5 @@
 /* Offline support: caches the page's own files only. It never stores form data. */
-var CACHE = 'huddle-v8';
+var CACHE = 'huddle-v9';
 var FILES = [
   './',
   'index.html',
@@ -23,10 +23,12 @@ self.addEventListener('activate', function (e) {
 });
 
 // Network first, so updates show up right away; fall back to the cache when offline.
+// cache: 'no-cache' makes the phone check with the website every time instead of
+// reusing a copy for up to 10 minutes.
 self.addEventListener('fetch', function (e) {
   if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
   e.respondWith(
-    fetch(e.request).then(function (res) {
+    fetch(e.request, { cache: 'no-cache' }).then(function (res) {
       var copy = res.clone();
       caches.open(CACHE).then(function (c) { c.put(e.request, copy); });
       return res;

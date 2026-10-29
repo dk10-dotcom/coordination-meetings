@@ -1183,7 +1183,7 @@
     });
 
     if ('serviceWorker' in navigator && location.protocol === 'https:') {
-      navigator.serviceWorker.register('sw.js').catch(function () { /* offline support is optional */ });
+      navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () { /* offline support is optional */ });
     }
   }
 
