@@ -921,7 +921,7 @@
 
     /* ----- Covenant Path Report Review ----- */
     y += 16;
-    heading('Covenant Path Report Review', '10 min');
+    heading('Covenant Path Report Review', '5 min');
     ensure(62);
     var b2 = y + 13;
     tx(L, b2, 'Open the Covenant Path Report (found in Tools).', F.reg, 9, C.dark);
@@ -946,7 +946,7 @@
 
     // Three Names (same header style as Covenant Path Report Review)
     y += 16;
-    heading('Three Names', '3 min');
+    heading('Three Names', '5 min');
     ensure(50);
     b2 = y + 13;
     tx(L, b2, 'Open the 3 Names Next Ordinance spreadsheet.', F.reg, 9, C.dark);
