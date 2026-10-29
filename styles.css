@@ -204,6 +204,7 @@ h2 { font-size: 22px; font-weight: 700; color: var(--ink); }
   border-top: 1px solid var(--line);
   display: flex; flex-direction: column; gap: 8px;
 }
+body.typing .actionbar { position: static; }
 .actionbar-row { display: flex; gap: 10px; }
 .actionbar-row .btn-secondary { flex: 1 1 0; }
 .actionbar-row .btn-primary { flex: 2 1 0; }
@@ -249,6 +250,26 @@ h2 { font-size: 22px; font-weight: 700; color: var(--ink); }
 .compare-row span:first-child { color: var(--muted); }
 .compare-row span:last-child { font-weight: 700; text-align: right; overflow-wrap: anywhere; }
 .confirm-body { font-size: 16px; color: var(--text); }
+
+/* iPhone home-screen banner */
+.install-banner { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: var(--accent-soft); border: 1px solid var(--accent-line); font-size: 14px; color: var(--text); }
+.install-banner p { flex: 1 1 auto; }
+.install-banner strong { color: var(--ink); }
+.install-banner .btn-small { border: 1px solid var(--accent-line); background: var(--card); color: var(--accent); }
+
+/* Saved agendas list */
+.agenda-list { display: flex; flex-direction: column; gap: 8px; }
+.agenda-row {
+  width: 100%; min-height: 56px; padding: 10px 14px; text-align: left;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  border: 1px solid var(--card-line); border-radius: 12px; background: #F7F9FC; color: var(--ink); cursor: pointer;
+}
+.agenda-row:active { background: var(--accent-soft); }
+.agenda-row-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.agenda-row-title { font-size: 16px; font-weight: 700; }
+.agenda-row-sub { font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+.agenda-row .chev { flex: none; color: var(--muted); }
+.btn-link.danger { color: #A33A2B; }
 
 /* Toast */
 .toast {

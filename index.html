@@ -21,6 +21,11 @@
 <body>
 <main class="wrap" id="form">
 
+  <div class="install-banner" id="install-banner" role="note" hidden>
+    <p><strong>Add this to your Home Screen</strong> so your saved agendas stay on this iPhone. Tap the Share button, then <strong>Add to Home Screen</strong>. After that, always open it from the new icon.</p>
+    <button type="button" class="btn-small" data-action="dismiss-install">Got it</button>
+  </div>
+
   <header class="top">
     <div class="titles">
       <p class="eyebrow">Riverton Utah South Stake</p>
@@ -67,7 +72,7 @@
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5h6l3 3v10h-9z"/><path d="M10.5 2.5v3h3"/><path d="M9 8v5M6.8 10.8L9 13l2.2-2.2"/></svg>
         Load last week
       </button>
-      <p class="hint center">Pick last week’s PDF from Files or Downloads. Its action items fill in below.</p>
+      <p class="hint center">Choose from the agendas saved on this phone. Its action items fill in below.</p>
     </div>
 
     <div class="loaded-banner" id="loaded-banner" hidden>
@@ -148,7 +153,7 @@
         Send &amp; Clear
       </button>
     </div>
-    <p class="fine">Makes a PDF on this phone and opens your share menu. Nothing is saved online.</p>
+    <p class="fine">Makes a PDF on this phone and opens your share menu. A copy stays in this app for 4 weeks. Nothing is saved online.</p>
     <p class="fine">Keep copies on your phone secure, and delete them when they’re no longer needed.</p>
   </div>
 </main>
@@ -168,24 +173,8 @@
       </div>
     </div>
 
-    <div class="step" id="step-save">
-      <span class="step-num" aria-hidden="true">1</span>
-      <div class="step-body">
-        <p class="step-title">Save a copy for next week</p>
-        <p class="step-hint" id="save-hint">Saves the PDF to this phone so you can load it next week.</p>
-        <button type="button" class="btn-outline full" data-action="save-copy" id="save-btn" disabled>Save a copy</button>
-      </div>
-    </div>
-
-    <div class="step" id="step-share">
-      <span class="step-num" aria-hidden="true">2</span>
-      <div class="step-body">
-        <p class="step-title" id="share-title">Share the PDF</p>
-        <p class="step-hint" id="share-hint">Your share menu opens. Pick Mail, Messages, or any app you use. The form clears after it’s shared.</p>
-        <button type="button" class="btn-primary full" data-action="share" id="share-btn" disabled>Share PDF</button>
-        <button type="button" class="btn-link" data-action="skip-save" id="skip-save">Skip saving a copy</button>
-      </div>
-    </div>
+    <p class="step-hint" id="share-hint">Your share menu opens. Pick Mail, Messages, or any app you use. A copy is saved in this app for 4 weeks, then the form clears.</p>
+    <button type="button" class="btn-primary full" data-action="share" id="share-btn" disabled>Share PDF</button>
 
     <div class="after-download" id="after-download" hidden>
       <p>Attach the downloaded PDF to an email or message. When it’s sent, clear the form.</p>
@@ -194,6 +183,19 @@
 
     <button type="button" class="btn-secondary full" data-action="close-send">Keep editing</button>
     <p class="fine center">Stays on this phone. Nothing is saved online.</p>
+  </div>
+</div>
+
+<!-- Load last week: agendas saved on this phone -->
+<div class="overlay" id="load-sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="load-title">
+    <div class="grab" aria-hidden="true"></div>
+    <h2 id="load-title">Load last week</h2>
+    <p class="step-hint">Agendas saved on this phone. Tap one to bring in its action items.</p>
+    <div class="agenda-list" id="agenda-list"></div>
+    <button type="button" class="btn-secondary full" data-action="load-file">Load from a file instead</button>
+    <button type="button" class="btn-secondary full" data-action="close-load">Cancel</button>
+    <button type="button" class="btn-link danger" data-action="delete-all">Delete all saved agendas</button>
   </div>
 </div>
 

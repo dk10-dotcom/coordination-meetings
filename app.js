@@ -323,7 +323,7 @@
   }
   function closeOverlay(id) {
     $(id).hidden = true;
-    if ($('#send-sheet').hidden && $('#confirm-sheet').hidden) document.body.style.overflow = '';
+    if ($('#send-sheet').hidden && $('#confirm-sheet').hidden && $('#load-sheet').hidden) document.body.style.overflow = '';
     if (lastFocus && lastFocus.focus) { try { lastFocus.focus({ preventScroll: true }); } catch (e) { /* ignore */ } }
   }
 
@@ -351,8 +351,10 @@
   }
 
   /* ---------- actions ---------- */
-  function clearForm() {
+  // keepWard: Send & Clear keeps the ward for next week; the Clear button erases it too.
+  function clearForm(keepWard) {
     removeKey('sessionStorage', DRAFT_KEY);
+    if (!keepWard) removeKey('localStorage', WARD_KEY);
     state = freshState();
     renderAll();
     window.scrollTo(0, 0);
@@ -402,10 +404,33 @@
           ask({
             title: 'Replace the plan items below?',
             body: 'Loading last week replaces what you’ve typed in Return and Report.',
-            primary: 'Choose last week’s PDF', onPrimary: pickFile,
+            primary: 'Choose last week', onPrimary: openLoad,
             secondary: 'Cancel'
           });
-        } else pickFile();
+        } else openLoad();
+        break;
+      case 'pick-agenda': {
+        var rec = savedById[a];
+        closeOverlay('#load-sheet');
+        if (rec) checkAndApply(rec.data, 'Saved on this phone · ' + shortDate(rec.date), openLoad);
+        break;
+      }
+      case 'load-file': closeOverlay('#load-sheet'); pickFile(); break;
+      case 'close-load': closeOverlay('#load-sheet'); break;
+      case 'delete-all':
+        closeOverlay('#load-sheet');
+        ask({
+          title: 'Delete all saved agendas?',
+          body: 'Every agenda saved on this phone will be erased. Copies you already shared are not affected.',
+          primary: 'Delete all', onPrimary: function () {
+            deleteAllAgendas().then(function () { toast('Saved agendas deleted.'); }, function () { toast('Couldn’t delete. Try again.'); });
+          },
+          secondary: 'Cancel'
+        });
+        break;
+      case 'dismiss-install':
+        $('#install-banner').hidden = true;
+        writeJSON('sessionStorage', 'huddle-install-dismissed', true);
         break;
       case 'unload': {
         var doUnload = function () { state.rr = [blankRR(), blankRR()]; state.loaded = null; renderRR(); saveDraft(); };
@@ -419,15 +444,13 @@
         ask({
           title: 'Clear the whole form?',
           body: 'Everything you’ve entered will be erased. This can’t be undone.',
-          primary: 'Clear form', onPrimary: function () { clearForm(); toast('Form cleared.'); },
+          primary: 'Clear form', onPrimary: function () { clearForm(false); toast('Form cleared.'); },
           secondary: 'Cancel'
         });
         break;
       case 'send': startSend(); break;
-      case 'save-copy': saveCopy(); break;
-      case 'skip-save': enableShare(); break;
       case 'share': sharePdf(); break;
-      case 'clear-now': closeSend(); clearForm(); toast('Form cleared for next week.'); break;
+      case 'clear-now': closeSend(); clearForm(true); toast('Form cleared for next week.'); break;
       case 'close-send': closeSend(); break;
     }
   }
@@ -497,27 +520,128 @@
       });
       return;
     }
+    checkAndApply(data, f.name, pickFile);
+  }
+
+  // Ward and date checks before loading. chooseAgain reopens wherever the agenda came from.
+  function checkAndApply(data, label, chooseAgain) {
     var formWard = state.ward.trim();
     var wardMismatch = !!(formWard && data.ward && norm(formWard) !== norm(data.ward));
     var age = data.date ? daysBetween(data.date, state.date || todayISO()) : null;
     var tooOld = age !== null && age > MAX_AGE_DAYS;
     var future = age !== null && age < 0;
     if (wardMismatch || tooOld || future) {
-      var title = wardMismatch ? 'This PDF is from a different ward'
-        : future ? 'This PDF is dated after this meeting'
-        : 'This PDF is more than two weeks old';
-      var rows = [['PDF ward', str(data.ward) || 'Not listed']];
+      var title = wardMismatch ? 'This agenda is from a different ward'
+        : future ? 'This agenda is dated after this meeting'
+        : 'This agenda is more than two weeks old';
+      var rows = [['Agenda ward', str(data.ward) || 'Not listed']];
       if (formWard) rows.push(['This form', formWard]);
-      rows.push(['PDF date', shortDate(data.date) || 'Not listed']);
+      rows.push(['Agenda date', shortDate(data.date) || 'Not listed']);
       ask({
         title: title, compare: rows,
         body: 'Make sure you picked your ward’s agenda from last week before loading it.',
-        primary: 'Choose a different file', onPrimary: pickFile,
-        secondary: 'Load it anyway', onSecondary: function () { applyLoad(data, f.name); }
+        primary: 'Choose a different one', onPrimary: chooseAgain,
+        secondary: 'Load it anyway', onSecondary: function () { applyLoad(data, label); }
       });
       return;
     }
-    applyLoad(data, f.name);
+    applyLoad(data, label);
+  }
+
+  /* ---------- Saved agendas (this phone only) ----------
+   * Stores the form data (not the PDF) in this site's private IndexedDB.
+   * One entry per ward and date; only the newest KEEP entries are kept. */
+  var DB_NAME = 'huddle', STORE = 'agendas', KEEP = 4;
+  var savedById = {};
+  function openDB() {
+    return new Promise(function (resolve, reject) {
+      try {
+        if (!window.indexedDB) { reject(new Error('IndexedDB unavailable')); return; }
+        var req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = function () {
+          var db = req.result;
+          if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE, { keyPath: 'id' });
+        };
+        req.onsuccess = function () { resolve(req.result); };
+        req.onerror = function () { reject(req.error); };
+      } catch (e) { reject(e); }
+    });
+  }
+  function storeReq(db, mode, fn) {
+    return new Promise(function (resolve, reject) {
+      var t = db.transaction(STORE, mode);
+      var result;
+      var r = fn(t.objectStore(STORE));
+      if (r) r.onsuccess = function () { result = r.result; };
+      t.oncomplete = function () { resolve(result); };
+      t.onerror = function () { reject(t.error); };
+      t.onabort = function () { reject(t.error); };
+    });
+  }
+  function newestFirst(a, b) {
+    if (a.date !== b.date) return a.date < b.date ? 1 : -1;
+    return a.savedAt < b.savedAt ? 1 : -1;
+  }
+  async function listAgendas() {
+    try {
+      var db = await openDB();
+      var all = await storeReq(db, 'readonly', function (s) { return s.getAll(); });
+      db.close();
+      return (all || []).filter(function (r) { return r && r.data && r.data.app === APP_ID; }).sort(newestFirst);
+    } catch (e) { return null; } // null = this browser won't let the page store anything
+  }
+  async function saveAgenda(payload) {
+    var db = await openDB();
+    var rec = { id: norm(payload.ward) + '|' + payload.date, ward: payload.ward, date: payload.date, savedAt: new Date().toISOString(), data: payload };
+    await storeReq(db, 'readwrite', function (s) { return s.put(rec); });
+    var all = (await storeReq(db, 'readonly', function (s) { return s.getAll(); }) || []).sort(newestFirst);
+    var extra = all.slice(KEEP);
+    if (extra.length) await storeReq(db, 'readwrite', function (s) { extra.forEach(function (r) { s.delete(r.id); }); return null; });
+    db.close();
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { /* optional */ }
+  }
+  async function deleteAllAgendas() {
+    var db = await openDB();
+    await storeReq(db, 'readwrite', function (s) { return s.clear(); });
+    db.close();
+  }
+
+  async function openLoad() {
+    var list = await listAgendas();
+    if (list === null) {
+      ask({
+        title: 'Saved agendas aren’t available',
+        body: 'This browser isn’t letting the page save anything (private browsing can do this). You can still load last week’s PDF from a file.',
+        primary: 'Load from a file', onPrimary: pickFile,
+        secondary: 'Cancel'
+      });
+      return;
+    }
+    if (!list.length) {
+      ask({
+        title: 'No saved agendas to load',
+        body: 'There are no agendas saved on this phone yet. Each agenda you send is saved here for 4 weeks. If last week’s PDF is in your email or Files, choose Load from a file.',
+        primary: 'OK',
+        secondary: 'Load from a file', onSecondary: pickFile
+      });
+      return;
+    }
+    savedById = {};
+    var wrap = $('#agenda-list');
+    wrap.replaceChildren.apply(wrap, list.map(function (r) {
+      savedById[r.id] = r;
+      var n = extractActionItems(r.data).length;
+      var chev = h('span', { class: 'chev', 'aria-hidden': 'true' });
+      chev.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4l5 5-5 5"/></svg>';
+      return h('button', { type: 'button', class: 'agenda-row', 'data-action': 'pick-agenda', 'data-a': r.id }, [
+        h('span', { class: 'agenda-row-text' }, [
+          h('span', { class: 'agenda-row-title', text: longDate(r.date) || r.date }),
+          h('span', { class: 'agenda-row-sub', text: (r.ward || 'Ward not listed') + ' · ' + n + (n === 1 ? ' action item' : ' action items') })
+        ]),
+        chev
+      ]);
+    }));
+    openOverlay('#load-sheet', '.agenda-row');
   }
 
   /* ---------- PDF ---------- */
@@ -849,8 +973,16 @@
     doc.setProducer('Huddle agenda form');
     doc.setCreationDate(new Date());
     doc.setModificationDate(new Date());
-    var payload = {
-      app: APP_ID, v: DATA_VERSION, stake: STAKE, ward: wardTxt, date: s.date, createdAt: new Date().toISOString(),
+    var payload = makePayload(s);
+    doc.getInfoDict().set(P.PDFName.of('HuddleData'), P.PDFHexString.fromText(JSON.stringify(payload)));
+    var bytes = await doc.save();
+    return { bytes: bytes, pages: total, payload: payload };
+  }
+
+  // The form data saved inside the PDF and in this phone's saved agendas.
+  function makePayload(s) {
+    return JSON.parse(JSON.stringify({
+      app: APP_ID, v: DATA_VERSION, stake: STAKE, ward: s.ward.trim(), date: s.date, createdAt: new Date().toISOString(),
       attendees: s.attendees.slice(),
       rr: s.rr.map(function (r) {
         return r.prefilled
@@ -858,32 +990,28 @@
           : { plan: r.plan, happened: r.happened, notes: r.notes };
       }),
       cpDone: s.cpDone, cp: s.cp, tnDone: s.tnDone, tn: s.tn, ftDone: s.ftDone
-    };
-    doc.getInfoDict().set(P.PDFName.of('HuddleData'), P.PDFHexString.fromText(JSON.stringify(payload)));
-    var bytes = await doc.save();
-    return { bytes: bytes, pages: total };
+    }));
   }
 
   /* ---------- Send & Clear ---------- */
-  var sendFile = null, saved = false;
+  var sendFile = null, sendPayload = null;
   var isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   function canShareFiles(file) {
     try { return !!(navigator.canShare && navigator.share && navigator.canShare({ files: [file] })); } catch (e) { return false; }
   }
 
+  var SHARE_HINT = 'Your share menu opens. Pick Mail, Messages, or any app you use. A copy is saved in this app for 4 weeks, then the form clears.';
   function resetSendSheet() {
-    saved = false; sendFile = null;
-    $('#step-save').hidden = false;
-    $('#step-save').classList.remove('done');
-    $('#step-save .step-num').textContent = '1';
-    $('#step-share .step-num').textContent = '2';
-    $('#save-btn').disabled = true; $('#save-btn').textContent = 'Save a copy';
-    $('#save-hint').textContent = 'Saves the PDF to this phone so you can load it next week.';
+    sendFile = null; sendPayload = null;
     $('#share-btn').disabled = true; $('#share-btn').textContent = 'Share PDF';
-    $('#share-title').textContent = 'Share the PDF';
-    $('#share-hint').textContent = 'Your share menu opens. Pick Mail, Messages, or any app you use. The form clears after it’s shared.';
-    $('#skip-save').hidden = false;
+    $('#share-hint').textContent = SHARE_HINT;
     $('#after-download').hidden = true;
+  }
+
+  // Keep this week's agenda in the phone's saved agendas (newest 4).
+  async function rememberAgenda() {
+    if (!sendPayload) return false;
+    try { await saveAgenda(sendPayload); return true; } catch (e) { return false; }
   }
 
   async function startSend() {
@@ -907,20 +1035,14 @@
     try {
       var out = await buildPdf(state);
       sendFile = new File([out.bytes], name, { type: 'application/pdf' });
+      sendPayload = out.payload;
       $('#send-status').textContent = out.pages + (out.pages === 1 ? ' page' : ' pages') + ' · locked so it can’t be edited';
-      if (canShareFiles(sendFile)) {
-        if (isIOS) $('#save-hint').textContent = 'In the menu that opens, tap “Save to Files.” You’ll load it from there next week.';
-        $('#save-btn').disabled = false;
-      } else {
-        // No share menu for files here (some desktop browsers): one download step.
-        $('#step-save').hidden = true;
-        $('#step-share .step-num').textContent = '1';
-        $('#share-title').textContent = 'Download the PDF';
-        $('#share-hint').textContent = 'Saves the PDF to your Downloads. Attach it to an email or message, then clear the form.';
+      if (!canShareFiles(sendFile)) {
+        // No share menu for files here (some desktop browsers): download instead.
+        $('#share-hint').textContent = 'Saves the PDF to your Downloads. Attach it to an email or message, then clear the form. A copy is also saved in this app for 4 weeks.';
         $('#share-btn').textContent = 'Download PDF';
-        $('#skip-save').hidden = true;
-        $('#share-btn').disabled = false;
       }
+      $('#share-btn').disabled = false;
     } catch (err) {
       console.error(err);
       $('#send-status').textContent = 'Couldn’t make the PDF. Close this and try again.';
@@ -934,35 +1056,11 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
   }
 
-  function markSaved(msg) {
-    saved = true;
-    $('#step-save').classList.add('done');
-    $('#step-save .step-num').textContent = '✓';
-    $('#save-btn').disabled = true;
-    $('#save-btn').textContent = 'Saved';
-    $('#save-hint').textContent = msg;
-    enableShare();
-  }
-  function enableShare() {
-    $('#share-btn').disabled = false;
-    $('#skip-save').hidden = true;
-  }
-
-  async function saveCopy() {
-    if (!sendFile) return;
-    if (isIOS && canShareFiles(sendFile)) {
-      try {
-        await navigator.share({ files: [sendFile] });
-        markSaved('Saved. Next week, find it in the Files app.');
-      } catch (e) {
-        if (e && e.name === 'AbortError') return;
-        download(sendFile);
-        markSaved('Saved to Downloads in the Files app.');
-      }
-    } else {
-      download(sendFile);
-      markSaved('Saved to your Downloads folder.');
-    }
+  async function downloadAndRemember() {
+    download(sendFile);
+    var ok = await rememberAgenda();
+    $('#after-download').hidden = false;
+    if (!ok) toast('This phone couldn’t keep a saved copy.');
   }
 
   async function sharePdf() {
@@ -970,20 +1068,20 @@
     if (canShareFiles(sendFile)) {
       try {
         await navigator.share({ files: [sendFile], title: sendFile.name });
-        closeSend(); clearForm();
-        toast('Shared. The form is cleared for next week.');
       } catch (e) {
         if (e && e.name === 'AbortError') return; // they closed the share menu; keep everything
-        download(sendFile);
-        $('#after-download').hidden = false;
+        await downloadAndRemember();
+        return;
       }
+      var ok = await rememberAgenda();
+      closeSend(); clearForm(true);
+      toast(ok ? 'Shared and saved. The form is cleared for next week.' : 'Shared. This phone couldn’t keep a saved copy.');
     } else {
-      download(sendFile);
-      $('#after-download').hidden = false;
+      await downloadAndRemember();
     }
   }
 
-  function closeSend() { closeOverlay('#send-sheet'); sendFile = null; }
+  function closeSend() { closeOverlay('#send-sheet'); sendFile = null; sendPayload = null; }
 
   /* ---------- wiring ---------- */
   function init() {
@@ -1009,13 +1107,35 @@
       var btn = e.target.closest && e.target.closest('[data-action]');
       if (btn && !btn.disabled) { e.preventDefault(); onAction(btn); return; }
       if (e.target.id === 'send-sheet') closeSend();
+      if (e.target.id === 'load-sheet') closeOverlay('#load-sheet');
       if (e.target.id === 'confirm-sheet' && askSecondary) askSecondary();
     });
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;
       if (!$('#confirm-sheet').hidden) { if (askSecondary) askSecondary(); else closeOverlay('#confirm-sheet'); }
+      else if (!$('#load-sheet').hidden) closeOverlay('#load-sheet');
       else if (!$('#send-sheet').hidden) closeSend();
     });
+
+    // While the keyboard is up, the bottom bar stops floating so it doesn't jump around.
+    var typingTimer = null;
+    document.addEventListener('focusin', function (e) {
+      if (e.target.matches && e.target.matches('#form input[type="text"], #form input[type="date"]')) {
+        clearTimeout(typingTimer);
+        document.body.classList.add('typing');
+      }
+    });
+    document.addEventListener('focusout', function () {
+      clearTimeout(typingTimer);
+      typingTimer = setTimeout(function () {
+        var a = document.activeElement;
+        if (!(a && a.matches && a.matches('#form input[type="text"], #form input[type="date"]'))) document.body.classList.remove('typing');
+      }, 150);
+    });
+
+    // iPhone in Safari (not the Home Screen app): ask them to add it, so saved agendas aren't erased.
+    var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+    if (isIOS && !standalone && !readJSON('sessionStorage', 'huddle-install-dismissed')) $('#install-banner').hidden = false;
     // Enter moves to the next field instead of doing nothing
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter' || !e.target.matches || !e.target.matches('#form input[type="text"]')) return;

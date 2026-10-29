@@ -7,8 +7,10 @@ A phone-friendly agenda form for ward huddles. Fill it in, tap **Send & Clear** 
 - **Everything happens on the phone.** The page has no server, database, analytics, or tracking. The website host only delivers the page; it never sees what anyone types.
 - **No outside connections.** All code is included in this folder, and the page's security settings block it from contacting any other site.
 - **Temporary draft only.** While someone fills in the form, a draft is kept in that browser tab so a reload doesn't lose work. **Send & Clear** or **Clear** erases it, and closing the tab removes it.
-- **Ward name is remembered** on each phone for convenience. Nothing else is.
-- **The PDF is the only copy that leaves the phone,** sent through the person's own email or messaging app. The PDF also carries a hidden copy of the form data, which is how **Load last week** works. Treat the PDF as confidential.
+- **Ward name is remembered** on each phone for convenience. **Send & Clear** keeps it for next week; the **Clear** button erases it too.
+- **Saved agendas:** each time an agenda is sent, its form data is kept in the app's private storage on that phone so **Load last week** can list it. Only the newest 4 agendas are kept (resending the same week replaces it), and **Load last week → Delete all saved agendas** erases them. Nothing is saved online.
+- **The PDF is the only copy that leaves the phone,** sent through the person's own email or messaging app. The PDF also carries a hidden copy of the form data, so **Load from a file** works when a different phone runs the next meeting. Treat the PDF as confidential.
+- **iPhone users must add the app to their Home Screen and always open it from that icon.** In plain Safari, iPhones can erase a website's saved data after about 7 days without a visit, and Safari and the Home Screen app keep separate storage. The app shows a reminder banner when it's opened in Safari.
 - Remind users to keep saved PDFs secure and delete old ones when they're no longer needed.
 
 ## Put it online with GitHub Pages (free, about 15 minutes)
@@ -36,12 +38,11 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 
 ## How people use it each week
 
-1. Open the form. Enter the ward (remembered next time) and check the date.
-2. **Load last week** → pick last week's PDF → tap Yes / Partly / No and add notes for each item.
+1. Open the app from the Home Screen icon. Enter the ward (remembered next time) and check the date.
+2. **Load last week** → tap last week's agenda in the list → tap Yes / Partly / No and add notes for each item.
+   - No saved agendas yet (first week, or a new phone)? The app says so. Use **Load from a file** to pick last week's PDF from email or Files instead.
 3. Fill in attendees, the Covenant Path Report actions, and the Three Names.
-4. **Send & Clear:**
-   - **Step 1, Save a copy for next week.** On iPhone, choose **Save to Files** in the menu that opens. On Android it saves to **Downloads**.
-   - **Step 2, Share the PDF.** Pick Mail, Messages, or another app. The form clears once it's shared.
+4. **Send & Clear → Share PDF.** Pick Mail, Messages, or another app. A copy is saved in the app, then the form clears.
 
 On computers whose browser has no share menu, the button becomes **Download PDF**. Attach the file to an email, then tap **Clear the form**.
 
