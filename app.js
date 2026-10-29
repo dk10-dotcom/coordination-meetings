@@ -111,7 +111,11 @@
       : null;
     f.cpDone = !!s.cpDone; f.tnDone = !!s.tnDone; f.ftDone = !!s.ftDone;
     var cp = s.cp || {};
-    GROUPS.forEach(function (g) { f.cp[g.id] = cleanList(cp[g.id], blankAction, ['name', 'action', 'assigned', 'when']); });
+    GROUPS.forEach(function (g) {
+      var raw = Array.isArray(cp[g.id]) ? cp[g.id] : [];
+      f.cp[g.id] = cleanList(raw, blankAction, ['name', 'action', 'assigned', 'when']);
+      f.cp[g.id].forEach(function (a, i) { if (raw[i] && raw[i].carried) a.carried = true; });
+    });
     var tn = cleanList(s.tn, blankName, ['name', 'ordinance', 'action', 'assigned', 'when']);
     while (tn.length < 3) tn.push(blankName());
     f.tn = tn.slice(0, 3);
@@ -218,15 +222,13 @@
     list.replaceChildren.apply(list, state.rr.map(function (r, i) {
       var head = h('div', { class: 'card-head' }, [
         h('p', { class: 'card-label', text: 'Return and Report Item ' + (i + 1) }),
-        h('div', { class: 'card-head-right' }, [
-          r.prefilled && r.source ? h('span', { class: 'source', text: r.source }) : null,
-          many ? removeButton('remove-rr', i, '', 'Remove Return and Report item ' + (i + 1)) : null
-        ])
+        many ? removeButton('remove-rr', i, '', 'Remove Return and Report item ' + (i + 1)) : null
       ]);
       var body;
       if (r.prefilled) {
         var meta = prefillMeta(r);
         body = h('div', { class: 'prefill' }, [
+          r.source ? h('span', { class: 'source prefill-source', text: r.source }) : null,
           str(r.person).trim() ? h('p', { class: 'prefill-person', text: r.person.trim() }) : null,
           h('p', { text: str(r.action).trim() || 'No action item was written.' }),
           meta ? h('p', { class: 'prefill-meta', text: meta }) : null
@@ -260,9 +262,12 @@
       var cards = items.map(function (it, i) {
         var base = 'cp.' + g.id + '.' + i + '.';
         return h('div', { class: 'card' }, [
-          many ? h('div', { class: 'card-head' }, [
+          many || it.carried ? h('div', { class: 'card-head' }, [
             h('p', { class: 'card-label', text: 'Action ' + (i + 1) }),
-            removeButton('remove-cp', g.id, i, 'Remove action ' + (i + 1) + ' for ' + g.title)
+            h('div', { class: 'card-head-right' }, [
+              it.carried ? h('span', { class: 'source', text: 'From last week' }) : null,
+              many ? removeButton('remove-cp', g.id, i, 'Remove action ' + (i + 1) + ' for ' + g.title) : null
+            ])
           ]) : null,
           h('div', { class: 'card-grid' }, [
             field('Name', base + 'name', { full: true, placeholder: 'Person from the list', cap: 'words' }),
@@ -430,7 +435,15 @@
         writeJSON('sessionStorage', 'huddle-install-dismissed', true);
         break;
       case 'unload': {
-        var doUnload = function () { state.rr = [blankRR(), blankRR()]; state.loaded = null; renderRR(); saveDraft(); };
+        var doUnload = function () {
+          state.rr = [blankRR(), blankRR()]; state.loaded = null;
+          // Take back carried-over names nobody has added anything to yet.
+          GROUPS.forEach(function (g) {
+            var keep = state.cp[g.id].filter(function (a) { return !(a.carried && !hasText(a, ['action', 'assigned', 'when'])); });
+            state.cp[g.id] = keep.length ? keep : [blankAction()];
+          });
+          renderRR(); renderCP(); saveDraft();
+        };
         if (state.rr.some(function (x) { return x.happened || str(x.notes).trim(); })) {
           ask({ title: 'Remove last week’s items?', body: 'The answers and notes you entered for them will be erased.', primary: 'Remove', onPrimary: doUnload, secondary: 'Cancel' });
         } else doUnload();
@@ -486,6 +499,29 @@
     return items;
   }
 
+  // Carries last week's names (New members, Returning members, Those being taught) into this
+  // week's Covenant Path Report Review with blank action fields. Never overwrites typed entries.
+  function carryNames(data) {
+    var added = 0;
+    var cp = data.cp || {};
+    GROUPS.forEach(function (g) {
+      var names = [];
+      (Array.isArray(cp[g.id]) ? cp[g.id] : []).forEach(function (a) {
+        var n = a && str(a.name).trim();
+        if (n && names.every(function (x) { return norm(x) !== norm(n); })) names.push(n);
+      });
+      if (!names.length) return;
+      var cur = state.cp[g.id].filter(function (a) { return hasText(a, ['name', 'action', 'assigned', 'when']); });
+      names.forEach(function (n) {
+        if (cur.some(function (a) { return norm(a.name) === norm(n); })) return;
+        cur.push({ name: n, action: '', assigned: '', when: '', carried: true });
+        added++;
+      });
+      state.cp[g.id] = cur.length ? cur : [blankAction()];
+    });
+    return added;
+  }
+
   function applyLoad(data, fileName) {
     var items = extractActionItems(data);
     if (!items.length) {
@@ -497,8 +533,10 @@
     });
     state.loaded = { fileName: fileName, ward: str(data.ward), date: str(data.date), count: items.length };
     if (!state.ward.trim() && data.ward) { state.ward = str(data.ward); $('#ward').value = state.ward; writeWard(state.ward); }
-    renderRR(); saveDraft();
-    toast('Loaded ' + items.length + (items.length === 1 ? ' action item' : ' action items') + ' from last week.');
+    var carried = carryNames(data);
+    renderRR(); renderCP(); saveDraft();
+    toast('Loaded ' + items.length + (items.length === 1 ? ' action item' : ' action items') +
+      (carried ? ' and ' + carried + (carried === 1 ? ' name' : ' names') : '') + ' from last week.');
     var sec = $('#h-rr'); if (sec) sec.scrollIntoView({ block: 'start', behavior: 'smooth' });
   }
 
@@ -903,14 +941,14 @@
     });
     table([48, 168, 398, 488], ['NAME', 'ACTION ITEM FOR THIS WEEK', 'ASSIGNED TO', 'WHEN'], cpRows);
 
-    // Three Names
-    y += 6;
-    ensure(64);
-    b2 = y + 15;
-    var e2 = tx(L, b2, 'Three Names', F.bold, 9.5, C.dark);
-    e2 = tx(e2 + 2.6, b2, '(spreadsheet)', F.reg, 9.5, C.dark);
-    tx(e2 + 8, b2, '3 min', F.ital, 9, C.gray);
-    b2 += 13;
+    // Three Names (same header style as Covenant Path Report Review)
+    y += 16;
+    heading('Three Names', '3 min');
+    ensure(50);
+    b2 = y + 13;
+    tx(L, b2, 'Open the Three Names spreadsheet.', F.reg, 9, C.dark);
+    b2 += 12;
+    var e2;
     tx(L, b2, 'Review 3 focus names and their next needed ordinance.', F.reg, 9, C.dark);
     b2 += 12;
     tx(L, b2, 'Make a plan: What is one action item this week to help their next step? Who will do it, and when?', F.reg, 9, C.gray);

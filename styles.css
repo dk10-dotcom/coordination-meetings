@@ -134,6 +134,7 @@ h2 { font-size: 22px; font-weight: 700; color: var(--ink); }
 .btn-remove:active { background: var(--ground); }
 .prefill { display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 8px; background: #F7F9FC; border: 1px solid #E3E8EF; }
 .prefill-person { font-weight: 700; }
+.prefill-source { align-self: flex-start; margin-bottom: 2px; }
 .prefill-meta { font-size: 14px; color: var(--muted); }
 .seg-label { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
 .seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }

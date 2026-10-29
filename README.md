@@ -39,7 +39,8 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 ## How people use it each week
 
 1. Open the app from the Home Screen icon. Enter the ward (remembered next time) and check the date.
-2. **Load last week** → tap last week's agenda in the list → tap Yes / Partly / No and add notes for each item.
+2. **Load last week** (at the top, above Return and Report) → tap last week's agenda in the list → tap Yes / Partly / No and add notes for each item.
+   - Last week's names in New members, Returning members and Those being taught carry over to this week's Covenant Path Report Review, with blank action fields. **Remove** takes back any carried names nobody has added to.
    - No saved agendas yet (first week, or a new phone)? The app says so. Use **Load from a file** to pick last week's PDF from email or Files instead.
 3. Fill in attendees, the Covenant Path Report actions, and the Three Names.
 4. **Send & Clear → Share PDF.** Pick Mail, Messages, or another app. A copy is saved in the app, then the form clears.

@@ -61,27 +61,27 @@
     <div class="chips" id="attendee-list"></div>
   </section>
 
+  <div class="load-panel" id="load-panel">
+    <button type="button" class="btn-outline" data-action="load">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5h6l3 3v10h-9z"/><path d="M10.5 2.5v3h3"/><path d="M9 8v5M6.8 10.8L9 13l2.2-2.2"/></svg>
+      Load last week
+    </button>
+    <p class="hint center">Choose from the agendas saved on this phone. Last week’s action items fill in Return and Report, and the names from New members, Returning members and Those being taught carry over.</p>
+  </div>
+
+  <div class="loaded-banner" id="loaded-banner" hidden>
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#1F6B3A" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="9"/><path d="M7 11.5l2.6 2.5L15 8.5"/></svg>
+    <div class="loaded-text">
+      <p class="loaded-title">Loaded last week’s agenda</p>
+      <p class="loaded-sub" id="loaded-sub"></p>
+    </div>
+    <button type="button" class="btn-small green" data-action="unload">Remove</button>
+  </div>
+
   <section class="section" aria-labelledby="h-rr">
     <div class="section-head">
       <h2 id="h-rr">Return and Report</h2>
       <p class="muted"><strong class="ink">Did last week’s plan happen?</strong> Report back to ward council (under the bishop’s guidance).</p>
-    </div>
-
-    <div class="load-panel" id="load-panel">
-      <button type="button" class="btn-outline" data-action="load">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5h6l3 3v10h-9z"/><path d="M10.5 2.5v3h3"/><path d="M9 8v5M6.8 10.8L9 13l2.2-2.2"/></svg>
-        Load last week
-      </button>
-      <p class="hint center">Choose from the agendas saved on this phone. Its action items fill in below.</p>
-    </div>
-
-    <div class="loaded-banner" id="loaded-banner" hidden>
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#1F6B3A" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="9"/><path d="M7 11.5l2.6 2.5L15 8.5"/></svg>
-      <div class="loaded-text">
-        <p class="loaded-title">Loaded last week’s agenda</p>
-        <p class="loaded-sub" id="loaded-sub"></p>
-      </div>
-      <button type="button" class="btn-small green" data-action="unload">Remove</button>
     </div>
 
     <div class="stack" id="rr-list"></div>
@@ -106,9 +106,17 @@
       <div class="stack" id="cp-groups"></div>
     </div>
 
+  </section>
+
+  <section class="section plan" aria-labelledby="h-tn">
+    <div class="section-head row">
+      <h2 id="h-tn">Three Names</h2>
+      <span class="time">3 min</span>
+    </div>
+
     <div class="stack">
       <div class="instructions">
-        <p class="item-title">Three Names <span class="light">(spreadsheet)</span> <span class="time">· 3 min</span></p>
+        <p class="item-desc">Open the Three Names spreadsheet.</p>
         <p class="item-desc">Review 3 focus names and their next needed ordinance.</p>
         <p class="item-desc muted">Make a plan: What is one action item this week to help their next step? Who will do it, and when?</p>
       </div>
