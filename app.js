@@ -922,14 +922,16 @@
     /* ----- Covenant Path Report Review ----- */
     y += 16;
     heading('Covenant Path Report Review', '10 min');
-    ensure(50);
+    ensure(62);
     var b2 = y + 13;
-    tx(L, b2, 'Open the Covenant Path Report (found in tools).', F.reg, 9, C.dark);
+    tx(L, b2, 'Open the Covenant Path Report (found in Tools).', F.reg, 9, C.dark);
     b2 += 12;
-    var e3 = tx(L, b2, 'Review each list: new members, returning members, those being taught.', F.reg, 9, C.dark) + 2.5;
+    var e3 = tx(L, b2, 'Review each list: New Members, Returning Members, and Being Taught.', F.reg, 9, C.dark) + 4;
     var e4 = tx(e3, b2, 'Mark sacrament attendance', F.reg, 9, C.dark);
     hline(e3, e4, b2 + 1.4, C.dark, 0.6);
     tx(e4, b2, '.', F.reg, 9, C.dark);
+    b2 += 12;
+    tx(L, b2, 'Select each person and scroll through their details to review their needs.', F.reg, 9, C.dark);
     b2 += 12;
     tx(L, b2, 'Make a plan: What is one action item this week to help their next step? Who will do it, and when?', F.reg, 9, C.gray);
     y = b2 + 9;
