@@ -463,6 +463,7 @@
         break;
       case 'send': startSend(); break;
       case 'share': sharePdf(); break;
+      case 'save-only': saveWithoutSending(); break;
       case 'clear-now': closeSend(); clearForm(true); toast('Form cleared for next week.'); break;
       case 'close-send': closeSend(); break;
     }
@@ -1158,6 +1159,18 @@
     } else {
       await downloadAndRemember();
     }
+  }
+
+  // Keeps this week's agenda in the phone's saved agendas without making or sharing a PDF, then clears the form.
+  async function saveWithoutSending() {
+    try {
+      await saveAgenda(makePayload(state));
+    } catch (e) {
+      ask({ title: 'Couldn’t save on this phone', body: 'This browser isn’t letting the app save anything (private browsing can do this). Your form hasn’t been cleared.', primary: 'OK' });
+      return;
+    }
+    closeSend(); clearForm(true);
+    toast('Saved on this phone. The form is cleared for next week.');
   }
 
   function closeSend() { closeOverlay('#send-sheet'); sendFile = null; sendPayload = null; }
