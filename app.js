@@ -582,21 +582,33 @@
     if (a.date !== b.date) return a.date < b.date ? 1 : -1;
     return a.savedAt < b.savedAt ? 1 : -1;
   }
+  var MAX_KEEP_DAYS = 28;
+  // An agenda is erased once its meeting date is more than 4 weeks ago.
+  function isExpired(r) {
+    var age = daysBetween(r && r.date, todayISO());
+    return !r || !r.data || r.data.app !== APP_ID || age === null || age > MAX_KEEP_DAYS;
+  }
+  // Removes expired agendas and anything beyond the newest KEEP. Returns what's left, newest first.
+  async function pruneAgendas(db) {
+    var all = (await storeReq(db, 'readonly', function (s) { return s.getAll(); }) || []).sort(newestFirst);
+    var keep = all.filter(function (r) { return !isExpired(r); }).slice(0, KEEP);
+    var gone = all.filter(function (r) { return keep.indexOf(r) < 0; });
+    if (gone.length) await storeReq(db, 'readwrite', function (s) { gone.forEach(function (r) { s.delete(r.id); }); return null; });
+    return keep;
+  }
   async function listAgendas() {
     try {
       var db = await openDB();
-      var all = await storeReq(db, 'readonly', function (s) { return s.getAll(); });
+      var list = await pruneAgendas(db);
       db.close();
-      return (all || []).filter(function (r) { return r && r.data && r.data.app === APP_ID; }).sort(newestFirst);
+      return list;
     } catch (e) { return null; } // null = this browser won't let the page store anything
   }
   async function saveAgenda(payload) {
     var db = await openDB();
     var rec = { id: norm(payload.ward) + '|' + payload.date, ward: payload.ward, date: payload.date, savedAt: new Date().toISOString(), data: payload };
     await storeReq(db, 'readwrite', function (s) { return s.put(rec); });
-    var all = (await storeReq(db, 'readonly', function (s) { return s.getAll(); }) || []).sort(newestFirst);
-    var extra = all.slice(KEEP);
-    if (extra.length) await storeReq(db, 'readwrite', function (s) { extra.forEach(function (r) { s.delete(r.id); }); return null; });
+    await pruneAgendas(db);
     db.close();
     try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { /* optional */ }
   }
@@ -1136,6 +1148,9 @@
     // iPhone in Safari (not the Home Screen app): ask them to add it, so saved agendas aren't erased.
     var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
     if (isIOS && !standalone && !readJSON('sessionStorage', 'huddle-install-dismissed')) $('#install-banner').hidden = false;
+
+    // Erase saved agendas older than 4 weeks each time the app opens.
+    listAgendas();
     // Enter moves to the next field instead of doing nothing
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter' || !e.target.matches || !e.target.matches('#form input[type="text"]')) return;
