@@ -957,7 +957,7 @@
     var e2;
     tx(L, b2, 'Review each name and add it below with its next ordinance.', F.reg, 9, C.dark);
     b2 += 12;
-    tx(L, b2, 'Make a plan: What is one action item this week to help their next step? Who will do it, and when?', F.reg, 9, C.gray);
+    tx(L, b2, 'Make a plan: What is one action we can take to help them progress? Who will do it, and when?', F.reg, 9, C.gray);
     y = b2 + 9;
     table([48, 158, 248, 418, 498], ['FOCUS NAME', 'NEXT ORDINANCE', 'ACTION ITEM FOR THIS WEEK', 'ASSIGNED TO', 'WHEN'],
       s.tn.map(function (n) { return { boldFirst: true, cells: [n.name.trim(), n.ordinance.trim(), n.action.trim(), n.assigned.trim(), n.when.trim()] }; }));
