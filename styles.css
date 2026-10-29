@@ -154,6 +154,10 @@ h2 { font-size: 22px; font-weight: 700; color: var(--ink); }
 .loaded-title { font-size: 15px; font-weight: 700; color: var(--green-ink); }
 .loaded-sub { font-size: 13px; color: #2F5A3D; overflow-wrap: anywhere; }
 
+.load-reminder { display: flex; align-items: flex-start; gap: 8px; margin-top: -20px; padding: 0 4px; font-size: 14px; color: var(--text); }
+.load-reminder svg { flex: none; margin-top: 1px; color: var(--accent); }
+.load-reminder strong { color: var(--ink); }
+
 /* Plan items */
 .bullet-item { display: flex; align-items: center; gap: 12px; padding-left: 7px; }
 .bullet-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink); flex: none; }
