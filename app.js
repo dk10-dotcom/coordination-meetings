@@ -952,10 +952,10 @@
     heading('Three Names', '3 min');
     ensure(50);
     b2 = y + 13;
-    tx(L, b2, 'Open the Three Names spreadsheet.', F.reg, 9, C.dark);
+    tx(L, b2, 'Open the 3 Names Next Ordinance spreadsheet.', F.reg, 9, C.dark);
     b2 += 12;
     var e2;
-    tx(L, b2, 'Review 3 focus names and their next needed ordinance.', F.reg, 9, C.dark);
+    tx(L, b2, 'Review each name and add it below with its next ordinance.', F.reg, 9, C.dark);
     b2 += 12;
     tx(L, b2, 'Make a plan: What is one action item this week to help their next step? Who will do it, and when?', F.reg, 9, C.gray);
     y = b2 + 9;
