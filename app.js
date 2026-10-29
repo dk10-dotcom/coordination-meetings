@@ -326,7 +326,7 @@
   }
   function closeOverlay(id) {
     $(id).hidden = true;
-    if ($('#send-sheet').hidden && $('#confirm-sheet').hidden && $('#load-sheet').hidden) document.body.style.overflow = '';
+    if ($('#send-sheet').hidden && $('#confirm-sheet').hidden && $('#load-sheet').hidden && $('#install-sheet').hidden) document.body.style.overflow = '';
     if (lastFocus && lastFocus.focus) { try { lastFocus.focus({ preventScroll: true }); } catch (e) { /* ignore */ } }
   }
 
@@ -431,6 +431,8 @@
           secondary: 'Cancel'
         });
         break;
+      case 'install': addToHomeScreen(); break;
+      case 'close-install': closeOverlay('#install-sheet'); break;
       case 'dismiss-install':
         $('#install-banner').hidden = true;
         writeJSON('sessionStorage', 'huddle-install-dismissed', true);
@@ -1030,6 +1032,49 @@
   /* ---------- Send & Clear ---------- */
   var sendFile = null, sendPayload = null;
   var isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var isAndroid = /Android/i.test(navigator.userAgent);
+
+  /* ---------- Add to Home Screen ---------- */
+  var installPrompt = null; // Android/Chrome's own install prompt, when the browser offers one
+  function isStandalone() {
+    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  }
+  function showInstallBanner() {
+    if (isStandalone() || readJSON('sessionStorage', 'huddle-install-dismissed')) return;
+    $('#install-banner').hidden = false;
+  }
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    installPrompt = e;
+    if (document.readyState !== 'loading') showInstallBanner();
+  });
+  window.addEventListener('appinstalled', function () { $('#install-banner').hidden = true; installPrompt = null; });
+
+  var SHARE_ICON = '<span class="inline-icon" aria-label="Share"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11V2.5M6 5.5L9 2.5l3 3"/><path d="M5 8H4v7.5h10V8h-1"/></svg></span>';
+  var MENU_ICON = '<span class="inline-icon" aria-label="menu"><svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><circle cx="9" cy="4" r="1.5"/><circle cx="9" cy="9" r="1.5"/><circle cx="9" cy="14" r="1.5"/></svg></span>';
+  async function addToHomeScreen() {
+    if (installPrompt) {
+      var p = installPrompt; installPrompt = null;
+      try {
+        p.prompt();
+        var choice = await p.userChoice;
+        if (choice && choice.outcome === 'accepted') {
+          $('#install-banner').hidden = true;
+          toast('Added. Open it from your Home Screen from now on.');
+        }
+      } catch (e) { openInstallSteps(); }
+      return;
+    }
+    openInstallSteps();
+  }
+  function openInstallSteps() {
+    var steps = isIOS
+      ? ['Tap the Share button ' + SHARE_ICON + ' in the browser toolbar.', 'Scroll down and tap <strong>Add to Home Screen</strong>.', 'Tap <strong>Add</strong>.']
+      : ['Tap the browser menu ' + MENU_ICON + ' at the top right.', 'Tap <strong>Add to Home screen</strong> or <strong>Install app</strong>.', 'Tap <strong>Add</strong> or <strong>Install</strong>.'];
+    // Static, trusted markup only (no user data).
+    $('#install-steps').innerHTML = steps.map(function (s) { return '<li><span>' + s + '</span></li>'; }).join('');
+    openOverlay('#install-sheet', '[data-action="close-install"]');
+  }
   function canShareFiles(file) {
     try { return !!(navigator.canShare && navigator.share && navigator.canShare({ files: [file] })); } catch (e) { return false; }
   }
@@ -1142,12 +1187,14 @@
       if (btn && !btn.disabled) { e.preventDefault(); onAction(btn); return; }
       if (e.target.id === 'send-sheet') closeSend();
       if (e.target.id === 'load-sheet') closeOverlay('#load-sheet');
+      if (e.target.id === 'install-sheet') closeOverlay('#install-sheet');
       if (e.target.id === 'confirm-sheet' && askSecondary) askSecondary();
     });
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;
       if (!$('#confirm-sheet').hidden) { if (askSecondary) askSecondary(); else closeOverlay('#confirm-sheet'); }
       else if (!$('#load-sheet').hidden) closeOverlay('#load-sheet');
+      else if (!$('#install-sheet').hidden) closeOverlay('#install-sheet');
       else if (!$('#send-sheet').hidden) closeSend();
     });
 
@@ -1167,9 +1214,8 @@
       }, 150);
     });
 
-    // iPhone in Safari (not the Home Screen app): ask them to add it, so saved agendas aren't erased.
-    var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
-    if (isIOS && !standalone && !readJSON('sessionStorage', 'huddle-install-dismissed')) $('#install-banner').hidden = false;
+    // Phones opened in the browser (not the Home Screen app) get the Add to Home Screen banner.
+    if ((isIOS || isAndroid) && !isStandalone()) showInstallBanner();
 
     // Erase saved agendas older than 4 weeks each time the app opens.
     listAgendas();

@@ -257,10 +257,16 @@ body.typing .actionbar { position: static; }
 .confirm-body { font-size: 16px; color: var(--text); }
 
 /* iPhone home-screen banner */
-.install-banner { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: var(--accent-soft); border: 1px solid var(--accent-line); font-size: 14px; color: var(--text); }
-.install-banner p { flex: 1 1 auto; }
-.install-banner strong { color: var(--ink); }
-.install-banner .btn-small { border: 1px solid var(--accent-line); background: var(--card); color: var(--accent); }
+.install-banner { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 12px; background: var(--accent-soft); border: 1px solid var(--accent-line); font-size: 14px; color: var(--text); }
+.install-text { display: flex; flex-direction: column; gap: 2px; }
+.install-title { font-size: 16px; font-weight: 700; color: var(--ink); }
+.install-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.btn-install { min-height: 44px; font-size: 15px; flex: 1 1 auto; }
+.install-steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; counter-reset: step; }
+.install-steps li { display: flex; gap: 12px; align-items: flex-start; font-size: 16px; color: var(--text); counter-increment: step; }
+.install-steps li::before { content: counter(step); flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; }
+.install-steps strong { color: var(--ink); }
+.inline-icon { display: inline-flex; vertical-align: -3px; color: var(--accent); }
 
 /* Saved agendas list */
 .agenda-list { display: flex; flex-direction: column; gap: 8px; }

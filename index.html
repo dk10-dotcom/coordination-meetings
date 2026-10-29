@@ -22,8 +22,17 @@
 <main class="wrap" id="form">
 
   <div class="install-banner" id="install-banner" role="note" hidden>
-    <p><strong>Add this to your Home Screen</strong> so your saved agendas stay on this iPhone. Tap the Share button, then <strong>Add to Home Screen</strong>. After that, always open it from the new icon.</p>
-    <button type="button" class="btn-small" data-action="dismiss-install">Got it</button>
+    <div class="install-text">
+      <p class="install-title">Add this app to your Home Screen</p>
+      <p>It opens like an app and keeps your saved agendas safe on this phone.</p>
+    </div>
+    <div class="install-actions">
+      <button type="button" class="btn-primary btn-install" data-action="install">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="12" height="12" rx="3"/><path d="M9 6.2v5.6M6.2 9h5.6"/></svg>
+        Add to Home Screen
+      </button>
+      <button type="button" class="btn-link" data-action="dismiss-install">Not now</button>
+    </div>
   </div>
 
   <header class="top">
@@ -194,6 +203,17 @@
     <button type="button" class="btn-secondary full" data-action="load-file">Load from a file instead</button>
     <button type="button" class="btn-secondary full" data-action="close-load">Cancel</button>
     <button type="button" class="btn-link danger" data-action="delete-all">Delete all saved agendas</button>
+  </div>
+</div>
+
+<!-- How to add to Home Screen (iPhone, or browsers without an install prompt) -->
+<div class="overlay" id="install-sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="install-title">
+    <div class="grab" aria-hidden="true"></div>
+    <h2 id="install-title">Add to your Home Screen</h2>
+    <ol class="install-steps" id="install-steps"></ol>
+    <p class="step-hint">From now on, open the agenda from the new icon so your saved agendas are always there.</p>
+    <button type="button" class="btn-primary full" data-action="close-install">Got it</button>
   </div>
 </div>
 
