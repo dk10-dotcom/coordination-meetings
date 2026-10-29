@@ -26,7 +26,8 @@
     { id: 'ftm', label: 'Full-time missionaries' },
     { id: 'wml', label: 'Ward mission leader' },
     { id: 'tfhl', label: 'TFH leader' },
-    { id: 'tfhc', label: 'TFH consultants' }
+    { id: 'tfhc', label: 'TFH consultants' },
+    { id: 'hc', label: 'High Councilman' }
   ];
   var GROUPS = [
     { id: 'nm', title: 'New members' },
