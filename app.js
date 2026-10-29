@@ -1094,19 +1094,25 @@
     try { await saveAgenda(sendPayload); return true; } catch (e) { return false; }
   }
 
-  async function startSend() {
+  // Ward, date and some content are needed before sending or saving.
+  function readyToSave(verb) {
     if (!state.ward.trim()) {
-      ask({ title: 'Add your ward name first', body: 'The ward name goes on the PDF and helps you load the right file next week.', primary: 'OK', onPrimary: function () { $('#ward').focus(); } });
-      return;
+      ask({ title: 'Add your ward name first', body: 'The ward name goes on the PDF and helps you load the right agenda next week.', primary: 'OK', onPrimary: function () { $('#ward').focus(); } });
+      return false;
     }
     if (!parseISO(state.date)) {
       ask({ title: 'Add the meeting date first', primary: 'OK', onPrimary: function () { $('#date').focus(); } });
-      return;
+      return false;
     }
     if (isEmpty(state)) {
-      ask({ title: 'Nothing to send yet', body: 'Fill in the agenda, then tap Send & Clear.', primary: 'OK' });
-      return;
+      ask({ title: 'Nothing to ' + verb + ' yet', body: 'Fill in the agenda first.', primary: 'OK' });
+      return false;
     }
+    return true;
+  }
+
+  async function startSend() {
+    if (!readyToSave('send')) return;
     resetSendSheet();
     var name = fileName();
     $('#send-filename').textContent = name;
@@ -1161,16 +1167,17 @@
     }
   }
 
-  // Keeps this week's agenda in the phone's saved agendas without making or sharing a PDF, then clears the form.
+  // Keeps this week's agenda in the phone's saved agendas without making or sharing a PDF.
+  // The form stays filled in. Saving the same ward and date again replaces the earlier copy.
   async function saveWithoutSending() {
+    if (!readyToSave('save')) return;
     try {
       await saveAgenda(makePayload(state));
     } catch (e) {
-      ask({ title: 'Couldn’t save on this phone', body: 'This browser isn’t letting the app save anything (private browsing can do this). Your form hasn’t been cleared.', primary: 'OK' });
+      ask({ title: 'Couldn’t save on this phone', body: 'This browser isn’t letting the app save anything (private browsing can do this).', primary: 'OK' });
       return;
     }
-    closeSend(); clearForm(true);
-    toast('Saved on this phone. The form is cleared for next week.');
+    toast('Saved on this phone. It will show in Load last week.');
   }
 
   function closeSend() { closeOverlay('#send-sheet'); sendFile = null; sendPayload = null; }

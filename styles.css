@@ -211,6 +211,8 @@ h2 { font-size: 22px; font-weight: 700; color: var(--ink); }
 }
 body.typing .actionbar { position: static; }
 .actionbar-row { display: flex; gap: 10px; }
+.btn-save { min-height: 44px; font-size: 15px; }
+.fine-notes { display: flex; flex-direction: column; gap: 6px; margin-bottom: -12px; }
 .actionbar-row .btn-secondary { flex: 1 1 0; }
 .actionbar-row .btn-primary { flex: 2 1 0; }
 .fine { font-size: 13px; color: var(--muted); text-align: center; }

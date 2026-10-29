@@ -44,6 +44,7 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
    - No saved agendas yet (first week, or a new phone)? The app says so. Use **Load from a file** to pick last week's PDF from email or Files instead.
 3. Fill in attendees, the Covenant Path Report actions, and the Three Names.
 4. **Send & Clear → Share PDF.** Pick Mail, Messages, or another app. A copy is saved in the app, then the form clears.
+   - **Save without sending** (bottom of the page) keeps a copy in the app without making a PDF and leaves the form filled in. Saving the same week again replaces the earlier copy.
 
 On computers whose browser has no share menu, the button becomes **Download PDF**. Attach the file to an email, then tap **Clear the form**.
 
