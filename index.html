@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1B2B4B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Huddle">
+<title>Weekly Coordination Meeting Agenda</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="styles.css">
+<script src="vendor/pdf-lib.min.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<main class="wrap" id="form">
+
+  <header class="top">
+    <div class="titles">
+      <p class="eyebrow">Riverton Utah South Stake</p>
+      <h1>Weekly Coordination Meeting Agenda</h1>
+    </div>
+    <div class="grid-2">
+      <label class="field">Ward
+        <input type="text" id="ward" data-bind="ward" placeholder="Ward name" autocomplete="off" autocapitalize="words">
+      </label>
+      <label class="field">Date
+        <input type="date" id="date" data-bind="date">
+      </label>
+    </div>
+    <div class="grid-2 info">
+      <div class="info-card blue">
+        <p class="info-kicker">Who · What</p>
+        <p class="info-title">Ward Council</p>
+        <p class="info-text">Reviews the Covenant Path Report, then selects who to focus on and each person’s next ordinance</p>
+      </div>
+      <div class="info-card orange">
+        <p class="info-kicker">How · When</p>
+        <p class="info-title">Weekly Coordination Meeting</p>
+        <p class="info-text">Huddles decide how and when to help</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="section" aria-labelledby="h-attendees">
+    <div class="section-head">
+      <h2 id="h-attendees">Attendees</h2>
+      <p class="muted">Make an extra effort to involve the youth. Tap everyone who attended.</p>
+    </div>
+    <div class="chips" id="attendee-list"></div>
+  </section>
+
+  <section class="section" aria-labelledby="h-rr">
+    <div class="section-head">
+      <h2 id="h-rr">Return and Report</h2>
+      <p class="muted"><strong class="ink">Did last week’s plan happen?</strong> Report back to ward council (under the bishop’s guidance).</p>
+    </div>
+
+    <div class="load-panel" id="load-panel">
+      <button type="button" class="btn-outline" data-action="load">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5h6l3 3v10h-9z"/><path d="M10.5 2.5v3h3"/><path d="M9 8v5M6.8 10.8L9 13l2.2-2.2"/></svg>
+        Load last week
+      </button>
+      <p class="hint center">Pick last week’s PDF from Files or Downloads. Its action items fill in below.</p>
+    </div>
+
+    <div class="loaded-banner" id="loaded-banner" hidden>
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#1F6B3A" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="9"/><path d="M7 11.5l2.6 2.5L15 8.5"/></svg>
+      <div class="loaded-text">
+        <p class="loaded-title">Loaded last week’s agenda</p>
+        <p class="loaded-sub" id="loaded-sub"></p>
+      </div>
+      <button type="button" class="btn-small green" data-action="unload">Remove</button>
+    </div>
+
+    <div class="stack" id="rr-list"></div>
+    <button type="button" class="btn-add" data-action="add-rr">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>
+      Add plan item
+    </button>
+  </section>
+
+  <section class="section plan" aria-labelledby="h-plan">
+    <div class="section-head row">
+      <h2 id="h-plan">Plan</h2>
+      <span class="time">10 min</span>
+    </div>
+
+    <div class="bullet-item"><span class="dot" aria-hidden="true"></span><p>Opening prayer</p></div>
+
+    <div class="stack">
+      <label class="check-item">
+        <input type="checkbox" id="cp-done" data-bind="cpDone">
+        <span class="check-text">
+          <span class="item-title">Covenant Path Report <span class="light">(found in tools)</span> <span class="time">· 6 min</span></span>
+          <span class="item-desc">Review each list: new members, returning members, those being taught. <span class="underline">Mark sacrament attendance.</span></span>
+          <span class="item-desc muted">Make a plan: What is one action item this week to help their next step? Who will do it, and when?</span>
+        </span>
+      </label>
+      <div class="stack" id="cp-groups"></div>
+    </div>
+
+    <div class="stack">
+      <label class="check-item">
+        <input type="checkbox" id="tn-done" data-bind="tnDone">
+        <span class="check-text">
+          <span class="item-title">Three Names <span class="light">(spreadsheet)</span> <span class="time">· 3 min</span></span>
+          <span class="item-desc">Review 3 focus names and their next needed ordinance.</span>
+          <span class="item-desc muted">Make a plan: What is one action item this week to help their next step? Who will do it, and when?</span>
+        </span>
+      </label>
+      <div class="stack" id="tn-list"></div>
+    </div>
+
+    <div class="stack tight">
+      <label class="check-item">
+        <input type="checkbox" id="ft-done" data-bind="ftDone">
+        <span class="check-text"><span class="item-title">Mark off the Follow-Through Report <span class="light">(spreadsheet)</span></span></span>
+      </label>
+      <div class="callout"><strong>Important:</strong> Report back to the stake using the Follow-Through Report.</div>
+    </div>
+
+    <div class="bullet-item"><span class="dot" aria-hidden="true"></span><p>Pray and go to work</p></div>
+  </section>
+
+  <details class="principles">
+    <summary>Principles for Effective Coordination</summary>
+    <ul>
+      <li><strong>Meet weekly &amp; stay connected:</strong> Brief weekly meetings; use chats between meetings.</li>
+      <li><strong>Take notes &amp; make specific plans:</strong> Record assignments and concrete weekly steps.</li>
+      <li><strong>Follow up &amp; act beyond meetings:</strong> Regularly check progress and fulfill commitments during the week.</li>
+      <li><strong>Involve youth:</strong> Give youth responsibilities; coordinate with ward council, temple, &amp; family history leaders.</li>
+      <li><strong>Share experiences:</strong> Share inspiring stories and blessings.</li>
+    </ul>
+  </details>
+
+  <div class="actionbar">
+    <div class="actionbar-row">
+      <button type="button" class="btn-secondary" data-action="clear">Clear</button>
+      <button type="button" class="btn-primary" data-action="send">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11.5V2.5M5.5 6L9 2.5 12.5 6"/><path d="M3.5 9.5v5h11v-5"/></svg>
+        Send &amp; Clear
+      </button>
+    </div>
+    <p class="fine">Makes a PDF on this phone and opens your share menu. Nothing is saved online.</p>
+    <p class="fine">Keep copies on your phone secure, and delete them when they’re no longer needed.</p>
+  </div>
+</main>
+
+<input type="file" id="file-input" accept="application/pdf,.pdf" hidden>
+
+<!-- Send sheet -->
+<div class="overlay" id="send-sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="send-title">
+    <div class="grab" aria-hidden="true"></div>
+    <h2 id="send-title">Send this week’s agenda</h2>
+    <div class="file-tile">
+      <div class="file-icon" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="file-meta">
+        <p class="file-name" id="send-filename">Preparing…</p>
+        <p class="file-sub" id="send-status">Making your PDF…</p>
+      </div>
+    </div>
+
+    <div class="step" id="step-save">
+      <span class="step-num" aria-hidden="true">1</span>
+      <div class="step-body">
+        <p class="step-title">Save a copy for next week</p>
+        <p class="step-hint" id="save-hint">Saves the PDF to this phone so you can load it next week.</p>
+        <button type="button" class="btn-outline full" data-action="save-copy" id="save-btn" disabled>Save a copy</button>
+      </div>
+    </div>
+
+    <div class="step" id="step-share">
+      <span class="step-num" aria-hidden="true">2</span>
+      <div class="step-body">
+        <p class="step-title" id="share-title">Share the PDF</p>
+        <p class="step-hint" id="share-hint">Your share menu opens. Pick Mail, Messages, or any app you use. The form clears after it’s shared.</p>
+        <button type="button" class="btn-primary full" data-action="share" id="share-btn" disabled>Share PDF</button>
+        <button type="button" class="btn-link" data-action="skip-save" id="skip-save">Skip saving a copy</button>
+      </div>
+    </div>
+
+    <div class="after-download" id="after-download" hidden>
+      <p>Attach the downloaded PDF to an email or message. When it’s sent, clear the form.</p>
+      <button type="button" class="btn-secondary full" data-action="clear-now">Clear the form</button>
+    </div>
+
+    <button type="button" class="btn-secondary full" data-action="close-send">Keep editing</button>
+    <p class="fine center">Stays on this phone. Nothing is saved online.</p>
+  </div>
+</div>
+
+<!-- Confirm / notice sheet -->
+<div class="overlay" id="confirm-sheet" hidden>
+  <div class="sheet" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-body">
+    <div class="grab" aria-hidden="true"></div>
+    <div class="confirm-head">
+      <span class="warn-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#8A5A00" stroke-width="2"><path d="M10 3L18 17H2z"/><path d="M10 8.5v3.5M10 14.5v.2"/></svg></span>
+      <h2 id="confirm-title"></h2>
+    </div>
+    <div class="compare" id="confirm-compare" hidden></div>
+    <p class="confirm-body" id="confirm-body"></p>
+    <div class="stack tight">
+      <button type="button" class="btn-primary full" id="confirm-primary"></button>
+      <button type="button" class="btn-secondary full" id="confirm-secondary"></button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
