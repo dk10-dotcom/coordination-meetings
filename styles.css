@@ -157,9 +157,8 @@ h2 { font-size: 22px; font-weight: 700; color: var(--ink); }
 .bullet-item { display: flex; align-items: center; gap: 12px; padding-left: 7px; }
 .bullet-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink); flex: none; }
 .bullet-item p { font-size: 17px; font-weight: 700; padding-left: 3px; }
-.agenda-item { display: flex; align-items: flex-start; gap: 12px; padding-left: 7px; }
-.agenda-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink); flex: none; margin-top: 8px; }
-.agenda-item .check-text { padding-left: 3px; }
+.instructions { display: flex; flex-direction: column; gap: 4px; }
+.section-head.row { flex-wrap: wrap; row-gap: 2px; }
 .check-text { display: flex; flex-direction: column; gap: 4px; }
 .item-title { font-size: 17px; font-weight: 700; }
 .light { font-weight: 400; color: var(--text); }

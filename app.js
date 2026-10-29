@@ -217,10 +217,10 @@
     var many = state.rr.length > 1;
     list.replaceChildren.apply(list, state.rr.map(function (r, i) {
       var head = h('div', { class: 'card-head' }, [
-        h('p', { class: 'card-label', text: 'Plan item ' + (i + 1) }),
+        h('p', { class: 'card-label', text: 'Return and Report Item ' + (i + 1) }),
         h('div', { class: 'card-head-right' }, [
           r.prefilled && r.source ? h('span', { class: 'source', text: r.source }) : null,
-          many ? removeButton('remove-rr', i, '', 'Remove plan item ' + (i + 1)) : null
+          many ? removeButton('remove-rr', i, '', 'Remove Return and Report item ' + (i + 1)) : null
         ])
       ]);
       var body;
@@ -236,7 +236,7 @@
       }
       var seg = h('div', {}, [
         h('p', { class: 'seg-label', text: 'Happened?' }),
-        h('div', { class: 'seg', role: 'group', 'aria-label': 'Did plan item ' + (i + 1) + ' happen?' }, ['Yes', 'Partly', 'No'].map(function (v) {
+        h('div', { class: 'seg', role: 'group', 'aria-label': 'Did item ' + (i + 1) + ' happen?' }, ['Yes', 'Partly', 'No'].map(function (v) {
           return h('button', { type: 'button', 'data-action': 'happened', 'data-a': i, 'data-b': v, 'aria-pressed': r.happened === v ? 'true' : 'false', text: v });
         }))
       ]);
@@ -399,7 +399,7 @@
       case 'load':
         if (state.rr.some(rrHasInput)) {
           ask({
-            title: 'Replace the plan items below?',
+            title: 'Replace the items below?',
             body: 'Loading last week replaces what you’ve typed in Return and Report.',
             primary: 'Choose last week', onPrimary: openLoad,
             secondary: 'Cancel'
@@ -880,28 +880,19 @@
     if (!rrRows.length) rrRows = [{ cells: ['', '', ''] }];
     table([48, 318, 388], ['LAST WEEK’S PLAN', 'HAPPENED?', 'NOTES'], rrRows);
 
-    /* ----- Plan ----- */
+    /* ----- Covenant Path Report Review ----- */
     y += 16;
-    heading('Plan', '10 min');
-    ensure(20);
+    heading('Covenant Path Report Review', '10 min');
+    ensure(50);
     var b2 = y + 13;
-    bullet(b2); tx(63, b2, 'Opening prayer', F.bold, 9.5, C.dark);
-    y = b2 + 6;
-
-    // Covenant Path Report
-    ensure(64);
-    b2 = y + 15;
-    bullet(b2);
-    var e2 = tx(63, b2, 'Covenant Path Report', F.bold, 9.5, C.dark);
-    e2 = tx(e2 + 2.6, b2, '(found in tools)', F.reg, 9.5, C.dark);
-    tx(e2 + 8, b2, '6 min', F.ital, 9, C.gray);
-    b2 += 13;
-    var e3 = tx(63, b2, 'Review each list: new members, returning members, those being taught.', F.reg, 9, C.dark) + 2.5;
+    tx(L, b2, 'Open the Covenant Path Report (found in tools).', F.reg, 9, C.dark);
+    b2 += 12;
+    var e3 = tx(L, b2, 'Review each list: new members, returning members, those being taught.', F.reg, 9, C.dark) + 2.5;
     var e4 = tx(e3, b2, 'Mark sacrament attendance', F.reg, 9, C.dark);
     hline(e3, e4, b2 + 1.4, C.dark, 0.6);
     tx(e4, b2, '.', F.reg, 9, C.dark);
     b2 += 12;
-    tx(63, b2, 'Make a plan: What is one action item this week to help their next step? Who will do it, and when?', F.reg, 9, C.gray);
+    tx(L, b2, 'Make a plan: What is one action item this week to help their next step? Who will do it, and when?', F.reg, 9, C.gray);
     y = b2 + 9;
     var cpRows = [];
     GROUPS.forEach(function (g) {
@@ -916,31 +907,24 @@
     y += 6;
     ensure(64);
     b2 = y + 15;
-    bullet(b2);
-    e2 = tx(63, b2, 'Three Names', F.bold, 9.5, C.dark);
+    var e2 = tx(L, b2, 'Three Names', F.bold, 9.5, C.dark);
     e2 = tx(e2 + 2.6, b2, '(spreadsheet)', F.reg, 9.5, C.dark);
     tx(e2 + 8, b2, '3 min', F.ital, 9, C.gray);
     b2 += 13;
-    tx(63, b2, 'Review 3 focus names and their next needed ordinance.', F.reg, 9, C.dark);
+    tx(L, b2, 'Review 3 focus names and their next needed ordinance.', F.reg, 9, C.dark);
     b2 += 12;
-    tx(63, b2, 'Make a plan: What is one action item this week to help their next step? Who will do it, and when?', F.reg, 9, C.gray);
+    tx(L, b2, 'Make a plan: What is one action item this week to help their next step? Who will do it, and when?', F.reg, 9, C.gray);
     y = b2 + 9;
     table([48, 158, 248, 418, 498], ['FOCUS NAME', 'NEXT ORDINANCE', 'ACTION ITEM FOR THIS WEEK', 'ASSIGNED TO', 'WHEN'],
       s.tn.map(function (n) { return { boldFirst: true, cells: [n.name.trim(), n.ordinance.trim(), n.action.trim(), n.assigned.trim(), n.when.trim()] }; }));
 
-    // Follow-Through, closing prayer
-    y += 6;
-    ensure(52);
-    b2 = y + 15;
-    bullet(b2);
-    e2 = tx(63, b2, 'Mark off the Follow-Through Report', F.bold, 9.5, C.dark);
-    tx(e2 + 2.6, b2, '(spreadsheet)', F.reg, 9.5, C.dark);
-    b2 += 13;
-    e2 = tx(63, b2, 'Important: ', F.bold, 9, C.dark);
-    tx(e2, b2, 'Report back to the stake using the Follow-Through Report.', F.reg, 9, C.dark);
-    b2 += 18;
-    bullet(b2); tx(63, b2, 'Pray and go to work', F.bold, 9.5, C.dark);
-    y = b2 + 10;
+    // Important message
+    y += 10;
+    ensure(30);
+    rbox(L, y, R - L, 22, 5, C.amber, C.amberLine, 0.8);
+    e2 = tx(L + 10, y + 14.5, 'Important: ', F.bold, 9, C.dark);
+    tx(e2, y + 14.5, 'Report back to the stake using the Follow-Through Report.', F.reg, 9, C.dark);
+    y += 22 + 12;
 
     // Principles
     var principles = [
