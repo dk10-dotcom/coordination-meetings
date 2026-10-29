@@ -297,9 +297,6 @@
   function renderAll() {
     $('#ward').value = state.ward;
     $('#date').value = state.date;
-    $('#cp-done').checked = state.cpDone;
-    $('#tn-done').checked = state.tnDone;
-    $('#ft-done').checked = state.ftDone;
     renderAttendees(); renderRR(); renderCP(); renderTN();
   }
 
@@ -894,7 +891,7 @@
     // Covenant Path Report
     ensure(64);
     b2 = y + 15;
-    checkbox(48, b2, s.cpDone);
+    bullet(b2);
     var e2 = tx(63, b2, 'Covenant Path Report', F.bold, 9.5, C.dark);
     e2 = tx(e2 + 2.6, b2, '(found in tools)', F.reg, 9.5, C.dark);
     tx(e2 + 8, b2, '6 min', F.ital, 9, C.gray);
@@ -919,7 +916,7 @@
     y += 6;
     ensure(64);
     b2 = y + 15;
-    checkbox(48, b2, s.tnDone);
+    bullet(b2);
     e2 = tx(63, b2, 'Three Names', F.bold, 9.5, C.dark);
     e2 = tx(e2 + 2.6, b2, '(spreadsheet)', F.reg, 9.5, C.dark);
     tx(e2 + 8, b2, '3 min', F.ital, 9, C.gray);
@@ -935,7 +932,7 @@
     y += 6;
     ensure(52);
     b2 = y + 15;
-    checkbox(48, b2, s.ftDone);
+    bullet(b2);
     e2 = tx(63, b2, 'Mark off the Follow-Through Report', F.bold, 9.5, C.dark);
     tx(e2 + 2.6, b2, '(spreadsheet)', F.reg, 9.5, C.dark);
     b2 += 13;
