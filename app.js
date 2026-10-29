@@ -902,10 +902,7 @@
     y += 12;
     heading('Return and Report');
     var qb = y + 13;
-    var qe = tx(L, qb, 'Did last week’s plan happen?', F.bold, 9.5, C.dark);
-    var guide = 'Report back to ward council (under the bishop’s guidance).';
-    if (qe + 12 + width(guide, F.reg, 9) <= R) tx(qe + 12, qb, guide, F.reg, 9, C.gray);
-    else { qb += 12; tx(L, qb, guide, F.reg, 9, C.gray); }
+    tx(L, qb, 'Did last week’s plan happen?', F.bold, 9.5, C.dark);
     y = qb + 8;
     var rrRows = s.rr.filter(function (r) { return r.prefilled || rrHasInput(r); }).map(function (r) {
       var plan;
