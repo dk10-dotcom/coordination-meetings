@@ -575,6 +575,8 @@
         break;
       case 'help': openHelp(); break;
       case 'close-help': closeHelp(); break;
+      case 'tips': openOverlay('#tips-sheet', '#tips-title'); $('#tips-sheet .sheet').scrollTop = 0; break;
+      case 'close-tips': closeOverlay('#tips-sheet'); break;
       case 'install': addToHomeScreen(); break;
       case 'close-install': closeOverlay('#install-sheet'); break;
       case 'dismiss-install':
@@ -1281,30 +1283,6 @@
 
     y += 12;
 
-    // Principles
-    var principles = [
-      ['Meet weekly & stay connected:', 'Brief weekly meetings; use chats between meetings.'],
-      ['Take notes & make specific plans:', 'Record assignments and concrete weekly steps.'],
-      ['Follow up & act beyond meetings:', 'Regularly check progress and fulfill commitments during the week.'],
-      ['Involve youth:', 'Give youth responsibilities; coordinate with ward council, temple, & family history leaders.'],
-      ['Share experiences:', 'Share inspiring stories and blessings.']
-    ];
-    var boxH = 15 + 13 + 10.5 * (principles.length - 1) + 7;
-    // Reference text only: include it when it fits, rather than starting a page just for it.
-    if (y + boxH <= H - BOTTOM) {
-    rbox(L, y, R - L, boxH, 6, C.head, C.line, 0.6);
-    var pb = y + 15;
-    tx(62, pb, 'Principles for Effective Coordination', F.bold, 9.5, C.blue);
-    pb += 13;
-    principles.forEach(function (p) {
-      page.drawCircle({ x: 66, y: H - (pb - 2.9), size: 1.4, color: C.blue });
-      var e = tx(74, pb, p[0], F.bold, 8.5, C.dark);
-      tx(e + 4, pb, p[1], F.reg, 8.5, C.dark);
-      pb += 10.5;
-    });
-    y += boxH;
-    }
-
     // Footers
     var total = pages.length;
     pages.forEach(function (pg, i) {
@@ -1621,11 +1599,12 @@
       if (e.target.id === 'load-sheet') closeOverlay('#load-sheet');
       if (e.target.id === 'install-sheet') closeOverlay('#install-sheet');
       if (e.target.id === 'help-sheet') closeHelp();
+      if (e.target.id === 'tips-sheet') closeOverlay('#tips-sheet');
       if (e.target.id === 'confirm-sheet' && askSecondary) askSecondary();
     });
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;
-      var top = ['#confirm-sheet', '#load-sheet', '#install-sheet', '#help-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
+      var top = ['#confirm-sheet', '#load-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
       if (top) dismissSheet(top);
     });
     enableSwipeDown();
