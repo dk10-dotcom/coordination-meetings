@@ -33,7 +33,7 @@
     { id: 'rm', title: 'Returning members' },
     { id: 'bt', title: 'Those being taught' }
   ];
-  var SOURCE = { nm: 'New members', rm: 'Returning members', bt: 'Those being taught', tn: 'Three Names' };
+  var SOURCE = { nm: 'New members', rm: 'Returning members', bt: 'Those being taught', tn: '3 Names' };
 
   /* ---------- small utilities ---------- */
   function $(sel) { return document.querySelector(sel); }
@@ -364,7 +364,7 @@
       h('h3', { class: 'list-title', text: 'Focus names' }),
       h('span', { class: 'list-count', text: tnCountText() })
     ]);
-    wrap.replaceChildren(h('section', { class: 'list-panel list-tn', 'aria-label': 'Three Names' }, [head].concat(cards)));
+    wrap.replaceChildren(h('section', { class: 'list-panel list-tn', 'aria-label': '3 Names Next Ordinance' }, [head].concat(cards)));
   }
   function tnCountText() {
     return state.tn.filter(function (n) { return str(n.name).trim(); }).length + ' of 3 names';
@@ -649,7 +649,7 @@
 
   function groupOf(r) {
     if (r.group) return r.group;
-    return { 'New members': 'nm', 'Returning members': 'rm', 'Those being taught': 'bt', 'Three Names': 'tn' }[r.source] || '';
+    return { 'New members': 'nm', 'Returning members': 'rm', 'Those being taught': 'bt', 'Three Names': 'tn', '3 Names': 'tn' }[r.source] || '';
   }
   // Copies an unfinished item from last week into this week's plan for the same person.
   function carryForward(i) {
@@ -661,7 +661,7 @@
     if (g === 'tn') {
       var slot = state.tn.findIndex(function (n) { return name && norm(n.name) === norm(name); });
       if (slot < 0) slot = state.tn.findIndex(function (n) { return !hasText(n, ['name', 'ordinance', 'action', 'assigned', 'when']); });
-      if (slot < 0) { toast('All three Three Names spots are already filled.'); return; }
+      if (slot < 0) { toast('All three 3 Names spots are already filled.'); return; }
       var t = state.tn[slot];
       t.name = t.name || name; t.ordinance = t.ordinance || ord;
       if (!str(t.action).trim()) { t.action = item.action; t.assigned = t.assigned || item.assigned; }
@@ -1208,7 +1208,7 @@
 
     // Three Names (same header style as Covenant Path Report Review)
     y += 16;
-    heading('Three Names');
+    heading('3 Names Next Ordinance (Ward Council Focus Names)');
     ensure(50);
     b2 = y + 13;
     tx(L, b2, 'Open the 3 Names Next Ordinance spreadsheet.', F.reg, 9, C.dark);
@@ -1303,6 +1303,64 @@
     writeFlag(HELP_KEY);
     closeOverlay('#help-sheet');
     if (location.hash === '#help') { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ignore */ } }
+  }
+
+  /* ---------- Closing pop-up sheets ---------- */
+  // Closes a sheet the same way its Close or Cancel button would.
+  function dismissSheet(id) {
+    if (id === '#confirm-sheet') { if (askSecondary) askSecondary(); else closeOverlay(id); }
+    else if (id === '#help-sheet') closeHelp();
+    else if (id === '#send-sheet') closeSend();
+    else closeOverlay(id);
+  }
+
+  // Swipe a sheet down to close it. Works once the sheet is scrolled to the top,
+  // so swiping down inside long instructions still scrolls them first.
+  function enableSwipeDown() {
+    Array.prototype.forEach.call(document.querySelectorAll('.overlay > .sheet'), function (sheet) {
+      var overlay = sheet.parentNode;
+      var startY = 0, startT = 0, dy = 0, dragging = false, tracking = false;
+      function reset() {
+        sheet.style.transition = ''; sheet.style.transform = ''; overlay.style.backgroundColor = '';
+      }
+      sheet.addEventListener('touchstart', function (e) {
+        if (e.touches.length !== 1) { tracking = false; return; }
+        tracking = true; dragging = false; dy = 0;
+        startY = e.touches[0].clientY; startT = Date.now();
+        sheet.style.transition = '';
+      }, { passive: true });
+      sheet.addEventListener('touchmove', function (e) {
+        if (!tracking) return;
+        var d = e.touches[0].clientY - startY;
+        if (!dragging) {
+          if (d > 6 && sheet.scrollTop <= 0) { dragging = true; startY = e.touches[0].clientY; d = 0; }
+          else { if (d < -6) tracking = false; return; }
+        }
+        dy = Math.max(0, d);
+        if (e.cancelable) e.preventDefault();
+        sheet.style.transform = 'translateY(' + dy + 'px)';
+        overlay.style.backgroundColor = 'rgba(20, 30, 50, ' + (0.45 * Math.max(0, 1 - dy / 400)).toFixed(3) + ')';
+      }, { passive: false });
+      function end() {
+        if (!tracking) return;
+        tracking = false;
+        if (!dragging) return;
+        dragging = false;
+        var speed = dy / Math.max(1, Date.now() - startT);
+        if (dy > 110 || (dy > 40 && speed > 0.6)) {
+          sheet.style.transition = 'transform 160ms ease-in';
+          sheet.style.transform = 'translateY(100%)';
+          setTimeout(function () { dismissSheet('#' + overlay.id); reset(); }, 150);
+        } else {
+          sheet.style.transition = 'transform 180ms ease-out';
+          sheet.style.transform = 'translateY(0)';
+          overlay.style.backgroundColor = '';
+          setTimeout(reset, 200);
+        }
+      }
+      sheet.addEventListener('touchend', end);
+      sheet.addEventListener('touchcancel', end);
+    });
   }
 
   /* ---------- Add to Home Screen ---------- */
@@ -1509,12 +1567,10 @@
     });
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;
-      if (!$('#confirm-sheet').hidden) { if (askSecondary) askSecondary(); else closeOverlay('#confirm-sheet'); }
-      else if (!$('#load-sheet').hidden) closeOverlay('#load-sheet');
-      else if (!$('#install-sheet').hidden) closeOverlay('#install-sheet');
-      else if (!$('#help-sheet').hidden) closeHelp();
-      else if (!$('#send-sheet').hidden) closeSend();
+      var top = ['#confirm-sheet', '#load-sheet', '#install-sheet', '#help-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
+      if (top) dismissSheet(top);
     });
+    enableSwipeDown();
 
     // While the keyboard is up, the bottom bar stops floating so it doesn't jump around.
     var typingTimer = null;
