@@ -1244,18 +1244,21 @@
     /* ----- Covenant Path Report Review ----- */
     y += 16;
     heading('Covenant Path Report Review');
-    ensure(62);
+    ensure(74);
     var b2 = y + 13;
-    tx(L, b2, 'Open the Covenant Path Report (found in Tools).', F.reg, 9, C.dark);
+    // Each line starts with a bold lead-in, like the form.
+    function lead(boldText, rest) {
+      var e = tx(L, b2, boldText, F.bold, 9, C.dark);
+      tx(e + 2.5, b2, rest, F.reg, 9, C.dark);
+      b2 += 12;
+    }
+    lead('Open the Covenant Path Report', '(found in Tools).');
+    lead('Review each list:', 'New Members, Returning Members, and Those Being Taught.');
+    lead('For each person,', 'check Attended sacrament if they were there.');
+    tx(L, b2, 'Open their details to identify their next ordinance and identify a need.', F.reg, 9, C.dark);
     b2 += 12;
-    var e3 = tx(L, b2, 'Review each list: New Members, Returning Members, and Being Taught.', F.reg, 9, C.dark) + 4;
-    var e4 = tx(e3, b2, 'Mark sacrament attendance', F.reg, 9, C.dark);
-    hline(e3, e4, b2 + 1.4, C.dark, 0.6);
-    tx(e4, b2, '.', F.reg, 9, C.dark);
-    b2 += 12;
-    tx(L, b2, 'Select each person and scroll through their details to review their needs.', F.reg, 9, C.dark);
-    b2 += 12;
-    tx(L, b2, 'Make a plan: What is one action item this week to help their next step? Who will do it, and when?', F.reg, 9, C.gray);
+    lead('Make a plan:', 'What is one thing we can do this week to help? Who will do it, and when?');
+    b2 -= 12;
     y = b2 + 9;
     var cpRows = [];
     GROUPS.forEach(function (g) {
