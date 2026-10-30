@@ -12,7 +12,6 @@
   var DATA_VERSION = 1;
   var DRAFT_KEY = 'huddle-draft-v1';
   var WARD_KEY = 'huddle-ward';
-  var STAKE = 'Riverton Utah South Stake';
   var DOC_TITLE = 'Weekly Coordination Meeting Agenda';
   var MAX_AGE_DAYS = 14;
 
@@ -844,8 +843,8 @@
 
     /* ----- page 1 header ----- */
     newPage(false);
-    tx(L, 54, STAKE, F.bold, 21, C.navy);
-    tx(L, 73, DOC_TITLE, F.reg, 12.5, C.blue);
+    tx(L, 54, 'Weekly Coordination', F.bold, 21, C.navy);
+    tx(L, 77, 'Meeting Agenda', F.bold, 21, C.navy);
     var lx = tx(L, 96, 'Ward', F.reg, 9, C.gray);
     tx(L + 30, 96, wardTxt || '—', F.bold, 10, C.dark);
     tx(L, 111, 'Date', F.reg, 9, C.gray);
@@ -1016,7 +1015,7 @@
   // The form data saved inside the PDF and in this phone's saved agendas.
   function makePayload(s) {
     return JSON.parse(JSON.stringify({
-      app: APP_ID, v: DATA_VERSION, stake: STAKE, ward: s.ward.trim(), date: s.date, createdAt: new Date().toISOString(),
+      app: APP_ID, v: DATA_VERSION, ward: s.ward.trim(), date: s.date, createdAt: new Date().toISOString(),
       attendees: s.attendees.slice(),
       rr: s.rr.map(function (r) {
         return r.prefilled
