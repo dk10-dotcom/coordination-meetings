@@ -1130,7 +1130,7 @@
 
     /* ----- Return and Report ----- */
     y += 12;
-    heading('Return and Report', '5 min');
+    heading('Return and Report');
     var qb = y + 13;
     tx(L, qb, 'Did last week’s plan happen?', F.bold, 9.5, C.dark);
     y = qb + 8;
@@ -1155,7 +1155,7 @@
 
     /* ----- Covenant Path Report Review ----- */
     y += 16;
-    heading('Covenant Path Report Review', '5 min');
+    heading('Covenant Path Report Review');
     ensure(62);
     var b2 = y + 13;
     tx(L, b2, 'Open the Covenant Path Report (found in Tools).', F.reg, 9, C.dark);
@@ -1180,7 +1180,7 @@
 
     // Three Names (same header style as Covenant Path Report Review)
     y += 16;
-    heading('Three Names', '5 min');
+    heading('Three Names');
     ensure(50);
     b2 = y + 13;
     tx(L, b2, 'Open the 3 Names Next Ordinance spreadsheet.', F.reg, 9, C.dark);
