@@ -45,7 +45,7 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 
 ## How people use it each week
 
-**Before:** Load last week and check the names. **During:** Mark what happened, and plan one action per person. **After:** Send it to the bishop-approved list, including the elders quorum representative and the stake presidency.
+**Before huddle:** Load last week and check the names. **During huddle:** Mark what happened, and plan one action per person. **After huddle:** Send it to the bishop-approved list, including the elders quorum representative and the stake presidency.
 
 1. Open the app from the Home Screen icon. The ward is remembered and the date starts on the usual meeting day.
 2. **Start here → Load last week** → tap last week's agenda. Mark each Return and Report item Yes / Partly / No. For Partly or No, **Carry forward to this week** copies it into this week's plan.
