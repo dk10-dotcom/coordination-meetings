@@ -325,8 +325,11 @@
       field('Next ordinance', base + 'ordinance', { placeholder: 'e.g. Baptism', full: true }),
       field('Need', base + 'need', { full: true, placeholder: 'e.g. A ride to church' }),
       field('Action item for this week', base + 'action', { full: true, placeholder: 'What will we do to help?' }),
-      field('Assigned to', base + 'assigned', { placeholder: 'Who will do it', cap: 'words' }),
-      field('When', base + 'when', { placeholder: whenPh })
+      // Assigned to gets the wider share of its row; When is usually a day or two words.
+      h('div', { class: 'assign-row' }, [
+        field('Assigned to', base + 'assigned', { placeholder: 'Who will do it', cap: 'words' }),
+        field('When', base + 'when', { placeholder: whenPh })
+      ])
     ]);
   }
   // "Attended sacrament" checkbox in the top right of each name card.
@@ -358,7 +361,7 @@
               many ? removeButton('remove-cp', g.id, i, 'Remove action ' + (i + 1) + ' for ' + g.title) : null
             ])
           ]),
-          cardFields(base, 'Name', 'Person from the list', 'e.g. Tue evening', it.carried ? h('span', { class: 'source', text: 'From last week' }) : null)
+          cardFields(base, 'Name', 'Person from the list', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: 'From last week' }) : null)
         ]);
       });
       var named = countNamed(g.id);
@@ -380,7 +383,7 @@
           cardLabel(i + 1, ''),
           h('div', { class: 'card-head-right' }, [sacToggle(base + 'sac', n.sac)])
         ]),
-        cardFields(base, 'Focus name', 'Full name', 'e.g. Sunday')
+        cardFields(base, 'Focus name', 'Full name', 'e.g. Sun')
       ]);
     });
     var head = h('div', { class: 'list-head' }, [
