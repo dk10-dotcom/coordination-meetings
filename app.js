@@ -16,11 +16,11 @@
   var MAX_AGE_DAYS = 14;
 
   var ATTENDEES = [
-    { id: 'pqa', label: 'Priests quorum assistants', youth: true },
-    { id: 'gol', label: 'Gatherers of Light reps', youth: true },
+    { id: 'pqa', label: 'Priests quorum assistant', youth: true },
+    { id: 'gol', label: 'Gatherers of Light rep', youth: true },
     { id: 'rs', label: 'Relief Society' },
     { id: 'eq', label: 'Elders Quorum' },
-    { id: 'pp', label: 'Primary presidency rep.' },
+    { id: 'pp', label: 'Primary presidency' },
     { id: 'wm', label: 'Ward missionaries' },
     { id: 'ftm', label: 'Full-time missionaries' },
     { id: 'wml', label: 'Ward mission leader' },

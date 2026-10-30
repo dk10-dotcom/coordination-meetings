@@ -87,6 +87,11 @@ h1 { font-size: 30px; line-height: 1.12; font-weight: 700; color: var(--ink); }
 .info-text { font-size: 14px; color: var(--text); }
 .info-text strong { color: var(--ink); }
 
+.conduct-note { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; color: var(--text); }
+.conduct-note svg { flex: none; margin-top: 1px; color: var(--accent); }
+.conduct-note strong { color: var(--ink); }
+.help-conduct { padding: 12px 14px; border-radius: 12px; background: var(--amber-soft); border: 1px solid var(--amber-line); font-size: 15px; color: var(--text); }
+
 /* Fields */
 .field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); min-width: 0; }
 .field input {
