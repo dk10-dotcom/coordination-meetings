@@ -442,3 +442,10 @@ body.typing .actionbar { position: static; }
 .principle-list { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; color: var(--text); }
 .assign-row { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); gap: 12px; }
 .title-row .top-buttons { flex-wrap: wrap; justify-content: flex-end; }
+/* The little bar at the top of each pop-up: shows it can be swiped down. Stays visible while scrolling. */
+.grab { flex: none; width: 44px; height: 5px; border-radius: 3px; background: #B3BCCB;
+  position: sticky; top: 0; z-index: 2; box-shadow: 0 0 0 7px var(--card); margin-bottom: -4px; }
+.sheet { padding-top: 0; }
+.grab { align-self: stretch; width: auto; height: 22px; margin: 0 -20px -6px; border-radius: 0; background: var(--card); box-shadow: none;
+  display: flex; align-items: center; justify-content: center; }
+.grab::before { content: ''; width: 44px; height: 5px; border-radius: 3px; background: #B3BCCB; }
