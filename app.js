@@ -321,8 +321,8 @@
   // The fields on every name card, in meeting order.
   function cardFields(base, nameLabel, namePh, whenPh, tag) {
     return h('div', { class: 'card-grid' }, [
-      field(nameLabel, base + 'name', { placeholder: namePh, cap: 'words', full: !!tag, tag: tag }),
-      field('Next ordinance', base + 'ordinance', { placeholder: 'e.g. Baptism', full: !!tag }),
+      field(nameLabel, base + 'name', { placeholder: namePh, cap: 'words', full: true, tag: tag }),
+      field('Next ordinance', base + 'ordinance', { placeholder: 'e.g. Baptism', full: true }),
       field('Need', base + 'need', { full: true, placeholder: 'e.g. A ride to church' }),
       field('Action item for this week', base + 'action', { full: true, placeholder: 'What will we do to help?' }),
       field('Assigned to', base + 'assigned', { placeholder: 'Who will do it', cap: 'words' }),
