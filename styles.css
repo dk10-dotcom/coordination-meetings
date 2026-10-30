@@ -378,3 +378,33 @@ body.typing .actionbar { position: static; }
 .list-count { flex: none; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--card); color: var(--list-ink); border: 1px solid var(--list-line); }
 .list-panel .btn-add { border-color: var(--list-line); color: var(--list-ink); background: var(--card); }
 #cp-groups { gap: 18px; }
+
+/* Shared list colors: blue, green, purple, amber */
+.g-nm { --list-ink: #2E5597; --list-soft: #EDF2FA; --list-line: #BFD0EC; }
+.g-rm { --list-ink: #1F6B3A; --list-soft: #EDF6F0; --list-line: #B5D9C1; }
+.g-bt { --list-ink: #7A3F9E; --list-soft: #F4EEF9; --list-line: #D9C4E8; }
+.g-tn, .list-tn { --list-ink: #8A5A00; --list-soft: #FFF6E0; --list-line: #EBCB7A; }
+
+/* Cards: lift off the page, with a numbered circle */
+.card { box-shadow: 0 1px 2px rgba(27, 43, 75, 0.06), 0 3px 10px rgba(27, 43, 75, 0.07); }
+.list-panel { gap: 14px; }
+.card-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.card-num { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--list-ink, var(--accent)); color: #FFFFFF; font-size: 14px; font-weight: 700; }
+
+/* Return and Report: colored stripe for the list it came from */
+.rr-card { border-left: 6px solid var(--list-ink, var(--card-line)); }
+.group-tag { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap;
+  background: var(--list-soft); color: var(--list-ink); border: 1px solid var(--list-line); }
+.rr-card .prefill { background: rgba(255, 255, 255, 0.7); }
+
+/* Return and Report: the card fills with the answer's color */
+.rr-card[data-status="yes"] { background: #EAF5EE; border-color: #A9D3B6; border-left-color: var(--list-ink, #1F6B3A); }
+.rr-card[data-status="partly"] { background: #FFF6E0; border-color: #EBCB7A; border-left-color: var(--list-ink, #8A5A00); }
+.rr-card[data-status="no"] { background: #FBEAEA; border-color: #E8B4B4; border-left-color: var(--list-ink, #B22A2A); }
+.rr-card .seg button[data-b="Yes"][aria-pressed="true"] { background: #1F6B3A; border-color: #1F6B3A; }
+.rr-card .seg button[data-b="Partly"][aria-pressed="true"] { background: #9E6B05; border-color: #9E6B05; }
+.rr-card .seg button[data-b="No"][aria-pressed="true"] { background: #B22A2A; border-color: #B22A2A; }
+
+/* Load last week now sits under Attendees */
+.start-here { padding-top: 2px; }

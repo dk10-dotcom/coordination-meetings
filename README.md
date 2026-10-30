@@ -45,17 +45,17 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 
 ## How people use it each week
 
-**Before huddle:** Load last week and check the names. **During huddle:** Mark what happened, and plan one action per person. **After huddle:** Send it to the bishop-approved list, including the elders quorum representative and the stake presidency.
+**Before huddle:** Take attendance, load last week, and check the names. **During huddle:** Mark what happened, and plan one action per person. **After huddle:** Send it to the bishop-approved list, including the elders quorum representative and the stake presidency.
 
 1. Open the app from the Home Screen icon. The ward is remembered and the date starts on the usual meeting day. Choose who is **Conducting** (Ward mission leader, Elders Quorum, or Other with a name); it's remembered on the phone and printed on the PDF.
-2. **Start here → Load last week** → tap last week's agenda. Mark each Return and Report item Yes / Partly / No. For Partly or No, **Carry forward to this week** copies it into this week's plan.
+2. Tap everyone who attended. Then, right under Attendees, **Load last week** → tap last week's agenda (it sits after attendance so nobody skips it). Mark each Return and Report item Yes / Partly / No. For Partly or No, **Carry forward to this week** copies it into this week's plan.
    - Last week's names carry over to Covenant Path Report Review. Check them against the report, add new names, remove any no longer listed.
    - No saved agendas yet (first week, or a new phone)? Use **Load from a file** with last week's PDF.
    - Each saved agenda also has **Open to edit** (restores the whole form) and **Share again** (resends its PDF).
-3. Fill in attendees, the Covenant Path Report actions and the Three Names.
+3. Fill in the Covenant Path Report actions and the Three Names.
 4. **Send & Clear → Share PDF.** A copy is saved in the app, then the form clears. **Save without sending** keeps a copy and leaves the form filled in. **Clear the whole form** is a link at the bottom of the page.
 
-The Ward Council (who · what) and huddle (how · when) boxes stay at the top of the page as a constant reminder. The note about who conducts sits right under the Conducting choice. New members, Returning members and Those being taught each have their own colored panel on the form, with a matching colored header on the PDF.
+The Ward Council (who · what) and huddle (how · when) boxes stay at the top of the page as a constant reminder. The note about who conducts sits right under the Conducting choice. New members (blue), Returning members (green), Those being taught (purple) and Three Names (amber) each have their own colored panel, with numbered cards. Return and Report cards carry a stripe and tag in the color of the list they came from, and fill green, amber or red once marked Yes, Partly or No. The PDF uses the same colors.
 
 ## Making changes later
 

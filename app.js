@@ -253,15 +253,18 @@
     var list = $('#rr-list');
     var many = state.rr.length > 1;
     list.replaceChildren.apply(list, state.rr.map(function (r, i) {
+      var gid = r.prefilled ? groupOf(r) : '';
       var head = h('div', { class: 'card-head' }, [
-        h('p', { class: 'card-label', text: 'Return and Report Item ' + (i + 1) }),
-        many ? removeButton('remove-rr', i, '', 'Remove Return and Report item ' + (i + 1)) : null
+        cardLabel(i + 1, 'Item ' + (i + 1)),
+        h('div', { class: 'card-head-right' }, [
+          gid ? h('span', { class: 'group-tag', text: SOURCE[gid] }) : null,
+          many ? removeButton('remove-rr', i, '', 'Remove Return and Report item ' + (i + 1)) : null
+        ])
       ]);
       var body;
       if (r.prefilled) {
         var meta = prefillMeta(r);
         body = h('div', { class: 'prefill' }, [
-          r.source ? h('span', { class: 'source prefill-source', text: r.source }) : null,
           str(r.person).trim() ? h('p', { class: 'prefill-person', text: r.person.trim() }) : null,
           h('p', { text: str(r.action).trim() || 'No action item was written.' }),
           meta ? h('p', { class: 'prefill-meta', text: meta }) : null
@@ -283,7 +286,7 @@
           carry = h('button', { type: 'button', class: 'btn-outline full btn-carry', 'data-action': 'carry-fwd', 'data-a': i, text: 'Carry forward to this week' });
         }
       }
-      return h('div', { class: 'card' }, [head, body, seg, carry, field('Notes', 'rr.' + i + '.notes', { placeholder: 'Optional' })]);
+      return h('div', { class: 'card rr-card' + (gid ? ' g-' + gid : ''), 'data-status': statusOf(r.happened) }, [head, body, seg, carry, field('Notes', 'rr.' + i + '.notes', { placeholder: 'Optional' })]);
     }));
     $('#load-panel').hidden = !!state.loaded;
     $('#loaded-banner').hidden = !state.loaded;
@@ -295,6 +298,14 @@
     }
   }
 
+  function statusOf(v) { return { Yes: 'yes', Partly: 'partly', No: 'no' }[v] || ''; }
+  // A numbered circle plus a small label at the top of each card.
+  function cardLabel(n, label) {
+    return h('div', { class: 'card-title' }, [
+      h('span', { class: 'card-num', 'aria-hidden': 'true', text: String(n) }),
+      h('p', { class: 'card-label', text: label })
+    ]);
+  }
   function countNamed(gid) { return state.cp[gid].filter(function (it) { return str(it.name).trim(); }).length; }
   function countText(n) { return n === 1 ? '1 person' : n + ' people'; }
   function updateListCount(gid) {
@@ -309,13 +320,13 @@
       var cards = items.map(function (it, i) {
         var base = 'cp.' + g.id + '.' + i + '.';
         return h('div', { class: 'card' }, [
-          many || it.carried ? h('div', { class: 'card-head' }, [
-            h('p', { class: 'card-label', text: 'Action ' + (i + 1) }),
+          h('div', { class: 'card-head' }, [
+            cardLabel(i + 1, 'Action ' + (i + 1)),
             h('div', { class: 'card-head-right' }, [
               it.carried ? h('span', { class: 'source', text: 'From last week' }) : null,
               many ? removeButton('remove-cp', g.id, i, 'Remove action ' + (i + 1) + ' for ' + g.title) : null
             ])
-          ]) : null,
+          ]),
           h('div', { class: 'card-grid' }, [
             field('Name', base + 'name', { full: true, placeholder: 'Person from the list', cap: 'words' }),
             field('Action item for this week', base + 'action', { full: true, placeholder: 'One next step' }),
@@ -336,10 +347,10 @@
 
   function renderTN() {
     var wrap = $('#tn-list');
-    wrap.replaceChildren.apply(wrap, state.tn.map(function (n, i) {
+    var cards = state.tn.map(function (n, i) {
       var base = 'tn.' + i + '.';
       return h('div', { class: 'card' }, [
-        h('p', { class: 'card-label', text: 'Name ' + (i + 1) + ' of 3' }),
+        h('div', { class: 'card-head' }, [cardLabel(i + 1, 'Name ' + (i + 1) + ' of 3')]),
         h('div', { class: 'card-grid' }, [
           field('Focus name', base + 'name', { placeholder: 'Full name', cap: 'words' }),
           field('Next ordinance', base + 'ordinance', { placeholder: 'e.g. Baptism' }),
@@ -348,7 +359,15 @@
           field('When', base + 'when', { placeholder: 'e.g. Sunday' })
         ])
       ]);
-    }));
+    });
+    var head = h('div', { class: 'list-head' }, [
+      h('h3', { class: 'list-title', text: 'Focus names' }),
+      h('span', { class: 'list-count', text: tnCountText() })
+    ]);
+    wrap.replaceChildren(h('section', { class: 'list-panel list-tn', 'aria-label': 'Three Names' }, [head].concat(cards)));
+  }
+  function tnCountText() {
+    return state.tn.filter(function (n) { return str(n.name).trim(); }).length + ' of 3 names';
   }
 
   function renderDateHint() {
@@ -457,6 +476,7 @@
         Array.prototype.forEach.call(btn.parentNode.children, function (x) {
           x.setAttribute('aria-pressed', x.getAttribute('data-b') === r.happened ? 'true' : 'false');
         });
+        var rc = btn.closest('.card'); if (rc) rc.setAttribute('data-status', statusOf(r.happened));
         if (r.prefilled) renderRR();
         saveDraft(); break;
       }
@@ -875,8 +895,10 @@
     var GROUP_PDF = {
       nm: { fill: rgb(0.929, 0.949, 0.980), ink: rgb(0.18, 0.333, 0.592) },
       rm: { fill: rgb(0.929, 0.965, 0.941), ink: rgb(0.122, 0.42, 0.227) },
-      bt: { fill: rgb(0.957, 0.933, 0.976), ink: rgb(0.478, 0.247, 0.62) }
+      bt: { fill: rgb(0.957, 0.933, 0.976), ink: rgb(0.478, 0.247, 0.62) },
+      tn: { fill: rgb(1, 0.973, 0.902), ink: rgb(0.62, 0.42, 0.02) }
     };
+    var STATUS_PDF = { Yes: rgb(0.122, 0.42, 0.227), Partly: rgb(0.62, 0.42, 0.02), No: rgb(0.70, 0.16, 0.16) };
     var W = 612, H = 792, L = 48, R = 564, TOP = 40, BOTTOM = 46;
     var page = null, y = 0, pages = [];
     var wardTxt = s.ward.trim(), dateTxt = longDate(s.date);
@@ -1019,9 +1041,15 @@
           tx(L + 8, y + 10.5, row.group.toUpperCase(), F.bold, 7.5, gc.ink);
           vline(L, y, y + lay.h); vline(R, y, y + lay.h);
         } else {
+          // A thin bar in the list's color marks where each row came from.
+          if (row.gid && GROUP_PDF[row.gid]) box(L, y, 3, lay.h, { color: GROUP_PDF[row.gid].ink });
           lay.cells.forEach(function (c, i) {
             c.lines.forEach(function (ln, k) {
-              if (!c.seg) { tx(edges[i] + 5, y + 11.5 + k * LH, ln, c.font, FS, C.dark); return; }
+              if (!c.seg) {
+                var isStatus = row.status && i === 1 && STATUS_PDF[row.status];
+                tx(edges[i] + 5, y + 11.5 + k * LH, ln, isStatus ? F.bold : c.font, FS, isStatus ? STATUS_PDF[row.status] : C.dark);
+                return;
+              }
               var x = edges[i] + 5;
               ln.forEach(function (wd, j) {
                 if (j) x += c.sp;
@@ -1148,7 +1176,7 @@
         if (meta.length) rest += ' — ' + meta.join(', ');
         plan = name ? [{ t: name, bold: true }, { t: rest, bold: false }] : [{ t: rest, bold: false }];
       } else plan = str(r.plan).trim();
-      return { cells: [plan, r.happened || '', str(r.notes).trim()] };
+      return { gid: r.prefilled ? groupOf(r) : '', status: r.happened || '', cells: [plan, r.happened || '', str(r.notes).trim()] };
     });
     if (!rrRows.length) rrRows = [{ cells: ['', '', ''] }];
     table([48, 318, 388], ['LAST WEEK’S PLAN', 'HAPPENED?', 'NOTES'], rrRows);
@@ -1191,7 +1219,7 @@
     tx(L, b2, 'Make a plan: What is one action we can take to help them progress? Who will do it, and when?', F.reg, 9, C.gray);
     y = b2 + 9;
     table([48, 158, 248, 418, 498], ['FOCUS NAME', 'NEXT ORDINANCE', 'ACTION ITEM FOR THIS WEEK', 'ASSIGNED TO', 'WHEN'],
-      s.tn.map(function (n) { return { boldFirst: true, cells: [n.name.trim(), n.ordinance.trim(), n.action.trim(), n.assigned.trim(), n.when.trim()] }; }));
+      s.tn.map(function (n) { return { gid: 'tn', boldFirst: true, cells: [n.name.trim(), n.ordinance.trim(), n.action.trim(), n.assigned.trim(), n.when.trim()] }; }));
 
     y += 12;
 
@@ -1461,6 +1489,7 @@
       if (path === 'date') renderDateHint();
       if (path === 'conductingOther') writeConducting(state);
       if (/^cp\.\w+\.\d+\.name$/.test(path)) updateListCount(path.split('.')[1]);
+      if (/^tn\.\d+\.name$/.test(path)) { var tc = document.querySelector('.list-tn .list-count'); if (tc) tc.textContent = tnCountText(); }
       saveDraft();
     };
     // Save the draft right away if the app is closed or put in the background.
