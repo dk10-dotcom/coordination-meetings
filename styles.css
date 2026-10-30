@@ -53,7 +53,27 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px 
 
 /* Header */
 .top { display: flex; flex-direction: column; gap: 16px; }
-.titles { display: flex; flex-direction: column; gap: 6px; }
+.title-row { display: flex; flex-direction: column-reverse; gap: 10px; }
+.title-row h1 { min-width: 0; }
+.title-row .help-link { align-self: flex-end; margin-top: 0; }
+.help-link {
+  flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; margin-top: 2px;
+  border: 1px solid var(--accent-line); border-radius: 999px; background: var(--card); color: var(--accent);
+  font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.help-link:active { background: var(--accent-soft); }
+.sheet.help { gap: 18px; }
+.help-steps { margin: 0; padding: 0; list-style: none; counter-reset: hs; display: flex; flex-direction: column; gap: 14px; }
+.help-steps > li { position: relative; padding-left: 38px; counter-increment: hs; font-size: 15px; color: var(--text); }
+.help-steps > li::before {
+  content: counter(hs); position: absolute; left: 0; top: -2px; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 14px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.help-steps ul, .help-notes { margin: 6px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; color: var(--text); }
+.sheet.help strong { color: var(--ink); }
+.help-h { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+.help-tip { padding: 12px 14px; border-radius: 12px; background: var(--accent-soft); border: 1px solid var(--accent-line); font-size: 15px; color: var(--text); }
 .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
 h1 { font-size: 30px; line-height: 1.12; font-weight: 700; color: var(--ink); }
 .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }

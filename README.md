@@ -36,6 +36,13 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
   - **iPhone (Safari):** Share button → **Add to Home Screen**.
   - **Android (Chrome):** ⋮ menu → **Add to Home screen** (or **Install app**).
 
+## Built-in instructions
+
+- **How to use** (top right) opens the instructions: the 4 steps, a tip, and good-to-know notes. It also opens by itself the first time someone visits on a new device.
+- Send people straight to it with the site link plus `#help` (for example `https://dk10-dotcom.github.io/coordination-meetings/#help`).
+- The first time last week's names carry over, a one-time reminder asks the user to compare them to this week's Covenant Path Report.
+- The wording lives in `index.html` under `How to use`.
+
 ## How people use it each week
 
 1. Open the app from the Home Screen icon. Enter the ward (remembered next time) and check the date.

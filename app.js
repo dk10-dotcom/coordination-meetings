@@ -325,7 +325,7 @@
   }
   function closeOverlay(id) {
     $(id).hidden = true;
-    if ($('#send-sheet').hidden && $('#confirm-sheet').hidden && $('#load-sheet').hidden && $('#install-sheet').hidden) document.body.style.overflow = '';
+    if (!document.querySelector('.overlay:not([hidden])')) document.body.style.overflow = '';
     if (lastFocus && lastFocus.focus) { try { lastFocus.focus({ preventScroll: true }); } catch (e) { /* ignore */ } }
   }
 
@@ -430,6 +430,8 @@
           secondary: 'Cancel'
         });
         break;
+      case 'help': openHelp(); break;
+      case 'close-help': closeHelp(); break;
       case 'install': addToHomeScreen(); break;
       case 'close-install': closeOverlay('#install-sheet'); break;
       case 'dismiss-install':
@@ -541,6 +543,17 @@
     toast('Loaded ' + items.length + (items.length === 1 ? ' action item' : ' action items') +
       (carried ? ' and ' + carried + (carried === 1 ? ' name' : ' names') : '') + ' from last week.');
     var sec = $('#h-rr'); if (sec) sec.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    if (carried && !readFlag(NAMES_HINT_KEY)) {
+      writeFlag(NAMES_HINT_KEY);
+      ask({
+        title: 'Check the names that carried over',
+        body: 'Last week’s names are now in Covenant Path Report Review. Compare them to this week’s Covenant Path Report: add anyone new and remove anyone no longer listed.',
+        primary: 'Show me the names', onPrimary: function () {
+          var g = $('#cp-groups'); if (g) g.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        },
+        secondary: 'Got it'
+      });
+    }
   }
 
   async function onFilePicked() {
@@ -1031,6 +1044,21 @@
   var isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   var isAndroid = /Android/i.test(navigator.userAgent);
 
+  /* ---------- How to use ---------- */
+  // Flags remember only that someone has seen a message on this device; no agenda data.
+  var HELP_KEY = 'huddle-help-seen', NAMES_HINT_KEY = 'huddle-names-hint-seen';
+  function readFlag(k) { try { var s = getStore('localStorage'); return !!(s && s.getItem(k)); } catch (e) { return false; } }
+  function writeFlag(k) { try { var s = getStore('localStorage'); if (s) s.setItem(k, '1'); } catch (e) { /* ignore */ } }
+  function openHelp() {
+    openOverlay('#help-sheet', '#help-title');
+    var sheet = $('#help-sheet .sheet'); if (sheet) sheet.scrollTop = 0;
+  }
+  function closeHelp() {
+    writeFlag(HELP_KEY);
+    closeOverlay('#help-sheet');
+    if (location.hash === '#help') { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ignore */ } }
+  }
+
   /* ---------- Add to Home Screen ---------- */
   var installPrompt = null; // Android/Chrome's own install prompt, when the browser offers one
   function isStandalone() {
@@ -1204,6 +1232,7 @@
       if (e.target.id === 'send-sheet') closeSend();
       if (e.target.id === 'load-sheet') closeOverlay('#load-sheet');
       if (e.target.id === 'install-sheet') closeOverlay('#install-sheet');
+      if (e.target.id === 'help-sheet') closeHelp();
       if (e.target.id === 'confirm-sheet' && askSecondary) askSecondary();
     });
     document.addEventListener('keydown', function (e) {
@@ -1211,6 +1240,7 @@
       if (!$('#confirm-sheet').hidden) { if (askSecondary) askSecondary(); else closeOverlay('#confirm-sheet'); }
       else if (!$('#load-sheet').hidden) closeOverlay('#load-sheet');
       else if (!$('#install-sheet').hidden) closeOverlay('#install-sheet');
+      else if (!$('#help-sheet').hidden) closeHelp();
       else if (!$('#send-sheet').hidden) closeSend();
     });
 
@@ -1235,6 +1265,10 @@
 
     // Erase saved agendas older than 4 weeks each time the app opens.
     listAgendas();
+
+    // Instructions: open on the first visit on this device, or when the link ends in #help.
+    if (location.hash === '#help' || (!readFlag(HELP_KEY) && !navigator.webdriver)) openHelp();
+    window.addEventListener('hashchange', function () { if (location.hash === '#help') openHelp(); });
     // Enter moves to the next field instead of doing nothing
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter' || !e.target.matches || !e.target.matches('#form input[type="text"]')) return;

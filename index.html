@@ -36,8 +36,12 @@
   </div>
 
   <header class="top">
-    <div class="titles">
+    <div class="title-row">
       <h1>Weekly Coordination Meeting Agenda</h1>
+      <button type="button" class="help-link" data-action="help" aria-haspopup="dialog">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="9" r="7.2"/><path d="M6.9 7a2.1 2.1 0 1 1 3 1.9c-.6.3-.9.8-.9 1.4v.3"/><path d="M9 13v.2"/></svg>
+        How to use
+      </button>
     </div>
     <div class="grid-2">
       <label class="field">Ward
@@ -206,6 +210,65 @@
     <button type="button" class="btn-secondary full" data-action="load-file">Load from a file instead</button>
     <button type="button" class="btn-secondary full" data-action="close-load">Cancel</button>
     <button type="button" class="btn-link danger" data-action="delete-all">Delete all saved agendas</button>
+  </div>
+</div>
+
+<!-- How to use -->
+<div class="overlay" id="help-sheet" hidden>
+  <div class="sheet help" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <div class="grab" aria-hidden="true"></div>
+    <h2 id="help-title">How to use</h2>
+
+    <ol class="help-steps">
+      <li>
+        <p><strong>Add it to your Home Screen.</strong> Tap <strong>Add to Home Screen</strong> at the top (iPhone: use Safari; Android: use Chrome). From then on, open it from the new icon.</p>
+      </li>
+      <li>
+        <p><strong>Fill it in.</strong></p>
+        <ul>
+          <li>Type your ward name and check the date.</li>
+          <li>Tap everyone who attended.</li>
+          <li>Under <strong>Covenant Path Report Review</strong>, add each person’s name, one action item, who it’s assigned to, and when. Tap <strong>Add action</strong> for more.</li>
+          <li><strong>Keep the names current.</strong> Each week, make sure the names on the agenda match the Covenant Path Report: add anyone new and remove anyone no longer listed.</li>
+          <li>Under <strong>Three Names</strong>, add each name with their next ordinance and an action item.</li>
+        </ul>
+      </li>
+      <li>
+        <p><strong>Send it.</strong> Tap <strong>Send &amp; Clear</strong>, then <strong>Share PDF</strong>, and pick Mail or Messages. A copy is saved on your phone and the form clears for next week.</p>
+        <ul>
+          <li>Not ready to send? Tap <strong>Save without sending</strong>. It saves a copy and keeps the form filled in.</li>
+          <li><strong>Check with the bishop</strong> on who should receive the agenda before you send it.</li>
+          <li>Bishops should make sure these agendas are kept safe and deleted once they’re no longer needed.</li>
+        </ul>
+      </li>
+      <li>
+        <p><strong>Next week, tap Load last week</strong> at the top and choose last week’s agenda.</p>
+        <ul>
+          <li>Last week’s action items appear under <strong>Return and Report</strong>. Mark each one <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>, and add a note if needed.</li>
+          <li>Last week’s names carry over, marked <strong>From last week</strong>. Compare them to this week’s Covenant Path Report before you plan.</li>
+        </ul>
+      </li>
+    </ol>
+
+    <div class="help-tip">
+      <p class="help-h">Tip</p>
+      <p><strong>Prepare ahead to keep the meeting quick.</strong> Open the agenda and load last week before the meeting starts. Come already thinking about who is on the agenda and what each person needs, so the meeting is spent planning, not typing.</p>
+    </div>
+
+    <div>
+      <p class="help-h">Good to know</p>
+      <ul class="help-notes">
+        <li><strong>Private by design:</strong> everything stays on your phone. Nothing is saved online. The only copy that leaves is the PDF you choose to share.</li>
+        <li><strong>Always open it from the Home Screen icon.</strong> On iPhone, saved agendas can disappear if you use Safari instead.</li>
+        <li><strong>Don’t delete the Home Screen icon.</strong> Deleting it erases every agenda saved on that phone, and previous weeks will no longer show in Load last week. PDFs you already shared aren’t affected, and you can still use <strong>Load from a file</strong>.</li>
+        <li><strong>Saved agendas last 4 weeks,</strong> then delete themselves. They live only on that phone, in that app.</li>
+        <li><strong>Someone else running the meeting?</strong> They use <strong>Load from a file</strong> with last week’s PDF.</li>
+        <li><strong>Keep PDFs secure</strong> and delete old ones when they’re no longer needed.</li>
+      </ul>
+    </div>
+
+    <button type="button" class="btn-primary full" data-action="close-help" id="help-done">Got it</button>
+    <p class="fine center">Open this anytime from <strong>How to use</strong> at the top.</p>
   </div>
 </div>
 
