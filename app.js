@@ -924,11 +924,36 @@
         edges.forEach(function (x) { vline(x, y, y + HH); });
         y += HH;
       }
+      // A cell is plain text, or a list of {t, bold} pieces when only part of it is bold.
+      function segWrap(segs, maxW) {
+        var sp = F.reg.widthOfTextAtSize(' ', FS), words = [];
+        segs.forEach(function (sg) {
+          var font = sg.bold ? F.bold : F.reg;
+          clean(sg.t, font).replace(/\n/g, ' ').split(/ +/).filter(Boolean).forEach(function (w) {
+            while (font.widthOfTextAtSize(w, FS) > maxW && w.length > 1) {
+              var cut = w.length - 1;
+              while (cut > 1 && font.widthOfTextAtSize(w.slice(0, cut), FS) > maxW) cut--;
+              words.push({ t: w.slice(0, cut), font: font, w: font.widthOfTextAtSize(w.slice(0, cut), FS) }); w = w.slice(cut);
+            }
+            words.push({ t: w, font: font, w: font.widthOfTextAtSize(w, FS) });
+          });
+        });
+        var lines = [], cur = [], cw = 0;
+        words.forEach(function (wd) {
+          var add = (cur.length ? sp : 0) + wd.w;
+          if (cur.length && cw + add > maxW) { lines.push(cur); cur = []; cw = 0; add = wd.w; }
+          cur.push(wd); cw += add;
+        });
+        if (cur.length) lines.push(cur);
+        return { seg: true, sp: sp, lines: lines.length ? lines : [[]] };
+      }
       function rowLayout(row) {
         if (row.group) return { h: 15 };
         var cells = row.cells.map(function (c, i) {
+          var maxW = edges[i + 1] - edges[i] - 10;
+          if (Array.isArray(c)) return segWrap(c, maxW);
           var font = row.boldFirst && i === 0 ? F.bold : F.reg;
-          return { font: font, lines: wrap(c, font, FS, edges[i + 1] - edges[i] - 10) };
+          return { font: font, lines: wrap(c, font, FS, maxW) };
         });
         var n = Math.max.apply(null, cells.map(function (c) { return c.lines.length; }));
         return { h: Math.max(18, n * LH + 7), cells: cells };
@@ -945,7 +970,15 @@
           vline(L, y, y + lay.h); vline(R, y, y + lay.h);
         } else {
           lay.cells.forEach(function (c, i) {
-            c.lines.forEach(function (ln, k) { tx(edges[i] + 5, y + 11.5 + k * LH, ln, c.font, FS, C.dark); });
+            c.lines.forEach(function (ln, k) {
+              if (!c.seg) { tx(edges[i] + 5, y + 11.5 + k * LH, ln, c.font, FS, C.dark); return; }
+              var x = edges[i] + 5;
+              ln.forEach(function (wd, j) {
+                if (j) x += c.sp;
+                page.drawText(wd.t, { x: x, y: H - (y + 11.5 + k * LH), size: FS, font: wd.font, color: C.dark });
+                x += wd.w;
+              });
+            });
           });
           edges.forEach(function (x) { vline(x, y, y + lay.h); });
         }
@@ -1052,12 +1085,16 @@
     var rrRows = s.rr.filter(function (r) { return r.prefilled || rrHasInput(r); }).map(function (r) {
       var plan;
       if (r.prefilled) {
-        var who = str(r.person).trim();
-        plan = (who ? who + ' (' + r.source + '): ' : r.source + ': ') + (str(r.action).trim() || 'No action item written');
+        // The person's name is bold, like the names in the other tables.
+        var parts = str(r.person).split(' · Next: ');
+        var name = (str(r.pname).trim() || parts[0]).trim();
+        var ord = (str(r.ord).trim() || (parts[1] || '')).trim();
+        var rest = (name ? ' (' + r.source + (ord ? ', next: ' + ord : '') + '): ' : r.source + ': ') + (str(r.action).trim() || 'No action item written');
         var meta = [];
         if (str(r.assigned).trim()) meta.push('Assigned to ' + r.assigned.trim());
         if (str(r.when).trim()) meta.push(r.when.trim());
-        if (meta.length) plan += ' — ' + meta.join(', ');
+        if (meta.length) rest += ' — ' + meta.join(', ');
+        plan = name ? [{ t: name, bold: true }, { t: rest, bold: false }] : [{ t: rest, bold: false }];
       } else plan = str(r.plan).trim();
       return { cells: [plan, r.happened || '', str(r.notes).trim()] };
     });
@@ -1105,8 +1142,8 @@
       s.tn.map(function (n) { return { boldFirst: true, cells: [n.name.trim(), n.ordinance.trim(), n.action.trim(), n.assigned.trim(), n.when.trim()] }; }));
 
     // Important message
-    y += 10;
-    ensure(30);
+    y += 8;
+    ensure(22);
     rbox(L, y, R - L, 22, 5, C.amber, C.amberLine, 0.8);
     e2 = tx(L + 10, y + 14.5, 'Important: ', F.bold, 9, C.dark);
     tx(e2, y + 14.5, 'Ward mission leader, please be sure to report back to the stake using the Follow-Through Report.', F.reg, 9, C.dark);
