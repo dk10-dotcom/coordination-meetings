@@ -81,8 +81,10 @@
 
   /* ---------- state ---------- */
   function blankRR() { return { plan: '', happened: '', notes: '' }; }
-  function blankAction() { return { name: '', action: '', assigned: '', when: '' }; }
-  function blankName() { return { name: '', ordinance: '', action: '', assigned: '', when: '' }; }
+  // Every name card (Covenant Path lists and 3 Names) has the same fields.
+  var CARD_KEYS = ['name', 'ordinance', 'need', 'action', 'assigned', 'when'];
+  function blankAction() { return { name: '', sac: false, ordinance: '', need: '', action: '', assigned: '', when: '' }; }
+  function blankName() { return blankAction(); }
   // The meeting date defaults to the next day matching the weekday of the last saved agenda (today if none).
   function readMeetingDay() {
     try { var st = getStore('localStorage'); var v = st && st.getItem('huddle-meeting-day'); return v === null || v === undefined || v === '' ? null : +v; } catch (e) { return null; }
@@ -112,6 +114,7 @@
     var out = list.filter(function (x) { return x && typeof x === 'object'; }).map(function (x) {
       var o = maker();
       keys.forEach(function (k) { o[k] = str(x[k]); });
+      o.sac = !!x.sac;
       return o;
     });
     return out.length ? out : [maker()];
@@ -133,7 +136,7 @@
           o.prefilled = true; o.source = str(r.source); o.person = str(r.person);
           o.action = str(r.action); o.assigned = str(r.assigned); o.when = str(r.when);
           o.group = ['nm', 'rm', 'bt', 'tn'].indexOf(r.group) >= 0 ? r.group : '';
-          o.pname = str(r.pname); o.ord = str(r.ord); o.carriedFwd = !!r.carriedFwd;
+          o.pname = str(r.pname); o.ord = str(r.ord); o.need = str(r.need); o.sac = !!r.sac; o.carriedFwd = !!r.carriedFwd;
         }
         return o;
       });
@@ -146,10 +149,10 @@
     var cp = s.cp || {};
     GROUPS.forEach(function (g) {
       var raw = Array.isArray(cp[g.id]) ? cp[g.id] : [];
-      f.cp[g.id] = cleanList(raw, blankAction, ['name', 'action', 'assigned', 'when']);
+      f.cp[g.id] = cleanList(raw, blankAction, CARD_KEYS);
       f.cp[g.id].forEach(function (a, i) { if (raw[i] && raw[i].carried) a.carried = true; });
     });
-    var tn = cleanList(s.tn, blankName, ['name', 'ordinance', 'action', 'assigned', 'when']);
+    var tn = cleanList(s.tn, blankName, CARD_KEYS);
     while (tn.length < 3) tn.push(blankName());
     f.tn = tn.slice(0, 3);
     return f;
@@ -174,8 +177,8 @@
   function isEmpty(s) {
     if (s.attendees.length || s.cpDone || s.tnDone || s.ftDone || s.loaded) return false;
     if (s.rr.some(rrHasInput)) return false;
-    if (GROUPS.some(function (g) { return s.cp[g.id].some(function (a) { return hasText(a, ['name', 'action', 'assigned', 'when']); }); })) return false;
-    if (s.tn.some(function (n) { return hasText(n, ['name', 'ordinance', 'action', 'assigned', 'when']); })) return false;
+    if (GROUPS.some(function (g) { return s.cp[g.id].some(function (a) { return a.sac || hasText(a, CARD_KEYS); }); })) return false;
+    if (s.tn.some(function (n) { return n.sac || hasText(n, CARD_KEYS); })) return false;
     return true;
   }
 
@@ -207,7 +210,7 @@
   function field(label, path, opts) {
     opts = opts || {};
     return h('label', { class: 'field' + (opts.full ? ' full' : '') }, [
-      label,
+      opts.tag ? h('span', { class: 'label-row' }, [label, opts.tag]) : label,
       h('input', {
         type: 'text', 'data-bind': path, value: str(getPath(path)), placeholder: opts.placeholder || '',
         autocomplete: 'off', autocapitalize: opts.cap || 'sentences', enterkeyhint: 'next', maxlength: '300'
@@ -264,9 +267,17 @@
       var body;
       if (r.prefilled) {
         var meta = prefillMeta(r);
+        var pname = str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim();
+        var pord = str(r.ord).trim() || (str(r.person).split(' · Next: ')[1] || '').trim();
+        var facts = [
+          pord ? h('span', { class: 'fact' }, [h('b', { text: 'Next: ' }), pord]) : null,
+          str(r.need).trim() ? h('span', { class: 'fact' }, [h('b', { text: 'Need: ' }), r.need.trim()]) : null,
+          r.sac ? h('span', { class: 'fact sac' }, ['✓ Attended sacrament']) : null
+        ].filter(Boolean);
         body = h('div', { class: 'prefill' }, [
-          str(r.person).trim() ? h('p', { class: 'prefill-person', text: r.person.trim() }) : null,
-          h('p', { text: str(r.action).trim() || 'No action item was written.' }),
+          pname ? h('p', { class: 'prefill-person', text: pname }) : null,
+          facts.length ? h('div', { class: 'facts' }, facts) : null,
+          h('p', { class: 'prefill-action' }, [h('span', { class: 'prefill-k', text: 'Action: ' }), str(r.action).trim() || 'No action item was written.']),
           meta ? h('p', { class: 'prefill-meta', text: meta }) : null
         ]);
       } else {
@@ -300,10 +311,30 @@
 
   function statusOf(v) { return { Yes: 'yes', Partly: 'partly', No: 'no' }[v] || ''; }
   // A numbered circle plus a small label at the top of each card.
-  function cardLabel(n, label) {
+  function cardLabel(n, label, extra) {
     return h('div', { class: 'card-title' }, [
       h('span', { class: 'card-num', 'aria-hidden': 'true', text: String(n) }),
-      h('p', { class: 'card-label', text: label })
+      label ? h('p', { class: 'card-label', text: label }) : null,
+      extra || null
+    ]);
+  }
+  // The fields on every name card, in meeting order.
+  function cardFields(base, nameLabel, namePh, whenPh, tag) {
+    return h('div', { class: 'card-grid' }, [
+      field(nameLabel, base + 'name', { placeholder: namePh, cap: 'words', full: !!tag, tag: tag }),
+      field('Next ordinance', base + 'ordinance', { placeholder: 'e.g. Baptism', full: !!tag }),
+      field('Need', base + 'need', { full: true, placeholder: 'e.g. A ride to church' }),
+      field('Action item for this week', base + 'action', { full: true, placeholder: 'What will we do to help?' }),
+      field('Assigned to', base + 'assigned', { placeholder: 'Who will do it', cap: 'words' }),
+      field('When', base + 'when', { placeholder: whenPh })
+    ]);
+  }
+  // "Attended sacrament" checkbox in the top right of each name card.
+  function sacToggle(path, on) {
+    return h('label', { class: 'sac-toggle' }, [
+      h('input', { type: 'checkbox', 'data-bind': path, checked: !!on }),
+      h('span', { class: 'sac-box', 'aria-hidden': 'true' }, [icon('check')]),
+      h('span', { text: 'Attended sacrament' })
     ]);
   }
   function countNamed(gid) { return state.cp[gid].filter(function (it) { return str(it.name).trim(); }).length; }
@@ -321,18 +352,13 @@
         var base = 'cp.' + g.id + '.' + i + '.';
         return h('div', { class: 'card' }, [
           h('div', { class: 'card-head' }, [
-            cardLabel(i + 1, 'Action ' + (i + 1)),
+            cardLabel(i + 1, ''),
             h('div', { class: 'card-head-right' }, [
-              it.carried ? h('span', { class: 'source', text: 'From last week' }) : null,
+              sacToggle(base + 'sac', it.sac),
               many ? removeButton('remove-cp', g.id, i, 'Remove action ' + (i + 1) + ' for ' + g.title) : null
             ])
           ]),
-          h('div', { class: 'card-grid' }, [
-            field('Name', base + 'name', { full: true, placeholder: 'Person from the list', cap: 'words' }),
-            field('Action item for this week', base + 'action', { full: true, placeholder: 'One next step' }),
-            field('Assigned to', base + 'assigned', { placeholder: 'Who will do it', cap: 'words' }),
-            field('When', base + 'when', { placeholder: 'e.g. Tue evening' })
-          ])
+          cardFields(base, 'Name', 'Person from the list', 'e.g. Tue evening', it.carried ? h('span', { class: 'source', text: 'From last week' }) : null)
         ]);
       });
       var named = countNamed(g.id);
@@ -350,14 +376,11 @@
     var cards = state.tn.map(function (n, i) {
       var base = 'tn.' + i + '.';
       return h('div', { class: 'card' }, [
-        h('div', { class: 'card-head' }, [cardLabel(i + 1, 'Name ' + (i + 1) + ' of 3')]),
-        h('div', { class: 'card-grid' }, [
-          field('Focus name', base + 'name', { placeholder: 'Full name', cap: 'words' }),
-          field('Next ordinance', base + 'ordinance', { placeholder: 'e.g. Baptism' }),
-          field('Action item for this week', base + 'action', { full: true, placeholder: 'One next step' }),
-          field('Assigned to', base + 'assigned', { placeholder: 'Who will do it', cap: 'words' }),
-          field('When', base + 'when', { placeholder: 'e.g. Sunday' })
-        ])
+        h('div', { class: 'card-head' }, [
+          cardLabel(i + 1, ''),
+          h('div', { class: 'card-head-right' }, [sacToggle(base + 'sac', n.sac)])
+        ]),
+        cardFields(base, 'Focus name', 'Full name', 'e.g. Sunday')
       ]);
     });
     var head = h('div', { class: 'list-head' }, [
@@ -611,17 +634,23 @@
     GROUPS.forEach(function (g) {
       (Array.isArray(cp[g.id]) ? cp[g.id] : []).forEach(function (a) {
         if (!a || !hasText(a, ['name', 'action'])) return;
-        items.push({ source: SOURCE[g.id], group: g.id, pname: str(a.name).trim(), ord: '', person: str(a.name).trim(), action: str(a.action).trim(), assigned: str(a.assigned).trim(), when: str(a.when).trim() });
+        items.push(itemFrom(a, g.id));
       });
     });
     (Array.isArray(data.tn) ? data.tn : []).forEach(function (n) {
       if (!n || !hasText(n, ['name', 'action'])) return;
-      var person = str(n.name).trim();
-      var ord = str(n.ordinance).trim();
-      if (ord) person = (person ? person + ' · ' : '') + 'Next: ' + ord;
-      items.push({ source: SOURCE.tn, group: 'tn', pname: str(n.name).trim(), ord: ord, person: person, action: str(n.action).trim(), assigned: str(n.assigned).trim(), when: str(n.when).trim() });
+      items.push(itemFrom(n, 'tn'));
     });
     return items;
+  }
+  // One of last week's name cards, as a Return and Report item (all of its fields come along).
+  function itemFrom(a, gid) {
+    var name = str(a.name).trim(), ord = str(a.ordinance).trim();
+    return {
+      source: SOURCE[gid], group: gid, pname: name, ord: ord, need: str(a.need).trim(), sac: !!a.sac,
+      person: ord ? (name ? name + ' · ' : '') + 'Next: ' + ord : name,
+      action: str(a.action).trim(), assigned: str(a.assigned).trim(), when: str(a.when).trim()
+    };
   }
 
   // Carries last week's names (New members, Returning members, Those being taught) into this
@@ -630,16 +659,17 @@
     var added = 0;
     var cp = data.cp || {};
     GROUPS.forEach(function (g) {
-      var names = [];
+      var names = [], info = {};
       (Array.isArray(cp[g.id]) ? cp[g.id] : []).forEach(function (a) {
         var n = a && str(a.name).trim();
-        if (n && names.every(function (x) { return norm(x) !== norm(n); })) names.push(n);
+        if (n && names.every(function (x) { return norm(x) !== norm(n); })) { names.push(n); info[norm(n)] = { ordinance: str(a.ordinance).trim(), need: str(a.need).trim() }; }
       });
       if (!names.length) return;
-      var cur = state.cp[g.id].filter(function (a) { return hasText(a, ['name', 'action', 'assigned', 'when']); });
+      var cur = state.cp[g.id].filter(function (a) { return a.sac || hasText(a, CARD_KEYS); });
       names.forEach(function (n) {
         if (cur.some(function (a) { return norm(a.name) === norm(n); })) return;
-        cur.push({ name: n, action: '', assigned: '', when: '', carried: true });
+        var c = blankAction(); c.name = n; c.ordinance = info[norm(n)].ordinance; c.need = info[norm(n)].need; c.carried = true;
+        cur.push(c);
         added++;
       });
       state.cp[g.id] = cur.length ? cur : [blankAction()];
@@ -657,21 +687,25 @@
     var g = groupOf(r);
     var name = str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim();
     var ord = str(r.ord).trim() || (str(r.person).split(' · Next: ')[1] || '').trim();
-    var item = { name: name, action: str(r.action).trim(), assigned: str(r.assigned).trim(), when: '' };
+    var item = blankAction();
+    item.name = name; item.ordinance = ord; item.need = str(r.need).trim(); item.action = str(r.action).trim(); item.assigned = str(r.assigned).trim();
     if (g === 'tn') {
       var slot = state.tn.findIndex(function (n) { return name && norm(n.name) === norm(name); });
-      if (slot < 0) slot = state.tn.findIndex(function (n) { return !hasText(n, ['name', 'ordinance', 'action', 'assigned', 'when']); });
+      if (slot < 0) slot = state.tn.findIndex(function (n) { return !n.sac && !hasText(n, CARD_KEYS); });
       if (slot < 0) { toast('All three 3 Names spots are already filled.'); return; }
       var t = state.tn[slot];
-      t.name = t.name || name; t.ordinance = t.ordinance || ord;
+      t.name = t.name || name; t.ordinance = t.ordinance || ord; t.need = t.need || item.need;
       if (!str(t.action).trim()) { t.action = item.action; t.assigned = t.assigned || item.assigned; }
       renderTN();
     } else if (g) {
       var list = state.cp[g];
       var match = list.find(function (a) { return name && norm(a.name) === norm(name) && !hasText(a, ['action']); });
-      if (match) { match.action = item.action; match.assigned = match.assigned || item.assigned; }
+      if (match) {
+        match.action = item.action; match.assigned = match.assigned || item.assigned;
+        match.ordinance = match.ordinance || item.ordinance; match.need = match.need || item.need;
+      }
       else {
-        if (list.length === 1 && !hasText(list[0], ['name', 'action', 'assigned', 'when'])) list.pop();
+        if (list.length === 1 && !list[0].sac && !hasText(list[0], CARD_KEYS)) list.pop();
         item.carried = true; list.push(item);
       }
       renderCP();
@@ -688,7 +722,7 @@
       return;
     }
     state.rr = items.map(function (it) {
-      return { prefilled: true, source: it.source, group: it.group, pname: it.pname, ord: it.ord, person: it.person, action: it.action, assigned: it.assigned, when: it.when, plan: '', happened: '', notes: '' };
+      return { prefilled: true, source: it.source, group: it.group, pname: it.pname, ord: it.ord, need: it.need || '', sac: !!it.sac, person: it.person, action: it.action, assigned: it.assigned, when: it.when, plan: '', happened: '', notes: '' };
     });
     state.loaded = { fileName: fileName, ward: str(data.ward), date: str(data.date), count: items.length };
     if (!state.ward.trim() && data.ward) { state.ward = str(data.ward); $('#ward').value = state.ward; writeWard(state.ward); }
@@ -898,6 +932,12 @@
       bt: { fill: rgb(0.957, 0.933, 0.976), ink: rgb(0.478, 0.247, 0.62) },
       tn: { fill: rgb(1, 0.973, 0.902), ink: rgb(0.62, 0.42, 0.02) }
     };
+    // Name card tables: Name | Attended sacrament | Next ordinance | Need | Action | Assigned to | When
+    var CARD_COLS = [48, 126, 188, 250, 332, 450, 516];
+    var CARD_HEADS = ['ATTENDED\nSACRAMENT', 'NEXT\nORDINANCE', 'NEED', 'ACTION ITEM\nFOR THIS WEEK', 'ASSIGNED\nTO', 'WHEN'];
+    function cardRow(a) {
+      return { boldFirst: true, cells: [str(a.name).trim(), { check: !!a.sac }, str(a.ordinance).trim(), str(a.need).trim(), str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim()] };
+    }
     var STATUS_PDF = { Yes: rgb(0.122, 0.42, 0.227), Partly: rgb(0.62, 0.42, 0.02), No: rgb(0.70, 0.16, 0.16) };
     var W = 612, H = 792, L = 48, R = 564, TOP = 40, BOTTOM = 46;
     var page = null, y = 0, pages = [];
@@ -986,10 +1026,13 @@
     // Tables
     function table(cols, headers, rows) {
       var edges = cols.concat([R]);
-      var HH = 14, FS = 8.5, LH = 10.5;
+      var FS = 8.5, LH = 10.5;
+      // A header can take two lines ("ATTENDED\nSACRAMENT") so narrow columns stay readable.
+      var headLines = headers.map(function (t) { return t.split('\n'); });
+      var HH = headLines.some(function (l) { return l.length > 1; }) ? 23 : 14;
       function drawHeader() {
         box(L, y, R - L, HH, { color: C.head });
-        headers.forEach(function (t, i) { tx(edges[i] + 5, y + 10, t, F.bold, 8, C.navy); });
+        headLines.forEach(function (ls, i) { ls.forEach(function (t, k) { tx(edges[i] + 5, y + 10 + k * 9, t, F.bold, 8, C.navy); }); });
         hline(L, R, y); hline(L, R, y + HH);
         edges.forEach(function (x) { vline(x, y, y + HH); });
         y += HH;
@@ -1021,6 +1064,7 @@
         if (row.group) return { h: 15 };
         var cells = row.cells.map(function (c, i) {
           var maxW = edges[i + 1] - edges[i] - 10;
+          if (c && typeof c === 'object' && 'check' in c) return { box: true, on: !!c.check, lines: [] };
           if (Array.isArray(c)) return segWrap(c, maxW);
           var font = row.boldFirst && i === 0 ? F.bold : F.reg;
           return { font: font, lines: wrap(c, font, FS, maxW) };
@@ -1044,6 +1088,16 @@
           // A thin bar in the list's color marks where each row came from.
           if (row.gid && GROUP_PDF[row.gid]) box(L, y, 3, lay.h, { color: GROUP_PDF[row.gid].ink });
           lay.cells.forEach(function (c, i) {
+            if (c.box) {
+              // A small box, ticked when the person attended sacrament meeting.
+              var bx = (edges[i] + edges[i + 1]) / 2 - 4.5, by = y + 4.5;
+              page.drawRectangle({ x: bx, y: H - (by + 9), width: 9, height: 9, borderColor: C.gray, borderWidth: 0.8 });
+              if (c.on) {
+                page.drawLine({ start: { x: bx + 1.8, y: H - (by + 4.8) }, end: { x: bx + 3.8, y: H - (by + 7) }, thickness: 1.4, color: STATUS_PDF.Yes });
+                page.drawLine({ start: { x: bx + 3.8, y: H - (by + 7) }, end: { x: bx + 7.6, y: H - (by + 2) }, thickness: 1.4, color: STATUS_PDF.Yes });
+              }
+              return;
+            }
             c.lines.forEach(function (ln, k) {
               if (!c.seg) {
                 var isStatus = row.status && i === 1 && STATUS_PDF[row.status];
@@ -1169,7 +1223,11 @@
         var parts = str(r.person).split(' · Next: ');
         var name = (str(r.pname).trim() || parts[0]).trim();
         var ord = (str(r.ord).trim() || (parts[1] || '')).trim();
-        var rest = (name ? ' (' + r.source + (ord ? ', next: ' + ord : '') + '): ' : r.source + ': ') + (str(r.action).trim() || 'No action item written');
+        var info = [r.source];
+        if (ord) info.push('next: ' + ord);
+        if (str(r.need).trim()) info.push('need: ' + r.need.trim());
+        if (r.sac) info.push('attended sacrament');
+        var rest = (name ? ' (' + info.join('; ') + '): ' : info.join('; ') + ': ') + (str(r.action).trim() || 'No action item written');
         var meta = [];
         if (str(r.assigned).trim()) meta.push('Assigned to ' + r.assigned.trim());
         if (str(r.when).trim()) meta.push(r.when.trim());
@@ -1200,11 +1258,11 @@
     var cpRows = [];
     GROUPS.forEach(function (g) {
       cpRows.push({ group: g.title, gid: g.id });
-      var filled = s.cp[g.id].filter(function (a) { return hasText(a, ['name', 'action', 'assigned', 'when']); });
-      if (!filled.length) cpRows.push({ cells: ['', '', '', ''] });
-      filled.forEach(function (a) { cpRows.push({ boldFirst: true, cells: [a.name.trim(), a.action.trim(), a.assigned.trim(), a.when.trim()] }); });
+      var filled = s.cp[g.id].filter(function (a) { return a.sac || hasText(a, CARD_KEYS); });
+      if (!filled.length) cpRows.push(cardRow(blankAction()));
+      filled.forEach(function (a) { cpRows.push(cardRow(a)); });
     });
-    table([48, 168, 398, 488], ['NAME', 'ACTION ITEM FOR THIS WEEK', 'ASSIGNED TO', 'WHEN'], cpRows);
+    table(CARD_COLS, ['NAME'].concat(CARD_HEADS), cpRows);
 
     // Three Names (same header style as Covenant Path Report Review)
     y += 16;
@@ -1218,8 +1276,8 @@
     b2 += 12;
     tx(L, b2, 'Make a plan: What is one action we can take to help them progress? Who will do it, and when?', F.reg, 9, C.gray);
     y = b2 + 9;
-    table([48, 158, 248, 418, 498], ['FOCUS NAME', 'NEXT ORDINANCE', 'ACTION ITEM FOR THIS WEEK', 'ASSIGNED TO', 'WHEN'],
-      s.tn.map(function (n) { return { gid: 'tn', boldFirst: true, cells: [n.name.trim(), n.ordinance.trim(), n.action.trim(), n.assigned.trim(), n.when.trim()] }; }));
+    table(CARD_COLS, ['FOCUS NAME'].concat(CARD_HEADS),
+      s.tn.map(function (n) { var row = cardRow(n); row.gid = 'tn'; return row; }));
 
     y += 12;
 
@@ -1278,7 +1336,7 @@
       rr: s.rr.map(function (r) {
         return r.prefilled
           ? { prefilled: true, source: r.source, person: r.person, action: r.action, assigned: r.assigned, when: r.when, happened: r.happened, notes: r.notes,
-              group: r.group || '', pname: r.pname || '', ord: r.ord || '', carriedFwd: !!r.carriedFwd }
+              group: r.group || '', pname: r.pname || '', ord: r.ord || '', need: r.need || '', sac: !!r.sac, carriedFwd: !!r.carriedFwd }
           : { plan: r.plan, happened: r.happened, notes: r.notes };
       }),
       cpDone: s.cpDone, cp: s.cp, tnDone: s.tnDone, tn: s.tn, ftDone: s.ftDone

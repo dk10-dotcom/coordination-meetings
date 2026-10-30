@@ -408,3 +408,31 @@ body.typing .actionbar { position: static; }
 
 /* Load last week now sits under Attendees */
 .start-here { padding-top: 2px; }
+
+/* Attended sacrament checkbox, top right of each name card */
+.card-head { flex-wrap: wrap; row-gap: 8px; }
+.card-title .source { margin-left: 2px; }
+.sac-toggle { position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px 0 8px;
+  border: 1px solid var(--field-line); border-radius: 999px; background: var(--card); color: var(--ink);
+  font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+.sac-toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.sac-box { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px;
+  border: 2px solid var(--field-line); background: var(--card); color: transparent; }
+.sac-box svg { width: 14px; height: 14px; }
+.sac-toggle:has(input:checked) { background: var(--green-soft); border-color: var(--green-line); color: var(--green-ink); }
+.sac-toggle input:checked + .sac-box { background: #1F6B3A; border-color: #1F6B3A; color: #FFFFFF; }
+.sac-toggle input:focus-visible + .sac-box { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Last week's details on Return and Report cards */
+.facts { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 4px; }
+.fact { font-size: 13px; padding: 3px 9px; border-radius: 999px; background: var(--card); border: 1px solid var(--card-line); color: var(--text); }
+.fact b { font-weight: 700; color: var(--ink); }
+.fact.sac { background: #EAF5EE; border-color: #A9D3B6; color: #1F4D30; font-weight: 700; }
+.prefill-k { font-weight: 700; color: var(--ink); }
+/* Keep two fields side by side even on small phones */
+.card-grid { grid-template-columns: repeat(auto-fit, minmax(108px, 1fr)); }
+.list-panel .card { padding: 14px 12px; }
+@media (max-width: 360px) { .list-panel { padding: 10px 8px; } .sac-toggle { font-size: 13px; } }
+.label-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.card-head { flex-wrap: nowrap; }
+@media (max-width: 360px) { .sac-toggle { padding: 0 10px 0 6px; gap: 6px; } }

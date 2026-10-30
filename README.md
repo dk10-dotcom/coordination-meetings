@@ -57,6 +57,8 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 
 The Ward Council (who · what) and huddle (how · when) boxes stay at the top of the page as a constant reminder. The note about who conducts sits right under the Conducting choice. New members (blue), Returning members (green), Those being taught (purple) and 3 Names Next Ordinance (amber) each have their own colored panel, with numbered cards. Return and Report cards carry a stripe and tag in the color of the list they came from, and fill green, amber or red once marked Yes, Partly or No. The PDF uses the same colors.
 
+Each name card has an **Attended sacrament** checkbox (top right), **Next ordinance**, **Need**, then the action item, who it's assigned to, and when. When last week is loaded, all of these show on that person's Return and Report card. Carried-over names keep their next ordinance and need; the sacrament checkbox starts blank each week.
+
 ## Making changes later
 
 - Edit the files (for example in VS Code, Antigravity, or Claude Code), then upload the changed files to the same repository. Pages updates within a minute or two.
