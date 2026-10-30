@@ -877,18 +877,51 @@
       page.drawLine({ start: { x: 402, y: H - b[2] }, end: { x: 430, y: H - b[2] }, thickness: 0.8, color: C.gray });
       page.drawSvgPath('M 0 0 L 6 3 L 0 6 Z', { x: 430, y: H - (b[2] - 3), color: C.gray });
     });
+    // Detail text may mark bold words with *asterisks*; lines are centered word by word.
+    function richWrap(text, size, maxW) {
+      var words = clean(text, F.reg).split(/ +/).filter(Boolean).map(function (w) {
+        var bold = /^\*.*\*[.,]?$/.test(w);
+        var t = bold ? w.replace(/\*/g, '') : w;
+        var font = bold ? F.bold : F.reg;
+        return { t: t, font: font, w: font.widthOfTextAtSize(t, size) };
+      });
+      var sp = F.reg.widthOfTextAtSize(' ', size), lines = [], cur = [], cw = 0;
+      words.forEach(function (wd) {
+        var add = (cur.length ? sp : 0) + wd.w;
+        if (cur.length && cw + add > maxW) { lines.push({ words: cur, w: cw }); cur = []; cw = 0; add = wd.w; }
+        cur.push(wd); cw += add;
+      });
+      if (cur.length) lines.push({ words: cur, w: cw });
+      // Avoid a single word alone on the last line.
+      var n = lines.length;
+      if (n > 1 && lines[n - 1].words.length === 1 && lines[n - 2].words.length > 2) {
+        var moved = lines[n - 2].words.pop();
+        lines[n - 2].w -= moved.w + sp;
+        lines[n - 1].words.unshift(moved);
+        lines[n - 1].w += moved.w + sp;
+      }
+      return { lines: lines, sp: sp };
+    }
     function infoBox(top, hh, fill, stroke, title, detail) {
       rbox(436, top, 128, hh, 5, fill, stroke, 1.2);
-      var tl = wrap(title, F.bold, 9, 118), dl = wrap(detail, F.reg, 7, 118);
-      var total = tl.length * 10.5 + dl.length * 8.4;
+      var tl = wrap(title, F.bold, 9, 118), dl = richWrap(detail, 7, 118);
+      var total = tl.length * 10.5 + dl.lines.length * 8.4;
       var b = top + (hh - total) / 2 + 8;
       tl.forEach(function (ln) { tx(500 - F.bold.widthOfTextAtSize(ln, 9) / 2, b, ln, F.bold, 9, C.navy); b += 10.5; });
-      dl.forEach(function (ln) { tx(500 - F.reg.widthOfTextAtSize(ln, 7) / 2, b, ln, F.reg, 7, C.dark); b += 8.4; });
+      dl.lines.forEach(function (ln) {
+        var x = 500 - ln.w / 2;
+        ln.words.forEach(function (wd, i) {
+          if (i) x += dl.sp;
+          page.drawText(wd.t, { x: x, y: H - b, size: 7, font: wd.font, color: wd.font === F.bold ? C.navy : C.dark });
+          x += wd.w;
+        });
+        b += 8.4;
+      });
     }
-    infoBox(37, 44, C.councilFill, C.councilLine, 'Ward Council', 'Reviews the Covenant Path Report, then selects who to focus on and each person’s next ordinance');
-    infoBox(89, 40, C.hudFill, C.hudLine, 'Weekly Coordination Meeting', 'Huddles decide how and when to help');
-    hline(L, R, 136, C.navy, 1.2);
-    y = 150;
+    infoBox(37, 48, C.councilFill, C.councilLine, 'Ward Council', 'Reviews the Covenant Path Report, then selects *who* to focus on and *what* each person’s next ordinance is.');
+    infoBox(89, 44, C.hudFill, C.hudLine, 'Weekly Coordination Meeting', 'Huddles decide *how* and *when* to help.');
+    hline(L, R, 139, C.navy, 1.2);
+    y = 152;
 
     /* ----- Attendees ----- */
     heading('Attendees', 'Make an extra effort to involve the youth');

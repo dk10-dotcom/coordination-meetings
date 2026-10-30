@@ -85,6 +85,7 @@ h1 { font-size: 30px; line-height: 1.12; font-weight: 700; color: var(--ink); }
 .info-card.orange .info-kicker { color: var(--orange-ink); }
 .info-title { font-size: 17px; font-weight: 700; }
 .info-text { font-size: 14px; color: var(--text); }
+.info-text strong { color: var(--ink); }
 
 /* Fields */
 .field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); min-width: 0; }
