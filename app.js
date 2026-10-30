@@ -66,6 +66,18 @@
   function removeKey(kind, key) { try { var s = getStore(kind); if (s) s.removeItem(key); } catch (e) { /* ignore */ } }
   function readWard() { try { var s = getStore('localStorage'); return (s && s.getItem(WARD_KEY)) || ''; } catch (e) { return ''; } }
   function writeWard(w) { try { var s = getStore('localStorage'); if (s && w) s.setItem(WARD_KEY, w); } catch (e) { /* ignore */ } }
+  // Who is conducting is remembered on this phone, like the ward name.
+  function readConducting() {
+    var v = readJSON('localStorage', 'huddle-conducting') || {};
+    return { who: ['wml', 'eq', 'other'].indexOf(v.who) >= 0 ? v.who : '', other: str(v.other) };
+  }
+  function writeConducting(s) { writeJSON('localStorage', 'huddle-conducting', { who: s.conducting || '', other: str(s.conductingOther) }); }
+  function conductingLabel(s) {
+    if (s.conducting === 'wml') return 'Ward mission leader';
+    if (s.conducting === 'eq') return 'Elders Quorum';
+    if (s.conducting === 'other') return str(s.conductingOther).trim() || 'Other';
+    return '';
+  }
 
   /* ---------- state ---------- */
   function blankRR() { return { plan: '', happened: '', notes: '' }; }
@@ -88,6 +100,7 @@
   function freshState() {
     return {
       ward: readWard(), date: defaultMeetingDate(), attendees: [],
+      conducting: readConducting().who, conductingOther: readConducting().other,
       rr: [blankRR(), blankRR()], loaded: null,
       cpDone: false, cp: { nm: [blankAction()], rm: [blankAction()], bt: [blankAction()] },
       tnDone: false, tn: [blankName(), blankName(), blankName()],
@@ -107,6 +120,10 @@
     var f = freshState();
     if (!s || typeof s !== 'object') return f;
     f.ward = str(s.ward) || f.ward;
+    if (s.conducting !== undefined) {
+      f.conducting = ['wml', 'eq', 'other'].indexOf(s.conducting) >= 0 ? s.conducting : '';
+      f.conductingOther = str(s.conductingOther);
+    }
     f.date = parseISO(s.date) ? s.date : f.date;
     f.attendees = Array.isArray(s.attendees) ? s.attendees.filter(function (id) { return ATTENDEES.some(function (a) { return a.id === id; }); }) : [];
     if (Array.isArray(s.rr) && s.rr.length) {
@@ -334,9 +351,18 @@
     }
     el.textContent = text;
   }
+  function renderConducting() {
+    Array.prototype.forEach.call(document.querySelectorAll('#conduct-seg button'), function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-a') === state.conducting ? 'true' : 'false');
+    });
+    var other = $('#conducting-other');
+    other.hidden = state.conducting !== 'other';
+    other.value = state.conductingOther || '';
+  }
   function renderAll() {
     $('#ward').value = state.ward;
     $('#date').value = state.date;
+    renderConducting();
     renderDateHint();
     renderAttendees(); renderRR(); renderCP(); renderTN();
   }
@@ -392,7 +418,7 @@
   // keepWard: Send & Clear keeps the ward for next week; the Clear button erases it too.
   function clearForm(keepWard) {
     removeKey('sessionStorage', DRAFT_KEY);
-    if (!keepWard) removeKey('localStorage', WARD_KEY);
+    if (!keepWard) { removeKey('localStorage', WARD_KEY); removeKey('localStorage', 'huddle-conducting'); }
     state = freshState();
     renderAll();
     window.scrollTo(0, 0);
@@ -449,6 +475,11 @@
         } else openLoad();
         break;
       case 'carry-fwd': carryForward(+a); break;
+      case 'conducting':
+        state.conducting = state.conducting === a ? '' : a;
+        renderConducting(); writeConducting(state); saveDraft();
+        if (state.conducting === 'other') $('#conducting-other').focus();
+        break;
       case 'open-agenda': {
         var orec = savedById[a];
         closeOverlay('#load-sheet');
@@ -992,9 +1023,11 @@
     tx(L, 54, 'Weekly Coordination', F.bold, 21, C.navy);
     tx(L, 77, 'Meeting Agenda', F.bold, 21, C.navy);
     var lx = tx(L, 96, 'Ward', F.reg, 9, C.gray);
-    tx(L + 30, 96, wardTxt || '—', F.bold, 10, C.dark);
+    tx(L + 58, 96, wardTxt || '—', F.bold, 10, C.dark);
     tx(L, 111, 'Date', F.reg, 9, C.gray);
-    tx(L + 30, 111, dateTxt || '—', F.bold, 10, C.dark);
+    tx(L + 58, 111, dateTxt || '—', F.bold, 10, C.dark);
+    tx(L, 126, 'Conducting', F.reg, 9, C.gray);
+    tx(L + 58, 126, conductingLabel(s) || '—', F.bold, 10, C.dark);
     void lx;
 
     // Who/What · How/When diagram
@@ -1141,13 +1174,7 @@
     table([48, 158, 248, 418, 498], ['FOCUS NAME', 'NEXT ORDINANCE', 'ACTION ITEM FOR THIS WEEK', 'ASSIGNED TO', 'WHEN'],
       s.tn.map(function (n) { return { boldFirst: true, cells: [n.name.trim(), n.ordinance.trim(), n.action.trim(), n.assigned.trim(), n.when.trim()] }; }));
 
-    // Important message
-    y += 8;
-    ensure(22);
-    rbox(L, y, R - L, 22, 5, C.amber, C.amberLine, 0.8);
-    e2 = tx(L + 10, y + 14.5, 'Important: ', F.bold, 9, C.dark);
-    tx(e2, y + 14.5, 'Ward mission leader, please be sure to report back to the stake using the Follow-Through Report.', F.reg, 9, C.dark);
-    y += 22 + 12;
+    y += 12;
 
     // Principles
     var principles = [
@@ -1199,6 +1226,7 @@
   function makePayload(s) {
     return JSON.parse(JSON.stringify({
       app: APP_ID, v: DATA_VERSION, ward: s.ward.trim(), date: s.date, createdAt: new Date().toISOString(),
+      conducting: s.conducting || '', conductingOther: str(s.conductingOther).trim(),
       attendees: s.attendees.slice(),
       rr: s.rr.map(function (r) {
         return r.prefilled
@@ -1412,6 +1440,7 @@
       setPath(path, val);
       if (path === 'ward') writeWard(String(val).trim());
       if (path === 'date') renderDateHint();
+      if (path === 'conductingOther') writeConducting(state);
       saveDraft();
     };
     // Save the draft right away if the app is closed or put in the background.

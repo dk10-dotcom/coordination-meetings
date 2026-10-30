@@ -360,3 +360,7 @@ body.typing .actionbar { position: static; }
   .actionbar-row .btn-primary { font-size: 15px; padding: 0 8px; }
   .actionbar-row .btn-primary svg { display: none; }
 }
+
+/* Who is conducting */
+.conduct-field { gap: 8px; }
+.conduct-seg button { font-size: 14px; line-height: 1.2; padding: 4px 6px; }

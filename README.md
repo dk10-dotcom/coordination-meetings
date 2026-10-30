@@ -47,7 +47,7 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 
 **Before huddle:** Load last week and check the names. **During huddle:** Mark what happened, and plan one action per person. **After huddle:** Send it to the bishop-approved list, including the elders quorum representative and the stake presidency.
 
-1. Open the app from the Home Screen icon. The ward is remembered and the date starts on the usual meeting day.
+1. Open the app from the Home Screen icon. The ward is remembered and the date starts on the usual meeting day. Choose who is **Conducting** (Ward mission leader, Elders Quorum, or Other with a name); it's remembered on the phone and printed on the PDF.
 2. **Start here → Load last week** → tap last week's agenda. Mark each Return and Report item Yes / Partly / No. For Partly or No, **Carry forward to this week** copies it into this week's plan.
    - Last week's names carry over to Covenant Path Report Review. Check them against the report, add new names, remove any no longer listed.
    - No saved agendas yet (first week, or a new phone)? Use **Load from a file** with last week's PDF.

@@ -53,6 +53,15 @@
         <span class="date-hint" id="date-hint"></span>
       </label>
     </div>
+    <div class="field conduct-field">
+      <span id="conduct-label">Conducting</span>
+      <div class="seg conduct-seg" role="group" aria-labelledby="conduct-label" id="conduct-seg">
+        <button type="button" data-action="conducting" data-a="wml" aria-pressed="false">Ward mission leader</button>
+        <button type="button" data-action="conducting" data-a="eq" aria-pressed="false">Elders Quorum</button>
+        <button type="button" data-action="conducting" data-a="other" aria-pressed="false">Other</button>
+      </div>
+      <input type="text" id="conducting-other" data-bind="conductingOther" placeholder="Who is conducting?" autocomplete="off" autocapitalize="words" aria-label="Who is conducting" hidden>
+    </div>
 
     <div class="start-here">
       <p class="start-label">Start here</p>
@@ -156,7 +165,6 @@
       <div class="stack" id="tn-list"></div>
     </div>
 
-    <div class="callout"><strong>Important:</strong> Ward mission leader, please be sure to report back to the stake using the Follow-Through Report.</div>
   </section>
 
   <details class="principles">
