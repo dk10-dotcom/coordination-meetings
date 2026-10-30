@@ -39,7 +39,7 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 ## Built-in instructions
 
 - **How to use** (top right) opens the instructions: the steps and good-to-know notes.
-- **Tips** (next to it) opens the Principles for Effective Coordination and the Prepare ahead tip. These are no longer printed on the PDF. It also opens by itself the first time someone visits on a new device.
+- **Tips for an effective meeting** (next to it) opens the Principles for Effective Coordination and the Prepare ahead tip. These are no longer printed on the PDF. It also opens by itself the first time someone visits on a new device.
 - Send people straight to it with the site link plus `#help` (for example `https://dk10-dotcom.github.io/coordination-meetings/#help`).
 - The first time last week's names carry over, a one-time reminder asks the user to compare them to this week's Covenant Path Report.
 - The wording lives in `index.html` under `How to use`.
