@@ -964,7 +964,7 @@
     ensure(30);
     rbox(L, y, R - L, 22, 5, C.amber, C.amberLine, 0.8);
     e2 = tx(L + 10, y + 14.5, 'Important: ', F.bold, 9, C.dark);
-    tx(e2, y + 14.5, 'Report back to the stake using the Follow-Through Report.', F.reg, 9, C.dark);
+    tx(e2, y + 14.5, 'Ward mission leader, please be sure to report back to the stake using the Follow-Through Report.', F.reg, 9, C.dark);
     y += 22 + 12;
 
     // Principles
