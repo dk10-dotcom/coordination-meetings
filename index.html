@@ -44,6 +44,18 @@
       </button>
     </div>
     <p class="meeting-time">About 15 minutes</p>
+    <div class="info-pair" aria-label="How this works">
+      <div class="info-card blue">
+        <p class="info-kicker">Who · What</p>
+        <p class="info-title">Ward Council</p>
+        <p class="info-text">Reviews the Covenant Path Report, then selects <strong>who</strong> to focus on and <strong>what</strong> each person’s next ordinance is.</p>
+      </div>
+      <div class="info-card orange">
+        <p class="info-kicker">How · When</p>
+        <p class="info-title">Weekly Coordination Meeting</p>
+        <p class="info-text">Huddles decide <strong>how</strong> and <strong>when</strong> to help.</p>
+      </div>
+    </div>
     <div class="grid-2">
       <label class="field">Ward
         <input type="text" id="ward" data-bind="ward" placeholder="Ward name" autocomplete="off" autocapitalize="words">
@@ -61,6 +73,10 @@
         <button type="button" data-action="conducting" data-a="other" aria-pressed="false">Other</button>
       </div>
       <input type="text" id="conducting-other" data-bind="conductingOther" placeholder="Who is conducting?" autocomplete="off" autocapitalize="words" aria-label="Who is conducting" hidden>
+      <p class="conduct-note">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="6" r="2.8"/><path d="M3.5 15.5c.6-2.8 2.8-4.5 5.5-4.5s4.9 1.7 5.5 4.5"/></svg>
+        <span>Use this agenda only if you’re conducting the meeting. That’s usually the <strong>ward mission leader</strong>. If he isn’t there, the <strong>elders quorum</strong> representative conducts.</span>
+      </p>
     </div>
 
     <div class="start-here">
@@ -88,27 +104,6 @@
       </p>
     </div>
 
-    <details class="about" id="about">
-      <summary><span>Ward Council decides <strong>who</strong> and <strong>what</strong> · The huddle decides <strong>how</strong> and <strong>when</strong></span></summary>
-      <div class="about-body">
-        <div class="grid-2 info">
-          <div class="info-card blue">
-            <p class="info-kicker">Who · What</p>
-            <p class="info-title">Ward Council</p>
-            <p class="info-text">Reviews the Covenant Path Report, then selects <strong>who</strong> to focus on and <strong>what</strong> each person’s next ordinance is.</p>
-          </div>
-          <div class="info-card orange">
-            <p class="info-kicker">How · When</p>
-            <p class="info-title">Weekly Coordination Meeting</p>
-            <p class="info-text">Huddles decide <strong>how</strong> and <strong>when</strong> to help.</p>
-          </div>
-        </div>
-        <p class="conduct-note">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="6" r="2.8"/><path d="M3.5 15.5c.6-2.8 2.8-4.5 5.5-4.5s4.9 1.7 5.5 4.5"/></svg>
-          <span>Use this agenda only if you’re conducting the meeting. That’s usually the <strong>ward mission leader</strong>. If he isn’t there, the <strong>elders quorum</strong> representative conducts.</span>
-        </p>
-      </div>
-    </details>
   </header>
 
   <section class="section" aria-labelledby="h-attendees">

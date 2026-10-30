@@ -295,6 +295,12 @@
     }
   }
 
+  function countNamed(gid) { return state.cp[gid].filter(function (it) { return str(it.name).trim(); }).length; }
+  function countText(n) { return n === 1 ? '1 person' : n + ' people'; }
+  function updateListCount(gid) {
+    var el = document.querySelector('.list-' + gid + ' .list-count');
+    if (el) el.textContent = countText(countNamed(gid));
+  }
   function renderCP() {
     var wrap = $('#cp-groups');
     wrap.replaceChildren.apply(wrap, GROUPS.map(function (g) {
@@ -318,7 +324,12 @@
           ])
         ]);
       });
-      return h('div', { class: 'stack', 'data-group': g.id }, [h('p', { class: 'group-title', text: g.title })]
+      var named = countNamed(g.id);
+      var head = h('div', { class: 'list-head' }, [
+        h('h3', { class: 'list-title', text: g.title }),
+        h('span', { class: 'list-count', text: countText(named) })
+      ]);
+      return h('section', { class: 'list-panel list-' + g.id, 'data-group': g.id, 'aria-label': g.title }, [head]
         .concat(cards).concat([addButton('add-cp', g.id, 'Add action')]));
     }));
   }
@@ -860,6 +871,12 @@
       councilFill: rgb(0.902, 0.937, 0.98), councilLine: rgb(0.18, 0.455, 0.788),
       hudFill: rgb(0.988, 0.929, 0.898), hudLine: rgb(0.878, 0.4, 0.18), amber: rgb(1, 0.973, 0.902), amberLine: rgb(0.922, 0.796, 0.478)
     };
+    // Each Covenant Path list gets its own color on the PDF, matching the form.
+    var GROUP_PDF = {
+      nm: { fill: rgb(0.929, 0.949, 0.980), ink: rgb(0.18, 0.333, 0.592) },
+      rm: { fill: rgb(0.929, 0.965, 0.941), ink: rgb(0.122, 0.42, 0.227) },
+      bt: { fill: rgb(0.957, 0.933, 0.976), ink: rgb(0.478, 0.247, 0.62) }
+    };
     var W = 612, H = 792, L = 48, R = 564, TOP = 40, BOTTOM = 46;
     var page = null, y = 0, pages = [];
     var wardTxt = s.ward.trim(), dateTxt = longDate(s.date);
@@ -996,8 +1013,10 @@
         var lay = rowLayout(row);
         if (y + lay.h > H - BOTTOM) { newPage(true); drawHeader(); }
         if (row.group) {
-          box(L, y, R - L, lay.h, { color: C.group });
-          tx(L + 5, y + 10.5, row.group.toUpperCase(), F.bold, 7.5, C.blue);
+          var gc = GROUP_PDF[row.gid] || { fill: C.group, ink: C.blue };
+          box(L, y, R - L, lay.h, { color: gc.fill });
+          box(L, y, 3, lay.h, { color: gc.ink });
+          tx(L + 8, y + 10.5, row.group.toUpperCase(), F.bold, 7.5, gc.ink);
           vline(L, y, y + lay.h); vline(R, y, y + lay.h);
         } else {
           lay.cells.forEach(function (c, i) {
@@ -1152,7 +1171,7 @@
     y = b2 + 9;
     var cpRows = [];
     GROUPS.forEach(function (g) {
-      cpRows.push({ group: g.title });
+      cpRows.push({ group: g.title, gid: g.id });
       var filled = s.cp[g.id].filter(function (a) { return hasText(a, ['name', 'action', 'assigned', 'when']); });
       if (!filled.length) cpRows.push({ cells: ['', '', '', ''] });
       filled.forEach(function (a) { cpRows.push({ boldFirst: true, cells: [a.name.trim(), a.action.trim(), a.assigned.trim(), a.when.trim()] }); });
@@ -1441,6 +1460,7 @@
       if (path === 'ward') writeWard(String(val).trim());
       if (path === 'date') renderDateHint();
       if (path === 'conductingOther') writeConducting(state);
+      if (/^cp\.\w+\.\d+\.name$/.test(path)) updateListCount(path.split('.')[1]);
       saveDraft();
     };
     // Save the draft right away if the app is closed or put in the background.
@@ -1488,11 +1508,6 @@
 
     // Erase saved agendas older than 4 weeks each time the app opens.
     listAgendas();
-
-    // The explanation boxes start open for the first three visits on this device, then fold to one line.
-    var visits = 0;
-    try { var st = getStore('localStorage'); visits = (+(st && st.getItem('huddle-visits')) || 0) + 1; if (st) st.setItem('huddle-visits', String(visits)); } catch (e) { visits = 1; }
-    if (visits <= 3) $('#about').open = true;
 
     // Instructions: open on the first visit on this device, or when the link ends in #help.
     if (location.hash === '#help' || (!readFlag(HELP_KEY) && !navigator.webdriver)) openHelp();

@@ -55,7 +55,7 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 3. Fill in attendees, the Covenant Path Report actions and the Three Names.
 4. **Send & Clear → Share PDF.** A copy is saved in the app, then the form clears. **Save without sending** keeps a copy and leaves the form filled in. **Clear the whole form** is a link at the bottom of the page.
 
-The Ward Council / huddle explanation starts open for the first three visits on a phone, then folds to one line (tap it to open).
+The Ward Council (who · what) and huddle (how · when) boxes stay at the top of the page as a constant reminder. The note about who conducts sits right under the Conducting choice. New members, Returning members and Those being taught each have their own colored panel on the form, with a matching colored header on the PDF.
 
 ## Making changes later
 
