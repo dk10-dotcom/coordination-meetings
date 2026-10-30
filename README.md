@@ -45,15 +45,17 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 
 ## How people use it each week
 
-1. Open the app from the Home Screen icon. Enter the ward (remembered next time) and check the date.
-2. **Load last week** (at the top, above Return and Report) → tap last week's agenda in the list → tap Yes / Partly / No and add notes for each item.
-   - Last week's names in New members, Returning members and Those being taught carry over to this week's Covenant Path Report Review, with blank action fields. **Remove** takes back any carried names nobody has added to.
-   - No saved agendas yet (first week, or a new phone)? The app says so. Use **Load from a file** to pick last week's PDF from email or Files instead.
-3. Fill in attendees, the Covenant Path Report actions, and the Three Names.
-4. **Send & Clear → Share PDF.** Pick Mail, Messages, or another app. A copy is saved in the app, then the form clears.
-   - **Save without sending** (bottom of the page) keeps a copy in the app without making a PDF and leaves the form filled in. Saving the same week again replaces the earlier copy.
+**Before:** Load last week and check the names. **During:** Mark what happened, and plan one action per person. **After:** Send it to the bishop-approved list, including the elders quorum representative and the stake presidency.
 
-On computers whose browser has no share menu, the button becomes **Download PDF**. Attach the file to an email, then tap **Clear the form**.
+1. Open the app from the Home Screen icon. The ward is remembered and the date starts on the usual meeting day.
+2. **Start here → Load last week** → tap last week's agenda. Mark each Return and Report item Yes / Partly / No. For Partly or No, **Carry forward to this week** copies it into this week's plan.
+   - Last week's names carry over to Covenant Path Report Review. Check them against the report, add new names, remove any no longer listed.
+   - No saved agendas yet (first week, or a new phone)? Use **Load from a file** with last week's PDF.
+   - Each saved agenda also has **Open to edit** (restores the whole form) and **Share again** (resends its PDF).
+3. Fill in attendees, the Covenant Path Report actions and the Three Names.
+4. **Send & Clear → Share PDF.** A copy is saved in the app, then the form clears. **Save without sending** keeps a copy and leaves the form filled in. **Clear the whole form** is a link at the bottom of the page.
+
+The Ward Council / huddle explanation starts open for the first three visits on a phone, then folds to one line (tap it to open).
 
 ## Making changes later
 

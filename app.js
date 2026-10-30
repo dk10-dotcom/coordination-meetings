@@ -71,9 +71,23 @@
   function blankRR() { return { plan: '', happened: '', notes: '' }; }
   function blankAction() { return { name: '', action: '', assigned: '', when: '' }; }
   function blankName() { return { name: '', ordinance: '', action: '', assigned: '', when: '' }; }
+  // The meeting date defaults to the next day matching the weekday of the last saved agenda (today if none).
+  function readMeetingDay() {
+    try { var st = getStore('localStorage'); var v = st && st.getItem('huddle-meeting-day'); return v === null || v === undefined || v === '' ? null : +v; } catch (e) { return null; }
+  }
+  function writeMeetingDay(iso) {
+    var d = parseISO(iso); if (!d) return;
+    try { var st = getStore('localStorage'); if (st) st.setItem('huddle-meeting-day', String(d.getDay())); } catch (e) { /* ignore */ }
+  }
+  function defaultMeetingDate() {
+    var day = readMeetingDay(), d = new Date();
+    if (day === null || isNaN(day)) return todayISO();
+    d.setDate(d.getDate() + ((day - d.getDay() + 7) % 7));
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  }
   function freshState() {
     return {
-      ward: readWard(), date: todayISO(), attendees: [],
+      ward: readWard(), date: defaultMeetingDate(), attendees: [],
       rr: [blankRR(), blankRR()], loaded: null,
       cpDone: false, cp: { nm: [blankAction()], rm: [blankAction()], bt: [blankAction()] },
       tnDone: false, tn: [blankName(), blankName(), blankName()],
@@ -101,6 +115,8 @@
         if (r.prefilled) {
           o.prefilled = true; o.source = str(r.source); o.person = str(r.person);
           o.action = str(r.action); o.assigned = str(r.assigned); o.when = str(r.when);
+          o.group = ['nm', 'rm', 'bt', 'tn'].indexOf(r.group) >= 0 ? r.group : '';
+          o.pname = str(r.pname); o.ord = str(r.ord); o.carriedFwd = !!r.carriedFwd;
         }
         return o;
       });
@@ -242,7 +258,15 @@
           return h('button', { type: 'button', 'data-action': 'happened', 'data-a': i, 'data-b': v, 'aria-pressed': r.happened === v ? 'true' : 'false', text: v });
         }))
       ]);
-      return h('div', { class: 'card' }, [head, body, seg, field('Notes', 'rr.' + i + '.notes', { placeholder: 'Optional' })]);
+      var carry = null;
+      if (r.prefilled && (r.happened === 'Partly' || r.happened === 'No') && groupOf(r)) {
+        if (r.carriedFwd) {
+          carry = h('p', { class: 'carried-note', text: '✓ Added to this week’s plan' });
+        } else {
+          carry = h('button', { type: 'button', class: 'btn-outline full btn-carry', 'data-action': 'carry-fwd', 'data-a': i, text: 'Carry forward to this week' });
+        }
+      }
+      return h('div', { class: 'card' }, [head, body, seg, carry, field('Notes', 'rr.' + i + '.notes', { placeholder: 'Optional' })]);
     }));
     $('#load-panel').hidden = !!state.loaded;
     $('#loaded-banner').hidden = !state.loaded;
@@ -299,9 +323,21 @@
     }));
   }
 
+  function renderDateHint() {
+    var el = $('#date-hint'); if (!el) return;
+    var d = parseISO(state.date);
+    if (!d) { el.textContent = 'Pick the meeting date.'; return; }
+    var day = readMeetingDay();
+    var text = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + '. Make sure this is the meeting date.';
+    if (day !== null && !isNaN(day) && day !== d.getDay()) {
+      text += ' Your meetings are usually on ' + ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day] + 's.';
+    }
+    el.textContent = text;
+  }
   function renderAll() {
     $('#ward').value = state.ward;
     $('#date').value = state.date;
+    renderDateHint();
     renderAttendees(); renderRR(); renderCP(); renderTN();
   }
 
@@ -384,6 +420,7 @@
         Array.prototype.forEach.call(btn.parentNode.children, function (x) {
           x.setAttribute('aria-pressed', x.getAttribute('data-b') === r.happened ? 'true' : 'false');
         });
+        if (r.prefilled) renderRR();
         saveDraft(); break;
       }
       case 'add-rr':
@@ -411,6 +448,27 @@
           });
         } else openLoad();
         break;
+      case 'carry-fwd': carryForward(+a); break;
+      case 'open-agenda': {
+        var orec = savedById[a];
+        closeOverlay('#load-sheet');
+        if (!orec) break;
+        var doOpen = function () {
+          state = normalizeState(orec.data); state.loaded = null;
+          renderAll(); saveDraft(); window.scrollTo(0, 0);
+          toast('Opened the ' + shortDate(orec.date) + ' agenda. Make your changes, then send or save it again.');
+        };
+        if (!isEmpty(state)) {
+          ask({ title: 'Replace what’s on the form?', body: 'Opening this agenda replaces everything you’ve entered on the form now.', primary: 'Open it', onPrimary: doOpen, secondary: 'Cancel' });
+        } else doOpen();
+        break;
+      }
+      case 'share-agenda': {
+        var srec = savedById[a];
+        closeOverlay('#load-sheet');
+        if (srec) startSend(normalizeState(srec.data));
+        break;
+      }
       case 'pick-agenda': {
         var rec = savedById[a];
         closeOverlay('#load-sheet');
@@ -491,7 +549,7 @@
     GROUPS.forEach(function (g) {
       (Array.isArray(cp[g.id]) ? cp[g.id] : []).forEach(function (a) {
         if (!a || !hasText(a, ['name', 'action'])) return;
-        items.push({ source: SOURCE[g.id], person: str(a.name).trim(), action: str(a.action).trim(), assigned: str(a.assigned).trim(), when: str(a.when).trim() });
+        items.push({ source: SOURCE[g.id], group: g.id, pname: str(a.name).trim(), ord: '', person: str(a.name).trim(), action: str(a.action).trim(), assigned: str(a.assigned).trim(), when: str(a.when).trim() });
       });
     });
     (Array.isArray(data.tn) ? data.tn : []).forEach(function (n) {
@@ -499,7 +557,7 @@
       var person = str(n.name).trim();
       var ord = str(n.ordinance).trim();
       if (ord) person = (person ? person + ' · ' : '') + 'Next: ' + ord;
-      items.push({ source: SOURCE.tn, person: person, action: str(n.action).trim(), assigned: str(n.assigned).trim(), when: str(n.when).trim() });
+      items.push({ source: SOURCE.tn, group: 'tn', pname: str(n.name).trim(), ord: ord, person: person, action: str(n.action).trim(), assigned: str(n.assigned).trim(), when: str(n.when).trim() });
     });
     return items;
   }
@@ -527,6 +585,40 @@
     return added;
   }
 
+  function groupOf(r) {
+    if (r.group) return r.group;
+    return { 'New members': 'nm', 'Returning members': 'rm', 'Those being taught': 'bt', 'Three Names': 'tn' }[r.source] || '';
+  }
+  // Copies an unfinished item from last week into this week's plan for the same person.
+  function carryForward(i) {
+    var r = state.rr[i]; if (!r) return;
+    var g = groupOf(r);
+    var name = str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim();
+    var ord = str(r.ord).trim() || (str(r.person).split(' · Next: ')[1] || '').trim();
+    var item = { name: name, action: str(r.action).trim(), assigned: str(r.assigned).trim(), when: '' };
+    if (g === 'tn') {
+      var slot = state.tn.findIndex(function (n) { return name && norm(n.name) === norm(name); });
+      if (slot < 0) slot = state.tn.findIndex(function (n) { return !hasText(n, ['name', 'ordinance', 'action', 'assigned', 'when']); });
+      if (slot < 0) { toast('All three Three Names spots are already filled.'); return; }
+      var t = state.tn[slot];
+      t.name = t.name || name; t.ordinance = t.ordinance || ord;
+      if (!str(t.action).trim()) { t.action = item.action; t.assigned = t.assigned || item.assigned; }
+      renderTN();
+    } else if (g) {
+      var list = state.cp[g];
+      var match = list.find(function (a) { return name && norm(a.name) === norm(name) && !hasText(a, ['action']); });
+      if (match) { match.action = item.action; match.assigned = match.assigned || item.assigned; }
+      else {
+        if (list.length === 1 && !hasText(list[0], ['name', 'action', 'assigned', 'when'])) list.pop();
+        item.carried = true; list.push(item);
+      }
+      renderCP();
+    } else return;
+    r.carriedFwd = true;
+    renderRR(); saveDraft();
+    toast('Added to this week’s plan. Update who and when as needed.');
+  }
+
   function applyLoad(data, fileName) {
     var items = extractActionItems(data);
     if (!items.length) {
@@ -534,7 +626,7 @@
       return;
     }
     state.rr = items.map(function (it) {
-      return { prefilled: true, source: it.source, person: it.person, action: it.action, assigned: it.assigned, when: it.when, plan: '', happened: '', notes: '' };
+      return { prefilled: true, source: it.source, group: it.group, pname: it.pname, ord: it.ord, person: it.person, action: it.action, assigned: it.assigned, when: it.when, plan: '', happened: '', notes: '' };
     });
     state.loaded = { fileName: fileName, ward: str(data.ward), date: str(data.date), count: items.length };
     if (!state.ward.trim() && data.ward) { state.ward = str(data.ward); $('#ward').value = state.ward; writeWard(state.ward); }
@@ -658,6 +750,7 @@
   async function saveAgenda(payload) {
     var db = await openDB();
     var rec = { id: norm(payload.ward) + '|' + payload.date, ward: payload.ward, date: payload.date, savedAt: new Date().toISOString(), data: payload };
+    writeMeetingDay(payload.date);
     await storeReq(db, 'readwrite', function (s) { return s.put(rec); });
     await pruneAgendas(db);
     db.close();
@@ -696,21 +789,28 @@
       var n = extractActionItems(r.data).length;
       var chev = h('span', { class: 'chev', 'aria-hidden': 'true' });
       chev.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4l5 5-5 5"/></svg>';
-      return h('button', { type: 'button', class: 'agenda-row', 'data-action': 'pick-agenda', 'data-a': r.id }, [
-        h('span', { class: 'agenda-row-text' }, [
-          h('span', { class: 'agenda-row-title', text: longDate(r.date) || r.date }),
-          h('span', { class: 'agenda-row-sub', text: (r.ward || 'Ward not listed') + ' · ' + n + (n === 1 ? ' action item' : ' action items') })
+      return h('div', { class: 'agenda-entry' }, [
+        h('button', { type: 'button', class: 'agenda-row', 'data-action': 'pick-agenda', 'data-a': r.id }, [
+          h('span', { class: 'agenda-row-text' }, [
+            h('span', { class: 'agenda-row-title', text: longDate(r.date) || r.date }),
+            h('span', { class: 'agenda-row-sub', text: (r.ward || 'Ward not listed') + ' · ' + n + (n === 1 ? ' action item' : ' action items') })
+          ]),
+          chev
         ]),
-        chev
+        h('div', { class: 'agenda-entry-actions' }, [
+          h('button', { type: 'button', class: 'btn-small', 'data-action': 'open-agenda', 'data-a': r.id, 'aria-label': 'Open the ' + shortDate(r.date) + ' agenda to edit', text: 'Open to edit' }),
+          h('button', { type: 'button', class: 'btn-small', 'data-action': 'share-agenda', 'data-a': r.id, 'aria-label': 'Share the ' + shortDate(r.date) + ' agenda again', text: 'Share again' })
+        ])
       ]);
     }));
     openOverlay('#load-sheet', '.agenda-row');
   }
 
   /* ---------- PDF ---------- */
-  function fileName() {
-    var w = state.ward.trim().replace(/[\\/:*?"<>|#%{}~&]+/g, '').replace(/\s+/g, ' ').slice(0, 60) || 'Ward';
-    return 'Huddle - ' + w + ' - ' + state.date + '.pdf';
+  function fileName(s) {
+    s = s || state;
+    var w = s.ward.trim().replace(/[\\/:*?"<>|#%{}~&]+/g, '').replace(/\s+/g, ' ').slice(0, 60) || 'Ward';
+    return 'Huddle - ' + w + ' - ' + s.date + '.pdf';
   }
 
   async function buildPdf(s) {
@@ -945,7 +1045,7 @@
 
     /* ----- Return and Report ----- */
     y += 12;
-    heading('Return and Report');
+    heading('Return and Report', '5 min');
     var qb = y + 13;
     tx(L, qb, 'Did last week’s plan happen?', F.bold, 9.5, C.dark);
     y = qb + 8;
@@ -1065,7 +1165,8 @@
       attendees: s.attendees.slice(),
       rr: s.rr.map(function (r) {
         return r.prefilled
-          ? { prefilled: true, source: r.source, person: r.person, action: r.action, assigned: r.assigned, when: r.when, happened: r.happened, notes: r.notes }
+          ? { prefilled: true, source: r.source, person: r.person, action: r.action, assigned: r.assigned, when: r.when, happened: r.happened, notes: r.notes,
+              group: r.group || '', pname: r.pname || '', ord: r.ord || '', carriedFwd: !!r.carriedFwd }
           : { plan: r.plan, happened: r.happened, notes: r.notes };
       }),
       cpDone: s.cpDone, cp: s.cp, tnDone: s.tnDone, tn: s.tn, ftDone: s.ftDone
@@ -1073,7 +1174,7 @@
   }
 
   /* ---------- Send & Clear ---------- */
-  var sendFile = null, sendPayload = null;
+  var sendFile = null, sendPayload = null, resending = false;
   var isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   var isAndroid = /Android/i.test(navigator.userAgent);
 
@@ -1099,6 +1200,10 @@
   }
   function showInstallBanner() {
     if (isStandalone() || readJSON('sessionStorage', 'huddle-install-dismissed')) return;
+    if (isIOS) {
+      $('#install-banner .install-title').textContent = 'Add to Home Screen first';
+      $('#install-banner .install-body').textContent = 'Do this before you fill anything in. Agendas saved here in Safari won’t carry over to the Home Screen app.';
+    }
     $('#install-banner').hidden = false;
   }
   window.addEventListener('beforeinstallprompt', function (e) {
@@ -1140,8 +1245,10 @@
   var SHARE_HINT = 'Your share menu opens. Pick Mail, Messages, or any app you use. A copy is saved in this app for 4 weeks, then the form clears.';
   function resetSendSheet() {
     sendFile = null; sendPayload = null;
+    $('#send-title').textContent = resending ? 'Share this agenda again' : 'Send this week’s agenda';
     $('#share-btn').disabled = true; $('#share-btn').textContent = 'Share PDF';
-    $('#share-hint').textContent = SHARE_HINT;
+    $('#share-hint').textContent = resending ? 'Your share menu opens. The form on your screen isn’t changed.' : SHARE_HINT;
+    $('#send-recipients').hidden = false;
     $('#after-download').hidden = true;
   }
 
@@ -1168,21 +1275,25 @@
     return true;
   }
 
-  async function startSend() {
-    if (!readyToSave('send')) return;
+  // src = a saved agenda to share again; otherwise the form on screen.
+  async function startSend(src) {
+    resending = !!src;
+    if (!resending && !readyToSave('send')) return;
+    var agenda = src || state;
     resetSendSheet();
-    var name = fileName();
+    var name = fileName(agenda);
     $('#send-filename').textContent = name;
     $('#send-status').textContent = 'Making your PDF…';
     openOverlay('#send-sheet', '#send-title');
     try {
-      var out = await buildPdf(state);
+      var out = await buildPdf(agenda);
       sendFile = new File([out.bytes], name, { type: 'application/pdf' });
       sendPayload = out.payload;
       $('#send-status').textContent = out.pages + (out.pages === 1 ? ' page' : ' pages') + ' · locked so it can’t be edited';
       if (!canShareFiles(sendFile)) {
         // No share menu for files here (some desktop browsers): download instead.
-        $('#share-hint').textContent = 'Saves the PDF to your Downloads. Attach it to an email or message, then clear the form. A copy is also saved in this app for 4 weeks.';
+        $('#share-hint').textContent = resending ? 'Saves the PDF to your Downloads. Attach it to an email or message.'
+          : 'Saves the PDF to your Downloads. Attach it to an email or message, then clear the form. A copy is also saved in this app for 4 weeks.';
         $('#share-btn').textContent = 'Download PDF';
       }
       $('#share-btn').disabled = false;
@@ -1208,6 +1319,14 @@
 
   async function sharePdf() {
     if (!sendFile) return;
+    if (resending) {
+      if (canShareFiles(sendFile)) {
+        try { await navigator.share({ files: [sendFile], title: sendFile.name }); }
+        catch (e) { if (e && e.name === 'AbortError') return; download(sendFile); }
+      } else download(sendFile);
+      closeSend(); toast('Shared again.');
+      return;
+    }
     if (canShareFiles(sendFile)) {
       try {
         await navigator.share({ files: [sendFile], title: sendFile.name });
@@ -1237,7 +1356,7 @@
     toast('Saved on this phone. It will show in Load last week.');
   }
 
-  function closeSend() { closeOverlay('#send-sheet'); sendFile = null; sendPayload = null; }
+  function closeSend() { closeOverlay('#send-sheet'); sendFile = null; sendPayload = null; resending = false; }
 
   /* ---------- wiring ---------- */
   function init() {
@@ -1255,8 +1374,13 @@
       var val = t.type === 'checkbox' ? t.checked : t.value;
       setPath(path, val);
       if (path === 'ward') writeWard(String(val).trim());
+      if (path === 'date') renderDateHint();
       saveDraft();
     };
+    // Save the draft right away if the app is closed or put in the background.
+    var flushDraft = function () { clearTimeout(draftTimer); writeJSON('sessionStorage', DRAFT_KEY, state); };
+    window.addEventListener('pagehide', flushDraft);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') flushDraft(); });
     document.addEventListener('input', onEdit);
     document.addEventListener('change', onEdit);
     document.addEventListener('click', function (e) {
@@ -1298,6 +1422,11 @@
 
     // Erase saved agendas older than 4 weeks each time the app opens.
     listAgendas();
+
+    // The explanation boxes start open for the first three visits on this device, then fold to one line.
+    var visits = 0;
+    try { var st = getStore('localStorage'); visits = (+(st && st.getItem('huddle-visits')) || 0) + 1; if (st) st.setItem('huddle-visits', String(visits)); } catch (e) { visits = 1; }
+    if (visits <= 3) $('#about').open = true;
 
     // Instructions: open on the first visit on this device, or when the link ends in #help.
     if (location.hash === '#help' || (!readFlag(HELP_KEY) && !navigator.webdriver)) openHelp();

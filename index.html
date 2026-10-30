@@ -24,7 +24,7 @@
   <div class="install-banner" id="install-banner" role="note" hidden>
     <div class="install-text">
       <p class="install-title">Add this app to your Home Screen</p>
-      <p>It opens like an app and keeps your saved agendas safe on this phone.</p>
+      <p class="install-body">It opens like an app and keeps your saved agendas safe on this phone.</p>
     </div>
     <div class="install-actions">
       <button type="button" class="btn-primary btn-install" data-action="install">
@@ -43,30 +43,63 @@
         How to use
       </button>
     </div>
+    <p class="meeting-time">About 15 minutes</p>
     <div class="grid-2">
       <label class="field">Ward
         <input type="text" id="ward" data-bind="ward" placeholder="Ward name" autocomplete="off" autocapitalize="words">
       </label>
       <label class="field">Date
-        <input type="date" id="date" data-bind="date">
+        <input type="date" id="date" data-bind="date" aria-describedby="date-hint">
+        <span class="date-hint" id="date-hint"></span>
       </label>
     </div>
-    <div class="grid-2 info">
-      <div class="info-card blue">
-        <p class="info-kicker">Who · What</p>
-        <p class="info-title">Ward Council</p>
-        <p class="info-text">Reviews the Covenant Path Report, then selects <strong>who</strong> to focus on and <strong>what</strong> each person’s next ordinance is.</p>
+
+    <div class="start-here">
+      <p class="start-label">Start here</p>
+      <div class="load-panel" id="load-panel">
+        <button type="button" class="btn-outline" data-action="load">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5h6l3 3v10h-9z"/><path d="M10.5 2.5v3h3"/><path d="M9 8v5M6.8 10.8L9 13l2.2-2.2"/></svg>
+          Load last week
+        </button>
+        <p class="hint center">Choose an agenda saved on this phone. Its action items fill in Return and Report, and its names carry over.</p>
       </div>
-      <div class="info-card orange">
-        <p class="info-kicker">How · When</p>
-        <p class="info-title">Weekly Coordination Meeting</p>
-        <p class="info-text">Huddles decide <strong>how</strong> and <strong>when</strong> to help.</p>
+
+      <div class="loaded-banner" id="loaded-banner" hidden>
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#1F6B3A" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="9"/><path d="M7 11.5l2.6 2.5L15 8.5"/></svg>
+        <div class="loaded-text">
+          <p class="loaded-title">Loaded last week’s agenda</p>
+          <p class="loaded-sub" id="loaded-sub"></p>
+        </div>
+        <button type="button" class="btn-small green" data-action="unload">Remove</button>
       </div>
+
+      <p class="load-reminder">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="9" r="7.2"/><path d="M9 8.2v4.3M9 5.6v.2"/></svg>
+        <span><strong>Reminder:</strong> Check carried-over names against the Covenant Path Report. Add new names and remove any no longer listed.</span>
+      </p>
     </div>
-    <p class="conduct-note">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="6" r="2.8"/><path d="M3.5 15.5c.6-2.8 2.8-4.5 5.5-4.5s4.9 1.7 5.5 4.5"/></svg>
-      <span>Use this agenda only if you’re conducting the meeting. That’s usually the <strong>ward mission leader</strong>. If he isn’t there, the <strong>elders quorum</strong> representative conducts.</span>
-    </p>
+
+    <details class="about" id="about">
+      <summary><span>Ward Council decides <strong>who</strong> and <strong>what</strong> · The huddle decides <strong>how</strong> and <strong>when</strong></span></summary>
+      <div class="about-body">
+        <div class="grid-2 info">
+          <div class="info-card blue">
+            <p class="info-kicker">Who · What</p>
+            <p class="info-title">Ward Council</p>
+            <p class="info-text">Reviews the Covenant Path Report, then selects <strong>who</strong> to focus on and <strong>what</strong> each person’s next ordinance is.</p>
+          </div>
+          <div class="info-card orange">
+            <p class="info-kicker">How · When</p>
+            <p class="info-title">Weekly Coordination Meeting</p>
+            <p class="info-text">Huddles decide <strong>how</strong> and <strong>when</strong> to help.</p>
+          </div>
+        </div>
+        <p class="conduct-note">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="6" r="2.8"/><path d="M3.5 15.5c.6-2.8 2.8-4.5 5.5-4.5s4.9 1.7 5.5 4.5"/></svg>
+          <span>Use this agenda only if you’re conducting the meeting. That’s usually the <strong>ward mission leader</strong>. If he isn’t there, the <strong>elders quorum</strong> representative conducts.</span>
+        </p>
+      </div>
+    </details>
   </header>
 
   <section class="section" aria-labelledby="h-attendees">
@@ -77,32 +110,10 @@
     <div class="chips" id="attendee-list"></div>
   </section>
 
-  <div class="load-panel" id="load-panel">
-    <button type="button" class="btn-outline" data-action="load">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5h6l3 3v10h-9z"/><path d="M10.5 2.5v3h3"/><path d="M9 8v5M6.8 10.8L9 13l2.2-2.2"/></svg>
-      Load last week
-    </button>
-    <p class="hint center">Choose an agenda saved on this phone. Its action items fill in Return and Report, and its names carry over.</p>
-  </div>
-
-  <div class="loaded-banner" id="loaded-banner" hidden>
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#1F6B3A" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="9"/><path d="M7 11.5l2.6 2.5L15 8.5"/></svg>
-    <div class="loaded-text">
-      <p class="loaded-title">Loaded last week’s agenda</p>
-      <p class="loaded-sub" id="loaded-sub"></p>
-    </div>
-    <button type="button" class="btn-small green" data-action="unload">Remove</button>
-  </div>
-
-  <p class="load-reminder">
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="9" r="7.2"/><path d="M9 8.2v4.3M9 5.6v.2"/></svg>
-    <span><strong>Reminder:</strong> Check carried-over names against the Covenant Path Report. Add new names and remove any no longer listed.</span>
-  </p>
-
   <section class="section" aria-labelledby="h-rr">
     <div class="section-head">
-      <h2 id="h-rr">Return and Report</h2>
-      <p class="muted"><strong class="ink">Did last week’s plan happen?</strong></p>
+      <div class="head-line"><h2 id="h-rr">Return and Report</h2><span class="time">5 min</span></div>
+      <p class="muted"><strong class="ink">Did last week’s plan happen?</strong> If it didn’t, tap <strong class="ink">Carry forward</strong> to try again this week.</p>
     </div>
 
     <div class="stack" id="rr-list"></div>
@@ -162,17 +173,17 @@
   <div class="fine-notes">
     <p class="fine"><strong>Send &amp; Clear</strong> makes a PDF on this phone, opens your share menu, keeps a copy in this app for 4 weeks, and clears the form. <strong>Save without sending</strong> keeps a copy in this app and leaves the form as it is. Nothing is saved online.</p>
     <p class="fine">Keep copies on your phone secure, and delete them when they’re no longer needed.</p>
+    <button type="button" class="btn-link danger clear-link" data-action="clear">Clear the whole form</button>
   </div>
 
   <div class="actionbar">
     <div class="actionbar-row">
-      <button type="button" class="btn-secondary" data-action="clear">Clear</button>
+      <button type="button" class="btn-secondary btn-save" data-action="save-only">Save without sending</button>
       <button type="button" class="btn-primary" data-action="send">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11.5V2.5M5.5 6L9 2.5 12.5 6"/><path d="M3.5 9.5v5h11v-5"/></svg>
         Send &amp; Clear
       </button>
     </div>
-    <button type="button" class="btn-outline full btn-save" data-action="save-only">Save without sending</button>
   </div>
 </main>
 
@@ -191,6 +202,7 @@
       </div>
     </div>
 
+    <p class="send-recipients" id="send-recipients"><strong>Send to the bishop-approved list.</strong> Always include the elders quorum representative and the stake presidency.</p>
     <p class="step-hint" id="share-hint">Your share menu opens. Pick Mail, Messages, or any app you use. A copy is saved in this app for 4 weeks, then the form clears.</p>
     <button type="button" class="btn-primary full" data-action="share" id="share-btn" disabled>Share PDF</button>
 
@@ -209,7 +221,7 @@
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="load-title">
     <div class="grab" aria-hidden="true"></div>
     <h2 id="load-title">Load last week</h2>
-    <p class="step-hint">Agendas saved on this phone. Tap one to bring in its action items.</p>
+    <p class="step-hint">Tap an agenda to bring in its action items. Use <strong>Open to edit</strong> to change it, or <strong>Share again</strong> to resend its PDF.</p>
     <div class="agenda-list" id="agenda-list"></div>
     <button type="button" class="btn-secondary full" data-action="load-file">Load from a file instead</button>
     <button type="button" class="btn-secondary full" data-action="close-load">Cancel</button>
@@ -223,35 +235,41 @@
     <div class="grab" aria-hidden="true"></div>
     <h2 id="help-title">How to use</h2>
 
+    <div class="help-rhythm">
+      <p><strong>Before:</strong> Load last week and check the names.</p>
+      <p><strong>During:</strong> Mark what happened, and plan one action per person.</p>
+      <p><strong>After:</strong> Send it to the bishop-approved list, including the elders quorum representative and the stake presidency.</p>
+    </div>
+
     <p class="help-conduct"><strong>Who uses this agenda:</strong> only the person conducting the meeting, usually the ward mission leader. If he isn’t there, the elders quorum representative conducts.</p>
 
     <ol class="help-steps">
       <li>
-        <p><strong>Add it to your Home Screen.</strong> Tap <strong>Add to Home Screen</strong> at the top (iPhone: use Safari; Android: use Chrome). From then on, open it from the new icon.</p>
+        <p><strong>Add it to your Home Screen first, before you fill anything in.</strong> Tap <strong>Add to Home Screen</strong> at the top (iPhone: use Safari; Android: use Chrome). From then on, open it from the new icon. On iPhone, anything saved in Safari won’t carry over to the app.</p>
       </li>
       <li>
-        <p><strong>Fill it in.</strong></p>
+        <p><strong>Start with Load last week</strong> (at the top, under the date) and choose last week’s agenda. First week? Skip this step.</p>
         <ul>
-          <li>Type your ward name and check the date.</li>
-          <li>Tap everyone who attended.</li>
+          <li>Last week’s action items appear under <strong>Return and Report</strong>. Mark each one <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>, and add a note if needed.</li>
+          <li>Marked <strong>Partly</strong> or <strong>No</strong>? Tap <strong>Carry forward to this week</strong> to add it to this week’s plan without retyping.</li>
+          <li>Last week’s names carry over, marked <strong>From last week</strong>. Compare them to this week’s Covenant Path Report: add anyone new and remove anyone no longer listed.</li>
+        </ul>
+      </li>
+      <li>
+        <p><strong>Fill in the rest.</strong></p>
+        <ul>
+          <li>Check the date, then tap everyone who attended.</li>
           <li>Under <strong>Covenant Path Report Review</strong>, add each person’s name, one action item, who it’s assigned to, and when. Tap <strong>Add action</strong> for more.</li>
-          <li><strong>Keep the names current.</strong> Each week, make sure the names on the agenda match the Covenant Path Report: add anyone new and remove anyone no longer listed.</li>
           <li>Under <strong>Three Names</strong>, add each name with their next ordinance and an action item.</li>
         </ul>
       </li>
       <li>
         <p><strong>Send it.</strong> Tap <strong>Send &amp; Clear</strong>, then <strong>Share PDF</strong>, and pick Mail or Messages. A copy is saved on your phone and the form clears for next week.</p>
         <ul>
+          <li><strong>Send to the bishop-approved list.</strong> Always include the elders quorum representative, so he can run the next meeting if you’re away, and the stake presidency.</li>
           <li>Not ready to send? Tap <strong>Save without sending</strong>. It saves a copy and keeps the form filled in.</li>
-          <li><strong>Check with the bishop</strong> on who should receive the agenda before you send it.</li>
+          <li>Need to fix something or resend? Tap <strong>Load last week</strong>, then <strong>Open to edit</strong> or <strong>Share again</strong>.</li>
           <li>Bishops should make sure these agendas are kept safe and deleted once they’re no longer needed.</li>
-        </ul>
-      </li>
-      <li>
-        <p><strong>Next week, tap Load last week</strong> at the top and choose last week’s agenda.</p>
-        <ul>
-          <li>Last week’s action items appear under <strong>Return and Report</strong>. Mark each one <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>, and add a note if needed.</li>
-          <li>Last week’s names carry over, marked <strong>From last week</strong>. Compare them to this week’s Covenant Path Report before you plan.</li>
         </ul>
       </li>
     </ol>
@@ -267,6 +285,7 @@
         <li><strong>Private by design:</strong> everything stays on your phone. Nothing is saved online. The only copy that leaves is the PDF you choose to share.</li>
         <li><strong>Always open it from the Home Screen icon.</strong> On iPhone, saved agendas can disappear if you use Safari instead.</li>
         <li><strong>Don’t delete the Home Screen icon.</strong> Deleting it erases every agenda saved on that phone, and previous weeks will no longer show in Load last week. PDFs you already shared aren’t affected, and you can still use <strong>Load from a file</strong>.</li>
+        <li><strong>The date</strong> starts on your usual meeting day. Check it if you prepare ahead.</li>
         <li><strong>Saved agendas last 4 weeks,</strong> then delete themselves. They live only on that phone, in that app.</li>
         <li><strong>Someone else running the meeting?</strong> They use <strong>Load from a file</strong> with last week’s PDF.</li>
         <li><strong>Keep PDFs secure</strong> and delete old ones when they’re no longer needed.</li>
