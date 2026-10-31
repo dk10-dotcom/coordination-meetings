@@ -622,6 +622,10 @@
     if (lastFocus && lastFocus.focus) { try { lastFocus.focus({ preventScroll: true }); } catch (e) { /* ignore */ } }
   }
 
+  // Removing a card that has anything on it always asks first. Swiping the question away keeps the card.
+  function confirmRemove(title, onYes) {
+    ask({ title: title, body: 'This card and everything typed on it will be removed from this week’s agenda.', primary: 'Remove', onPrimary: onYes, secondary: 'Keep it' });
+  }
   var askSecondary = null;
   function ask(opts) {
     $('#confirm-title').textContent = opts.title;
@@ -684,21 +688,38 @@
       case 'add-rr':
         state.rr.push(blankRR()); renderRR(); saveDraft();
         focusLast('#rr-list input[data-bind$=".plan"]'); break;
-      case 'remove-rr':
-        state.rr.splice(+a, 1);
-        if (!state.rr.length) state.rr.push(blankRR());
-        if (state.loaded && !state.rr.some(function (x) { return x.prefilled; })) state.loaded = null;
-        renderRR(); saveDraft(); break;
+      case 'remove-rr': {
+        var rrIdx = +a, rItem = state.rr[rrIdx];
+        var doRemoveRR = function () {
+          state.rr.splice(rrIdx, 1);
+          if (!state.rr.length) state.rr.push(blankRR());
+          if (state.loaded && !state.rr.some(function (x) { return x.prefilled; })) state.loaded = null;
+          renderRR(); saveDraft();
+        };
+        if (rItem && (rItem.prefilled || rrHasInput(rItem))) {
+          var rName = str(rItem.pname).trim() || str(rItem.person).split(' · Next: ')[0].trim();
+          confirmRemove(rName ? 'Remove ' + rName + ' from Return and Report?' : 'Remove this Return and Report item?', doRemoveRR);
+        } else doRemoveRR();
+        break;
+      }
       case 'add-cp':
         state.cp[a].push(blankAction()); renderCP(); saveDraft();
         focusLast('[data-group="' + a + '"] input[data-bind$=".name"]'); break;
       case 'convert-nm': convertToNewMember(+a); break;
       case 'list-done': listDone(a); break;
       case 'list-open': listOpen(a); break;
-      case 'remove-cp':
-        state.cp[a].splice(+b, 1);
-        if (!state.cp[a].length) state.cp[a].push(blankAction());
-        renderCP(); saveDraft(); break;
+      case 'remove-cp': {
+        var cpList = a, cpIdx = +b, cItem = state.cp[a][+b];
+        var doRemoveCP = function () {
+          state.cp[cpList].splice(cpIdx, 1);
+          if (!state.cp[cpList].length) state.cp[cpList].push(blankAction());
+          renderCP(); saveDraft();
+        };
+        if (cItem && (cItem.sac || cItem.temple || cItem.committed || hasText(cItem, CARD_KEYS))) {
+          confirmRemove(str(cItem.name).trim() ? 'Remove ' + cItem.name.trim() + '?' : 'Remove this card?', doRemoveCP);
+        } else doRemoveCP();
+        break;
+      }
       case 'load':
         if (state.rr.some(rrHasInput)) {
           ask({
