@@ -502,8 +502,7 @@
       h('h3', { class: 'list-title', text: 'Focus names' }),
       h('span', { class: 'list-count', text: tnCountText() })
     ]);
-    var note = h('p', { class: 'temple-goal', text: 'Each name, next ordinance and need should be identified by Ward Council.' });
-    wrap.replaceChildren(h('section', { class: 'list-panel list-tn', 'aria-label': '3 Names Next Ordinance' }, [head, note].concat(cards)));
+    wrap.replaceChildren(h('section', { class: 'list-panel list-tn', 'aria-label': '3 Names Next Ordinance' }, [head].concat(cards)));
   }
   function tnCountText() {
     return state.tn.filter(function (n) { return str(n.name).trim(); }).length + ' of 3 names';
