@@ -89,7 +89,7 @@
   function baptismNote(a) {
     var d = shortDay(str(a.bap));
     if (a.committed) return 'Committed to baptism' + (d ? ' · ' + d : '');
-    return d ? 'Baptism date: ' + d : '';
+    return d ? 'Scheduled baptism: ' + d : '';
   }
   // New members: goal is temple attendance (baptisms for the dead) within 30 days of baptism.
   // Counted from the meeting date. Stays red until Temple attendance is checked.
@@ -361,7 +361,7 @@
   function cardFields(base, nameLabel, namePh, whenPh, tag, withBap) {
     return h('div', { class: 'card-grid' }, [
       field(nameLabel, base + 'name', { placeholder: namePh, cap: 'words', full: true, tag: tag }),
-      withBap ? field('Baptism date', base + 'bap', { type: 'date', full: true }) : null,
+      withBap ? field(withBap, base + 'bap', { type: 'date', full: true }) : null,
       field('Next ordinance', base + 'ordinance', { placeholder: 'e.g. Baptism', full: true }),
       field('Need', base + 'need', { full: true, placeholder: 'e.g. A ride to church' }),
       field('Action item for this week', base + 'action', { full: true, placeholder: 'What will we do to help?' }),
@@ -403,7 +403,7 @@
           ]),
           g.id === 'nm' ? templeBox(base, i, it) : null,
           g.id === 'bt' ? committedBox(base, it) : null,
-          cardFields(base, 'Name', 'Person from the list', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: 'From last week' }) : null, g.id === 'nm' || g.id === 'bt'),
+          cardFields(base, 'Name', 'Person from the list', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: 'From last week' }) : null, g.id === 'nm' ? 'Baptism date' : g.id === 'bt' ? 'Scheduled baptismal date' : ''),
           g.id === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': i }, ['Convert to new member']) : null
         ]);
       });
@@ -1085,7 +1085,7 @@
       }
       if (gid === 'bt' && baptismNote(a)) {
         var d = shortDay(str(a.bap));
-        sub = { text: a.committed ? 'Committed' + (d ? ' · ' + d : '') : 'Baptism: ' + d, color: GROUP_PDF.bt.ink };
+        sub = { text: a.committed ? 'Committed' + (d ? ' · ' + d : '') : 'Scheduled: ' + d, color: GROUP_PDF.bt.ink };
       }
       return { boldFirst: true, sub: sub, cells: [str(a.name).trim(), { check: !!a.sac }, str(a.ordinance).trim(), str(a.need).trim(), str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim()] };
     }
@@ -1387,7 +1387,7 @@
         if (ord) info.push('next: ' + ord);
         if (str(r.need).trim()) info.push('need: ' + r.need.trim());
         if (r.sac) info.push('attended sacrament');
-        if (groupOf(r) === 'bt' && baptismNote(r)) { var bn = baptismNote(r); info.push(bn.charAt(0).toLowerCase() + bn.slice(1).replace('date: ', 'date ')); }
+        if (groupOf(r) === 'bt' && baptismNote(r)) { var bn = baptismNote(r); info.push(bn.charAt(0).toLowerCase() + bn.slice(1).replace('baptism: ', 'baptism ')); }
         if (groupOf(r) === 'nm') { var tst = templeStatus(r, s.date); info.push('temple attendance: ' + tst.short); }
         var rest = (name ? ' (' + info.join('; ') + '): ' : info.join('; ') + ': ') + (str(r.action).trim() || 'No action item written');
         var meta = [];
