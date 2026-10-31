@@ -450,3 +450,6 @@ body.typing .actionbar { position: static; }
   display: flex; align-items: center; justify-content: center; }
 .grab::before { content: ''; width: 44px; height: 5px; border-radius: 3px; background: #B3BCCB; }
 .agenda-row-time { font-size: 13px; color: var(--muted); }
+.card-avatar { width: 32px; height: 32px; }
+.card-avatar svg { display: block; }
+.card-label { white-space: nowrap; }

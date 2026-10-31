@@ -311,9 +311,15 @@
 
   function statusOf(v) { return { Yes: 'yes', Partly: 'partly', No: 'no' }[v] || ''; }
   // A numbered circle plus a small label at the top of each card.
+  // A person icon in the list's color marks each name card.
+  function avatar() {
+    var a = h('span', { class: 'card-num card-avatar', 'aria-hidden': 'true' });
+    a.innerHTML = '<svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="6.6" r="3.6"/><path d="M2.8 17.4c.7-3.6 3.6-5.8 7.2-5.8s6.5 2.2 7.2 5.8c.1.5-.3.9-.8.9H3.6c-.5 0-.9-.4-.8-.9z"/></svg>';
+    return a;
+  }
   function cardLabel(n, label, extra) {
     return h('div', { class: 'card-title' }, [
-      h('span', { class: 'card-num', 'aria-hidden': 'true', text: String(n) }),
+      avatar(),
       label ? h('p', { class: 'card-label', text: label }) : null,
       extra || null
     ]);
@@ -380,7 +386,7 @@
       var base = 'tn.' + i + '.';
       return h('div', { class: 'card' }, [
         h('div', { class: 'card-head' }, [
-          cardLabel(i + 1, ''),
+          cardLabel(i + 1, 'Name ' + (i + 1)),
           h('div', { class: 'card-head-right' }, [sacToggle(base + 'sac', n.sac)])
         ]),
         cardFields(base, 'Focus name', 'Full name', 'e.g. Sun')
