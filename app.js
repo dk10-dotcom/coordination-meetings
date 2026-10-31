@@ -1004,7 +1004,7 @@
     if (!list.length) {
       ask({
         title: 'No saved agendas to load',
-        body: 'There are no agendas saved on this phone yet. Each agenda you send is saved here for 4 weeks. If last week’s PDF is in your email or Files, choose Load from a file.',
+        body: 'There are no agendas saved on this phone yet. Each agenda you send or save is kept here for 4 weeks. If last week’s PDF is in your email or Files, choose Load from a file.',
         primary: 'OK',
         secondary: 'Load from a file', onSecondary: pickFile
       });
