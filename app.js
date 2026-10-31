@@ -1345,22 +1345,8 @@
     /* ----- Covenant Path Report Review ----- */
     y += 16;
     heading('Covenant Path Report Review');
-    ensure(74);
-    var b2 = y + 13;
-    // Each line starts with a bold lead-in, like the form.
-    function lead(boldText, rest) {
-      var e = tx(L, b2, boldText, F.bold, 9, C.dark);
-      tx(e + 2.5, b2, rest, F.reg, 9, C.dark);
-      b2 += 12;
-    }
-    lead('Open the Covenant Path Report', '(found in Tools).');
-    lead('Review each list:', 'New Members, Returning Members, and Those Being Taught.');
-    lead('For each person,', 'check Attended sacrament if they were there.');
-    tx(L, b2, 'Open their details to identify their next ordinance and identify a need.', F.reg, 9, C.dark);
-    b2 += 12;
-    lead('Make a plan:', 'What is one thing we can do this week to help? Who will do it, and when?');
-    b2 -= 12;
-    y = b2 + 9;
+    // The PDF keeps only the table; the how-to lines live on the form.
+    y += 7;
     var cpRows = [];
     GROUPS.forEach(function (g) {
       cpRows.push({ group: g.title, gid: g.id });
@@ -1373,15 +1359,7 @@
     // Three Names (same header style as Covenant Path Report Review)
     y += 13;
     heading('3 Names Next Ordinance (Ward Council Focus Names)');
-    ensure(50);
-    b2 = y + 13;
-    tx(L, b2, 'Open the 3 Names Next Ordinance spreadsheet.', F.reg, 9, C.dark);
-    b2 += 12;
-    var e2;
-    tx(L, b2, 'Review each name and add it below with its next ordinance.', F.reg, 9, C.dark);
-    b2 += 12;
-    tx(L, b2, 'Make a plan: What is one action we can take to help them progress? Who will do it, and when?', F.reg, 9, C.gray);
-    y = b2 + 9;
+    y += 7;
     table(CARD_COLS, ['FOCUS NAME'].concat(CARD_HEADS),
       s.tn.map(function (n) { var row = cardRow(n); row.gid = 'tn'; return row; }));
 
