@@ -60,7 +60,7 @@ The Ward Council (who · what) and huddle (how · when) boxes stay at the top of
 
 Each name card has an **Attended sacrament** checkbox (top right), **Next ordinance**, **Need**, then the action item, who it's assigned to, and when. When last week is loaded, all of these show on that person's Return and Report card. Carried-over names keep their next ordinance and need; the sacrament checkbox starts blank each week.
 
-**New members** also have a **Baptism date** and a red **Temple attendance** checkbox. Goal: baptisms for the dead within 30 days of baptism. The box counts the days from the baptism date to the meeting date ("18 days left of 30", "12 days past the 30-day goal") and stays red until it's checked, carrying forward every week. A line at the top of New members totals who still needs it. The PDF shows "Temple: …" under each new member's name, and next week's Return and Report shows the updated count.
+**New members** also have a **Baptism date** and a red **Temple attendance** checkbox. Goal: baptisms for the dead within 30 days of baptism. The box counts the days from the baptism date to the meeting date ("18 days left of 30", "12 days past the 30-day goal") and stays red until it's checked, carrying forward every week. The PDF shows "Temple: …" under each new member's name, and next week's Return and Report shows the updated count.
 
 **Those being taught** have a **Committed to baptism** checkbox and a **Scheduled baptismal date**. Both carry forward each week and show on Return and Report and under the name on the PDF ("Committed · Nov 21"). After the baptism, **Convert to new member** moves the card to New members with everything on it, and the 30-day temple count starts from the baptism date.
 

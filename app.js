@@ -413,8 +413,7 @@
         h('span', { class: 'list-count', text: countText(named) })
       ]);
       var extra = g.id === 'nm' ? [
-        h('p', { class: 'temple-goal', text: 'Goal: every new member attends the temple for baptisms for the dead within 30 days of their baptism.' }),
-        h('p', { class: 'temple-summary', id: 'temple-summary', hidden: true })
+        h('p', { class: 'temple-goal', text: 'Goal: every new member attends the temple for baptisms for the dead within 30 days of their baptism.' })
       ] : [];
       return h('section', { class: 'list-panel list-' + g.id, 'data-group': g.id, 'aria-label': g.title }, [head]
         .concat(extra).concat(cards).concat([addButton('add-cp', g.id, 'Add action')]));
@@ -475,7 +474,6 @@
     ]);
   }
   function updateTemple() {
-    var waiting = 0, late = 0;
     state.cp.nm.forEach(function (it, i) {
       var st = templeStatus(it, state.date);
       var box = document.querySelector('[data-group="nm"] [data-temple="' + i + '"]');
@@ -483,13 +481,7 @@
         box.classList.toggle('is-done', st.done);
         box.querySelector('.temple-sub').textContent = st.done ? '✓ Baptisms for the dead done' : st.text;
       }
-      if (str(it.name).trim() && !st.done) { waiting++; if (st.left !== undefined && st.left < 0) late++; }
     });
-    var sum = $('#temple-summary');
-    if (sum) {
-      sum.hidden = !waiting;
-      sum.textContent = waiting + (waiting === 1 ? ' new member needs' : ' new members need') + ' temple attendance' + (late ? ' · ' + late + ' past 30 days' : '');
-    }
   }
   function renderTN() {
     var wrap = $('#tn-list');
