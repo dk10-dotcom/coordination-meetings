@@ -495,3 +495,9 @@ body.typing .actionbar { position: static; }
 /* Attendees: a meeting detail like Ward, Date and Conducting */
 .attendees-field { gap: 8px; }
 .attendees-hint { font-size: 14px; font-weight: 400; color: var(--text); margin-top: -2px; }
+/* Need: two lines, so the hint and longer needs show in full */
+.field textarea { width: 100%; min-height: 64px; padding: 10px 12px; border: 1px solid var(--field-line); border-radius: 8px; background: var(--card);
+  font: inherit; font-size: 16px; font-weight: 400; line-height: 1.35; color: var(--ink); resize: none; -webkit-appearance: none; appearance: none; }
+.field textarea::placeholder { color: #8A93A3; }
+.field textarea:focus-visible { outline: 3px solid #7FA2DB; outline-offset: 2px; }
+@media (max-width: 360px) { .field input::placeholder, .field textarea::placeholder { font-size: 14px; } }

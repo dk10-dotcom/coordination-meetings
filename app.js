@@ -231,7 +231,10 @@
     opts = opts || {};
     return h('label', { class: 'field' + (opts.full ? ' full' : '') }, [
       opts.tag ? h('span', { class: 'label-row' }, [label, opts.tag]) : label,
-      h('input', {
+      opts.multi ? h('textarea', {
+        'data-bind': path, value: str(getPath(path)), placeholder: opts.placeholder || '', rows: '2',
+        autocomplete: 'off', autocapitalize: 'sentences', enterkeyhint: 'next', maxlength: '300'
+      }) : h('input', {
         type: opts.type || 'text', 'data-bind': path, value: str(getPath(path)), placeholder: opts.placeholder || '',
         autocomplete: 'off', autocapitalize: opts.cap || 'sentences', enterkeyhint: 'next', maxlength: '300'
       })
@@ -358,12 +361,12 @@
     ]);
   }
   // The fields on every name card, in meeting order.
-  function cardFields(base, nameLabel, namePh, whenPh, tag, withBap) {
+  function cardFields(base, nameLabel, namePh, whenPh, tag, withBap, needPh) {
     return h('div', { class: 'card-grid' }, [
       field(nameLabel, base + 'name', { placeholder: namePh, cap: 'words', full: true, tag: tag }),
       withBap ? field(withBap, base + 'bap', { type: 'date', full: true }) : null,
       field('Next ordinance', base + 'ordinance', { placeholder: 'e.g. Baptism', full: true }),
-      field('Need', base + 'need', { full: true, placeholder: 'e.g. A ride to church' }),
+      field('Need', base + 'need', { full: true, multi: true, placeholder: needPh || 'e.g. A ride to church' }),
       field('Action item for this week', base + 'action', { full: true, placeholder: 'What will we do to help?' }),
       // Assigned to gets the wider share of its row; When is usually a day or two words.
       h('div', { class: 'assign-row' }, [
@@ -403,7 +406,7 @@
           ]),
           g.id === 'nm' ? templeBox(base, i, it) : null,
           g.id === 'bt' ? committedBox(base, it) : null,
-          cardFields(base, 'Name', 'Person from the list', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: 'From last week' }) : null, g.id === 'nm' ? 'Baptism date' : g.id === 'bt' ? 'Scheduled baptismal date' : ''),
+          cardFields(base, 'Name', 'From the Covenant Path Report', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: 'From last week' }) : null, g.id === 'nm' ? 'Baptism date' : g.id === 'bt' ? 'Scheduled baptismal date' : '', 'Identify a need from the Covenant Path Report'),
           g.id === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': i }, ['Convert to new member']) : null
         ]);
       });
@@ -1718,6 +1721,7 @@
       if (path === 'ward') writeWard(String(val).trim());
       if (path === 'date') renderDateHint();
       if (path === 'conductingOther') writeConducting(state);
+      if (/\.sac$/.test(path) && val === true) toast('Remember to update sacrament attendance in the Covenant Path Report too.');
       if (/^cp\.\w+\.\d+\.name$/.test(path)) updateListCount(path.split('.')[1]);
       if (/^cp\.nm\.\d+\.(name|bap|temple)$/.test(path) || path === 'date') { updateTemple(); if (path === 'date') renderRR(); }
       if (/^tn\.\d+\.name$/.test(path)) { var tc = document.querySelector('.list-tn .list-count'); if (tc) tc.textContent = tnCountText(); }
@@ -1749,7 +1753,7 @@
     // While the keyboard is up, the bottom bar stops floating so it doesn't jump around.
     var typingTimer = null;
     document.addEventListener('focusin', function (e) {
-      if (e.target.matches && e.target.matches('#form input[type="text"], #form input[type="date"]')) {
+      if (e.target.matches && e.target.matches('#form input[type="text"], #form input[type="date"], #form textarea')) {
         clearTimeout(typingTimer);
         document.body.classList.add('typing');
       }
@@ -1758,7 +1762,7 @@
       clearTimeout(typingTimer);
       typingTimer = setTimeout(function () {
         var a = document.activeElement;
-        if (!(a && a.matches && a.matches('#form input[type="text"], #form input[type="date"]'))) document.body.classList.remove('typing');
+        if (!(a && a.matches && a.matches('#form input[type="text"], #form input[type="date"], #form textarea'))) document.body.classList.remove('typing');
       }, 150);
     });
 
@@ -1773,9 +1777,9 @@
     window.addEventListener('hashchange', function () { if (location.hash === '#help') openHelp(); });
     // Enter moves to the next field instead of doing nothing
     document.addEventListener('keydown', function (e) {
-      if (e.key !== 'Enter' || !e.target.matches || !e.target.matches('#form input[type="text"]')) return;
+      if (e.key !== 'Enter' || !e.target.matches || !e.target.matches('#form input[type="text"], #form textarea')) return;
       e.preventDefault();
-      var inputs = Array.prototype.slice.call(document.querySelectorAll('#form input[type="text"], #form input[type="date"]'));
+      var inputs = Array.prototype.slice.call(document.querySelectorAll('#form input[type="text"], #form input[type="date"], #form textarea'));
       var next = inputs[inputs.indexOf(e.target) + 1];
       if (next) next.focus(); else e.target.blur();
     });
