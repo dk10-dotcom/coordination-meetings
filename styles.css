@@ -478,3 +478,12 @@ body.typing .actionbar { position: static; }
 .temple-box input:focus-visible + .temple-check { outline: 2px solid var(--accent); outline-offset: 2px; }
 .fact.temple-due { background: #FBEAEA; border-color: #E8B4B4; color: #8E1F1F; }
 .fact.temple-due b { color: #8E1F1F; }
+/* Those being taught: Committed to baptism */
+.commit-box { position: relative; display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; cursor: pointer;
+  background: var(--card); border: 1.5px solid var(--list-line); color: var(--ink); -webkit-tap-highlight-color: transparent; }
+.commit-box input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.commit-box strong { font-size: 15px; }
+.commit-box:has(input:checked) { background: var(--list-soft); border-color: var(--list-ink); color: var(--list-ink); }
+.commit-box input:checked + .commit-check { background: var(--list-ink); border-color: var(--list-ink); color: #FFFFFF; }
+.commit-box input:focus-visible + .commit-check { outline: 2px solid var(--accent); outline-offset: 2px; }
+.fact.committed { background: #F4EEF9; border-color: #D9C4E8; color: #5E2F7C; font-weight: 700; }

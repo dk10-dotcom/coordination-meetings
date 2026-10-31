@@ -83,7 +83,14 @@
   function blankRR() { return { plan: '', happened: '', notes: '' }; }
   // Every name card (Covenant Path lists and 3 Names) has the same fields.
   var CARD_KEYS = ['name', 'bap', 'ordinance', 'need', 'action', 'assigned', 'when'];
-  function blankAction() { return { name: '', sac: false, bap: '', temple: false, ordinance: '', need: '', action: '', assigned: '', when: '' }; }
+  function blankAction() { return { name: '', sac: false, bap: '', temple: false, committed: false, ordinance: '', need: '', action: '', assigned: '', when: '' }; }
+  function shortDay(iso) { var d = parseISO(iso); return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''; }
+  // Those being taught: "Committed to baptism" and the baptism date, in a few words.
+  function baptismNote(a) {
+    var d = shortDay(str(a.bap));
+    if (a.committed) return 'Committed to baptism' + (d ? ' · ' + d : '');
+    return d ? 'Baptism date: ' + d : '';
+  }
   // New members: goal is temple attendance (baptisms for the dead) within 30 days of baptism.
   // Counted from the meeting date. Stays red until Temple attendance is checked.
   var TEMPLE_DAYS = 30;
@@ -127,7 +134,7 @@
     var out = list.filter(function (x) { return x && typeof x === 'object'; }).map(function (x) {
       var o = maker();
       keys.forEach(function (k) { o[k] = str(x[k]); });
-      o.sac = !!x.sac; o.temple = !!x.temple;
+      o.sac = !!x.sac; o.temple = !!x.temple; o.committed = !!x.committed;
       return o;
     });
     return out.length ? out : [maker()];
@@ -149,7 +156,7 @@
           o.prefilled = true; o.source = str(r.source); o.person = str(r.person);
           o.action = str(r.action); o.assigned = str(r.assigned); o.when = str(r.when);
           o.group = ['nm', 'rm', 'bt', 'tn'].indexOf(r.group) >= 0 ? r.group : '';
-          o.pname = str(r.pname); o.ord = str(r.ord); o.need = str(r.need); o.sac = !!r.sac; o.bap = str(r.bap); o.temple = !!r.temple; o.carriedFwd = !!r.carriedFwd;
+          o.pname = str(r.pname); o.ord = str(r.ord); o.need = str(r.need); o.sac = !!r.sac; o.bap = str(r.bap); o.temple = !!r.temple; o.committed = !!r.committed; o.carriedFwd = !!r.carriedFwd;
         }
         return o;
       });
@@ -292,6 +299,7 @@
         var facts = [
           str(r.need).trim() ? h('span', { class: 'fact' }, [h('b', { text: 'Need: ' }), r.need.trim()]) : null,
           r.sac ? h('span', { class: 'fact sac' }, ['✓ Attended sacrament']) : null,
+          gid === 'bt' && baptismNote(r) ? h('span', { class: 'fact ' + (r.committed ? 'committed' : '') }, [(r.committed ? '✓ ' : '') + baptismNote(r)]) : null,
           gid === 'nm' ? (function () {
             var st = templeStatus(r, state.date);
             return h('span', { class: 'fact ' + (st.done ? 'sac' : 'temple-due') }, st.done ? ['✓ Temple attendance done'] : [h('b', { text: 'Temple attendance: ' }), st.short]);
@@ -394,7 +402,8 @@
             ])
           ]),
           g.id === 'nm' ? templeBox(base, i, it) : null,
-          cardFields(base, 'Name', 'Person from the list', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: 'From last week' }) : null, g.id === 'nm')
+          g.id === 'bt' ? committedBox(base, it) : null,
+          cardFields(base, 'Name', 'Person from the list', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: 'From last week' }) : null, g.id === 'nm' || g.id === 'bt')
         ]);
       });
       var named = countNamed(g.id);
@@ -422,6 +431,13 @@
         h('strong', { text: 'Temple attendance' }),
         h('span', { class: 'temple-sub', text: st.done ? '✓ Baptisms for the dead done' : st.text })
       ])
+    ]);
+  }
+  function committedBox(base, it) {
+    return h('label', { class: 'commit-box' }, [
+      h('input', { type: 'checkbox', 'data-bind': base + 'committed', checked: !!it.committed }),
+      h('span', { class: 'sac-box commit-check', 'aria-hidden': 'true' }, [icon('check')]),
+      h('strong', { text: 'Committed to baptism' })
     ]);
   }
   function updateTemple() {
@@ -720,7 +736,7 @@
     var name = str(a.name).trim(), ord = str(a.ordinance).trim();
     return {
       source: SOURCE[gid], group: gid, pname: name, ord: ord, need: str(a.need).trim(), sac: !!a.sac,
-      bap: gid === 'nm' ? str(a.bap) : '', temple: gid === 'nm' && !!a.temple,
+      bap: gid === 'nm' || gid === 'bt' ? str(a.bap) : '', temple: gid === 'nm' && !!a.temple, committed: gid === 'bt' && !!a.committed,
       person: ord ? (name ? name + ' · ' : '') + 'Next: ' + ord : name,
       action: str(a.action).trim(), assigned: str(a.assigned).trim(), when: str(a.when).trim()
     };
@@ -735,7 +751,7 @@
       var names = [], info = {};
       (Array.isArray(cp[g.id]) ? cp[g.id] : []).forEach(function (a) {
         var n = a && str(a.name).trim();
-        if (n && names.every(function (x) { return norm(x) !== norm(n); })) { names.push(n); info[norm(n)] = { ordinance: str(a.ordinance).trim(), need: str(a.need).trim(), bap: str(a.bap), temple: !!a.temple }; }
+        if (n && names.every(function (x) { return norm(x) !== norm(n); })) { names.push(n); info[norm(n)] = { ordinance: str(a.ordinance).trim(), need: str(a.need).trim(), bap: str(a.bap), temple: !!a.temple, committed: !!a.committed }; }
       });
       if (!names.length) return;
       var cur = state.cp[g.id].filter(function (a) { return a.sac || hasText(a, CARD_KEYS); });
@@ -743,6 +759,7 @@
         if (cur.some(function (a) { return norm(a.name) === norm(n); })) return;
         var c = blankAction(); c.name = n; c.ordinance = info[norm(n)].ordinance; c.need = info[norm(n)].need; c.carried = true;
         if (g.id === 'nm') { c.bap = info[norm(n)].bap; c.temple = info[norm(n)].temple; }
+        if (g.id === 'bt') { c.bap = info[norm(n)].bap; c.committed = info[norm(n)].committed; }
         cur.push(c);
         added++;
       });
@@ -764,6 +781,7 @@
     var item = blankAction();
     item.name = name; item.ordinance = ord; item.need = str(r.need).trim(); item.action = str(r.action).trim(); item.assigned = str(r.assigned).trim();
     if (g === 'nm') { item.bap = str(r.bap); item.temple = !!r.temple; }
+    if (g === 'bt') { item.bap = str(r.bap); item.committed = !!r.committed; }
     if (g === 'tn') {
       var slot = state.tn.findIndex(function (n) { return name && norm(n.name) === norm(name); });
       if (slot < 0) slot = state.tn.findIndex(function (n) { return !n.sac && !hasText(n, CARD_KEYS); });
@@ -779,6 +797,7 @@
         match.action = item.action; match.assigned = match.assigned || item.assigned;
         match.ordinance = match.ordinance || item.ordinance; match.need = match.need || item.need;
         if (g === 'nm') { match.bap = match.bap || item.bap; match.temple = match.temple || item.temple; }
+        if (g === 'bt') { match.bap = match.bap || item.bap; match.committed = match.committed || item.committed; }
       }
       else {
         if (list.length === 1 && !list[0].sac && !hasText(list[0], CARD_KEYS)) list.pop();
@@ -798,7 +817,7 @@
       return;
     }
     state.rr = items.map(function (it) {
-      return { prefilled: true, source: it.source, group: it.group, pname: it.pname, ord: it.ord, need: it.need || '', sac: !!it.sac, bap: it.bap || '', temple: !!it.temple, person: it.person, action: it.action, assigned: it.assigned, when: it.when, plan: '', happened: '', notes: '' };
+      return { prefilled: true, source: it.source, group: it.group, pname: it.pname, ord: it.ord, need: it.need || '', sac: !!it.sac, bap: it.bap || '', temple: !!it.temple, committed: !!it.committed, person: it.person, action: it.action, assigned: it.assigned, when: it.when, plan: '', happened: '', notes: '' };
     });
     state.loaded = { fileName: fileName, ward: str(data.ward), date: str(data.date), count: items.length };
     if (!state.ward.trim() && data.ward) { state.ward = str(data.ward); $('#ward').value = state.ward; writeWard(state.ward); }
@@ -1028,6 +1047,10 @@
       if (gid === 'nm' && (str(a.name).trim() || a.bap)) {
         var st = templeStatus(a, s.date);
         sub = { text: 'Temple: ' + (st.left === undefined && !st.done ? 'no date' : st.short), color: st.done ? STATUS_PDF.Yes : TEMPLE_RED };
+      }
+      if (gid === 'bt' && baptismNote(a)) {
+        var d = shortDay(str(a.bap));
+        sub = { text: a.committed ? 'Committed' + (d ? ' · ' + d : '') : 'Baptism: ' + d, color: GROUP_PDF.bt.ink };
       }
       return { boldFirst: true, sub: sub, cells: [str(a.name).trim(), { check: !!a.sac }, str(a.ordinance).trim(), str(a.need).trim(), str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim()] };
     }
@@ -1329,6 +1352,7 @@
         if (ord) info.push('next: ' + ord);
         if (str(r.need).trim()) info.push('need: ' + r.need.trim());
         if (r.sac) info.push('attended sacrament');
+        if (groupOf(r) === 'bt' && baptismNote(r)) { var bn = baptismNote(r); info.push(bn.charAt(0).toLowerCase() + bn.slice(1).replace('date: ', 'date ')); }
         if (groupOf(r) === 'nm') { var tst = templeStatus(r, s.date); info.push('temple attendance: ' + tst.short); }
         var rest = (name ? ' (' + info.join('; ') + '): ' : info.join('; ') + ': ') + (str(r.action).trim() || 'No action item written');
         var meta = [];
@@ -1396,7 +1420,7 @@
       rr: s.rr.map(function (r) {
         return r.prefilled
           ? { prefilled: true, source: r.source, person: r.person, action: r.action, assigned: r.assigned, when: r.when, happened: r.happened, notes: r.notes,
-              group: r.group || '', pname: r.pname || '', ord: r.ord || '', need: r.need || '', sac: !!r.sac, bap: r.bap || '', temple: !!r.temple, carriedFwd: !!r.carriedFwd }
+              group: r.group || '', pname: r.pname || '', ord: r.ord || '', need: r.need || '', sac: !!r.sac, bap: r.bap || '', temple: !!r.temple, committed: !!r.committed, carriedFwd: !!r.carriedFwd }
           : { plan: r.plan, happened: r.happened, notes: r.notes };
       }),
       cpDone: s.cpDone, cp: s.cp, tnDone: s.tnDone, tn: s.tn, ftDone: s.ftDone
