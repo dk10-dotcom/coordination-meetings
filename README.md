@@ -46,7 +46,7 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 
 ## How people use it each week
 
-**Before huddle:** Take attendance, load last week, and check the names. **During huddle:** Mark what happened, and plan one action per person. **After huddle:** Send it to the bishop-approved list, including the elders quorum representative, the full-time missionaries, and the stake presidency.
+**Before huddle:** Load last week's agenda and check the names against the Covenant Path Report (in Tools). Fill in each person's next ordinance and identify a need. **During huddle:** Take attendance, mark what happened last week, and check sacrament attendance. Then plan one action item per person: who will do it, and when. **After huddle:** Send it to the bishop-approved list, including the elders quorum representative, the full-time missionaries, and the stake presidency.
 
 1. Open the app from the Home Screen icon. The ward is remembered and the date starts on the usual meeting day. Choose who is **Conducting** (Ward mission leader, Elders Quorum, or Other with a name); it's remembered on the phone and printed on the PDF.
 2. Tap everyone who attended. Then, right under Attendees, **Load last week** → tap last week's agenda (it sits after attendance so nobody skips it). Mark each Return and Report item Yes / Partly / No. For Partly or No, **Carry forward to this week** copies it into this week's plan.
