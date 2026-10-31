@@ -531,8 +531,3 @@ body.typing .actionbar { position: static; }
 .fold-tag.ans-partly { background: #FFF6E0; color: #7A5200; border-color: #EBCB7A; }
 .fold-tag.ans-no { background: #FBEAEA; color: #8E1F1F; border-color: #E8B4B4; }
 .rr-folded .fold-row + .fold-row { border-top-color: var(--card-line); }
-/* Training video at the top of How to use */
-.help-video { display: flex; flex-direction: column; gap: 6px; }
-.help-video video { width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; background: #0F1A2E; display: block; }
-.help-video-cap { font-size: 14px; color: var(--text); }
-.help-video-cap a { color: var(--accent); font-weight: 600; }
