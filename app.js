@@ -82,8 +82,21 @@
   /* ---------- state ---------- */
   function blankRR() { return { plan: '', happened: '', notes: '' }; }
   // Every name card (Covenant Path lists and 3 Names) has the same fields.
-  var CARD_KEYS = ['name', 'ordinance', 'need', 'action', 'assigned', 'when'];
-  function blankAction() { return { name: '', sac: false, ordinance: '', need: '', action: '', assigned: '', when: '' }; }
+  var CARD_KEYS = ['name', 'bap', 'ordinance', 'need', 'action', 'assigned', 'when'];
+  function blankAction() { return { name: '', sac: false, bap: '', temple: false, ordinance: '', need: '', action: '', assigned: '', when: '' }; }
+  // New members: goal is temple attendance (baptisms for the dead) within 30 days of baptism.
+  // Counted from the meeting date. Stays red until Temple attendance is checked.
+  var TEMPLE_DAYS = 30;
+  function templeStatus(a, meetingISO) {
+    if (a.temple) return { done: true, text: 'Done', short: 'done' };
+    var bap = parseISO(str(a.bap));
+    if (!bap) return { done: false, text: 'Add the baptism date to start the 30-day count', short: 'no baptism date yet' };
+    var m = parseISO(meetingISO) || new Date();
+    var left = TEMPLE_DAYS - Math.round((m - bap) / 86400000);
+    if (left > 0) return { done: false, left: left, text: left + (left === 1 ? ' day' : ' days') + ' left of 30', short: left + (left === 1 ? ' day' : ' days') + ' left' };
+    if (left === 0) return { done: false, left: 0, text: 'Today is day 30', short: 'due today' };
+    return { done: false, left: left, text: (-left) + (left === -1 ? ' day' : ' days') + ' past the 30-day goal', short: (-left) + (left === -1 ? ' day' : ' days') + ' late' };
+  }
   function blankName() { return blankAction(); }
   // The meeting date defaults to the next day matching the weekday of the last saved agenda (today if none).
   function readMeetingDay() {
@@ -114,7 +127,7 @@
     var out = list.filter(function (x) { return x && typeof x === 'object'; }).map(function (x) {
       var o = maker();
       keys.forEach(function (k) { o[k] = str(x[k]); });
-      o.sac = !!x.sac;
+      o.sac = !!x.sac; o.temple = !!x.temple;
       return o;
     });
     return out.length ? out : [maker()];
@@ -136,7 +149,7 @@
           o.prefilled = true; o.source = str(r.source); o.person = str(r.person);
           o.action = str(r.action); o.assigned = str(r.assigned); o.when = str(r.when);
           o.group = ['nm', 'rm', 'bt', 'tn'].indexOf(r.group) >= 0 ? r.group : '';
-          o.pname = str(r.pname); o.ord = str(r.ord); o.need = str(r.need); o.sac = !!r.sac; o.carriedFwd = !!r.carriedFwd;
+          o.pname = str(r.pname); o.ord = str(r.ord); o.need = str(r.need); o.sac = !!r.sac; o.bap = str(r.bap); o.temple = !!r.temple; o.carriedFwd = !!r.carriedFwd;
         }
         return o;
       });
@@ -212,7 +225,7 @@
     return h('label', { class: 'field' + (opts.full ? ' full' : '') }, [
       opts.tag ? h('span', { class: 'label-row' }, [label, opts.tag]) : label,
       h('input', {
-        type: 'text', 'data-bind': path, value: str(getPath(path)), placeholder: opts.placeholder || '',
+        type: opts.type || 'text', 'data-bind': path, value: str(getPath(path)), placeholder: opts.placeholder || '',
         autocomplete: 'off', autocapitalize: opts.cap || 'sentences', enterkeyhint: 'next', maxlength: '300'
       })
     ]);
@@ -278,7 +291,11 @@
         var ordTag = pord ? h('span', { class: 'fact' }, [h('b', { text: 'Next: ' }), pord]) : null;
         var facts = [
           str(r.need).trim() ? h('span', { class: 'fact' }, [h('b', { text: 'Need: ' }), r.need.trim()]) : null,
-          r.sac ? h('span', { class: 'fact sac' }, ['✓ Attended sacrament']) : null
+          r.sac ? h('span', { class: 'fact sac' }, ['✓ Attended sacrament']) : null,
+          gid === 'nm' ? (function () {
+            var st = templeStatus(r, state.date);
+            return h('span', { class: 'fact ' + (st.done ? 'sac' : 'temple-due') }, st.done ? ['✓ Temple attendance done'] : [h('b', { text: 'Temple attendance: ' }), st.short]);
+          })() : null
         ].filter(Boolean);
         body = h('div', { class: 'prefill' }, [
           gid ? h('span', { class: 'group-tag', text: SOURCE[gid] }) : null,
@@ -333,9 +350,10 @@
     ]);
   }
   // The fields on every name card, in meeting order.
-  function cardFields(base, nameLabel, namePh, whenPh, tag) {
+  function cardFields(base, nameLabel, namePh, whenPh, tag, withBap) {
     return h('div', { class: 'card-grid' }, [
       field(nameLabel, base + 'name', { placeholder: namePh, cap: 'words', full: true, tag: tag }),
+      withBap ? field('Baptism date', base + 'bap', { type: 'date', full: true }) : null,
       field('Next ordinance', base + 'ordinance', { placeholder: 'e.g. Baptism', full: true }),
       field('Need', base + 'need', { full: true, placeholder: 'e.g. A ride to church' }),
       field('Action item for this week', base + 'action', { full: true, placeholder: 'What will we do to help?' }),
@@ -375,7 +393,8 @@
               many ? removeButton('remove-cp', g.id, i, 'Remove action ' + (i + 1) + ' for ' + g.title) : null
             ])
           ]),
-          cardFields(base, 'Name', 'Person from the list', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: 'From last week' }) : null)
+          g.id === 'nm' ? templeBox(base, i, it) : null,
+          cardFields(base, 'Name', 'Person from the list', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: 'From last week' }) : null, g.id === 'nm')
         ]);
       });
       var named = countNamed(g.id);
@@ -383,11 +402,45 @@
         h('h3', { class: 'list-title', text: g.title }),
         h('span', { class: 'list-count', text: countText(named) })
       ]);
+      var extra = g.id === 'nm' ? [
+        h('p', { class: 'temple-goal', text: 'Goal: every new member attends the temple for baptisms for the dead within 30 days of their baptism.' }),
+        h('p', { class: 'temple-summary', id: 'temple-summary', hidden: true })
+      ] : [];
       return h('section', { class: 'list-panel list-' + g.id, 'data-group': g.id, 'aria-label': g.title }, [head]
-        .concat(cards).concat([addButton('add-cp', g.id, 'Add action')]));
+        .concat(extra).concat(cards).concat([addButton('add-cp', g.id, 'Add action')]));
     }));
+    updateTemple();
   }
 
+  // Red until checked: the Temple attendance box on each New member card.
+  function templeBox(base, i, it) {
+    var st = templeStatus(it, state.date);
+    return h('label', { class: 'temple-box' + (st.done ? ' is-done' : ''), 'data-temple': i }, [
+      h('input', { type: 'checkbox', 'data-bind': base + 'temple', checked: !!it.temple }),
+      h('span', { class: 'sac-box temple-check', 'aria-hidden': 'true' }, [icon('check')]),
+      h('span', { class: 'temple-text' }, [
+        h('strong', { text: 'Temple attendance' }),
+        h('span', { class: 'temple-sub', text: st.done ? '✓ Baptisms for the dead done' : st.text })
+      ])
+    ]);
+  }
+  function updateTemple() {
+    var waiting = 0, late = 0;
+    state.cp.nm.forEach(function (it, i) {
+      var st = templeStatus(it, state.date);
+      var box = document.querySelector('[data-group="nm"] [data-temple="' + i + '"]');
+      if (box) {
+        box.classList.toggle('is-done', st.done);
+        box.querySelector('.temple-sub').textContent = st.done ? '✓ Baptisms for the dead done' : st.text;
+      }
+      if (str(it.name).trim() && !st.done) { waiting++; if (st.left !== undefined && st.left < 0) late++; }
+    });
+    var sum = $('#temple-summary');
+    if (sum) {
+      sum.hidden = !waiting;
+      sum.textContent = waiting + (waiting === 1 ? ' new member needs' : ' new members need') + ' temple attendance' + (late ? ' · ' + late + ' past 30 days' : '');
+    }
+  }
   function renderTN() {
     var wrap = $('#tn-list');
     var cards = state.tn.map(function (n, i) {
@@ -667,6 +720,7 @@
     var name = str(a.name).trim(), ord = str(a.ordinance).trim();
     return {
       source: SOURCE[gid], group: gid, pname: name, ord: ord, need: str(a.need).trim(), sac: !!a.sac,
+      bap: gid === 'nm' ? str(a.bap) : '', temple: gid === 'nm' && !!a.temple,
       person: ord ? (name ? name + ' · ' : '') + 'Next: ' + ord : name,
       action: str(a.action).trim(), assigned: str(a.assigned).trim(), when: str(a.when).trim()
     };
@@ -681,13 +735,14 @@
       var names = [], info = {};
       (Array.isArray(cp[g.id]) ? cp[g.id] : []).forEach(function (a) {
         var n = a && str(a.name).trim();
-        if (n && names.every(function (x) { return norm(x) !== norm(n); })) { names.push(n); info[norm(n)] = { ordinance: str(a.ordinance).trim(), need: str(a.need).trim() }; }
+        if (n && names.every(function (x) { return norm(x) !== norm(n); })) { names.push(n); info[norm(n)] = { ordinance: str(a.ordinance).trim(), need: str(a.need).trim(), bap: str(a.bap), temple: !!a.temple }; }
       });
       if (!names.length) return;
       var cur = state.cp[g.id].filter(function (a) { return a.sac || hasText(a, CARD_KEYS); });
       names.forEach(function (n) {
         if (cur.some(function (a) { return norm(a.name) === norm(n); })) return;
         var c = blankAction(); c.name = n; c.ordinance = info[norm(n)].ordinance; c.need = info[norm(n)].need; c.carried = true;
+        if (g.id === 'nm') { c.bap = info[norm(n)].bap; c.temple = info[norm(n)].temple; }
         cur.push(c);
         added++;
       });
@@ -708,6 +763,7 @@
     var ord = str(r.ord).trim() || (str(r.person).split(' · Next: ')[1] || '').trim();
     var item = blankAction();
     item.name = name; item.ordinance = ord; item.need = str(r.need).trim(); item.action = str(r.action).trim(); item.assigned = str(r.assigned).trim();
+    if (g === 'nm') { item.bap = str(r.bap); item.temple = !!r.temple; }
     if (g === 'tn') {
       var slot = state.tn.findIndex(function (n) { return name && norm(n.name) === norm(name); });
       if (slot < 0) slot = state.tn.findIndex(function (n) { return !n.sac && !hasText(n, CARD_KEYS); });
@@ -722,6 +778,7 @@
       if (match) {
         match.action = item.action; match.assigned = match.assigned || item.assigned;
         match.ordinance = match.ordinance || item.ordinance; match.need = match.need || item.need;
+        if (g === 'nm') { match.bap = match.bap || item.bap; match.temple = match.temple || item.temple; }
       }
       else {
         if (list.length === 1 && !list[0].sac && !hasText(list[0], CARD_KEYS)) list.pop();
@@ -741,7 +798,7 @@
       return;
     }
     state.rr = items.map(function (it) {
-      return { prefilled: true, source: it.source, group: it.group, pname: it.pname, ord: it.ord, need: it.need || '', sac: !!it.sac, person: it.person, action: it.action, assigned: it.assigned, when: it.when, plan: '', happened: '', notes: '' };
+      return { prefilled: true, source: it.source, group: it.group, pname: it.pname, ord: it.ord, need: it.need || '', sac: !!it.sac, bap: it.bap || '', temple: !!it.temple, person: it.person, action: it.action, assigned: it.assigned, when: it.when, plan: '', happened: '', notes: '' };
     });
     state.loaded = { fileName: fileName, ward: str(data.ward), date: str(data.date), count: items.length };
     if (!state.ward.trim() && data.ward) { state.ward = str(data.ward); $('#ward').value = state.ward; writeWard(state.ward); }
@@ -963,10 +1020,16 @@
       tn: { fill: rgb(1, 0.973, 0.902), ink: rgb(0.62, 0.42, 0.02) }
     };
     // Name card tables: Name | Attended sacrament | Next ordinance | Need | Action | Assigned to | When
-    var CARD_COLS = [48, 126, 188, 250, 332, 450, 516];
+    var CARD_COLS = [48, 132, 194, 256, 332, 450, 516];
     var CARD_HEADS = ['ATTENDED\nSACRAMENT', 'NEXT\nORDINANCE', 'NEED', 'ACTION ITEM\nFOR THIS WEEK', 'ASSIGNED\nTO', 'WHEN'];
-    function cardRow(a) {
-      return { boldFirst: true, cells: [str(a.name).trim(), { check: !!a.sac }, str(a.ordinance).trim(), str(a.need).trim(), str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim()] };
+    var TEMPLE_RED = rgb(0.70, 0.16, 0.16);
+    function cardRow(a, gid) {
+      var sub = null;
+      if (gid === 'nm' && (str(a.name).trim() || a.bap)) {
+        var st = templeStatus(a, s.date);
+        sub = { text: 'Temple: ' + (st.left === undefined && !st.done ? 'no date' : st.short), color: st.done ? STATUS_PDF.Yes : TEMPLE_RED };
+      }
+      return { boldFirst: true, sub: sub, cells: [str(a.name).trim(), { check: !!a.sac }, str(a.ordinance).trim(), str(a.need).trim(), str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim()] };
     }
     var STATUS_PDF = { Yes: rgb(0.122, 0.42, 0.227), Partly: rgb(0.62, 0.42, 0.02), No: rgb(0.70, 0.16, 0.16) };
     var W = 612, H = 792, L = 48, R = 564, TOP = 40, BOTTOM = 46;
@@ -1100,7 +1163,12 @@
           return { font: font, lines: wrap(c, font, FS, maxW) };
         });
         var n = Math.max.apply(null, cells.map(function (c) { return c.lines.length; }));
-        return { h: Math.max(18, n * LH + 7), cells: cells };
+        var subLines = null;
+        if (row.sub) {
+          subLines = wrap(row.sub.text, F.bold, 7.5, edges[1] - edges[0] - 10);
+          n = Math.max(n, cells[0].lines.length + subLines.length * 0.85);
+        }
+        return { h: Math.max(18, Math.ceil(n * LH + 7)), cells: cells, subLines: subLines };
       }
       var first = rows.length ? rowLayout(rows[0]) : { h: 18 };
       ensure(HH + first.h + 4);
@@ -1142,6 +1210,10 @@
               });
             });
           });
+          if (lay.subLines) {
+            var sy = y + 11.5 + lay.cells[0].lines.length * LH;
+            lay.subLines.forEach(function (ln, k) { tx(edges[0] + 5, sy + k * 9, ln, F.bold, 7.5, row.sub.color); });
+          }
           edges.forEach(function (x) { vline(x, y, y + lay.h); });
         }
         hline(L, R, y + lay.h);
@@ -1257,6 +1329,7 @@
         if (ord) info.push('next: ' + ord);
         if (str(r.need).trim()) info.push('need: ' + r.need.trim());
         if (r.sac) info.push('attended sacrament');
+        if (groupOf(r) === 'nm') { var tst = templeStatus(r, s.date); info.push('temple attendance: ' + tst.short); }
         var rest = (name ? ' (' + info.join('; ') + '): ' : info.join('; ') + ': ') + (str(r.action).trim() || 'No action item written');
         var meta = [];
         if (str(r.assigned).trim()) meta.push('Assigned to ' + r.assigned.trim());
@@ -1293,12 +1366,12 @@
       cpRows.push({ group: g.title, gid: g.id });
       var filled = s.cp[g.id].filter(function (a) { return a.sac || hasText(a, CARD_KEYS); });
       if (!filled.length) cpRows.push(cardRow(blankAction()));
-      filled.forEach(function (a) { cpRows.push(cardRow(a)); });
+      filled.forEach(function (a) { cpRows.push(cardRow(a, g.id)); });
     });
     table(CARD_COLS, ['NAME'].concat(CARD_HEADS), cpRows);
 
     // Three Names (same header style as Covenant Path Report Review)
-    y += 16;
+    y += 13;
     heading('3 Names Next Ordinance (Ward Council Focus Names)');
     ensure(50);
     b2 = y + 13;
@@ -1345,7 +1418,7 @@
       rr: s.rr.map(function (r) {
         return r.prefilled
           ? { prefilled: true, source: r.source, person: r.person, action: r.action, assigned: r.assigned, when: r.when, happened: r.happened, notes: r.notes,
-              group: r.group || '', pname: r.pname || '', ord: r.ord || '', need: r.need || '', sac: !!r.sac, carriedFwd: !!r.carriedFwd }
+              group: r.group || '', pname: r.pname || '', ord: r.ord || '', need: r.need || '', sac: !!r.sac, bap: r.bap || '', temple: !!r.temple, carriedFwd: !!r.carriedFwd }
           : { plan: r.plan, happened: r.happened, notes: r.notes };
       }),
       cpDone: s.cpDone, cp: s.cp, tnDone: s.tnDone, tn: s.tn, ftDone: s.ftDone
@@ -1614,6 +1687,7 @@
       if (path === 'date') renderDateHint();
       if (path === 'conductingOther') writeConducting(state);
       if (/^cp\.\w+\.\d+\.name$/.test(path)) updateListCount(path.split('.')[1]);
+      if (/^cp\.nm\.\d+\.(name|bap|temple)$/.test(path) || path === 'date') { updateTemple(); if (path === 'date') renderRR(); }
       if (/^tn\.\d+\.name$/.test(path)) { var tc = document.querySelector('.list-tn .list-count'); if (tc) tc.textContent = tnCountText(); }
       saveDraft();
     };

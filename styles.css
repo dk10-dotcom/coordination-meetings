@@ -461,3 +461,20 @@ body.typing .actionbar { position: static; }
 .person-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
 .person-line .prefill-person { flex: 0 1 auto; min-width: 0; overflow-wrap: anywhere; }
 .person-line .fact { flex: none; max-width: 100%; }
+
+/* New members: Temple attendance (red until checked) */
+.temple-goal { font-size: 13px; color: var(--text); padding: 0 2px; }
+.temple-summary { font-size: 14px; font-weight: 700; color: #8E1F1F; background: #FBEAEA; border: 1px solid #E8B4B4; border-radius: 10px; padding: 8px 12px; }
+.temple-summary[hidden] { display: none; }
+.temple-box { position: relative; display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; cursor: pointer;
+  background: #FBEAEA; border: 1.5px solid #D98C8C; color: #8E1F1F; -webkit-tap-highlight-color: transparent; }
+.temple-box input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.temple-box .temple-check { border-color: #C76A6A; }
+.temple-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.temple-text strong { font-size: 15px; color: inherit; }
+.temple-sub { font-size: 13px; font-weight: 600; }
+.temple-box.is-done { background: var(--green-soft); border-color: var(--green-line); color: var(--green-ink); }
+.temple-box input:checked + .temple-check { background: #1F6B3A; border-color: #1F6B3A; color: #FFFFFF; }
+.temple-box input:focus-visible + .temple-check { outline: 2px solid var(--accent); outline-offset: 2px; }
+.fact.temple-due { background: #FBEAEA; border-color: #E8B4B4; color: #8E1F1F; }
+.fact.temple-due b { color: #8E1F1F; }
