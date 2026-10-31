@@ -501,3 +501,24 @@ body.typing .actionbar { position: static; }
 .field textarea::placeholder { color: #8A93A3; }
 .field textarea:focus-visible { outline: 3px solid #7FA2DB; outline-offset: 2px; }
 @media (max-width: 360px) { .field input::placeholder, .field textarea::placeholder { font-size: 14px; } }
+
+/* Done: a finished list folds to one line per person */
+.list-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.btn-done { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 18px; border-radius: 10px; border: none;
+  background: var(--list-ink); color: #FFFFFF; font-size: 15px; font-weight: 700; cursor: pointer; margin-left: auto; }
+.btn-done svg { width: 16px; height: 16px; }
+.fold-head { width: 100%; border: none; background: none; padding: 2px; cursor: pointer; text-align: left; font: inherit; }
+.fold-head .list-title { display: inline-flex; align-items: center; gap: 8px; }
+.fold-check { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--list-ink); color: #FFFFFF; }
+.fold-check svg { width: 14px; height: 14px; }
+.fold-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; border-radius: 10px; overflow: hidden; border: 1px solid var(--list-line); background: var(--card); }
+.fold-row { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; }
+.fold-row + .fold-row { border-top: 1px solid var(--list-line); }
+.fold-line { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
+.fold-name { font-size: 15px; font-weight: 700; color: var(--ink); }
+.fold-plan { font-size: 14px; color: var(--text); }
+.fold-plan.missing { color: #8E1F1F; font-style: italic; }
+.fold-tag { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--list-soft); color: var(--list-ink); border: 1px solid var(--list-line); }
+.fold-tag.due { background: #FBEAEA; color: #8E1F1F; border-color: #E8B4B4; }
+.fold-empty { font-size: 14px; color: var(--muted); padding: 0 2px; }
+.btn-reopen { align-self: flex-start; min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--list-line); background: var(--card); color: var(--list-ink); font-size: 14px; font-weight: 700; cursor: pointer; }

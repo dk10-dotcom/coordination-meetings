@@ -125,6 +125,7 @@
       conducting: readConducting().who, conductingOther: readConducting().other,
       rr: [blankRR(), blankRR()], loaded: null,
       cpDone: false, cp: { nm: [blankAction()], rm: [blankAction()], bt: [blankAction()] },
+      collapsed: {},
       tnDone: false, tn: [blankName(), blankName(), blankName()],
       ftDone: false
     };
@@ -166,6 +167,9 @@
       ? { fileName: str(s.loaded.fileName), ward: str(s.loaded.ward), date: str(s.loaded.date), count: +s.loaded.count || 0 }
       : null;
     f.cpDone = !!s.cpDone; f.tnDone = !!s.tnDone; f.ftDone = !!s.ftDone;
+    // Lists marked Done stay folded only within the draft; a saved agenda always opens fully.
+    var col = s.collapsed && typeof s.collapsed === 'object' ? s.collapsed : {};
+    ['nm', 'rm', 'bt', 'tn'].forEach(function (k) { if (col[k]) f.collapsed[k] = true; });
     var cp = s.cp || {};
     GROUPS.forEach(function (g) {
       var raw = Array.isArray(cp[g.id]) ? cp[g.id] : [];
@@ -418,8 +422,9 @@
       var extra = g.id === 'nm' ? [
         h('p', { class: 'temple-goal', text: 'Goal: every new member attends the temple for baptisms for the dead within 30 days of their baptism.' })
       ] : [];
+      if (state.collapsed[g.id]) return foldedPanel('list-panel list-' + g.id, g.id, g.title, countText(named), items, { 'data-group': g.id });
       return h('section', { class: 'list-panel list-' + g.id, 'data-group': g.id, 'aria-label': g.title }, [head]
-        .concat(extra).concat(cards).concat([addButton('add-cp', g.id, 'Add action')]));
+        .concat(extra).concat(cards).concat([h('div', { class: 'list-foot' }, [addButton('add-cp', g.id, 'Add action'), doneButton(g.id, g.title)])]));
     }));
     updateTemple();
   }
@@ -454,6 +459,7 @@
         state.cp.bt.splice(i, 1);
         if (!state.cp.bt.length) state.cp.bt.push(blankAction());
         var nm = state.cp.nm;
+        delete state.collapsed.nm;
         if (nm.length === 1 && !nm[0].sac && !hasText(nm[0], CARD_KEYS)) nm.pop();
         nm.push(c);
         renderCP(); saveDraft();
@@ -502,7 +508,64 @@
       h('h3', { class: 'list-title', text: 'Focus names' }),
       h('span', { class: 'list-count', text: tnCountText() })
     ]);
-    wrap.replaceChildren(h('section', { class: 'list-panel list-tn', 'aria-label': '3 Names Next Ordinance' }, [head].concat(cards)));
+    if (state.collapsed.tn) { wrap.replaceChildren(foldedPanel('list-panel list-tn', 'tn', 'Focus names', tnCountText(), state.tn, {})); return; }
+    wrap.replaceChildren(h('section', { class: 'list-panel list-tn', 'aria-label': '3 Names Next Ordinance' }, [head].concat(cards).concat([h('div', { class: 'list-foot' }, [doneButton('tn', 'Focus names')])])));
+  }
+  /* ---------- Done: fold a finished list to one line per person ---------- */
+  function doneButton(gid, title) {
+    var b = h('button', { type: 'button', class: 'btn-done', 'data-action': 'list-done', 'data-a': gid, 'aria-label': 'Done with ' + title });
+    b.appendChild(icon('check')); b.appendChild(document.createTextNode(' Done'));
+    return b;
+  }
+  function foldedPanel(cls, gid, title, count, items, attrs) {
+    var rows = items.filter(function (it) { return str(it.name).trim(); }).map(function (it) {
+      var tag = null;
+      if (gid === 'nm') {
+        var st = templeStatus(it, state.date);
+        tag = st.done ? null : h('span', { class: 'fold-tag due', text: 'Temple: ' + st.short });
+      }
+      if (gid === 'bt' && it.committed) tag = h('span', { class: 'fold-tag', text: baptismNote(it) });
+      var plan = [str(it.action).trim(), str(it.assigned).trim() ? str(it.assigned).trim() : '', str(it.when).trim()].filter(Boolean).join(' · ');
+      return h('li', { class: 'fold-row' }, [
+        h('div', { class: 'fold-line' }, [h('span', { class: 'fold-name', text: it.name.trim() }), tag]),
+        h('span', { class: 'fold-plan' + (plan ? '' : ' missing'), text: plan || 'No action item' })
+      ]);
+    });
+    var head = h('button', { type: 'button', class: 'list-head fold-head', 'data-action': 'list-open', 'data-a': gid, 'aria-expanded': 'false', 'aria-label': title + ' is done. Tap to open and edit.' }, [
+      h('span', { class: 'list-title' }, [h('span', { class: 'fold-check', 'aria-hidden': 'true' }, [icon('check')]), ' ' + title]),
+      h('span', { class: 'list-count', text: count })
+    ]);
+    var a = { class: cls + ' is-folded', 'aria-label': title };
+    Object.keys(attrs).forEach(function (k) { a[k] = attrs[k]; });
+    return h('section', a, [
+      head,
+      rows.length ? h('ul', { class: 'fold-list' }, rows) : h('p', { class: 'fold-empty', text: 'No names added.' }),
+      h('button', { type: 'button', class: 'btn-reopen', 'data-action': 'list-open', 'data-a': gid, text: 'Edit this list' })
+    ]);
+  }
+  function listDone(gid) {
+    var items = gid === 'tn' ? state.tn : state.cp[gid];
+    var missing = items.filter(function (it) { return str(it.name).trim() && !str(it.action).trim(); }).map(function (it) { return it.name.trim(); });
+    var finish = function () {
+      state.collapsed[gid] = true;
+      if (gid === 'tn') renderTN(); else renderCP();
+      saveDraft();
+      var el = gid === 'tn' ? $('#tn-list') : document.querySelector('[data-group="' + gid + '"]');
+      if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    };
+    if (missing.length) {
+      ask({
+        title: missing.length === 1 ? missing[0] + ' has no action item yet' : missing.length + ' people have no action item yet',
+        body: (missing.length === 1 ? '' : missing.join(', ') + '. ') + 'Mark this list done anyway?',
+        primary: 'Mark done anyway', onPrimary: finish,
+        secondary: 'Keep working'
+      });
+    } else finish();
+  }
+  function listOpen(gid) {
+    delete state.collapsed[gid];
+    if (gid === 'tn') renderTN(); else renderCP();
+    saveDraft();
   }
   function tnCountText() {
     return state.tn.filter(function (n) { return str(n.name).trim(); }).length + ' of 3 names';
@@ -630,6 +693,8 @@
         state.cp[a].push(blankAction()); renderCP(); saveDraft();
         focusLast('[data-group="' + a + '"] input[data-bind$=".name"]'); break;
       case 'convert-nm': convertToNewMember(+a); break;
+      case 'list-done': listDone(a); break;
+      case 'list-open': listOpen(a); break;
       case 'remove-cp':
         state.cp[a].splice(+b, 1);
         if (!state.cp[a].length) state.cp[a].push(blankAction());
@@ -812,6 +877,7 @@
     item.name = name; item.ordinance = ord; item.need = str(r.need).trim(); item.action = str(r.action).trim(); item.assigned = str(r.assigned).trim();
     if (g === 'nm') { item.bap = str(r.bap); item.temple = !!r.temple; }
     if (g === 'bt') { item.bap = str(r.bap); item.committed = !!r.committed; }
+    if (g) delete state.collapsed[g];
     if (g === 'tn') {
       var slot = state.tn.findIndex(function (n) { return name && norm(n.name) === norm(name); });
       if (slot < 0) slot = state.tn.findIndex(function (n) { return !n.sac && !hasText(n, CARD_KEYS); });
@@ -841,6 +907,7 @@
   }
 
   function applyLoad(data, fileName) {
+    state.collapsed = {};
     var items = extractActionItems(data);
     if (!items.length) {
       ask({ title: 'Nothing to load', body: 'Last week’s agenda doesn’t have any action items filled in.', primary: 'OK' });
