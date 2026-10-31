@@ -258,9 +258,15 @@
     list.replaceChildren.apply(list, state.rr.map(function (r, i) {
       var gid = r.prefilled ? groupOf(r) : '';
       var head = h('div', { class: 'card-head' }, [
-        cardLabel(i + 1, 'Item ' + (i + 1)),
+        // "Return and Report" on every card, so a long list still says where you are.
+        h('div', { class: 'card-title' }, [
+          avatar(),
+          h('div', { class: 'card-title-text' }, [
+            h('p', { class: 'card-kicker', text: 'Return and Report' }),
+            h('p', { class: 'card-item', text: 'Item ' + (i + 1) })
+          ])
+        ]),
         h('div', { class: 'card-head-right' }, [
-          gid ? h('span', { class: 'group-tag', text: SOURCE[gid] }) : null,
           many ? removeButton('remove-rr', i, '', 'Remove Return and Report item ' + (i + 1)) : null
         ])
       ]);
@@ -275,6 +281,7 @@
           r.sac ? h('span', { class: 'fact sac' }, ['✓ Attended sacrament']) : null
         ].filter(Boolean);
         body = h('div', { class: 'prefill' }, [
+          gid ? h('span', { class: 'group-tag', text: SOURCE[gid] }) : null,
           pname ? h('p', { class: 'prefill-person', text: pname }) : null,
           facts.length ? h('div', { class: 'facts' }, facts) : null,
           h('p', { class: 'prefill-action' }, [h('span', { class: 'prefill-k', text: 'Action: ' }), str(r.action).trim() || 'No action item was written.']),

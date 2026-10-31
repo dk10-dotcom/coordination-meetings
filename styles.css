@@ -453,3 +453,8 @@ body.typing .actionbar { position: static; }
 .card-avatar { width: 32px; height: 32px; }
 .card-avatar svg { display: block; }
 .card-label { white-space: nowrap; }
+/* Return and Report cards: label above the item number */
+.card-title-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.card-kicker { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--list-ink, var(--accent)); white-space: nowrap; }
+.card-item { font-size: 16px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+.prefill .group-tag { align-self: flex-start; margin-bottom: 4px; }
