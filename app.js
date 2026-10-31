@@ -361,11 +361,11 @@
     ]);
   }
   // The fields on every name card, in meeting order.
-  function cardFields(base, nameLabel, namePh, whenPh, tag, withBap, needPh) {
+  function cardFields(base, nameLabel, namePh, whenPh, tag, withBap, needPh, ordPh) {
     return h('div', { class: 'card-grid' }, [
       field(nameLabel, base + 'name', { placeholder: namePh, cap: 'words', full: true, tag: tag }),
       withBap ? field(withBap, base + 'bap', { type: 'date', full: true }) : null,
-      field('Next ordinance', base + 'ordinance', { placeholder: 'e.g. Baptism', full: true }),
+      field('Next ordinance', base + 'ordinance', { placeholder: ordPh || 'e.g. Baptism', full: true }),
       field('Need', base + 'need', { full: true, multi: true, placeholder: needPh || 'e.g. A ride to church' }),
       field('Action item for this week', base + 'action', { full: true, placeholder: 'What will we do to help?' }),
       // Assigned to gets the wider share of its row; When is usually a day or two words.
@@ -495,7 +495,7 @@
           cardLabel(i + 1, 'Name ' + (i + 1)),
           h('div', { class: 'card-head-right' }, [sacToggle(base + 'sac', n.sac)])
         ]),
-        cardFields(base, 'Focus name', 'Full name', 'e.g. Sun')
+        cardFields(base, 'Focus name', 'Ward Council focus name', 'e.g. Sun', null, '', 'Need identified by Ward Council', 'Identified by Ward Council')
       ]);
     });
     var head = h('div', { class: 'list-head' }, [
