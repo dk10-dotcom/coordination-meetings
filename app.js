@@ -495,14 +495,15 @@
           cardLabel(i + 1, 'Name ' + (i + 1)),
           h('div', { class: 'card-head-right' }, [sacToggle(base + 'sac', n.sac)])
         ]),
-        cardFields(base, 'Focus name', 'Focus name', 'e.g. Sun', null, '', 'e.g. A ride to the temple', 'e.g. Baptism')
+        cardFields(base, 'Focus name', 'Focus name', 'e.g. Sun', null, '', 'e.g. A ride to the temple', 'e.g. Sacrament')
       ]);
     });
     var head = h('div', { class: 'list-head' }, [
       h('h3', { class: 'list-title', text: 'Focus names' }),
       h('span', { class: 'list-count', text: tnCountText() })
     ]);
-    wrap.replaceChildren(h('section', { class: 'list-panel list-tn', 'aria-label': '3 Names Next Ordinance' }, [head].concat(cards)));
+    var note = h('p', { class: 'temple-goal', text: 'Each name, next ordinance and need should be identified by Ward Council.' });
+    wrap.replaceChildren(h('section', { class: 'list-panel list-tn', 'aria-label': '3 Names Next Ordinance' }, [head, note].concat(cards)));
   }
   function tnCountText() {
     return state.tn.filter(function (n) { return str(n.name).trim(); }).length + ' of 3 names';
