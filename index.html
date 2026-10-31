@@ -119,10 +119,16 @@
     </div>
 
     <div class="stack" id="rr-list"></div>
-    <button type="button" class="btn-add" data-action="add-rr">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>
-      Add item
-    </button>
+    <div class="list-foot rr-foot" id="rr-foot">
+      <button type="button" class="btn-add" data-action="add-rr">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>
+        Add item
+      </button>
+      <button type="button" class="btn-done" data-action="list-done" data-a="rr" aria-label="Done with Return and Report">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>
+        Done
+      </button>
+    </div>
   </section>
 
   <section class="section plan" aria-labelledby="h-plan">
@@ -262,6 +268,7 @@
           <li>Under <strong>Return and Report</strong>, mark each item <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>; the card turns green, amber or red.</li>
           <li>Marked <strong>Partly</strong> or <strong>No</strong>? Tap <strong>Carry forward to this week</strong> to add it to this week’s plan without retyping.</li>
           <li>Update the <strong>Covenant Path Report</strong> with any needs that have been fulfilled, including sacrament attendance.</li>
+          <li>Finished going through them? Tap <strong>Done</strong> under Return and Report to fold them to one line each.</li>
         </ul>
       </li>
       <li>

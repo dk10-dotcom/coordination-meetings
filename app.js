@@ -169,7 +169,7 @@
     f.cpDone = !!s.cpDone; f.tnDone = !!s.tnDone; f.ftDone = !!s.ftDone;
     // Lists marked Done stay folded only within the draft; a saved agenda always opens fully.
     var col = s.collapsed && typeof s.collapsed === 'object' ? s.collapsed : {};
-    ['nm', 'rm', 'bt', 'tn'].forEach(function (k) { if (col[k]) f.collapsed[k] = true; });
+    ['rr', 'nm', 'rm', 'bt', 'tn'].forEach(function (k) { if (col[k]) f.collapsed[k] = true; });
     var cp = s.cp || {};
     GROUPS.forEach(function (g) {
       var raw = Array.isArray(cp[g.id]) ? cp[g.id] : [];
@@ -281,6 +281,8 @@
 
   function renderRR() {
     var list = $('#rr-list');
+    $('#rr-foot').hidden = !!state.collapsed.rr;
+    if (state.collapsed.rr) { list.replaceChildren(foldedRR()); renderLoadState(); return; }
     var many = state.rr.length > 1;
     list.replaceChildren.apply(list, state.rr.map(function (r, i) {
       var gid = r.prefilled ? groupOf(r) : '';
@@ -339,14 +341,7 @@
       }
       return h('div', { class: 'card rr-card' + (gid ? ' g-' + gid : ''), 'data-status': statusOf(r.happened) }, [head, body, seg, carry, field('Notes', 'rr.' + i + '.notes', { placeholder: 'Optional' })]);
     }));
-    $('#load-panel').hidden = !!state.loaded;
-    $('#loaded-banner').hidden = !state.loaded;
-    if (state.loaded) {
-      var L = state.loaded;
-      var bits = [L.fileName || 'Last week’s PDF'];
-      bits.push(L.count + (L.count === 1 ? ' action item' : ' action items'));
-      $('#loaded-sub').textContent = bits.join(' · ');
-    }
+    renderLoadState();
   }
 
   function statusOf(v) { return { Yes: 'yes', Partly: 'partly', No: 'no' }[v] || ''; }
@@ -385,6 +380,40 @@
       h('input', { type: 'checkbox', 'data-bind': path, checked: !!on }),
       h('span', { class: 'sac-box', 'aria-hidden': 'true' }, [icon('check')]),
       h('span', { text: 'Attended sacrament' })
+    ]);
+  }
+  function renderLoadState() {
+    $('#load-panel').hidden = !!state.loaded;
+    $('#loaded-banner').hidden = !state.loaded;
+    if (state.loaded) {
+      var L = state.loaded;
+      var bits = [L.fileName || 'Last week’s PDF'];
+      bits.push(L.count + (L.count === 1 ? ' action item' : ' action items'));
+      $('#loaded-sub').textContent = bits.join(' · ');
+    }
+  }
+  // Return and Report folded: one line per item with its answer.
+  function rrShown(r) { return r.prefilled || rrHasInput(r); }
+  function foldedRR() {
+    var rows = state.rr.filter(rrShown).map(function (r) {
+      var gid = r.prefilled ? groupOf(r) : '';
+      var name = r.prefilled ? (str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim()) : '';
+      var what = r.prefilled ? str(r.action).trim() : str(r.plan).trim();
+      var ans = r.happened ? h('span', { class: 'fold-tag ans-' + statusOf(r.happened), text: r.happened }) : h('span', { class: 'fold-tag due', text: 'Not marked' });
+      return h('li', { class: 'fold-row' + (gid ? ' g-' + gid : '') }, [
+        h('div', { class: 'fold-line' }, [h('span', { class: 'fold-name', text: name || what || 'Item' }), ans, r.carriedFwd ? h('span', { class: 'fold-tag', text: 'Carried forward' }) : null]),
+        name && what ? h('span', { class: 'fold-plan', text: what }) : null,
+        str(r.notes).trim() ? h('span', { class: 'fold-plan', text: 'Notes: ' + r.notes.trim() }) : null
+      ]);
+    });
+    var head = h('button', { type: 'button', class: 'list-head fold-head', 'data-action': 'list-open', 'data-a': 'rr', 'aria-expanded': 'false', 'aria-label': 'Return and Report is done. Tap to open and edit.' }, [
+      h('span', { class: 'list-title' }, [h('span', { class: 'fold-check', 'aria-hidden': 'true' }, [icon('check')]), ' Last week’s items']),
+      h('span', { class: 'list-count', text: rows.length + (rows.length === 1 ? ' item' : ' items') })
+    ]);
+    return h('section', { class: 'list-panel rr-folded is-folded', 'aria-label': 'Return and Report' }, [
+      head,
+      rows.length ? h('ul', { class: 'fold-list' }, rows) : h('p', { class: 'fold-empty', text: 'No items.' }),
+      h('button', { type: 'button', class: 'btn-reopen', 'data-action': 'list-open', 'data-a': 'rr', text: 'Edit this list' })
     ]);
   }
   function countNamed(gid) { return state.cp[gid].filter(function (it) { return str(it.name).trim(); }).length; }
@@ -543,16 +572,23 @@
       h('button', { type: 'button', class: 'btn-reopen', 'data-action': 'list-open', 'data-a': gid, text: 'Edit this list' })
     ]);
   }
+  function rerenderList(gid) { if (gid === 'rr') renderRR(); else if (gid === 'tn') renderTN(); else renderCP(); }
   function listDone(gid) {
-    var items = gid === 'tn' ? state.tn : state.cp[gid];
-    var missing = items.filter(function (it) { return str(it.name).trim() && !str(it.action).trim(); }).map(function (it) { return it.name.trim(); });
     var finish = function () {
       state.collapsed[gid] = true;
-      if (gid === 'tn') renderTN(); else renderCP();
+      rerenderList(gid);
       saveDraft();
-      var el = gid === 'tn' ? $('#tn-list') : document.querySelector('[data-group="' + gid + '"]');
+      var el = gid === 'rr' ? $('#rr-list') : gid === 'tn' ? $('#tn-list') : document.querySelector('[data-group="' + gid + '"]');
       if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     };
+    if (gid === 'rr') {
+      var open = state.rr.filter(function (r) { return rrShown(r) && !r.happened; }).length;
+      if (open) ask({ title: open === 1 ? '1 item isn’t marked yet' : open + ' items aren’t marked yet', body: 'They don’t have Yes, Partly or No. Mark Return and Report done anyway?', primary: 'Mark done anyway', onPrimary: finish, secondary: 'Keep working' });
+      else finish();
+      return;
+    }
+    var items = gid === 'tn' ? state.tn : state.cp[gid];
+    var missing = items.filter(function (it) { return str(it.name).trim() && !str(it.action).trim(); }).map(function (it) { return it.name.trim(); });
     if (missing.length) {
       ask({
         title: missing.length === 1 ? missing[0] + ' has no action item yet' : missing.length + ' people have no action item yet',
@@ -564,7 +600,7 @@
   }
   function listOpen(gid) {
     delete state.collapsed[gid];
-    if (gid === 'tn') renderTN(); else renderCP();
+    rerenderList(gid);
     saveDraft();
   }
   function tnCountText() {

@@ -522,3 +522,12 @@ body.typing .actionbar { position: static; }
 .fold-tag.due { background: #FBEAEA; color: #8E1F1F; border-color: #E8B4B4; }
 .fold-empty { font-size: 14px; color: var(--muted); padding: 0 2px; }
 .btn-reopen { align-self: flex-start; min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--list-line); background: var(--card); color: var(--list-ink); font-size: 14px; font-weight: 700; cursor: pointer; }
+/* Return and Report: Done */
+.rr-foot[hidden] { display: none; }
+.rr-foot .btn-done { --list-ink: var(--accent); }
+.rr-folded { --list-ink: var(--accent); --list-soft: var(--accent-soft); --list-line: var(--accent-line); border-top-color: var(--accent); }
+.rr-folded .fold-row[class*="g-"] { border-left: 4px solid var(--list-ink); }
+.fold-tag.ans-yes { background: #EAF5EE; color: #1F4D30; border-color: #A9D3B6; }
+.fold-tag.ans-partly { background: #FFF6E0; color: #7A5200; border-color: #EBCB7A; }
+.fold-tag.ans-no { background: #FBEAEA; color: #8E1F1F; border-color: #E8B4B4; }
+.rr-folded .fold-row + .fold-row { border-top-color: var(--card-line); }
