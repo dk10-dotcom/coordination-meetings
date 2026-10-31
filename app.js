@@ -1343,7 +1343,10 @@
     y = 152;
 
     /* ----- Attendees ----- */
-    heading('Attendees', 'Make an extra effort to involve the youth');
+    // A label like Ward, Date and Conducting, not a section heading: it's about the meeting, not a topic.
+    var al = tx(L, y + 3, 'Attendees', F.reg, 9, C.gray);
+    tx(al + 6, y + 3, 'Make an extra effort to involve the youth', F.ital, 8.5, C.gray);
+    y += 5;
     var arows = [ATTENDEES.slice(0, 4), ATTENDEES.slice(4, 8), ATTENDEES.slice(8)];
     var fontFor = function (a) { return a.youth ? F.bold : F.reg; };
     var colw = [0, 1, 2, 3].map(function (i) {

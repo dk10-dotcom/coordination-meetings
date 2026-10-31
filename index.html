@@ -81,15 +81,12 @@
       <input type="text" id="conducting-other" data-bind="conductingOther" placeholder="Who is conducting?" autocomplete="off" autocapitalize="words" aria-label="Who is conducting" hidden>
     </div>
 
-  </header>
-
-  <section class="section" aria-labelledby="h-attendees">
-    <div class="section-head">
-      <h2 id="h-attendees">Attendees</h2>
-      <p class="muted">Make an extra effort to involve the youth. Tap everyone who attended.</p>
+    <div class="field attendees-field" role="group" aria-labelledby="h-attendees">
+      <span id="h-attendees">Attendees</span>
+      <span class="attendees-hint">Make an extra effort to involve the youth. Tap everyone who attended.</span>
+      <div class="chips" id="attendee-list"></div>
     </div>
-    <div class="chips" id="attendee-list"></div>
-  </section>
+  </header>
 
   <section class="start-here" aria-label="Load last week">
       <div class="load-panel" id="load-panel">

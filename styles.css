@@ -492,3 +492,6 @@ body.typing .actionbar { position: static; }
   color: var(--list-ink); font-size: 15px; font-weight: 700; cursor: pointer; }
 .btn-convert:active { background: var(--list-soft); }
 .card.just-moved { box-shadow: 0 0 0 3px var(--list-ink), 0 3px 10px rgba(27, 43, 75, 0.07); transition: box-shadow 300ms; }
+/* Attendees: a meeting detail like Ward, Date and Conducting */
+.attendees-field { gap: 8px; }
+.attendees-hint { font-size: 14px; font-weight: 400; color: var(--text); margin-top: -2px; }
