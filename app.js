@@ -495,7 +495,7 @@
           cardLabel(i + 1, 'Name ' + (i + 1)),
           h('div', { class: 'card-head-right' }, [sacToggle(base + 'sac', n.sac)])
         ]),
-        cardFields(base, 'Focus name', 'Ward Council focus name', 'e.g. Sun', null, '', 'Need identified by Ward Council', 'Identified by Ward Council')
+        cardFields(base, 'Focus name', 'Focus name', 'e.g. Sun', null, '', 'e.g. A ride to the temple', 'e.g. Baptism')
       ]);
     });
     var head = h('div', { class: 'list-head' }, [
