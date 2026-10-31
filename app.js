@@ -275,14 +275,15 @@
         var meta = prefillMeta(r);
         var pname = str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim();
         var pord = str(r.ord).trim() || (str(r.person).split(' · Next: ')[1] || '').trim();
+        var ordTag = pord ? h('span', { class: 'fact' }, [h('b', { text: 'Next: ' }), pord]) : null;
         var facts = [
-          pord ? h('span', { class: 'fact' }, [h('b', { text: 'Next: ' }), pord]) : null,
           str(r.need).trim() ? h('span', { class: 'fact' }, [h('b', { text: 'Need: ' }), r.need.trim()]) : null,
           r.sac ? h('span', { class: 'fact sac' }, ['✓ Attended sacrament']) : null
         ].filter(Boolean);
         body = h('div', { class: 'prefill' }, [
           gid ? h('span', { class: 'group-tag', text: SOURCE[gid] }) : null,
-          pname ? h('p', { class: 'prefill-person', text: pname }) : null,
+          // Name and next ordinance share a line; a long name pushes the tag to the next line.
+          pname || ordTag ? h('div', { class: 'person-line' }, [pname ? h('p', { class: 'prefill-person', text: pname }) : null, ordTag]) : null,
           facts.length ? h('div', { class: 'facts' }, facts) : null,
           h('p', { class: 'prefill-action' }, [h('span', { class: 'prefill-k', text: 'Action: ' }), str(r.action).trim() || 'No action item was written.']),
           meta ? h('p', { class: 'prefill-meta', text: meta }) : null
