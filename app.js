@@ -1599,6 +1599,7 @@
     var sheet = $('#help-sheet .sheet'); if (sheet) sheet.scrollTop = 0;
   }
   function closeHelp() {
+    var v = $('#training-video'); if (v && !v.paused) v.pause();
     writeFlag(HELP_KEY);
     closeOverlay('#help-sheet');
     if (location.hash === '#help') { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ignore */ } }

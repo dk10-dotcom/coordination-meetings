@@ -1,5 +1,5 @@
 /* Offline support: caches the page's own files only. It never stores form data. */
-var CACHE = 'huddle-v70';
+var CACHE = 'huddle-v71';
 var FILES = [
   './',
   'index.html',
@@ -27,6 +27,8 @@ self.addEventListener('activate', function (e) {
 // reusing a copy for up to 10 minutes.
 self.addEventListener('fetch', function (e) {
   if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
+  // The training video streams straight from the site and is never stored on the phone.
+  if (/\.mp4$/i.test(new URL(e.request.url).pathname)) return;
   e.respondWith(
     fetch(e.request, { cache: 'no-cache' }).then(function (res) {
       var copy = res.clone();

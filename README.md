@@ -43,6 +43,7 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 - Send people straight to it with the site link plus `#help` (for example `https://dk10-dotcom.github.io/coordination-meetings/#help`).
 - The first time last week's names carry over, a one-time reminder asks the user to compare them to this week's Covenant Path Report.
 - The wording lives in `index.html` under `How to use`.
+- A training video (`training-video.mp4`, cover image `training-video-poster.jpg`) plays at the top of How to use. It streams from the site and is never stored on phones. Share it directly with the site link plus `training-video.mp4`. Member names and details shown in the original video were blurred before publishing.
 
 ## How people use it each week
 
