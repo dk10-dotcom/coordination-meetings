@@ -403,7 +403,8 @@
           ]),
           g.id === 'nm' ? templeBox(base, i, it) : null,
           g.id === 'bt' ? committedBox(base, it) : null,
-          cardFields(base, 'Name', 'Person from the list', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: 'From last week' }) : null, g.id === 'nm' || g.id === 'bt')
+          cardFields(base, 'Name', 'Person from the list', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: 'From last week' }) : null, g.id === 'nm' || g.id === 'bt'),
+          g.id === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': i }, ['Convert to new member']) : null
         ]);
       });
       var named = countNamed(g.id);
@@ -432,6 +433,39 @@
         h('span', { class: 'temple-sub', text: st.done ? '✓ Baptisms for the dead done' : st.text })
       ])
     ]);
+  }
+  // Those being taught → New members, keeping everything typed. The baptism date carries over,
+  // so the 30-day temple count starts right away.
+  function convertToNewMember(i) {
+    var it = state.cp.bt[i]; if (!it) return;
+    var name = str(it.name).trim();
+    if (!name) { toast('Add their name first.'); return; }
+    ask({
+      title: 'Move ' + name + ' to New members?',
+      body: 'Everything on this card moves with them, including the baptism date. The 30-day temple count starts from that date.',
+      primary: 'Move to New members',
+      onPrimary: function () {
+        var c = blankAction();
+        CARD_KEYS.forEach(function (k) { c[k] = str(it[k]); });
+        c.sac = !!it.sac;
+        if (/^baptism$/i.test(str(c.ordinance).trim())) c.ordinance = '';
+        state.cp.bt.splice(i, 1);
+        if (!state.cp.bt.length) state.cp.bt.push(blankAction());
+        var nm = state.cp.nm;
+        if (nm.length === 1 && !nm[0].sac && !hasText(nm[0], CARD_KEYS)) nm.pop();
+        nm.push(c);
+        renderCP(); saveDraft();
+        var cards = document.querySelectorAll('[data-group="nm"] .card');
+        var card = cards[cards.length - 1];
+        if (card) {
+          card.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          card.classList.add('just-moved'); setTimeout(function () { card.classList.remove('just-moved'); }, 1600);
+          if (!c.bap) { var d = card.querySelector('[data-bind$=".bap"]'); if (d) setTimeout(function () { d.focus({ preventScroll: true }); }, 400); }
+        }
+        toast(name + ' moved to New members.' + (c.bap ? '' : ' Add the baptism date to start the 30-day temple count.'));
+      },
+      secondary: 'Cancel'
+    });
   }
   function committedBox(base, it) {
     return h('label', { class: 'commit-box' }, [
@@ -600,6 +634,7 @@
       case 'add-cp':
         state.cp[a].push(blankAction()); renderCP(); saveDraft();
         focusLast('[data-group="' + a + '"] input[data-bind$=".name"]'); break;
+      case 'convert-nm': convertToNewMember(+a); break;
       case 'remove-cp':
         state.cp[a].splice(+b, 1);
         if (!state.cp[a].length) state.cp[a].push(blankAction());
