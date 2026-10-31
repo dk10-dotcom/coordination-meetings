@@ -863,6 +863,16 @@
     db.close();
   }
 
+  // "Saved today, 6:19 AM", "Saved yesterday, 8:05 PM" or "Saved Oct 29, 7:42 PM"
+  function savedLabel(iso) {
+    var d = new Date(iso); if (isNaN(d)) return '';
+    var time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var day = new Date(d); day.setHours(0, 0, 0, 0);
+    var diff = Math.round((today - day) / 86400000);
+    var when = diff === 0 ? 'today' : diff === 1 ? 'yesterday' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return 'Saved ' + when + ', ' + time;
+  }
   async function openLoad() {
     var list = await listAgendas();
     if (list === null) {
@@ -894,7 +904,8 @@
         h('button', { type: 'button', class: 'agenda-row', 'data-action': 'pick-agenda', 'data-a': r.id }, [
           h('span', { class: 'agenda-row-text' }, [
             h('span', { class: 'agenda-row-title', text: longDate(r.date) || r.date }),
-            h('span', { class: 'agenda-row-sub', text: (r.ward || 'Ward not listed') + ' · ' + n + (n === 1 ? ' action item' : ' action items') })
+            h('span', { class: 'agenda-row-sub', text: (r.ward || 'Ward not listed') + ' · ' + n + (n === 1 ? ' action item' : ' action items') }),
+            r.savedAt ? h('span', { class: 'agenda-row-time', text: savedLabel(r.savedAt) }) : null
           ]),
           chev
         ]),
