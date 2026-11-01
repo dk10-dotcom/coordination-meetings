@@ -720,7 +720,13 @@
   function focusLast(selector) {
     var els = document.querySelectorAll(selector);
     var el = els[els.length - 1];
-    if (el) { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); setTimeout(function () { el.focus({ preventScroll: true }); }, 250); }
+    if (!el) return;
+    el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    // Only move the cursor if the person hasn't already tapped into another box.
+    setTimeout(function () {
+      var a = document.activeElement;
+      if (!a || a === document.body || (a.matches && a.matches('button'))) el.focus({ preventScroll: true });
+    }, 250);
   }
 
   function onAction(btn) {
@@ -1236,9 +1242,7 @@
         var d = shortDay(str(a.bap));
         sub = { text: a.committed ? 'Committed' + (d ? ' · ' + d : '') : 'Scheduled: ' + d, color: GROUP_PDF.bt.ink };
       }
-      var need = str(a.need).trim(), hneed = str(a.hneed).trim();
-      if (hneed) need = (need ? need + '\n' : '') + 'Huddle: ' + hneed;
-      return { boldFirst: true, sub: sub, cells: [str(a.name).trim(), str(a.ordinance).trim(), need, { check: !!a.sac }, str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim()] };
+      return { boldFirst: true, sub: sub, note: str(a.hneed).trim(), cells: [str(a.name).trim(), str(a.ordinance).trim(), str(a.need).trim(), { check: !!a.sac }, str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim()] };
     }
     var STATUS_PDF = { Yes: rgb(0.122, 0.42, 0.227), Partly: rgb(0.62, 0.42, 0.02), No: rgb(0.70, 0.16, 0.16) };
     var W = 612, H = 792, L = 48, R = 564, TOP = 40, BOTTOM = 46;
@@ -1387,7 +1391,15 @@
           subLines = wrap(row.sub.text, F.bold, 7.5, edges[1] - edges[0] - 10);
           n = Math.max(n, cells[0].lines.length + subLines.length * 0.85);
         }
-        return { h: Math.max(18, Math.ceil(n * LH + 7)), cells: cells, subLines: subLines };
+        var cellH = Math.max(18, Math.ceil(n * LH + 7));
+        // Huddle notes get their own full-width line under the row.
+        var noteLines = null, noteH = 0, noteLabelW = 0;
+        if (row.note) {
+          noteLabelW = F.bold.widthOfTextAtSize('Huddle notes: ', 8);
+          noteLines = wrap(row.note, F.reg, 8, R - L - 12 - noteLabelW);
+          noteH = noteLines.length * 10 + 7;
+        }
+        return { h: cellH + noteH, cellH: cellH, cells: cells, subLines: subLines, noteLines: noteLines, noteLabelW: noteLabelW };
       }
       var first = rows.length ? rowLayout(rows[0]) : { h: 18 };
       ensure(GH + HH + first.h + 4);
@@ -1433,7 +1445,15 @@
             var sy = y + 11.5 + lay.cells[0].lines.length * LH;
             lay.subLines.forEach(function (ln, k) { tx(edges[0] + 5, sy + k * 9, ln, F.bold, 7.5, row.sub.color); });
           }
-          edges.forEach(function (x) { vline(x, y, y + lay.h); });
+          edges.forEach(function (x) { vline(x, y, y + (lay.noteLines ? lay.cellH : lay.h)); });
+          if (lay.noteLines) {
+            var ny = y + lay.cellH;
+            box(L, ny, R - L, lay.h - lay.cellH, { color: C.hudFill });
+            hline(L, R, ny, C.hudLine, 0.5);
+            vline(L, ny, y + lay.h); vline(R, ny, y + lay.h);
+            tx(L + 6, ny + 10.5, 'Huddle notes:', F.bold, 8, C.hudInk);
+            lay.noteLines.forEach(function (ln, k) { tx(L + 6 + lay.noteLabelW, ny + 10.5 + k * 10, ln, F.reg, 8, C.dark); });
+          }
         }
         hline(L, R, y + lay.h);
         y += lay.h;
