@@ -544,3 +544,7 @@ body.typing .actionbar { position: static; }
 .zone-hd .zone-dot { background: var(--orange-ink); }
 .link-add { align-self: flex-start; min-height: 36px; padding: 0 2px; border: none; background: none; color: var(--orange-ink); font-size: 14px; font-weight: 600; cursor: pointer; }
 .link-add[hidden], .field[hidden] { display: none; }
+/* LAST WEEK / THIS WEEK'S PLAN bands that group the sections */
+.week-band { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 9px 14px; border-radius: 10px; background: var(--ink); color: #FFFFFF; margin-bottom: -6px; }
+.week-label { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.week-sub { font-size: 13px; color: #C9D6EA; }

@@ -1321,6 +1321,14 @@
       }
     }
     function ensure(need) { if (y + need > H - BOTTOM) newPage(true); }
+    // A slim band that groups sections: LAST WEEK (looking back) and THIS WEEK'S PLAN (looking ahead).
+    function band(label, sub) {
+      ensure(70);
+      box(L, y, R - L, 17, { color: C.navy });
+      var e = tx(L + 8, y + 12, label, F.bold, 8.5, C.white);
+      if (sub) tx(e + 8, y + 12, sub, F.ital, 8.5, rgb(0.82, 0.87, 0.94));
+      y += 17 + 8;
+    }
     function heading(label, note) {
       ensure(40);
       var e = tx(L, y + 9, label, F.bold, 11.5, C.blue);
@@ -1410,9 +1418,11 @@
       var first = rows.length ? rowLayout(rows[0]) : { h: 18 };
       ensure(GH + HH + first.h + 4);
       drawHeader();
-      rows.forEach(function (row) {
+      rows.forEach(function (row, ri) {
         var lay = rowLayout(row);
-        if (y + lay.h > H - BOTTOM) { newPage(true); drawHeader(); }
+        // A list label never sits alone at the bottom of a page: keep it with its first person.
+        var keep = row.group && rows[ri + 1] ? rowLayout(rows[ri + 1]).h : 0;
+        if (y + lay.h + keep > H - BOTTOM) { newPage(true); drawHeader(); }
         if (row.empty) {
           tx(L + 8, y + 11.5, row.empty, F.ital, 8.5, C.gray);
           vline(L, y, y + lay.h); vline(R, y, y + lay.h);
@@ -1574,7 +1584,8 @@
 
     /* ----- Return and Report ----- */
     y += 12;
-    heading('Return and Report', 'Did last week’s plan happen?');
+    band('LAST WEEK', 'Did it happen?');
+    heading('Return and Report');
     y += 7;
     var rrRows = s.rr.filter(function (r) { return r.prefilled || rrHasInput(r); }).map(function (r) {
       var gid = r.prefilled ? groupOf(r) : '';
@@ -1593,7 +1604,8 @@
     table([48, 140, 352, 418], ['PERSON', 'LAST WEEK’S ACTION', 'HAPPENED?', 'NOTES'], rrRows);
 
     /* ----- Covenant Path Report Review ----- */
-    y += 16;
+    y += 18;
+    band('THIS WEEK’S PLAN', 'Who and what from ward council; how and when from the huddle');
     heading('Covenant Path Report Review');
     // The PDF keeps only the table; the how-to lines live on the form.
     y += 7;

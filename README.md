@@ -88,6 +88,7 @@ Each name card has an **Attended sacrament** checkbox (top right), **Next ordina
 ## The PDF at a glance
 
 - **Top:** title, ward, date, who conducted, and the Ward Council (who · what) / huddle (how · when) reminder. Attendees who were there print dark; those who weren't print light gray.
+- **Two bands group the page:** **LAST WEEK** (Did it happen?) over Return and Report, and **THIS WEEK'S PLAN** over Covenant Path Report Review and 3 Names. The form has the same bands.
 - **Return and Report:** one row per item: the person (with their list in color), last week's action with who and when in gray, whether it happened (green / amber / red), and notes. Carried-forward items say so, and last week's huddle notes sit under the person.
 - **Covenant Path Report Review and 3 Names:** Ward Council columns (name, next ordinance, need) then Huddle columns (attended sacrament as a green tick, action, assigned to, when). Temple countdowns and baptism commitments sit under the name; huddle notes sit in the person's row. Empty lists say "None this week."
 
