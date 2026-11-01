@@ -307,7 +307,7 @@
         var ordTag = pord ? h('span', { class: 'fact' }, [h('b', { text: 'Next: ' }), pord]) : null;
         var facts = [
           str(r.need).trim() ? h('span', { class: 'fact' }, [h('b', { text: 'Need: ' }), r.need.trim()]) : null,
-          str(r.hneed).trim() ? h('span', { class: 'fact' }, [h('b', { text: 'Huddle need: ' }), r.hneed.trim()]) : null,
+          str(r.hneed).trim() ? h('span', { class: 'fact' }, [h('b', { text: 'From the huddle: ' }), r.hneed.trim()]) : null,
           r.sac ? h('span', { class: 'fact sac' }, ['✓ Attended sacrament']) : null,
           gid === 'bt' && baptismNote(r) ? h('span', { class: 'fact ' + (r.committed ? 'committed' : '') }, [(r.committed ? '✓ ' : '') + baptismNote(r)]) : null,
           gid === 'nm' ? (function () {
@@ -368,9 +368,9 @@
   }
   function cardFields(base, nameLabel, namePh, whenPh, tag, withBap, needPh, ordPh, wcExtra) {
     var hneedVal = str(getPath(base + 'hneed')).trim();
-    var hneedField = field('Need the huddle noticed', base + 'hneed', { full: true, multi: true, placeholder: 'Something the Covenant Path Report doesn’t show' });
+    var hneedField = field('Huddle needs or notes', base + 'hneed', { full: true, multi: true, placeholder: 'A need the huddle noticed, or a note' });
     if (!hneedVal) hneedField.hidden = true;
-    var hneedLink = h('button', { type: 'button', class: 'link-add', 'data-action': 'add-hneed', hidden: !!hneedVal }, ['+ Add a need the huddle noticed']);
+    var hneedLink = h('button', { type: 'button', class: 'link-add', 'data-action': 'add-hneed', hidden: !!hneedVal }, ['+ Add a need or note from the huddle']);
     return h('div', { class: 'card-zones' }, [
       h('div', { class: 'card-zone zone-wc-wrap' }, [
         zoneLabel('wc', 'Ward Council · Who & What'),
@@ -1550,7 +1550,7 @@
         var info = [r.source];
         if (ord) info.push('next: ' + ord);
         if (str(r.need).trim()) info.push('need: ' + r.need.trim());
-        if (str(r.hneed).trim()) info.push('huddle need: ' + r.hneed.trim());
+        if (str(r.hneed).trim()) info.push('from the huddle: ' + r.hneed.trim());
         if (r.sac) info.push('attended sacrament');
         if (groupOf(r) === 'bt' && baptismNote(r)) { var bn = baptismNote(r); info.push(bn.charAt(0).toLowerCase() + bn.slice(1).replace('baptism: ', 'baptism ')); }
         if (groupOf(r) === 'nm') { var tst = templeStatus(r, s.date); info.push('temple attendance: ' + tst.short); }
