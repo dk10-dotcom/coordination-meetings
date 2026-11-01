@@ -1217,7 +1217,7 @@
       gray: rgb(0.42, 0.447, 0.502), line: rgb(0.788, 0.808, 0.839), head: rgb(0.933, 0.949, 0.973),
       group: rgb(0.965, 0.972, 0.984), white: rgb(1, 1, 1),
       councilFill: rgb(0.902, 0.937, 0.98), councilLine: rgb(0.18, 0.455, 0.788),
-      hudFill: rgb(0.988, 0.929, 0.898), hudLine: rgb(0.878, 0.4, 0.18), hudInk: rgb(0.64, 0.29, 0.07), amber: rgb(1, 0.973, 0.902), amberLine: rgb(0.922, 0.796, 0.478)
+      faint: rgb(0.62, 0.65, 0.70), hudFill: rgb(0.988, 0.929, 0.898), hudLine: rgb(0.878, 0.4, 0.18), hudInk: rgb(0.64, 0.29, 0.07), amber: rgb(1, 0.973, 0.902), amberLine: rgb(0.922, 0.796, 0.478)
     };
     // Each Covenant Path list gets its own color on the PDF, matching the form.
     var GROUP_PDF = {
@@ -1242,7 +1242,7 @@
         var d = shortDay(str(a.bap));
         sub = { text: a.committed ? 'Committed' + (d ? ' · ' + d : '') : 'Scheduled: ' + d, color: GROUP_PDF.bt.ink };
       }
-      return { boldFirst: true, sub: sub, note: str(a.hneed).trim(), cells: [str(a.name).trim(), str(a.ordinance).trim(), str(a.need).trim(), { check: !!a.sac }, str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim()] };
+      return { boldFirst: true, sub: sub, note: str(a.hneed).trim(), cells: [str(a.name).trim(), str(a.ordinance).trim(), str(a.need).trim(), { check: !!a.sac, mark: true }, str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim()] };
     }
     var STATUS_PDF = { Yes: rgb(0.122, 0.42, 0.227), Partly: rgb(0.62, 0.42, 0.02), No: rgb(0.70, 0.16, 0.16) };
     var W = 612, H = 792, L = 48, R = 564, TOP = 40, BOTTOM = 46;
@@ -1350,7 +1350,7 @@
         box(L, y, R - L, HH, { color: C.head });
         headLines.forEach(function (ls, i) { ls.forEach(function (t, k) { tx(edges[i] + 5, y + 10 + k * 9, t, F.bold, 8, C.navy); }); });
         hline(L, R, y); hline(L, R, y + HH);
-        edges.forEach(function (x) { vline(x, y, y + HH); });
+        vline(L, y, y + HH); vline(R, y, y + HH);
         y += HH;
       }
       // A cell is plain text, or a list of {t, bold} pieces when only part of it is bold.
@@ -1378,14 +1378,20 @@
       }
       function rowLayout(row) {
         if (row.group) return { h: 15 };
+        if (row.empty) return { h: 18 };
         var cells = row.cells.map(function (c, i) {
           var maxW = edges[i + 1] - edges[i] - 10;
-          if (c && typeof c === 'object' && 'check' in c) return { box: true, on: !!c.check, lines: [] };
+          if (c && typeof c === 'object' && 'check' in c) return { box: true, on: !!c.check, mark: !!c.mark, lines: [] };
+          // Main text, with a smaller gray line underneath (who and when, or a short status).
+          if (c && typeof c === 'object' && 'meta' in c) {
+            var main = wrap(str(c.text), F.reg, FS, maxW), meta = str(c.meta) ? wrap(c.meta, c.metaItal ? F.ital : F.reg, 7.8, maxW) : [];
+            return { font: F.reg, lines: str(c.text) ? main : [], meta: meta, metaItal: !!c.metaItal, extra: meta.length * 0.9 };
+          }
           if (Array.isArray(c)) return segWrap(c, maxW);
           var font = row.boldFirst && i === 0 ? F.bold : F.reg;
           return { font: font, lines: wrap(c, font, FS, maxW) };
         });
-        var n = Math.max.apply(null, cells.map(function (c) { return c.lines.length; }));
+        var n = Math.max.apply(null, cells.map(function (c) { return c.lines.length + (c.extra || 0); }));
         var subLines = null;
         if (row.sub) {
           subLines = wrap(row.sub.text, F.bold, 7.5, edges[1] - edges[0] - 10);
@@ -1407,7 +1413,10 @@
       rows.forEach(function (row) {
         var lay = rowLayout(row);
         if (y + lay.h > H - BOTTOM) { newPage(true); drawHeader(); }
-        if (row.group) {
+        if (row.empty) {
+          tx(L + 8, y + 11.5, row.empty, F.ital, 8.5, C.gray);
+          vline(L, y, y + lay.h); vline(R, y, y + lay.h);
+        } else if (row.group) {
           var gc = GROUP_PDF[row.gid] || { fill: C.group, ink: C.blue };
           box(L, y, R - L, lay.h, { color: gc.fill });
           box(L, y, 3, lay.h, { color: gc.ink });
@@ -1418,9 +1427,9 @@
           if (row.gid && GROUP_PDF[row.gid]) box(L, y, 3, lay.h, { color: GROUP_PDF[row.gid].ink });
           lay.cells.forEach(function (c, i) {
             if (c.box) {
-              // A small box, ticked when the person attended sacrament meeting.
+              // A green tick when the person attended sacrament meeting (an empty box only on blank forms).
               var bx = (edges[i] + edges[i + 1]) / 2 - 4.5, by = y + 4.5;
-              page.drawRectangle({ x: bx, y: H - (by + 9), width: 9, height: 9, borderColor: C.gray, borderWidth: 0.8 });
+              if (!c.mark) page.drawRectangle({ x: bx, y: H - (by + 9), width: 9, height: 9, borderColor: C.gray, borderWidth: 0.8 });
               if (c.on) {
                 page.drawLine({ start: { x: bx + 1.8, y: H - (by + 4.8) }, end: { x: bx + 3.8, y: H - (by + 7) }, thickness: 1.4, color: STATUS_PDF.Yes });
                 page.drawLine({ start: { x: bx + 3.8, y: H - (by + 7) }, end: { x: bx + 7.6, y: H - (by + 2) }, thickness: 1.4, color: STATUS_PDF.Yes });
@@ -1429,7 +1438,7 @@
             }
             c.lines.forEach(function (ln, k) {
               if (!c.seg) {
-                var isStatus = row.status && i === 1 && STATUS_PDF[row.status];
+                var isStatus = row.status && i === (row.statusCol || 1) && STATUS_PDF[row.status];
                 tx(edges[i] + 5, y + 11.5 + k * LH, ln, isStatus ? F.bold : c.font, FS, isStatus ? STATUS_PDF[row.status] : C.dark);
                 return;
               }
@@ -1441,16 +1450,21 @@
               });
             });
           });
+          lay.cells.forEach(function (c, i) {
+            if (!c.meta || !c.meta.length) return;
+            var my = y + 11.5 + c.lines.length * LH - (c.lines.length ? 0.5 : 0);
+            c.meta.forEach(function (ln, k) { tx(edges[i] + 5, my + k * 9.5, ln, c.metaItal ? F.ital : F.reg, 7.8, C.gray); });
+          });
           if (lay.subLines) {
             var sy = y + 11.5 + lay.cells[0].lines.length * LH;
             lay.subLines.forEach(function (ln, k) { tx(edges[0] + 5, sy + k * 9, ln, F.bold, 7.5, row.sub.color); });
           }
-          edges.forEach(function (x) { vline(x, y, y + (lay.noteLines ? lay.cellH : lay.h)); });
+          // Outer border only; rows are separated by horizontal rules, which reads cleaner on paper.
+          vline(L, y, y + lay.h); vline(R, y, y + lay.h);
           if (lay.noteLines) {
             // The note sits inside the same row, tucked under the name with a connector,
             // so it reads as belonging to that person.
             var ny = y + lay.cellH - 1, nh = lay.h - lay.cellH - 3;
-            vline(L, y + lay.cellH, y + lay.h); vline(R, y + lay.cellH, y + lay.h);
             rbox(L + 18, ny, R - L - 24, nh, 3, C.hudFill, C.hudLine, 0.5);
             page.drawLine({ start: { x: L + 9, y: H - (y + lay.cellH - 3) }, end: { x: L + 9, y: H - (ny + nh / 2) }, thickness: 0.9, color: C.hudLine });
             page.drawLine({ start: { x: L + 9, y: H - (ny + nh / 2) }, end: { x: L + 18, y: H - (ny + nh / 2) }, thickness: 0.9, color: C.hudLine });
@@ -1550,8 +1564,9 @@
     var ab = y + 13;
     arows.forEach(function (r) {
       r.forEach(function (a, i) {
-        checkbox(xs[i], ab, s.attendees.indexOf(a.id) >= 0);
-        tx(xs[i] + 14.6, ab, a.label, fontFor(a), 9.5, C.dark);
+        var here = s.attendees.indexOf(a.id) >= 0;
+        checkbox(xs[i], ab, here);
+        tx(xs[i] + 14.6, ab, a.label, fontFor(a), 9.5, here || !s.attendees.length ? C.dark : C.faint);
       });
       ab += 14;
     });
@@ -1559,35 +1574,23 @@
 
     /* ----- Return and Report ----- */
     y += 12;
-    heading('Return and Report');
-    var qb = y + 13;
-    tx(L, qb, 'Did last week’s plan happen?', F.bold, 9.5, C.dark);
-    y = qb + 8;
+    heading('Return and Report', 'Did last week’s plan happen?');
+    y += 7;
     var rrRows = s.rr.filter(function (r) { return r.prefilled || rrHasInput(r); }).map(function (r) {
-      var plan;
-      if (r.prefilled) {
-        // The person's name is bold, like the names in the other tables.
-        var parts = str(r.person).split(' · Next: ');
-        var name = (str(r.pname).trim() || parts[0]).trim();
-        var ord = (str(r.ord).trim() || (parts[1] || '')).trim();
-        var info = [r.source];
-        if (ord) info.push('next: ' + ord);
-        if (str(r.need).trim()) info.push('need: ' + r.need.trim());
-        if (str(r.hneed).trim()) info.push('from the huddle: ' + r.hneed.trim());
-        if (r.sac) info.push('attended sacrament');
-        if (groupOf(r) === 'bt' && baptismNote(r)) { var bn = baptismNote(r); info.push(bn.charAt(0).toLowerCase() + bn.slice(1).replace('baptism: ', 'baptism ')); }
-        if (groupOf(r) === 'nm') { var tst = templeStatus(r, s.date); info.push('temple attendance: ' + tst.short); }
-        var rest = (name ? ' (' + info.join('; ') + '): ' : info.join('; ') + ': ') + (str(r.action).trim() || 'No action item written');
-        var meta = [];
-        if (str(r.assigned).trim()) meta.push('Assigned to ' + r.assigned.trim());
-        if (str(r.when).trim()) meta.push(r.when.trim());
-        if (meta.length) rest += ' — ' + meta.join(', ');
-        plan = name ? [{ t: name, bold: true }, { t: rest, bold: false }] : [{ t: rest, bold: false }];
-      } else plan = str(r.plan).trim();
-      return { gid: r.prefilled ? groupOf(r) : '', status: r.happened || '', cells: [plan, r.happened || '', str(r.notes).trim()] };
+      var gid = r.prefilled ? groupOf(r) : '';
+      var name = r.prefilled ? (str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim()) : '';
+      var who = [str(r.assigned).trim(), str(r.when).trim()].filter(Boolean).join(' · ');
+      var action = r.prefilled ? (str(r.action).trim() || 'No action item written') : str(r.plan).trim();
+      var notes = str(r.notes).trim();
+      return {
+        gid: gid, boldFirst: true, status: r.happened || '', statusCol: 2,
+        sub: gid ? { text: SOURCE[gid], color: GROUP_PDF[gid].ink } : null,
+        note: str(r.hneed).trim(),
+        cells: [name, { text: action, meta: who }, r.happened || '—', { text: notes, meta: r.carriedFwd ? 'Carried forward to this week' : '', metaItal: true }]
+      };
     });
-    if (!rrRows.length) rrRows = [{ cells: ['', '', ''] }];
-    table([48, 318, 388], ['LAST WEEK’S PLAN', 'HAPPENED?', 'NOTES'], rrRows);
+    if (!rrRows.length) rrRows = [{ empty: 'Nothing carried from last week.' }];
+    table([48, 140, 352, 418], ['PERSON', 'LAST WEEK’S ACTION', 'HAPPENED?', 'NOTES'], rrRows);
 
     /* ----- Covenant Path Report Review ----- */
     y += 16;
@@ -1598,7 +1601,7 @@
     GROUPS.forEach(function (g) {
       cpRows.push({ group: g.title, gid: g.id });
       var filled = s.cp[g.id].filter(function (a) { return a.sac || hasText(a, CARD_KEYS); });
-      if (!filled.length) cpRows.push(cardRow(blankAction()));
+      if (!filled.length) cpRows.push({ empty: 'None this week' });
       filled.forEach(function (a) { cpRows.push(cardRow(a, g.id)); });
     });
     table(CARD_COLS, ['NAME'].concat(CARD_HEADS), cpRows, CARD_GROUPS);
@@ -1608,7 +1611,10 @@
     heading('3 Names Next Ordinance (Ward Council Focus Names)');
     y += 7;
     table(CARD_COLS, ['FOCUS NAME'].concat(CARD_HEADS),
-      s.tn.map(function (n) { var row = cardRow(n); row.gid = 'tn'; return row; }), CARD_GROUPS);
+      (function () {
+        var tnRows = s.tn.filter(function (n) { return n.sac || hasText(n, CARD_KEYS); }).map(function (n) { var row = cardRow(n); row.gid = 'tn'; return row; });
+        return tnRows.length ? tnRows : [{ empty: 'None this week' }];
+      })(), CARD_GROUPS);
 
     y += 12;
 

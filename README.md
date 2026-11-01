@@ -84,3 +84,10 @@ Each name card has an **Attended sacrament** checkbox (top right), **Next ordina
 | `vendor/pdf-lib.min.js` | PDF library (pdf-lib 1.17.1, MIT license) |
 | `sw.js` | Lets the page open without a connection after the first visit |
 | `manifest.webmanifest`, `icons/` | Home-screen app name and icon |
+
+## The PDF at a glance
+
+- **Top:** title, ward, date, who conducted, and the Ward Council (who · what) / huddle (how · when) reminder. Attendees who were there print dark; those who weren't print light gray.
+- **Return and Report:** one row per item: the person (with their list in color), last week's action with who and when in gray, whether it happened (green / amber / red), and notes. Carried-forward items say so, and last week's huddle notes sit under the person.
+- **Covenant Path Report Review and 3 Names:** Ward Council columns (name, next ordinance, need) then Huddle columns (attended sacrament as a green tick, action, assigned to, when). Temple countdowns and baptism commitments sit under the name; huddle notes sit in the person's row. Empty lists say "None this week."
+
