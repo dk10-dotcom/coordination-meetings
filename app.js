@@ -1396,8 +1396,8 @@
         var noteLines = null, noteH = 0, noteLabelW = 0;
         if (row.note) {
           noteLabelW = F.bold.widthOfTextAtSize('Huddle notes: ', 8);
-          noteLines = wrap(row.note, F.reg, 8, R - L - 12 - noteLabelW);
-          noteH = noteLines.length * 10 + 7;
+          noteLines = wrap(row.note, F.reg, 8, R - L - 34 - noteLabelW);
+          noteH = noteLines.length * 10 + 11;
         }
         return { h: cellH + noteH, cellH: cellH, cells: cells, subLines: subLines, noteLines: noteLines, noteLabelW: noteLabelW };
       }
@@ -1447,12 +1447,15 @@
           }
           edges.forEach(function (x) { vline(x, y, y + (lay.noteLines ? lay.cellH : lay.h)); });
           if (lay.noteLines) {
-            var ny = y + lay.cellH;
-            box(L, ny, R - L, lay.h - lay.cellH, { color: C.hudFill });
-            hline(L, R, ny, C.hudLine, 0.5);
-            vline(L, ny, y + lay.h); vline(R, ny, y + lay.h);
-            tx(L + 6, ny + 10.5, 'Huddle notes:', F.bold, 8, C.hudInk);
-            lay.noteLines.forEach(function (ln, k) { tx(L + 6 + lay.noteLabelW, ny + 10.5 + k * 10, ln, F.reg, 8, C.dark); });
+            // The note sits inside the same row, tucked under the name with a connector,
+            // so it reads as belonging to that person.
+            var ny = y + lay.cellH - 1, nh = lay.h - lay.cellH - 3;
+            vline(L, y + lay.cellH, y + lay.h); vline(R, y + lay.cellH, y + lay.h);
+            rbox(L + 18, ny, R - L - 24, nh, 3, C.hudFill, C.hudLine, 0.5);
+            page.drawLine({ start: { x: L + 9, y: H - (y + lay.cellH - 3) }, end: { x: L + 9, y: H - (ny + nh / 2) }, thickness: 0.9, color: C.hudLine });
+            page.drawLine({ start: { x: L + 9, y: H - (ny + nh / 2) }, end: { x: L + 18, y: H - (ny + nh / 2) }, thickness: 0.9, color: C.hudLine });
+            tx(L + 24, ny + 10.5, 'Huddle notes:', F.bold, 8, C.hudInk);
+            lay.noteLines.forEach(function (ln, k) { tx(L + 24 + lay.noteLabelW, ny + 10.5 + k * 10, ln, F.reg, 8, C.dark); });
           }
         }
         hline(L, R, y + lay.h);
