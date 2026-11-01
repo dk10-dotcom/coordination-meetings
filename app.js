@@ -82,8 +82,8 @@
   /* ---------- state ---------- */
   function blankRR() { return { plan: '', happened: '', notes: '' }; }
   // Every name card (Covenant Path lists and 3 Names) has the same fields.
-  var CARD_KEYS = ['name', 'bap', 'ordinance', 'need', 'action', 'assigned', 'when'];
-  function blankAction() { return { name: '', sac: false, bap: '', temple: false, committed: false, ordinance: '', need: '', action: '', assigned: '', when: '' }; }
+  var CARD_KEYS = ['name', 'bap', 'ordinance', 'need', 'hneed', 'action', 'assigned', 'when'];
+  function blankAction() { return { name: '', sac: false, bap: '', temple: false, committed: false, ordinance: '', need: '', hneed: '', action: '', assigned: '', when: '' }; }
   function shortDay(iso) { var d = parseISO(iso); return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''; }
   // Those being taught: "Committed to baptism" and the baptism date, in a few words.
   function baptismNote(a) {
@@ -157,7 +157,7 @@
           o.prefilled = true; o.source = str(r.source); o.person = str(r.person);
           o.action = str(r.action); o.assigned = str(r.assigned); o.when = str(r.when);
           o.group = ['nm', 'rm', 'bt', 'tn'].indexOf(r.group) >= 0 ? r.group : '';
-          o.pname = str(r.pname); o.ord = str(r.ord); o.need = str(r.need); o.sac = !!r.sac; o.bap = str(r.bap); o.temple = !!r.temple; o.committed = !!r.committed; o.carriedFwd = !!r.carriedFwd;
+          o.pname = str(r.pname); o.ord = str(r.ord); o.need = str(r.need); o.hneed = str(r.hneed); o.sac = !!r.sac; o.bap = str(r.bap); o.temple = !!r.temple; o.committed = !!r.committed; o.carriedFwd = !!r.carriedFwd;
         }
         return o;
       });
@@ -307,6 +307,7 @@
         var ordTag = pord ? h('span', { class: 'fact' }, [h('b', { text: 'Next: ' }), pord]) : null;
         var facts = [
           str(r.need).trim() ? h('span', { class: 'fact' }, [h('b', { text: 'Need: ' }), r.need.trim()]) : null,
+          str(r.hneed).trim() ? h('span', { class: 'fact' }, [h('b', { text: 'Huddle need: ' }), r.hneed.trim()]) : null,
           r.sac ? h('span', { class: 'fact sac' }, ['✓ Attended sacrament']) : null,
           gid === 'bt' && baptismNote(r) ? h('span', { class: 'fact ' + (r.committed ? 'committed' : '') }, [(r.committed ? '✓ ' : '') + baptismNote(r)]) : null,
           gid === 'nm' ? (function () {
@@ -360,17 +361,39 @@
     ]);
   }
   // The fields on every name card, in meeting order.
-  function cardFields(base, nameLabel, namePh, whenPh, tag, withBap, needPh, ordPh) {
-    return h('div', { class: 'card-grid' }, [
-      field(nameLabel, base + 'name', { placeholder: namePh, cap: 'words', full: true, tag: tag }),
-      withBap ? field(withBap, base + 'bap', { type: 'date', full: true }) : null,
-      field('Next ordinance', base + 'ordinance', { placeholder: ordPh || 'e.g. Baptism', full: true }),
-      field('Need', base + 'need', { full: true, multi: true, placeholder: needPh || 'e.g. A ride to church' }),
-      field('Action item for this week', base + 'action', { full: true, placeholder: 'What will we do to help?' }),
-      // Assigned to gets the wider share of its row; When is usually a day or two words.
-      h('div', { class: 'assign-row' }, [
-        field('Assigned to', base + 'assigned', { placeholder: 'Who will do it', cap: 'words' }),
-        field('When', base + 'when', { placeholder: whenPh })
+  // Each name card has two halves, like the two boxes at the top of the page:
+  // Ward Council decides who and what; the huddle decides how and when.
+  function zoneLabel(kind, text) {
+    return h('p', { class: 'zone-label zone-' + kind }, [h('span', { class: 'zone-dot', 'aria-hidden': 'true' }), text]);
+  }
+  function cardFields(base, nameLabel, namePh, whenPh, tag, withBap, needPh, ordPh, wcExtra) {
+    var hneedVal = str(getPath(base + 'hneed')).trim();
+    var hneedField = field('Need the huddle noticed', base + 'hneed', { full: true, multi: true, placeholder: 'Something the Covenant Path Report doesn’t show' });
+    if (!hneedVal) hneedField.hidden = true;
+    var hneedLink = h('button', { type: 'button', class: 'link-add', 'data-action': 'add-hneed', hidden: !!hneedVal }, ['+ Add a need the huddle noticed']);
+    return h('div', { class: 'card-zones' }, [
+      h('div', { class: 'card-zone zone-wc-wrap' }, [
+        zoneLabel('wc', 'Ward Council · Who & What'),
+        wcExtra || null,
+        h('div', { class: 'card-grid' }, [
+          field(nameLabel, base + 'name', { placeholder: namePh, cap: 'words', full: true, tag: tag }),
+          withBap ? field(withBap, base + 'bap', { type: 'date', full: true }) : null,
+          field('Next ordinance', base + 'ordinance', { placeholder: ordPh || 'e.g. Baptism', full: true }),
+          field('Need', base + 'need', { full: true, multi: true, placeholder: needPh || 'e.g. A ride to church' })
+        ])
+      ]),
+      h('div', { class: 'card-zone zone-hd-wrap' }, [
+        zoneLabel('hd', 'Huddle · How & When'),
+        h('div', { class: 'card-grid' }, [
+          field('Action item for this week', base + 'action', { full: true, placeholder: 'What will we do to help?' }),
+          // Assigned to gets the wider share of its row; When is usually a day or two words.
+          h('div', { class: 'assign-row' }, [
+            field('Assigned to', base + 'assigned', { placeholder: 'Who will do it', cap: 'words' }),
+            field('When', base + 'when', { placeholder: whenPh })
+          ]),
+          hneedField
+        ]),
+        hneedLink
       ])
     ]);
   }
@@ -437,9 +460,8 @@
               many ? removeButton('remove-cp', g.id, i, 'Remove action ' + (i + 1) + ' for ' + g.title) : null
             ])
           ]),
-          g.id === 'nm' ? templeBox(base, i, it) : null,
-          g.id === 'bt' ? committedBox(base, it) : null,
-          cardFields(base, 'Name', 'From the Covenant Path Report', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: 'From last week' }) : null, g.id === 'nm' ? 'Baptism date' : g.id === 'bt' ? 'Scheduled baptismal date' : '', 'Identify a need from the Covenant Path Report'),
+          cardFields(base, 'Name', 'From the Covenant Path Report', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: 'From last week' }) : null, g.id === 'nm' ? 'Baptism date' : g.id === 'bt' ? 'Scheduled baptismal date' : '', 'Identify a need from the Covenant Path Report', '',
+            g.id === 'nm' ? templeBox(base, i, it) : g.id === 'bt' ? committedBox(base, it) : null),
           g.id === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': i }, ['Convert to new member']) : null
         ]);
       });
@@ -743,6 +765,12 @@
         focusLast('[data-group="' + a + '"] input[data-bind$=".name"]'); break;
       case 'convert-nm': convertToNewMember(+a); break;
       case 'list-done': listDone(a); break;
+      case 'add-hneed': {
+        var zone = btn.closest('.card-zone');
+        var hf = zone && zone.querySelector('[data-bind$=".hneed"]');
+        if (hf) { hf.closest('.field').hidden = false; btn.hidden = true; hf.focus(); }
+        break;
+      }
       case 'list-open': listOpen(a); break;
       case 'remove-cp': {
         var cpList = a, cpIdx = +b, cItem = state.cp[a][+b];
@@ -887,7 +915,7 @@
   function itemFrom(a, gid) {
     var name = str(a.name).trim(), ord = str(a.ordinance).trim();
     return {
-      source: SOURCE[gid], group: gid, pname: name, ord: ord, need: str(a.need).trim(), sac: !!a.sac,
+      source: SOURCE[gid], group: gid, pname: name, ord: ord, need: str(a.need).trim(), hneed: str(a.hneed).trim(), sac: !!a.sac,
       bap: gid === 'nm' || gid === 'bt' ? str(a.bap) : '', temple: gid === 'nm' && !!a.temple, committed: gid === 'bt' && !!a.committed,
       person: ord ? (name ? name + ' · ' : '') + 'Next: ' + ord : name,
       action: str(a.action).trim(), assigned: str(a.assigned).trim(), when: str(a.when).trim()
@@ -903,13 +931,13 @@
       var names = [], info = {};
       (Array.isArray(cp[g.id]) ? cp[g.id] : []).forEach(function (a) {
         var n = a && str(a.name).trim();
-        if (n && names.every(function (x) { return norm(x) !== norm(n); })) { names.push(n); info[norm(n)] = { ordinance: str(a.ordinance).trim(), need: str(a.need).trim(), bap: str(a.bap), temple: !!a.temple, committed: !!a.committed }; }
+        if (n && names.every(function (x) { return norm(x) !== norm(n); })) { names.push(n); info[norm(n)] = { ordinance: str(a.ordinance).trim(), need: str(a.need).trim(), hneed: str(a.hneed).trim(), bap: str(a.bap), temple: !!a.temple, committed: !!a.committed }; }
       });
       if (!names.length) return;
       var cur = state.cp[g.id].filter(function (a) { return a.sac || hasText(a, CARD_KEYS); });
       names.forEach(function (n) {
         if (cur.some(function (a) { return norm(a.name) === norm(n); })) return;
-        var c = blankAction(); c.name = n; c.ordinance = info[norm(n)].ordinance; c.need = info[norm(n)].need; c.carried = true;
+        var c = blankAction(); c.name = n; c.ordinance = info[norm(n)].ordinance; c.need = info[norm(n)].need; c.hneed = info[norm(n)].hneed; c.carried = true;
         if (g.id === 'nm') { c.bap = info[norm(n)].bap; c.temple = info[norm(n)].temple; }
         if (g.id === 'bt') { c.bap = info[norm(n)].bap; c.committed = info[norm(n)].committed; }
         cur.push(c);
@@ -931,7 +959,7 @@
     var name = str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim();
     var ord = str(r.ord).trim() || (str(r.person).split(' · Next: ')[1] || '').trim();
     var item = blankAction();
-    item.name = name; item.ordinance = ord; item.need = str(r.need).trim(); item.action = str(r.action).trim(); item.assigned = str(r.assigned).trim();
+    item.name = name; item.ordinance = ord; item.need = str(r.need).trim(); item.hneed = str(r.hneed).trim(); item.action = str(r.action).trim(); item.assigned = str(r.assigned).trim();
     if (g === 'nm') { item.bap = str(r.bap); item.temple = !!r.temple; }
     if (g === 'bt') { item.bap = str(r.bap); item.committed = !!r.committed; }
     if (g) delete state.collapsed[g];
@@ -940,7 +968,7 @@
       if (slot < 0) slot = state.tn.findIndex(function (n) { return !n.sac && !hasText(n, CARD_KEYS); });
       if (slot < 0) { toast('All three 3 Names spots are already filled.'); return; }
       var t = state.tn[slot];
-      t.name = t.name || name; t.ordinance = t.ordinance || ord; t.need = t.need || item.need;
+      t.name = t.name || name; t.ordinance = t.ordinance || ord; t.need = t.need || item.need; t.hneed = t.hneed || item.hneed;
       if (!str(t.action).trim()) { t.action = item.action; t.assigned = t.assigned || item.assigned; }
       renderTN();
     } else if (g) {
@@ -948,7 +976,7 @@
       var match = list.find(function (a) { return name && norm(a.name) === norm(name) && !hasText(a, ['action']); });
       if (match) {
         match.action = item.action; match.assigned = match.assigned || item.assigned;
-        match.ordinance = match.ordinance || item.ordinance; match.need = match.need || item.need;
+        match.ordinance = match.ordinance || item.ordinance; match.need = match.need || item.need; match.hneed = match.hneed || item.hneed;
         if (g === 'nm') { match.bap = match.bap || item.bap; match.temple = match.temple || item.temple; }
         if (g === 'bt') { match.bap = match.bap || item.bap; match.committed = match.committed || item.committed; }
       }
@@ -971,7 +999,7 @@
       return;
     }
     state.rr = items.map(function (it) {
-      return { prefilled: true, source: it.source, group: it.group, pname: it.pname, ord: it.ord, need: it.need || '', sac: !!it.sac, bap: it.bap || '', temple: !!it.temple, committed: !!it.committed, person: it.person, action: it.action, assigned: it.assigned, when: it.when, plan: '', happened: '', notes: '' };
+      return { prefilled: true, source: it.source, group: it.group, pname: it.pname, ord: it.ord, need: it.need || '', hneed: it.hneed || '', sac: !!it.sac, bap: it.bap || '', temple: !!it.temple, committed: !!it.committed, person: it.person, action: it.action, assigned: it.assigned, when: it.when, plan: '', happened: '', notes: '' };
     });
     state.loaded = { fileName: fileName, ward: str(data.ward), date: str(data.date), count: items.length };
     if (!state.ward.trim() && data.ward) { state.ward = str(data.ward); $('#ward').value = state.ward; writeWard(state.ward); }
@@ -1183,7 +1211,7 @@
       gray: rgb(0.42, 0.447, 0.502), line: rgb(0.788, 0.808, 0.839), head: rgb(0.933, 0.949, 0.973),
       group: rgb(0.965, 0.972, 0.984), white: rgb(1, 1, 1),
       councilFill: rgb(0.902, 0.937, 0.98), councilLine: rgb(0.18, 0.455, 0.788),
-      hudFill: rgb(0.988, 0.929, 0.898), hudLine: rgb(0.878, 0.4, 0.18), amber: rgb(1, 0.973, 0.902), amberLine: rgb(0.922, 0.796, 0.478)
+      hudFill: rgb(0.988, 0.929, 0.898), hudLine: rgb(0.878, 0.4, 0.18), hudInk: rgb(0.64, 0.29, 0.07), amber: rgb(1, 0.973, 0.902), amberLine: rgb(0.922, 0.796, 0.478)
     };
     // Each Covenant Path list gets its own color on the PDF, matching the form.
     var GROUP_PDF = {
@@ -1193,8 +1221,10 @@
       tn: { fill: rgb(1, 0.973, 0.902), ink: rgb(0.62, 0.42, 0.02) }
     };
     // Name card tables: Name | Attended sacrament | Next ordinance | Need | Action | Assigned to | When
-    var CARD_COLS = [48, 132, 194, 256, 332, 450, 516];
-    var CARD_HEADS = ['ATTENDED\nSACRAMENT', 'NEXT\nORDINANCE', 'NEED', 'ACTION ITEM\nFOR THIS WEEK', 'ASSIGNED\nTO', 'WHEN'];
+    // Name | Next ordinance | Need  (Ward Council)  ·  Attended sacrament | Action | Assigned to | When  (Huddle)
+    var CARD_COLS = [48, 132, 194, 270, 332, 450, 516];
+    var CARD_HEADS = ['NEXT\nORDINANCE', 'NEED', 'ATTENDED\nSACRAMENT', 'ACTION ITEM\nFOR THIS WEEK', 'ASSIGNED\nTO', 'WHEN'];
+    var CARD_GROUPS = [{ text: 'WARD COUNCIL · WHO & WHAT', from: 0, to: 3, kind: 'wc' }, { text: 'HUDDLE · HOW & WHEN', from: 3, to: 7, kind: 'hd' }];
     var TEMPLE_RED = rgb(0.70, 0.16, 0.16);
     function cardRow(a, gid) {
       var sub = null;
@@ -1206,7 +1236,9 @@
         var d = shortDay(str(a.bap));
         sub = { text: a.committed ? 'Committed' + (d ? ' · ' + d : '') : 'Scheduled: ' + d, color: GROUP_PDF.bt.ink };
       }
-      return { boldFirst: true, sub: sub, cells: [str(a.name).trim(), { check: !!a.sac }, str(a.ordinance).trim(), str(a.need).trim(), str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim()] };
+      var need = str(a.need).trim(), hneed = str(a.hneed).trim();
+      if (hneed) need = (need ? need + '\n' : '') + 'Huddle: ' + hneed;
+      return { boldFirst: true, sub: sub, cells: [str(a.name).trim(), str(a.ordinance).trim(), need, { check: !!a.sac }, str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim()] };
     }
     var STATUS_PDF = { Yes: rgb(0.122, 0.42, 0.227), Partly: rgb(0.62, 0.42, 0.02), No: rgb(0.70, 0.16, 0.16) };
     var W = 612, H = 792, L = 48, R = 564, TOP = 40, BOTTOM = 46;
@@ -1294,13 +1326,23 @@
     }
 
     // Tables
-    function table(cols, headers, rows) {
+    function table(cols, headers, rows, groups) {
       var edges = cols.concat([R]);
       var FS = 8.5, LH = 10.5;
       // A header can take two lines ("ATTENDED\nSACRAMENT") so narrow columns stay readable.
       var headLines = headers.map(function (t) { return t.split('\n'); });
       var HH = headLines.some(function (l) { return l.length > 1; }) ? 23 : 14;
+      var GH = groups ? 13 : 0;
       function drawHeader() {
+        // Optional labels above the header: which group fills in which columns.
+        if (groups) {
+          groups.forEach(function (g) {
+            var col = g.kind === 'hd' ? C.hudInk : C.blue;
+            tx(edges[g.from] + 5, y + 8.5, g.text, F.bold, 6.8, col);
+            page.drawLine({ start: { x: edges[g.from] + (g.from ? 2 : 0), y: H - (y + GH - 1.5) }, end: { x: edges[g.to] - (g.to < edges.length - 1 ? 2 : 0), y: H - (y + GH - 1.5) }, thickness: 1.6, color: col });
+          });
+          y += GH;
+        }
         box(L, y, R - L, HH, { color: C.head });
         headLines.forEach(function (ls, i) { ls.forEach(function (t, k) { tx(edges[i] + 5, y + 10 + k * 9, t, F.bold, 8, C.navy); }); });
         hline(L, R, y); hline(L, R, y + HH);
@@ -1348,7 +1390,7 @@
         return { h: Math.max(18, Math.ceil(n * LH + 7)), cells: cells, subLines: subLines };
       }
       var first = rows.length ? rowLayout(rows[0]) : { h: 18 };
-      ensure(HH + first.h + 4);
+      ensure(GH + HH + first.h + 4);
       drawHeader();
       rows.forEach(function (row) {
         var lay = rowLayout(row);
@@ -1508,6 +1550,7 @@
         var info = [r.source];
         if (ord) info.push('next: ' + ord);
         if (str(r.need).trim()) info.push('need: ' + r.need.trim());
+        if (str(r.hneed).trim()) info.push('huddle need: ' + r.hneed.trim());
         if (r.sac) info.push('attended sacrament');
         if (groupOf(r) === 'bt' && baptismNote(r)) { var bn = baptismNote(r); info.push(bn.charAt(0).toLowerCase() + bn.slice(1).replace('baptism: ', 'baptism ')); }
         if (groupOf(r) === 'nm') { var tst = templeStatus(r, s.date); info.push('temple attendance: ' + tst.short); }
@@ -1535,14 +1578,14 @@
       if (!filled.length) cpRows.push(cardRow(blankAction()));
       filled.forEach(function (a) { cpRows.push(cardRow(a, g.id)); });
     });
-    table(CARD_COLS, ['NAME'].concat(CARD_HEADS), cpRows);
+    table(CARD_COLS, ['NAME'].concat(CARD_HEADS), cpRows, CARD_GROUPS);
 
     // Three Names (same header style as Covenant Path Report Review)
     y += 13;
     heading('3 Names Next Ordinance (Ward Council Focus Names)');
     y += 7;
     table(CARD_COLS, ['FOCUS NAME'].concat(CARD_HEADS),
-      s.tn.map(function (n) { var row = cardRow(n); row.gid = 'tn'; return row; }));
+      s.tn.map(function (n) { var row = cardRow(n); row.gid = 'tn'; return row; }), CARD_GROUPS);
 
     y += 12;
 
@@ -1577,7 +1620,7 @@
       rr: s.rr.map(function (r) {
         return r.prefilled
           ? { prefilled: true, source: r.source, person: r.person, action: r.action, assigned: r.assigned, when: r.when, happened: r.happened, notes: r.notes,
-              group: r.group || '', pname: r.pname || '', ord: r.ord || '', need: r.need || '', sac: !!r.sac, bap: r.bap || '', temple: !!r.temple, committed: !!r.committed, carriedFwd: !!r.carriedFwd }
+              group: r.group || '', pname: r.pname || '', ord: r.ord || '', need: r.need || '', hneed: r.hneed || '', sac: !!r.sac, bap: r.bap || '', temple: !!r.temple, committed: !!r.committed, carriedFwd: !!r.carriedFwd }
           : { plan: r.plan, happened: r.happened, notes: r.notes };
       }),
       cpDone: s.cpDone, cp: s.cp, tnDone: s.tnDone, tn: s.tn, ftDone: s.ftDone

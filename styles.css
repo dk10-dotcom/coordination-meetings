@@ -531,3 +531,16 @@ body.typing .actionbar { position: static; }
 .fold-tag.ans-partly { background: #FFF6E0; color: #7A5200; border-color: #EBCB7A; }
 .fold-tag.ans-no { background: #FBEAEA; color: #8E1F1F; border-color: #E8B4B4; }
 .rr-folded .fold-row + .fold-row { border-top-color: var(--card-line); }
+
+/* Name cards: Ward Council half (who & what) and Huddle half (how & when) */
+.card-zones { display: flex; flex-direction: column; gap: 14px; }
+.card-zone { display: flex; flex-direction: column; gap: 10px; }
+.zone-hd-wrap { border-top: 1px dashed var(--card-line); padding-top: 14px; }
+.zone-label { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.zone-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.zone-wc { color: var(--accent); }
+.zone-wc .zone-dot { background: var(--accent); }
+.zone-hd { color: var(--orange-ink); }
+.zone-hd .zone-dot { background: var(--orange-ink); }
+.link-add { align-self: flex-start; min-height: 36px; padding: 0 2px; border: none; background: none; color: var(--orange-ink); font-size: 14px; font-weight: 600; cursor: pointer; }
+.link-add[hidden], .field[hidden] { display: none; }
