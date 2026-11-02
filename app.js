@@ -306,8 +306,8 @@
         var pord = str(r.ord).trim() || (str(r.person).split(' · Next: ')[1] || '').trim();
         var ordTag = pord ? h('span', { class: 'fact' }, [h('b', { text: 'Next: ' }), pord]) : null;
         var facts = [
-          str(r.need).trim() ? h('span', { class: 'fact' }, [h('b', { text: 'Need: ' }), r.need.trim()]) : null,
-          str(r.hneed).trim() ? h('span', { class: 'fact' }, [h('b', { text: 'From the huddle: ' }), r.hneed.trim()]) : null,
+          str(r.need).trim() ? h('span', { class: 'fact' }, [h('b', { text: 'Needs: ' }), r.need.trim()]) : null,
+          str(r.hneed).trim() ? h('span', { class: 'fact' }, [h('b', { text: 'Huddle notes: ' }), r.hneed.trim()]) : null,
           r.sac ? h('span', { class: 'fact sac' }, ['✓ Attended sacrament']) : null,
           gid === 'bt' && baptismNote(r) ? h('span', { class: 'fact ' + (r.committed ? 'committed' : '') }, [(r.committed ? '✓ ' : '') + baptismNote(r)]) : null,
           gid === 'nm' ? (function () {
@@ -368,9 +368,9 @@
   }
   function cardFields(base, nameLabel, namePh, whenPh, tag, withBap, needPh, ordPh, wcExtra) {
     var hneedVal = str(getPath(base + 'hneed')).trim();
-    var hneedField = field('Huddle needs or notes', base + 'hneed', { full: true, multi: true, placeholder: 'A need the huddle noticed, or a note' });
+    var hneedField = field('Huddle notes', base + 'hneed', { full: true, multi: true, placeholder: 'Anything to relay back to ward council' });
     if (!hneedVal) hneedField.hidden = true;
-    var hneedLink = h('button', { type: 'button', class: 'link-add', 'data-action': 'add-hneed', hidden: !!hneedVal }, ['+ Add a need or note from the huddle']);
+    var hneedLink = h('button', { type: 'button', class: 'link-add', 'data-action': 'add-hneed', hidden: !!hneedVal }, ['+ Add a note for ward council']);
     return h('div', { class: 'card-zones' }, [
       wcExtra || null,
       h('div', { class: 'card-zone zone-wc-wrap' }, [
@@ -379,7 +379,7 @@
           field(nameLabel, base + 'name', { placeholder: namePh, cap: 'words', full: true, tag: tag }),
           withBap ? field(withBap, base + 'bap', { type: 'date', full: true }) : null,
           field('Next ordinance', base + 'ordinance', { placeholder: ordPh || 'e.g. Baptism', full: true }),
-          field('Need', base + 'need', { full: true, multi: true, placeholder: needPh || 'e.g. A ride to church' })
+          field('Needs', base + 'need', { full: true, multi: true, placeholder: needPh || 'e.g. A ride to church' })
         ])
       ]),
       h('div', { class: 'card-zone zone-hd-wrap' }, [
@@ -1233,7 +1233,7 @@
     // Name card tables: Name | Attended sacrament | Next ordinance | Need | Action | Assigned to | When
     // Name | Next ordinance | Need  (Ward Council)  ·  Attended sacrament | Action | Assigned to | When  (Huddle)
     var CARD_COLS = [48, 132, 194, 270, 332, 450, 516];
-    var CARD_HEADS = ['NEXT\nORDINANCE', 'NEED', 'ATTENDED\nSACRAMENT', 'ACTION ITEM\nFOR THIS WEEK', 'ASSIGNED\nTO', 'WHEN'];
+    var CARD_HEADS = ['NEXT\nORDINANCE', 'NEEDS', 'ATTENDED\nSACRAMENT', 'ACTION ITEM\nFOR THIS WEEK', 'ASSIGNED\nTO', 'WHEN'];
     var CARD_GROUPS = [{ text: 'WARD COUNCIL · WHO & WHAT', from: 0, to: 3, kind: 'wc' }, { text: 'HUDDLE · HOW & WHEN', from: 3, to: 7, kind: 'hd' }];
     var TEMPLE_RED = rgb(0.70, 0.16, 0.16);
     function cardRow(a, gid) {
