@@ -607,3 +607,4 @@ body.touring .actionbar { z-index: 10; }
 .idea-list li { padding-left: 2px; }
 .fn-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px 12px; }
 .fn-fields > .field:first-child { grid-column: 1 / -1; }
+.find-note { margin: 0; font-size: 15px; color: var(--text); }
