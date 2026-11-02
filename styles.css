@@ -576,3 +576,8 @@ body.typing .actionbar { position: static; }
 .tour-next { min-height: 44px; padding: 0 20px; border-radius: 10px; border: none; background: var(--accent); color: #FFFFFF; font-size: 15px; font-weight: 700; cursor: pointer; }
 body.touring .actionbar { z-index: 10; }
 @media (prefers-reduced-motion: reduce) { .tour-spot, .tour-bubble { transition: none; } }
+.tour-text strong { color: var(--ink); }
+.tour-demo { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 10px 12px; border-radius: 10px; background: var(--amber-soft); border: 1px solid var(--amber-line); }
+.tour-demo[hidden] { display: none; }
+.tour-demo-cap { font-size: 13px; color: var(--text); }
+.tour-demo-btn { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 10px; border: 1.5px solid var(--accent); background: var(--card); color: var(--accent); font-size: 14px; font-weight: 700; }
