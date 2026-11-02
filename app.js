@@ -1552,6 +1552,9 @@
 
     /* ----- page 1 header ----- */
     newPage(false);
+    // Privacy reminder for everyone who receives the agenda.
+    var sx = tx(L, 27, 'Keep this PDF secure', F.bold, 8, C.hudInk);
+    tx(sx, 27, ' and delete it when it’s no longer needed.', F.reg, 8, C.gray);
     tx(L, 54, 'Weekly Coordination', F.bold, 21, C.navy);
     tx(L, 77, 'Meeting Agenda', F.bold, 21, C.navy);
     var lx = tx(L, 96, 'Ward', F.reg, 9, C.gray);
