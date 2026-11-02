@@ -33,7 +33,7 @@
     { id: 'rm', title: 'Returning members' },
     { id: 'bt', title: 'Those being taught' }
   ];
-  var SOURCE = { nm: 'New members', rm: 'Returning members', bt: 'Those being taught', tn: '3 Names' };
+  var SOURCE = { nm: 'New members', rm: 'Returning members', bt: 'Those being taught', tn: '3 Names', fn: 'Finding new people' };
 
   /* ---------- small utilities ---------- */
   function $(sel) { return document.querySelector(sel); }
@@ -105,6 +105,10 @@
     return { done: false, left: left, text: (-left) + (left === -1 ? ' day' : ' days') + ' past the 30-day goal', short: (-left) + (left === -1 ? ' day' : ' days') + ' late' };
   }
   function blankName() { return blankAction(); }
+  // Plans to find new people to teach: one plan, and assignments that each have their own when.
+  function blankAssign() { return { task: '', when: '' }; }
+  function blankFind() { return { plan: '', items: [blankAssign()] }; }
+  function assignHasText(x) { return hasText(x, ['task', 'when']); }
   // The meeting date defaults to the next day matching the weekday of the last saved agenda (today if none).
   function readMeetingDay() {
     try { var st = getStore('localStorage'); var v = st && st.getItem('huddle-meeting-day'); return v === null || v === undefined || v === '' ? null : +v; } catch (e) { return null; }
@@ -127,6 +131,7 @@
       cpDone: false, cp: { nm: [blankAction()], rm: [blankAction()], bt: [blankAction()] },
       collapsed: {},
       tnDone: false, tn: [blankName(), blankName(), blankName()],
+      find: blankFind(),
       ftDone: false
     };
   }
@@ -156,7 +161,7 @@
         if (r.prefilled) {
           o.prefilled = true; o.source = str(r.source); o.person = str(r.person);
           o.action = str(r.action); o.assigned = str(r.assigned); o.when = str(r.when);
-          o.group = ['nm', 'rm', 'bt', 'tn'].indexOf(r.group) >= 0 ? r.group : '';
+          o.group = ['nm', 'rm', 'bt', 'tn', 'fn'].indexOf(r.group) >= 0 ? r.group : '';
           o.pname = str(r.pname); o.ord = str(r.ord); o.need = str(r.need); o.hneed = str(r.hneed); o.sac = !!r.sac; o.bap = str(r.bap); o.temple = !!r.temple; o.committed = !!r.committed; o.carriedFwd = !!r.carriedFwd;
         }
         return o;
@@ -179,6 +184,10 @@
     var tn = cleanList(s.tn, blankName, CARD_KEYS);
     while (tn.length < 3) tn.push(blankName());
     f.tn = tn.slice(0, 3);
+    var fd = s.find && typeof s.find === 'object' ? s.find : {};
+    f.find.plan = str(fd.plan);
+    var fi = Array.isArray(fd.items) ? fd.items.filter(function (x) { return x && typeof x === 'object'; }).map(function (x) { return { task: str(x.task), when: str(x.when), carried: !!x.carried }; }) : [];
+    f.find.items = fi.length ? fi : [blankAssign()];
     return f;
   }
 
@@ -203,6 +212,7 @@
     if (s.rr.some(rrHasInput)) return false;
     if (GROUPS.some(function (g) { return s.cp[g.id].some(function (a) { return a.sac || hasText(a, CARD_KEYS); }); })) return false;
     if (s.tn.some(function (n) { return n.sac || hasText(n, CARD_KEYS); })) return false;
+    if (str(s.find.plan).trim() || s.find.items.some(assignHasText)) return false;
     return true;
   }
 
@@ -420,7 +430,7 @@
   function foldedRR() {
     var rows = state.rr.filter(rrShown).map(function (r) {
       var gid = r.prefilled ? groupOf(r) : '';
-      var name = r.prefilled ? (str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim()) : '';
+      var name = gid === 'fn' ? 'Finding new people' : r.prefilled ? (str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim()) : '';
       var what = r.prefilled ? str(r.action).trim() : str(r.plan).trim();
       var ans = r.happened ? h('span', { class: 'fold-tag ans-' + statusOf(r.happened), text: r.happened }) : h('span', { class: 'fold-tag due', text: 'Not marked' });
       return h('li', { class: 'fold-row' + (gid ? ' g-' + gid : '') }, [
@@ -562,6 +572,30 @@
     if (state.collapsed.tn) { wrap.replaceChildren(foldedPanel('list-panel list-tn', 'tn', 'Focus names', tnCountText(), state.tn, {})); return; }
     wrap.replaceChildren(h('section', { class: 'list-panel list-tn', 'aria-label': '3 Names Next Ordinance' }, [head].concat(cards).concat([h('div', { class: 'list-foot' }, [doneButton('tn', 'Focus names')])])));
   }
+  function renderFN() {
+    var wrap = $('#fn-list');
+    var items = state.find.items, many = items.length > 1;
+    var rows = items.map(function (x, i) {
+      var base = 'find.items.' + i + '.';
+      return h('div', { class: 'fn-assign' }, [
+        h('div', { class: 'fn-assign-head' }, [
+          h('p', { class: 'fn-assign-label', text: 'Assignment ' + (i + 1) }),
+          x.carried ? h('span', { class: 'source', text: 'From last week' }) : null,
+          many ? removeButton('remove-fn', i, '', 'Remove assignment ' + (i + 1)) : null
+        ]),
+        h('div', { class: 'fn-fields' }, [
+          field('Who will do what', base + 'task', { multi: true, placeholder: 'e.g. Bro. Lee invites a neighbor to the ward party' }),
+          field('When', base + 'when', { placeholder: 'e.g. Sat' })
+        ])
+      ]);
+    });
+    wrap.replaceChildren(h('section', { class: 'list-panel list-fn', 'aria-label': 'Plans to find new people to teach' }, [
+      h('div', { class: 'card fn-card' }, [
+        h('div', { class: 'card-grid' }, [field('Plan', 'find.plan', { full: true, multi: true, placeholder: 'What will the ward do this week to find new people to teach?' })]),
+        h('p', { class: 'fn-assign-title', text: 'Assignments' })
+      ].concat(rows).concat([h('div', { class: 'list-foot' }, [addButton('add-fn', '', 'Add assignment')])]))
+    ]));
+  }
   /* ---------- Done: fold a finished list to one line per person ---------- */
   function doneButton(gid, title) {
     var b = h('button', { type: 'button', class: 'btn-done', 'data-action': 'list-done', 'data-a': gid, 'aria-label': 'Done with ' + title });
@@ -653,7 +687,7 @@
     $('#date').value = state.date;
     renderConducting();
     renderDateHint();
-    renderAttendees(); renderRR(); renderCP(); renderTN();
+    renderAttendees(); renderRR(); renderCP(); renderTN(); renderFN();
   }
 
   /* ---------- toast & sheets ---------- */
@@ -851,6 +885,17 @@
         break;
       case 'help': openHelp(); break;
       case 'close-help': closeHelp(); break;
+      case 'find-tips': openOverlay('#find-tips-sheet', '#find-tips-title'); $('#find-tips-sheet .sheet').scrollTop = 0; break;
+      case 'close-find-tips': closeOverlay('#find-tips-sheet'); break;
+      case 'add-fn':
+        state.find.items.push(blankAssign()); renderFN(); saveDraft();
+        focusLast('#fn-list input[data-bind$=".task"]'); break;
+      case 'remove-fn': {
+        var fx = state.find.items[+a];
+        var dropFn = function () { state.find.items.splice(+a, 1); if (!state.find.items.length) state.find.items.push(blankAssign()); renderFN(); saveDraft(); };
+        if (fx && assignHasText(fx)) confirmRemove('Remove assignment ' + (+a + 1) + '?', dropFn); else dropFn();
+        break;
+      }
       case 'tips': openOverlay('#tips-sheet', '#tips-title'); $('#tips-sheet .sheet').scrollTop = 0; break;
       case 'close-tips': closeOverlay('#tips-sheet'); break;
       case 'install': addToHomeScreen(); break;
@@ -919,6 +964,12 @@
       if (!n || !hasText(n, ['name', 'action'])) return;
       items.push(itemFrom(n, 'tn'));
     });
+    var fd = data.find && typeof data.find === 'object' ? data.find : {};
+    (Array.isArray(fd.items) ? fd.items : []).forEach(function (x) {
+      if (!x || !str(x.task).trim()) return;
+      items.push({ source: SOURCE.fn, group: 'fn', pname: '', ord: '', need: '', hneed: '', sac: false, bap: '', temple: false, committed: false,
+        person: '', action: str(x.task).trim(), assigned: '', when: str(x.when).trim() });
+    });
     return items;
   }
   // One of last week's name cards, as a Return and Report item (all of its fields come along).
@@ -960,7 +1011,7 @@
 
   function groupOf(r) {
     if (r.group) return r.group;
-    return { 'New members': 'nm', 'Returning members': 'rm', 'Those being taught': 'bt', 'Three Names': 'tn', '3 Names': 'tn' }[r.source] || '';
+    return { 'New members': 'nm', 'Returning members': 'rm', 'Those being taught': 'bt', 'Three Names': 'tn', '3 Names': 'tn', 'Finding new people': 'fn' }[r.source] || '';
   }
   // Copies an unfinished item from last week into this week's plan for the same person.
   function carryForward(i) {
@@ -973,7 +1024,14 @@
     if (g === 'nm') { item.bap = str(r.bap); item.temple = !!r.temple; }
     if (g === 'bt') { item.bap = str(r.bap); item.committed = !!r.committed; }
     if (g) delete state.collapsed[g];
-    if (g === 'tn') {
+    if (g === 'fn') {
+      var fl = state.find.items;
+      if (!fl.some(function (x) { return norm(x.task) === norm(item.action); })) {
+        if (fl.length === 1 && !assignHasText(fl[0])) fl.pop();
+        fl.push({ task: item.action, when: '', carried: true });
+      }
+      renderFN();
+    } else if (g === 'tn') {
       var slot = state.tn.findIndex(function (n) { return name && norm(n.name) === norm(name); });
       if (slot < 0) slot = state.tn.findIndex(function (n) { return !n.sac && !hasText(n, CARD_KEYS); });
       if (slot < 0) { toast('All three 3 Names spots are already filled.'); return; }
@@ -1228,7 +1286,8 @@
       nm: { fill: rgb(0.929, 0.949, 0.980), ink: rgb(0.18, 0.333, 0.592) },
       rm: { fill: rgb(0.929, 0.965, 0.941), ink: rgb(0.122, 0.42, 0.227) },
       bt: { fill: rgb(0.957, 0.933, 0.976), ink: rgb(0.478, 0.247, 0.62) },
-      tn: { fill: rgb(1, 0.973, 0.902), ink: rgb(0.62, 0.42, 0.02) }
+      tn: { fill: rgb(1, 0.973, 0.902), ink: rgb(0.62, 0.42, 0.02) },
+      fn: { fill: rgb(0.91, 0.961, 0.961), ink: rgb(0.055, 0.431, 0.451) }
     };
     // Name card tables: Name | Attended sacrament | Next ordinance | Need | Action | Assigned to | When
     // Name | Next ordinance | Need  (Ward Council)  ·  Attended sacrament | Action | Assigned to | When  (Huddle)
@@ -1593,13 +1652,13 @@
     y += 7;
     var rrRows = s.rr.filter(function (r) { return r.prefilled || rrHasInput(r); }).map(function (r) {
       var gid = r.prefilled ? groupOf(r) : '';
-      var name = r.prefilled ? (str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim()) : '';
+      var name = gid === 'fn' ? 'Finding new people' : r.prefilled ? (str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim()) : '';
       var who = [str(r.assigned).trim(), str(r.when).trim()].filter(Boolean).join(' · ');
       var action = r.prefilled ? (str(r.action).trim() || 'No action item written') : str(r.plan).trim();
       var notes = str(r.notes).trim();
       return {
         gid: gid, boldFirst: true, status: r.happened || '', statusCol: 2,
-        sub: gid ? { text: SOURCE[gid], color: GROUP_PDF[gid].ink } : null,
+        sub: gid && gid !== 'fn' ? { text: SOURCE[gid], color: GROUP_PDF[gid].ink } : null,
         note: str(r.hneed).trim(),
         cells: [name, { text: action, meta: who }, r.happened || '—', { text: notes, meta: r.carriedFwd ? 'Carried forward to this week' : '', metaItal: true }]
       };
@@ -1624,6 +1683,7 @@
 
     // Three Names (same header style as Covenant Path Report Review)
     y += 13;
+    ensure(95); // keep the heading with its table
     heading('3 Names Next Ordinance (Ward Council Focus Names)');
     y += 7;
     table(CARD_COLS, ['FOCUS NAME'].concat(CARD_HEADS),
@@ -1631,6 +1691,16 @@
         var tnRows = s.tn.filter(function (n) { return n.sac || hasText(n, CARD_KEYS); }).map(function (n) { var row = cardRow(n); row.gid = 'tn'; return row; });
         return tnRows.length ? tnRows : [{ empty: 'None this week' }];
       })(), CARD_GROUPS);
+
+    /* ----- Plans to find new people to teach ----- */
+    y += 13;
+    ensure(70); // keep the heading with its table
+    heading('Plans to Find New People to Teach');
+    y += 7;
+    var fPlan = str(s.find.plan).trim();
+    var fRows = s.find.items.filter(assignHasText).map(function (x) { return { gid: 'fn', cells: [str(x.task).trim(), str(x.when).trim()] }; });
+    if (fPlan) { table([48], ['PLAN'], [{ gid: 'fn', cells: [fPlan] }]); y += 8; }
+    if (fRows.length || !fPlan) table([48, 470], ['ASSIGNMENT', 'WHEN'], fRows.length ? fRows : [{ empty: fPlan ? 'No assignments yet' : 'None this week' }]);
 
     y += 12;
 
@@ -1668,7 +1738,8 @@
               group: r.group || '', pname: r.pname || '', ord: r.ord || '', need: r.need || '', hneed: r.hneed || '', sac: !!r.sac, bap: r.bap || '', temple: !!r.temple, committed: !!r.committed, carriedFwd: !!r.carriedFwd }
           : { plan: r.plan, happened: r.happened, notes: r.notes };
       }),
-      cpDone: s.cpDone, cp: s.cp, tnDone: s.tnDone, tn: s.tn, ftDone: s.ftDone
+      cpDone: s.cpDone, cp: s.cp, tnDone: s.tnDone, tn: s.tn, ftDone: s.ftDone,
+      find: { plan: str(s.find.plan), items: s.find.items.map(function (x) { return { task: str(x.task), when: str(x.when) }; }) }
     }));
   }
 
@@ -1953,11 +2024,12 @@
       if (e.target.id === 'install-sheet') closeOverlay('#install-sheet');
       if (e.target.id === 'help-sheet') closeHelp();
       if (e.target.id === 'tips-sheet') closeOverlay('#tips-sheet');
+      if (e.target.id === 'find-tips-sheet') closeOverlay('#find-tips-sheet');
       if (e.target.id === 'confirm-sheet' && askSecondary) askSecondary();
     });
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;
-      var top = ['#confirm-sheet', '#load-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
+      var top = ['#confirm-sheet', '#load-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#find-tips-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
       if (top) dismissSheet(top);
     });
     enableSwipeDown();

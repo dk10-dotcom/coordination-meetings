@@ -589,3 +589,21 @@ body.touring .actionbar { z-index: 10; }
 .tour-demo.important .tour-callout-icon { background: #B22A2A; }
 .tour-demo.tip { background: var(--accent-soft); border-color: var(--accent-line); }
 .tour-demo.tip .tour-callout-icon { background: var(--accent); font-size: 12px; }
+
+/* Plans to find new people to teach: teal, its own color */
+.g-fn, .list-fn { --list-ink: #0E6E73; --list-soft: #E8F5F5; --list-line: #A9D6D8; }
+.btn-find-tips { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 46px; padding: 10px 14px;
+  border-radius: 12px; border: 1.5px solid #A9D6D8; background: #E8F5F5; color: #0E6E73; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+.btn-find-tips:active { background: #D6EEEE; }
+.fn-card { display: flex; flex-direction: column; gap: 12px; }
+.fn-assign-title { margin: 4px 0 0; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--list-ink); }
+.fn-assign { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px 12px; border-radius: 12px; background: var(--list-soft); border: 1px solid var(--list-line); }
+.fn-assign-head { display: flex; align-items: center; gap: 8px; min-height: 28px; }
+.fn-assign-label { margin: 0; font-size: 14px; font-weight: 700; color: var(--list-ink); flex: 1; }
+.fn-assign .btn-remove { margin-left: auto; }
+.list-fn .list-foot { justify-content: flex-start; }
+.find-list li { margin-bottom: 4px; }
+.idea-list { margin: 8px 0 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; }
+.idea-list li { padding-left: 2px; }
+.fn-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px 12px; }
+.fn-fields > .field:first-child { grid-column: 1 / -1; }
