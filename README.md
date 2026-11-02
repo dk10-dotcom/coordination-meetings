@@ -39,6 +39,7 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 ## Built-in instructions
 
 - **How to use** (top right) opens the instructions: the steps and good-to-know notes.
+- **Guided tour:** a 14-stop walk-through that dims the page and explains each part in a bubble (Next / Back / Skip tour). It starts once on its own the first time the app is opened from the Home Screen (in a phone's browser, How to use opens instead, since it starts with Add to Home Screen). Replay it from **Take the tour** at the top of How to use, or send people the site link plus `#tour`. The wording lives in `tour.js`.
 - **Tips for an effective meeting** (next to it) opens the Principles for Effective Coordination and the Prepare ahead tip. These are no longer printed on the PDF. It also opens by itself the first time someone visits on a new device.
 - Send people straight to it with the site link plus `#help` (for example `https://dk10-dotcom.github.io/coordination-meetings/#help`).
 - The first time last week's names carry over, a one-time reminder asks the user to compare them to this week's Covenant Path Report.

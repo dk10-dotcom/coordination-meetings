@@ -771,6 +771,10 @@
         focusLast('[data-group="' + a + '"] input[data-bind$=".name"]'); break;
       case 'convert-nm': convertToNewMember(+a); break;
       case 'list-done': listDone(a); break;
+      case 'tour':
+        closeHelp();
+        if (window.HuddleTour) window.HuddleTour.start();
+        break;
       case 'add-hneed': {
         var zone = btn.closest('.card-zone');
         var hf = zone && zone.querySelector('[data-bind$=".hneed"]');
@@ -1981,7 +1985,15 @@
     listAgendas();
 
     // Instructions: open on the first visit on this device, or when the link ends in #help.
-    if (location.hash === '#help' || (!readFlag(HELP_KEY) && !navigator.webdriver)) openHelp();
+    // First visit on a device: in a phone's browser, How to use opens (it starts with Add to Home Screen).
+    // Everywhere else, including the Home Screen app, the guided tour starts once.
+    if (location.hash === '#help') openHelp();
+    else if (location.hash === '#tour' && window.HuddleTour) window.HuddleTour.start();
+    else if (!navigator.webdriver) {
+      var phoneBrowser = (isIOS || isAndroid) && !isStandalone();
+      if (phoneBrowser) { if (!readFlag(HELP_KEY)) openHelp(); }
+      else if (window.HuddleTour && !window.HuddleTour.seen()) window.HuddleTour.start();
+    }
     window.addEventListener('hashchange', function () { if (location.hash === '#help') openHelp(); });
     // Enter moves to the next field instead of doing nothing
     document.addEventListener('keydown', function (e) {

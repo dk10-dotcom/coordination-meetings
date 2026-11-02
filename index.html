@@ -16,6 +16,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="stylesheet" href="styles.css">
 <script src="vendor/pdf-lib.min.js" defer></script>
+<script src="tour.js" defer></script>
 <script src="app.js" defer></script>
 </head>
 <body>
@@ -241,6 +242,12 @@
   <div class="sheet help" role="dialog" aria-modal="true" aria-labelledby="help-title">
     <div class="grab" aria-hidden="true"></div>
     <h2 id="help-title">How to use</h2>
+
+    <button type="button" class="btn-tour" data-action="tour">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="9" r="7.2"/><path d="M7.4 6.1l4.4 2.9-4.4 2.9z" fill="currentColor" stroke="none"/></svg>
+      Take the tour
+      <span class="btn-tour-sub">A 1-minute walk-through of the app</span>
+    </button>
 
     <div class="help-rhythm">
       <p><strong>Before huddle:</strong> Load last week’s agenda and check the names against the Covenant Path Report (in Tools). Fill in each person’s next ordinance and identify a need.</p>
