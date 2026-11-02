@@ -436,6 +436,7 @@ body.typing .actionbar { position: static; }
 @media (max-width: 360px) { .list-panel { padding: 10px 8px; } .sac-toggle { font-size: 13px; } }
 .label-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .card-head { flex-wrap: nowrap; }
+@media (max-width: 340px) { .card-head { flex-wrap: wrap; } }
 @media (max-width: 360px) { .sac-toggle { padding: 0 10px 0 6px; gap: 6px; } }
 
 /* Tips sheet */
