@@ -612,3 +612,13 @@ body.touring .actionbar { z-index: 10; }
 .help-warning strong { color: #8E1F1F; }
 .help-warning-icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #B22A2A; color: #FFFFFF; font-size: 15px; font-weight: 800; }
 .btn-sample { margin-top: -6px; text-decoration: none; background: var(--card); border-color: var(--accent-line); }
+
+/* Sample agenda viewer: a Close button that stays at the top while scrolling */
+.sample-view { gap: 12px; }
+.sample-head { position: sticky; top: 16px; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin: 0 -20px; padding: 6px 20px 10px; background: var(--card); border-bottom: 1px solid var(--field-line); }
+.sample-close { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: 999px;
+  border: 1.5px solid var(--accent); background: var(--card); color: var(--accent); font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+.sample-note { margin: 0; font-size: 14px; color: var(--muted, #5B6475); }
+.sample-page { display: block; width: 100%; height: auto; border: 1px solid var(--field-line); border-radius: 6px; box-shadow: 0 2px 8px rgba(27, 43, 75, 0.12); background: #FFFFFF; }
+#sample-sheet { z-index: 30; }

@@ -885,6 +885,8 @@
         break;
       case 'help': openHelp(); break;
       case 'close-help': closeHelp(); break;
+      case 'sample': openOverlay('#sample-sheet', '.sample-close'); $('#sample-sheet .sheet').scrollTop = 0; break;
+      case 'close-sample': closeOverlay('#sample-sheet'); break;
       case 'find-tips': openOverlay('#find-tips-sheet', '#find-tips-title'); $('#find-tips-sheet .sheet').scrollTop = 0; break;
       case 'close-find-tips': closeOverlay('#find-tips-sheet'); break;
       case 'add-fn':
@@ -2028,11 +2030,12 @@
       if (e.target.id === 'help-sheet') closeHelp();
       if (e.target.id === 'tips-sheet') closeOverlay('#tips-sheet');
       if (e.target.id === 'find-tips-sheet') closeOverlay('#find-tips-sheet');
+      if (e.target.id === 'sample-sheet') closeOverlay('#sample-sheet');
       if (e.target.id === 'confirm-sheet' && askSecondary) askSecondary();
     });
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;
-      var top = ['#confirm-sheet', '#load-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#find-tips-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
+      var top = ['#confirm-sheet', '#sample-sheet', '#load-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#find-tips-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
       if (top) dismissSheet(top);
     });
     enableSwipeDown();

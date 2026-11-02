@@ -291,6 +291,24 @@
   </div>
 </div>
 
+<!-- Sample agenda: shown inside the app so there's always a way back -->
+<div class="overlay" id="sample-sheet" hidden>
+  <div class="sheet sample-view" role="dialog" aria-modal="true" aria-labelledby="sample-title">
+    <div class="grab" aria-hidden="true"></div>
+    <div class="sample-head">
+      <h2 id="sample-title">Sample agenda</h2>
+      <button type="button" class="sample-close" data-action="close-sample" aria-label="Close the sample agenda">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 5l8 8M13 5l-8 8"/></svg>
+        Close
+      </button>
+    </div>
+    <p class="sample-note">Made-up names in a made-up ward. This is what the PDF you send each week looks like. Pinch to zoom in.</p>
+    <img class="sample-page" src="sample/page-1.png" width="1275" height="1650" alt="Sample agenda, page 1: header, attendees, Return and Report, and the start of Covenant Path Report Review" loading="lazy">
+    <img class="sample-page" src="sample/page-2.png" width="1275" height="1650" alt="Sample agenda, page 2: the rest of Covenant Path Report Review, Name Next Ordinance, and Plans to Find New People to Teach" loading="lazy">
+    <button type="button" class="btn-primary full" data-action="close-sample">Back to How to use</button>
+  </div>
+</div>
+
 <!-- How to use -->
 <div class="overlay" id="help-sheet" hidden>
   <div class="sheet help" role="dialog" aria-modal="true" aria-labelledby="help-title">
@@ -303,11 +321,11 @@
       <span class="btn-tour-sub">A 1-minute walk-through of the app</span>
     </button>
 
-    <a class="btn-tour btn-sample" href="sample-agenda.pdf" target="_blank" rel="noopener">
+    <button type="button" class="btn-tour btn-sample" data-action="sample" aria-haspopup="dialog">
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5h6l3 3v10h-9z"/><path d="M10.5 2.5v3h3"/><path d="M6.8 9.2h4.4M6.8 12h4.4"/></svg>
       See a sample agenda
       <span class="btn-tour-sub">What a finished week’s PDF looks like</span>
-    </a>
+    </button>
 
     <p class="help-conduct"><strong>Who uses this agenda:</strong> The person conducting the huddle is responsible for obtaining the information from ward council, filling out the entire agenda, and saving and sharing it with the right people. This is usually the ward mission leader. If he isn’t there, the elders quorum representative conducts.</p>
 
