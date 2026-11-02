@@ -372,9 +372,9 @@
     if (!hneedVal) hneedField.hidden = true;
     var hneedLink = h('button', { type: 'button', class: 'link-add', 'data-action': 'add-hneed', hidden: !!hneedVal }, ['+ Add a need or note from the huddle']);
     return h('div', { class: 'card-zones' }, [
+      wcExtra || null,
       h('div', { class: 'card-zone zone-wc-wrap' }, [
         zoneLabel('wc', 'Ward Council · Who & What'),
-        wcExtra || null,
         h('div', { class: 'card-grid' }, [
           field(nameLabel, base + 'name', { placeholder: namePh, cap: 'words', full: true, tag: tag }),
           withBap ? field(withBap, base + 'bap', { type: 'date', full: true }) : null,

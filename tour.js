@@ -19,7 +19,7 @@
     { target: ['[data-group="nm"] .card', '#cp-groups'], title: 'Name cards', text: 'Each person’s card has two halves. The top is from ward council: name, next ordinance and need. The bottom is the huddle’s: one action item, who will do it, and when.' },
     { target: '[data-group="nm"] .temple-box', title: 'The 30-day temple goal', text: 'For new members, enter the baptism date. This box counts down 30 days to baptisms for the dead and stays red until you check it.' },
     { target: '[data-group="nm"] .btn-done', title: 'Done with a list?', text: 'Tap Done to fold a finished list to one line per person. Tap its title to open it again. The PDF always shows everything.' },
-    { target: '#tn-list .list-panel', title: '3 Names', text: 'Add the focus names from ward council, with each person’s next ordinance and need, then plan an action the same way.' },
+    { target: '#tn-list .list-panel', title: '3 Names', text: 'Add the focus names from ward council, with each person’s next ordinance and need, then plan an action the same way. The huddle can add more needs in the same Needs box, and add a note to relay anything back to ward council.' },
     { target: '.actionbar', title: 'Save or send', text: 'Save without sending keeps your work while you prepare. After the huddle, Send & Clear makes the PDF and opens your share menu. Send it to the bishop-approved list.' },
     { title: 'You’re all set', text: 'Everything stays on your phone, and nothing is saved online. You can replay this tour anytime from How to use.' }
   ];
