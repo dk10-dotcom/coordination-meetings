@@ -33,7 +33,7 @@
     { id: 'rm', title: 'Returning members' },
     { id: 'bt', title: 'Those being taught' }
   ];
-  var SOURCE = { nm: 'New members', rm: 'Returning members', bt: 'Those being taught', tn: '3 Names', fn: 'Finding new people' };
+  var SOURCE = { nm: 'New members', rm: 'Returning members', bt: 'Those being taught', tn: 'Name Next Ordinance', fn: 'Finding new people' };
 
   /* ---------- small utilities ---------- */
   function $(sel) { return document.querySelector(sel); }
@@ -81,7 +81,7 @@
 
   /* ---------- state ---------- */
   function blankRR() { return { plan: '', happened: '', notes: '' }; }
-  // Every name card (Covenant Path lists and 3 Names) has the same fields.
+  // Every name card (Covenant Path lists and Name Next Ordinance) has the same fields.
   var CARD_KEYS = ['name', 'bap', 'ordinance', 'need', 'hneed', 'action', 'assigned', 'when'];
   function blankAction() { return { name: '', sac: false, bap: '', temple: false, committed: false, ordinance: '', need: '', hneed: '', action: '', assigned: '', when: '' }; }
   function shortDay(iso) { var d = parseISO(iso); return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''; }
@@ -570,7 +570,7 @@
       h('span', { class: 'list-count', text: tnCountText() })
     ]);
     if (state.collapsed.tn) { wrap.replaceChildren(foldedPanel('list-panel list-tn', 'tn', 'Focus names', tnCountText(), state.tn, {})); return; }
-    wrap.replaceChildren(h('section', { class: 'list-panel list-tn', 'aria-label': '3 Names Next Ordinance' }, [head].concat(cards).concat([h('div', { class: 'list-foot' }, [doneButton('tn', 'Focus names')])])));
+    wrap.replaceChildren(h('section', { class: 'list-panel list-tn', 'aria-label': 'Name Next Ordinance' }, [head].concat(cards).concat([h('div', { class: 'list-foot' }, [doneButton('tn', 'Focus names')])])));
   }
   function renderFN() {
     var wrap = $('#fn-list');
@@ -1011,7 +1011,7 @@
 
   function groupOf(r) {
     if (r.group) return r.group;
-    return { 'New members': 'nm', 'Returning members': 'rm', 'Those being taught': 'bt', 'Three Names': 'tn', '3 Names': 'tn', 'Finding new people': 'fn' }[r.source] || '';
+    return { 'New members': 'nm', 'Returning members': 'rm', 'Those being taught': 'bt', 'Three Names': 'tn', '3 Names': 'tn', 'Name Next Ordinance': 'tn', 'Finding new people': 'fn' }[r.source] || '';
   }
   // Copies an unfinished item from last week into this week's plan for the same person.
   function carryForward(i) {
@@ -1034,7 +1034,7 @@
     } else if (g === 'tn') {
       var slot = state.tn.findIndex(function (n) { return name && norm(n.name) === norm(name); });
       if (slot < 0) slot = state.tn.findIndex(function (n) { return !n.sac && !hasText(n, CARD_KEYS); });
-      if (slot < 0) { toast('All three 3 Names spots are already filled.'); return; }
+      if (slot < 0) { toast('All three Name Next Ordinance spots are already filled.'); return; }
       var t = state.tn[slot];
       t.name = t.name || name; t.ordinance = t.ordinance || ord; t.need = t.need || item.need; t.hneed = t.hneed || item.hneed;
       if (!str(t.action).trim()) { t.action = item.action; t.assigned = t.assigned || item.assigned; }
@@ -1687,7 +1687,7 @@
     // Three Names (same header style as Covenant Path Report Review)
     y += 13;
     ensure(95); // keep the heading with its table
-    heading('3 Names Next Ordinance (Ward Council Focus Names)');
+    heading('Name Next Ordinance (Ward Council Focus Names)');
     y += 7;
     table(CARD_COLS, ['FOCUS NAME'].concat(CARD_HEADS),
       (function () {

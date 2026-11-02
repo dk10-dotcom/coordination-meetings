@@ -608,3 +608,6 @@ body.touring .actionbar { z-index: 10; }
 .fn-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px 12px; }
 .fn-fields > .field:first-child { grid-column: 1 / -1; }
 .find-note { margin: 0; font-size: 15px; color: var(--text); }
+.help-warning { display: flex; align-items: center; gap: 10px; margin: 0; padding: 12px 14px; border-radius: 12px; background: #FBEAEA; border: 1.5px solid #E8B4B4; font-size: 15px; color: #7A1C1C; }
+.help-warning strong { color: #8E1F1F; }
+.help-warning-icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #B22A2A; color: #FFFFFF; font-size: 15px; font-weight: 800; }
