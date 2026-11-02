@@ -28,7 +28,7 @@
     { target: '.actionbar', title: 'Save or send', text: 'After the huddle, **Send & Clear** creates a PDF report and opens your share menu. Send it to the bishop-approved list, the stake presidency and the full-time missionaries.',
       demoClass: 'tip', demo: '<p class="tour-callout"><span class="tour-callout-icon" aria-hidden="true">✓</span><span><strong>Tip:</strong> Use <strong>Save without sending</strong> to enter names, ordinances and needs before the huddle. This allows the huddle to spend its time planning for each person, not typing.</span></p>' },
     { title: 'Update the Covenant Path Report', text: '**After the huddle, the person conducting updates the Covenant Path Report in Tools** with any changes: sacrament attendance, needs that have been met, and anything else that changed. A current report is what makes next week’s huddle work.' },
-    { title: 'You’re all set', text: 'Everything stays on your phone, and nothing is saved online. You can replay this tour anytime from How to use.' }
+    { title: 'You’re all set', text: 'Everything stays on your phone, and nothing is saved online. You can replay this tour anytime from How to use, and see a sample agenda there too.' }
   ];
 
   var el = {}, idx = 0, active = false, targetEl = null;
