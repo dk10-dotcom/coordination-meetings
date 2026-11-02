@@ -16,7 +16,7 @@
     { target: '.attendees-field', title: 'Take attendance', text: 'At the meeting, tap everyone who came. The youth are listed first: make an extra effort to involve them.' },
     { target: ['#load-panel', '#loaded-banner'], title: 'Load last week', text: 'Before the meeting, tap **Load last week** and pick last week’s agenda. Last week’s action items will automatically load in Return and Report, and last week’s Covenant Path Report names will load into this week’s lists.',
       demoClass: 'important', demo: '<p class="tour-callout"><span class="tour-callout-icon" aria-hidden="true">!</span><span><strong>Important:</strong> Check last week’s names against this week’s Covenant Path Report. Add anyone new and remove anyone no longer listed.</span></p>' },
-    { target: ['#rr-list .card', '#rr-list'], title: 'Return and Report', text: 'When you load last week’s agenda, the action items from last week’s plans load here. Tap **Yes**, **Partly** or **No** for each.',
+    { target: ['#rr-list .card', '#rr-list'], title: 'Return and Report', text: 'When you load last week’s agenda, the action items from last week’s plans load here. Tap **Yes**, **Partly** or **No** for each, and add a note about how it went if that would help.',
       demo: '<p class="tour-demo-cap">Tap Partly or No and this button appears:</p><span class="tour-demo-btn">Carry forward to this week</span><p class="tour-demo-cap">It adds the item to this week’s plan without retyping.</p>' },
     { target: ['[data-group="nm"] .card', '#cp-groups'], title: 'Name cards', text: 'Each person’s card has two halves. The top is from ward council: name, next ordinance and needs. The bottom is the huddle’s: one action item, who will do it, and when.' },
     { target: '[data-group="nm"] .temple-box', title: 'The 30-day temple goal', text: 'Our goal is to help every new member attend the temple for baptisms for the dead within **30 days of their baptism**. Enter the baptism date and this box counts down the days. It stays red until it’s checked off, so the huddle stays focused on helping them get there.' },
@@ -24,6 +24,7 @@
     { target: '#tn-list .list-panel', title: '3 Names', text: 'Add the focus names from ward council, with each person’s next ordinance and need, then plan an action the same way. The huddle can add more needs in the same Needs box, and add a note to relay anything back to ward council.' },
     { target: '.actionbar', title: 'Save or send', text: 'After the huddle, **Send & Clear** makes the PDF and opens your share menu. Send it to the bishop-approved list.',
       demoClass: 'tip', demo: '<p class="tour-callout"><span class="tour-callout-icon" aria-hidden="true">✓</span><span><strong>Tip:</strong> Use <strong>Save without sending</strong> to enter names, ordinances and needs before the huddle. Then the huddle is spent planning for each person, not typing.</span></p>' },
+    { title: 'Update the Covenant Path Report', text: '**After the huddle, the person conducting updates the Covenant Path Report in Tools** with any changes: sacrament attendance, needs that have been met, and anything else that changed. A current report is what makes next week’s huddle work.' },
     { title: 'You’re all set', text: 'Everything stays on your phone, and nothing is saved online. You can replay this tour anytime from How to use.' }
   ];
 
