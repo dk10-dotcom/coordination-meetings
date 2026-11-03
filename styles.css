@@ -648,3 +648,5 @@ body.touring .actionbar { z-index: 10; }
 .label-text { flex: 1 0 auto; }
 .warn-icon[hidden] { display: none; }
 .fold-tag.carried { background: #FFF2D6; color: #7A5200; border-color: #EBCB7A; }
+.carried-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.btn-undo { flex: none; min-height: 38px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--card-line, #C9CED6); background: var(--card); color: var(--ink); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }

@@ -163,6 +163,11 @@
           o.action = str(r.action); o.assigned = str(r.assigned); o.when = str(r.when);
           o.group = ['nm', 'rm', 'bt', 'tn', 'fn'].indexOf(r.group) >= 0 ? r.group : '';
           o.pname = str(r.pname); o.ord = str(r.ord); o.need = str(r.need); o.hneed = str(r.hneed); o.sac = !!r.sac; o.bap = str(r.bap); o.temple = !!r.temple; o.committed = !!r.committed; o.carriedFwd = !!r.carriedFwd;
+          if (r.carryUndo && typeof r.carryUndo === 'object') {
+            var cu = r.carryUndo, fo = {};
+            if (cu.filled && typeof cu.filled === 'object') Object.keys(cu.filled).forEach(function (k) { if (CARD_KEYS.indexOf(k) >= 0 || k === 'temple' || k === 'committed') fo[k] = typeof cu.filled[k] === 'boolean' ? cu.filled[k] : str(cu.filled[k]); });
+            o.carryUndo = { g: str(cu.g), kind: ['new', 'fill', 'none'].indexOf(cu.kind) >= 0 ? cu.kind : 'fill', name: str(cu.name), action: str(cu.action), filled: fo };
+          }
         }
         return o;
       });
@@ -352,10 +357,13 @@
         }))
       ]);
       var carry = null;
-      if (r.prefilled && (r.happened === 'Partly' || r.happened === 'No') && groupOf(r)) {
-        if (r.carriedFwd) {
-          carry = h('p', { class: 'carried-note', text: '✓ Added to this week’s plan' });
-        } else {
+      if (r.prefilled && r.carriedFwd) {
+        carry = h('div', { class: 'carried-row' }, [
+          h('p', { class: 'carried-note', text: '✓ Added to this week’s plan' }),
+          h('button', { type: 'button', class: 'btn-undo', 'data-action': 'undo-carry', 'data-a': i, 'aria-label': 'Undo carry forward' }, ['Undo'])
+        ]);
+      } else if (r.prefilled && (r.happened === 'Partly' || r.happened === 'No') && groupOf(r)) {
+        {
           carry = h('button', { type: 'button', class: 'btn-outline full btn-carry', 'data-action': 'carry-fwd', 'data-a': i, text: 'Carry forward to this week' });
         }
       }
@@ -821,6 +829,10 @@
       case 'happened': {
         var r = state.rr[+a];
         r.happened = r.happened === b ? '' : b;
+        if (r.carriedFwd && r.happened === 'Yes') {
+          var ri = +a;
+          setTimeout(function () { confirmUndoCarry(ri, 'Take it off this week’s plan too?'); }, 0);
+        }
         Array.prototype.forEach.call(btn.parentNode.children, function (x) {
           x.setAttribute('aria-pressed', x.getAttribute('data-b') === r.happened ? 'true' : 'false');
         });
@@ -896,6 +908,7 @@
         } else openLoad();
         break;
       case 'carry-fwd': carryForward(+a); break;
+      case 'undo-carry': confirmUndoCarry(+a); break;
       case 'conducting':
         state.conducting = state.conducting === a ? '' : a;
         renderConducting(); writeConducting(state); saveDraft();
@@ -1073,6 +1086,16 @@
     return { 'New members': 'nm', 'Returning members': 'rm', 'Those being taught': 'bt', 'Three Names': 'tn', '3 Names': 'tn', 'Name Next Ordinance': 'tn', 'Finding new people': 'fn' }[r.source] || '';
   }
   // Copies an unfinished item from last week into this week's plan for the same person.
+  // Fills only the empty fields on an existing card and remembers which ones, so Undo can clear exactly those.
+  function fillEmpty(target, src, keys) {
+    var filled = {};
+    keys.forEach(function (k) {
+      var empty = typeof target[k] === 'boolean' ? !target[k] : !str(target[k]).trim();
+      var has = typeof src[k] === 'boolean' ? src[k] : str(src[k]).trim();
+      if (empty && has) { target[k] = src[k]; filled[k] = src[k]; }
+    });
+    return filled;
+  }
   function carryForward(i) {
     var r = state.rr[i]; if (!r) return;
     var g = groupOf(r);
@@ -1082,40 +1105,89 @@
     item.name = name; item.ordinance = ord; item.need = str(r.need).trim(); item.hneed = str(r.hneed).trim(); item.action = str(r.action).trim(); item.assigned = str(r.assigned).trim();
     if (g === 'nm') { item.bap = str(r.bap); item.temple = !!r.temple; }
     if (g === 'bt') { item.bap = str(r.bap); item.committed = !!r.committed; }
+    var undo = null;
     if (g) delete state.collapsed[g];
     if (g === 'fn') {
       var fl = state.find.items;
       if (!fl.some(function (x) { return norm(x.task) === norm(item.action); })) {
         if (fl.length === 1 && !assignHasText(fl[0])) fl.pop();
         fl.push({ task: item.action, when: '', carried: true });
-      }
+        undo = { g: 'fn', kind: 'new', action: item.action };
+      } else undo = { g: 'fn', kind: 'none' };
       renderFN();
     } else if (g === 'tn') {
       var slot = state.tn.findIndex(function (n) { return name && norm(n.name) === norm(name); });
       if (slot < 0) slot = state.tn.findIndex(function (n) { return !n.sac && !hasText(n, CARD_KEYS); });
       if (slot < 0) { toast('All three Name Next Ordinance spots are already filled.'); return; }
       var t = state.tn[slot];
-      t.name = t.name || name; t.ordinance = t.ordinance || ord; t.need = t.need || item.need; t.hneed = t.hneed || item.hneed;
-      if (!str(t.action).trim()) { t.action = item.action; t.assigned = t.assigned || item.assigned; t.actionCarried = true; }
+      var keys = ['name', 'ordinance', 'need', 'hneed'];
+      if (!str(t.action).trim()) { keys = keys.concat(['action', 'assigned']); t.actionCarried = true; }
+      undo = { g: 'tn', kind: 'fill', name: name, filled: fillEmpty(t, item, keys) };
       renderTN();
     } else if (g) {
       var list = state.cp[g];
       var match = list.find(function (a) { return name && norm(a.name) === norm(name) && !hasText(a, ['action']); });
       if (match) {
-        match.action = item.action; match.actionCarried = true; match.assigned = match.assigned || item.assigned;
-        match.ordinance = match.ordinance || item.ordinance; match.need = match.need || item.need; match.hneed = match.hneed || item.hneed;
-        if (g === 'nm') { match.bap = match.bap || item.bap; match.temple = match.temple || item.temple; }
-        if (g === 'bt') { match.bap = match.bap || item.bap; match.committed = match.committed || item.committed; }
+        var mk = ['action', 'assigned', 'ordinance', 'need', 'hneed'].concat(g === 'nm' ? ['bap', 'temple'] : g === 'bt' ? ['bap', 'committed'] : []);
+        undo = { g: g, kind: 'fill', name: name, filled: fillEmpty(match, item, mk) };
+        match.actionCarried = true;
       }
       else {
         if (list.length === 1 && !list[0].sac && !hasText(list[0], CARD_KEYS)) list.pop();
         item.carried = true; item.actionCarried = true; list.push(item);
+        undo = { g: g, kind: 'new', name: name, action: item.action };
       }
       renderCP();
     } else return;
-    r.carriedFwd = true;
+    r.carriedFwd = true; r.carryUndo = undo;
     renderRR(); saveDraft();
     toast('Added to this week’s plan. Update who and when as needed.');
+  }
+
+  // Takes a carried item back out of this week's plan: removes the card or assignment it added,
+  // or clears just the fields it filled in. Anything typed since then stays.
+  function undoCarry(i) {
+    var r = state.rr[i]; if (!r || !r.carriedFwd) return;
+    var u = r.carryUndo || {}, g = u.g || groupOf(r);
+    var name = str(u.name || r.pname).trim();
+    if (g === 'fn' && u.kind === 'new') {
+      var fl = state.find.items;
+      var fi = fl.findIndex(function (x) { return x.carried && norm(x.task) === norm(u.action); });
+      if (fi >= 0) fl.splice(fi, 1);
+      if (!fl.length) fl.push(blankAssign());
+      renderFN();
+    } else if (g === 'tn' || (g && state.cp[g])) {
+      var list = g === 'tn' ? state.tn : state.cp[g];
+      var idx = list.findIndex(function (a) { return name && norm(a.name) === norm(name) && (a.actionCarried || u.kind === 'fill'); });
+      if (idx >= 0) {
+        var c = list[idx];
+        if (u.kind === 'new' && g !== 'tn') {
+          list.splice(idx, 1);
+          if (!list.length) list.push(blankAction());
+        } else {
+          Object.keys(u.filled || {}).forEach(function (k) {
+            if (typeof c[k] === 'boolean') { if (c[k] === u.filled[k]) c[k] = false; }
+            else if (str(c[k]).trim() === str(u.filled[k]).trim()) c[k] = '';
+          });
+          c.actionCarried = false;
+        }
+        delete state.openOne[g];
+      }
+      if (g === 'tn') renderTN(); else renderCP();
+    }
+    r.carriedFwd = false; delete r.carryUndo;
+    renderRR(); saveDraft();
+    toast('Carry forward undone. It’s off this week’s plan.');
+  }
+  function confirmUndoCarry(i, title) {
+    var r = state.rr[i]; if (!r) return;
+    var who = rrPerson(r);
+    ask({
+      title: title || 'Undo carry forward?',
+      body: 'This takes “' + (str(r.action).trim() || 'this item') + '”' + (who && groupOf(r) !== 'fn' ? ' for ' + who : '') + ' back off this week’s plan.',
+      primary: 'Undo carry forward', onPrimary: function () { undoCarry(i); },
+      secondary: 'Keep it'
+    });
   }
 
   function applyLoad(data, fileName) {
@@ -1802,7 +1874,7 @@
       rr: s.rr.map(function (r) {
         return r.prefilled
           ? { prefilled: true, source: r.source, person: r.person, action: r.action, assigned: r.assigned, when: r.when, happened: r.happened, notes: r.notes,
-              group: r.group || '', pname: r.pname || '', ord: r.ord || '', need: r.need || '', hneed: r.hneed || '', sac: !!r.sac, bap: r.bap || '', temple: !!r.temple, committed: !!r.committed, carriedFwd: !!r.carriedFwd }
+              group: r.group || '', pname: r.pname || '', ord: r.ord || '', need: r.need || '', hneed: r.hneed || '', sac: !!r.sac, bap: r.bap || '', temple: !!r.temple, committed: !!r.committed, carriedFwd: !!r.carriedFwd, carryUndo: r.carryUndo || null }
           : { plan: r.plan, happened: r.happened, notes: r.notes };
       }),
       cpDone: s.cpDone, cp: s.cp, tnDone: s.tnDone, tn: s.tn, ftDone: s.ftDone,
