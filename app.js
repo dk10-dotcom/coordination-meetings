@@ -129,7 +129,7 @@
       conducting: readConducting().who, conductingOther: readConducting().other,
       rr: [blankRR(), blankRR()], loaded: null,
       cpDone: false, cp: { nm: [blankAction()], rm: [blankAction()], bt: [blankAction()] },
-      collapsed: {},
+      collapsed: {}, openOne: {},
       tnDone: false, tn: [blankName(), blankName(), blankName()],
       find: blankFind(),
       ftDone: false
@@ -140,7 +140,7 @@
     var out = list.filter(function (x) { return x && typeof x === 'object'; }).map(function (x) {
       var o = maker();
       keys.forEach(function (k) { o[k] = str(x[k]); });
-      o.sac = !!x.sac; o.temple = !!x.temple; o.committed = !!x.committed;
+      o.sac = !!x.sac; o.temple = !!x.temple; o.committed = !!x.committed; o.actionCarried = !!x.actionCarried;
       return o;
     });
     return out.length ? out : [maker()];
@@ -244,7 +244,7 @@
   function field(label, path, opts) {
     opts = opts || {};
     return h('label', { class: 'field' + (opts.full ? ' full' : '') }, [
-      opts.tag ? h('span', { class: 'label-row' }, [label, opts.tag]) : label,
+      opts.tag ? h('span', { class: 'label-row' }, [h('span', { class: 'label-text', text: label }), opts.tag]) : label,
       opts.multi ? h('textarea', {
         'data-bind': path, value: str(getPath(path)), placeholder: opts.placeholder || '', rows: '2',
         autocomplete: 'off', autocapitalize: 'sentences', enterkeyhint: 'next', maxlength: '300'
@@ -294,15 +294,24 @@
     $('#rr-foot').hidden = !!state.collapsed.rr;
     if (state.collapsed.rr) { list.replaceChildren(foldedRR()); renderLoadState(); return; }
     var many = state.rr.length > 1;
-    list.replaceChildren.apply(list, state.rr.map(function (r, i) {
+    list.replaceChildren.apply(list, state.rr.map(function (r, i) { return rrCard(r, i, many); }));
+    renderLoadState();
+  }
+  function rrPerson(r) {
+    if (!r.prefilled) return '';
+    if (groupOf(r) === 'fn') return SOURCE.fn;
+    return str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim();
+  }
+  function rrCard(r, i, many) {
       var gid = r.prefilled ? groupOf(r) : '';
+      var who = rrPerson(r);
       var head = h('div', { class: 'card-head' }, [
         // "Return and Report" on every card, so a long list still says where you are.
         h('div', { class: 'card-title' }, [
           avatar(),
           h('div', { class: 'card-title-text' }, [
             h('p', { class: 'card-kicker', text: 'Return and Report' }),
-            h('p', { class: 'card-item', text: 'Item ' + (i + 1) })
+            h('p', { class: 'card-item' + (who ? ' card-person' : ''), text: who || 'Item ' + (i + 1) })
           ])
         ]),
         h('div', { class: 'card-head-right' }, [
@@ -328,7 +337,7 @@
         body = h('div', { class: 'prefill' }, [
           gid ? h('span', { class: 'group-tag', text: SOURCE[gid] }) : null,
           // Name and next ordinance share a line; a long name pushes the tag to the next line.
-          pname || ordTag ? h('div', { class: 'person-line' }, [pname ? h('p', { class: 'prefill-person', text: pname }) : null, ordTag]) : null,
+          ordTag ? h('div', { class: 'person-line' }, [ordTag]) : null,
           facts.length ? h('div', { class: 'facts' }, facts) : null,
           h('p', { class: 'prefill-action' }, [h('span', { class: 'prefill-k', text: 'Action: ' }), str(r.action).trim() || 'No action item was written.']),
           meta ? h('p', { class: 'prefill-meta', text: meta }) : null
@@ -351,8 +360,6 @@
         }
       }
       return h('div', { class: 'card rr-card' + (gid ? ' g-' + gid : ''), 'data-status': statusOf(r.happened) }, [head, body, seg, carry, field('Notes', 'rr.' + i + '.notes', { placeholder: 'Optional' })]);
-    }));
-    renderLoadState();
   }
 
   function statusOf(v) { return { Yes: 'yes', Partly: 'partly', No: 'no' }[v] || ''; }
@@ -363,6 +370,13 @@
     a.innerHTML = '<svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="6.6" r="3.6"/><path d="M2.8 17.4c.7-3.6 3.6-5.8 7.2-5.8s6.5 2.2 7.2 5.8c.1.5-.3.9-.8.9H3.6c-.5 0-.9-.4-.8-.9z"/></svg>';
     return a;
   }
+  // The person's name, in bold at the top of the card, so the huddle stays focused on people.
+  function personTitle(path, ph) {
+    var v = str(getPath(path)).trim();
+    return h('p', { class: 'card-person' + (v ? '' : ' empty'), 'data-name-for': path, 'data-ph': ph, text: v || ph });
+  }
+  var CARRIED_TEXT = 'Carried over from last week';
+  function carriedTag() { return h('span', { class: 'source carried-tag', text: CARRIED_TEXT }); }
   function cardLabel(n, label, extra) {
     return h('div', { class: 'card-title' }, [
       avatar(),
@@ -395,7 +409,8 @@
       h('div', { class: 'card-zone zone-hd-wrap' }, [
         zoneLabel('hd', 'Huddle · How & When'),
         h('div', { class: 'card-grid' }, [
-          field('Action item for this week', base + 'action', { full: true, placeholder: 'What will we do to help?' }),
+          field('Action item for this week', base + 'action', { full: true, placeholder: 'What will we do to help?',
+            tag: getPath(base + 'actionCarried') && str(getPath(base + 'action')).trim() ? carriedTag() : null }),
           // Assigned to gets the wider share of its row; When is usually a day or two words.
           h('div', { class: 'assign-row' }, [
             field('Assigned to', base + 'assigned', { placeholder: 'Who will do it', cap: 'words' }),
@@ -428,16 +443,22 @@
   // Return and Report folded: one line per item with its answer.
   function rrShown(r) { return r.prefilled || rrHasInput(r); }
   function foldedRR() {
-    var rows = state.rr.filter(rrShown).map(function (r) {
+    var open = state.openOne && state.openOne.rr;
+    var many = state.rr.length > 1;
+    var rows = state.rr.map(function (r, i) { return { r: r, i: i }; }).filter(function (x) { return rrShown(x.r); }).map(function (x) {
+      var r = x.r;
+      if (open === x.i) return openOneRow('rr', x.i, rrCard(r, x.i, many), rrPerson(r) || 'this item');
       var gid = r.prefilled ? groupOf(r) : '';
       var name = gid === 'fn' ? 'Finding new people' : r.prefilled ? (str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim()) : '';
       var what = r.prefilled ? str(r.action).trim() : str(r.plan).trim();
       var ans = r.happened ? h('span', { class: 'fold-tag ans-' + statusOf(r.happened), text: r.happened }) : h('span', { class: 'fold-tag due', text: 'Not marked' });
-      return h('li', { class: 'fold-row' + (gid ? ' g-' + gid : '') }, [
-        h('div', { class: 'fold-line' }, [h('span', { class: 'fold-name', text: name || what || 'Item' }), ans, r.carriedFwd ? h('span', { class: 'fold-tag', text: 'Carried forward' }) : null]),
+      var row = foldButton('rr', x.i, name || what || 'this item', [
+        h('span', { class: 'fold-line' }, [h('span', { class: 'fold-name', text: name || what || 'Item' }), ans, r.carriedFwd ? h('span', { class: 'fold-tag', text: 'Carried forward' }) : null]),
         name && what ? h('span', { class: 'fold-plan', text: what }) : null,
         str(r.notes).trim() ? h('span', { class: 'fold-plan', text: 'Notes: ' + r.notes.trim() }) : null
       ]);
+      if (gid) row.classList.add('g-' + gid);
+      return row;
     });
     var head = h('button', { type: 'button', class: 'list-head fold-head', 'data-action': 'list-open', 'data-a': 'rr', 'aria-expanded': 'false', 'aria-label': 'Return and Report is done. Tap to open and edit.' }, [
       h('span', { class: 'list-title' }, [h('span', { class: 'fold-check', 'aria-hidden': 'true' }, [icon('check')]), ' Last week’s items']),
@@ -446,7 +467,8 @@
     return h('section', { class: 'list-panel rr-folded is-folded', 'aria-label': 'Return and Report' }, [
       head,
       rows.length ? h('ul', { class: 'fold-list' }, rows) : h('p', { class: 'fold-empty', text: 'No items.' }),
-      h('button', { type: 'button', class: 'btn-reopen', 'data-action': 'list-open', 'data-a': 'rr', text: 'Edit this list' })
+      rows.length ? h('p', { class: 'fold-hint', text: 'Tap an item to edit just that one.' }) : null,
+      h('button', { type: 'button', class: 'btn-reopen', 'data-action': 'list-open', 'data-a': 'rr', text: 'Edit the whole list' })
     ]);
   }
   function countNamed(gid) { return state.cp[gid].filter(function (it) { return str(it.name).trim(); }).length; }
@@ -460,11 +482,26 @@
     wrap.replaceChildren.apply(wrap, GROUPS.map(function (g) {
       var items = state.cp[g.id];
       var many = items.length > 1;
-      var cards = items.map(function (it, i) {
+      var cards = items.map(function (it, i) { return cpCard(g, it, i, many); });
+      var named = countNamed(g.id);
+      var head = h('div', { class: 'list-head' }, [
+        h('h3', { class: 'list-title', text: g.title }),
+        h('span', { class: 'list-count', text: countText(named) })
+      ]);
+      var extra = g.id === 'nm' ? [
+        h('p', { class: 'temple-goal', text: 'Goal: every new member attends the temple for baptisms for the dead within 30 days of their baptism.' })
+      ] : [];
+      if (state.collapsed[g.id]) return foldedPanel('list-panel list-' + g.id, g.id, g.title, countText(named), items, { 'data-group': g.id }, function (i) { return cpCard(g, items[i], i, many); });
+      return h('section', { class: 'list-panel list-' + g.id, 'data-group': g.id, 'aria-label': g.title }, [head]
+        .concat(extra).concat(cards).concat([h('div', { class: 'list-foot' }, [addButton('add-cp', g.id, 'Add action'), doneButton(g.id, g.title)])]));
+    }));
+    updateTemple();
+  }
+  function cpCard(g, it, i, many) {
         var base = 'cp.' + g.id + '.' + i + '.';
         return h('div', { class: 'card' }, [
           h('div', { class: 'card-head' }, [
-            cardLabel(i + 1, ''),
+            h('div', { class: 'card-title' }, [avatar(), personTitle(base + 'name', 'New name')]),
             h('div', { class: 'card-head-right' }, [
               sacToggle(base + 'sac', it.sac),
               many ? removeButton('remove-cp', g.id, i, 'Remove action ' + (i + 1) + ' for ' + g.title) : null
@@ -474,20 +511,6 @@
             g.id === 'nm' ? templeBox(base, i, it) : g.id === 'bt' ? committedBox(base, it) : null),
           g.id === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': i }, ['Convert to new member']) : null
         ]);
-      });
-      var named = countNamed(g.id);
-      var head = h('div', { class: 'list-head' }, [
-        h('h3', { class: 'list-title', text: g.title }),
-        h('span', { class: 'list-count', text: countText(named) })
-      ]);
-      var extra = g.id === 'nm' ? [
-        h('p', { class: 'temple-goal', text: 'Goal: every new member attends the temple for baptisms for the dead within 30 days of their baptism.' })
-      ] : [];
-      if (state.collapsed[g.id]) return foldedPanel('list-panel list-' + g.id, g.id, g.title, countText(named), items, { 'data-group': g.id });
-      return h('section', { class: 'list-panel list-' + g.id, 'data-group': g.id, 'aria-label': g.title }, [head]
-        .concat(extra).concat(cards).concat([h('div', { class: 'list-foot' }, [addButton('add-cp', g.id, 'Add action'), doneButton(g.id, g.title)])]));
-    }));
-    updateTemple();
   }
 
   // Red until checked: the Temple attendance box on each New member card.
@@ -517,7 +540,7 @@
         CARD_KEYS.forEach(function (k) { c[k] = str(it[k]); });
         c.sac = !!it.sac;
         if (/^baptism$/i.test(str(c.ordinance).trim())) c.ordinance = '';
-        state.cp.bt.splice(i, 1);
+        state.cp.bt.splice(i, 1); delete state.openOne.bt;
         if (!state.cp.bt.length) state.cp.bt.push(blankAction());
         var nm = state.cp.nm;
         delete state.collapsed.nm;
@@ -555,22 +578,23 @@
   }
   function renderTN() {
     var wrap = $('#tn-list');
-    var cards = state.tn.map(function (n, i) {
-      var base = 'tn.' + i + '.';
-      return h('div', { class: 'card' }, [
-        h('div', { class: 'card-head' }, [
-          cardLabel(i + 1, 'Name ' + (i + 1)),
-          h('div', { class: 'card-head-right' }, [sacToggle(base + 'sac', n.sac)])
-        ]),
-        cardFields(base, 'Focus name', 'Focus name', 'e.g. Sun', null, '', 'e.g. A ride to the temple', 'e.g. Sacrament')
-      ]);
-    });
+    var cards = state.tn.map(function (n, i) { return tnCard(n, i); });
     var head = h('div', { class: 'list-head' }, [
       h('h3', { class: 'list-title', text: 'Focus names' }),
       h('span', { class: 'list-count', text: tnCountText() })
     ]);
-    if (state.collapsed.tn) { wrap.replaceChildren(foldedPanel('list-panel list-tn', 'tn', 'Focus names', tnCountText(), state.tn, {})); return; }
+    if (state.collapsed.tn) { wrap.replaceChildren(foldedPanel('list-panel list-tn', 'tn', 'Focus names', tnCountText(), state.tn, {}, function (i) { return tnCard(state.tn[i], i); })); return; }
     wrap.replaceChildren(h('section', { class: 'list-panel list-tn', 'aria-label': 'Name Next Ordinance' }, [head].concat(cards).concat([h('div', { class: 'list-foot' }, [doneButton('tn', 'Focus names')])])));
+  }
+  function tnCard(n, i) {
+    var base = 'tn.' + i + '.';
+    return h('div', { class: 'card' }, [
+      h('div', { class: 'card-head' }, [
+        h('div', { class: 'card-title' }, [avatar(), personTitle(base + 'name', 'Name ' + (i + 1))]),
+        h('div', { class: 'card-head-right' }, [sacToggle(base + 'sac', n.sac)])
+      ]),
+      cardFields(base, 'Focus name', 'Focus name', 'e.g. Sun', null, '', 'e.g. A ride to the temple', 'e.g. Sacrament')
+    ]);
   }
   function renderFN() {
     var wrap = $('#fn-list');
@@ -580,7 +604,7 @@
       return h('div', { class: 'fn-assign' }, [
         h('div', { class: 'fn-assign-head' }, [
           h('p', { class: 'fn-assign-label', text: 'Assignment ' + (i + 1) }),
-          x.carried ? h('span', { class: 'source', text: 'From last week' }) : null,
+          x.carried && str(x.task).trim() ? carriedTag() : null,
           many ? removeButton('remove-fn', i, '', 'Remove assignment ' + (i + 1)) : null
         ]),
         h('div', { class: 'fn-fields' }, [
@@ -602,8 +626,25 @@
     b.appendChild(icon('check')); b.appendChild(document.createTextNode(' Done'));
     return b;
   }
-  function foldedPanel(cls, gid, title, count, items, attrs) {
-    var rows = items.filter(function (it) { return str(it.name).trim(); }).map(function (it) {
+  // A tapped name opens as its full card inside the folded list; the rest stay as one line each.
+  function openOneRow(gid, i, card, label) {
+    return h('li', { class: 'fold-open' }, [
+      card,
+      h('button', { type: 'button', class: 'btn-outline full btn-close-one', 'data-action': 'close-one', 'data-a': gid }, [icon('check'), ' Done with ' + (label || 'this one')])
+    ]);
+  }
+  function foldButton(gid, i, label, children) {
+    return h('li', { class: 'fold-row' }, [
+      h('button', { type: 'button', class: 'fold-row-btn', 'data-action': 'edit-one', 'data-a': gid, 'data-b': i, 'aria-label': 'Edit ' + label }, children.concat([
+        h('span', { class: 'fold-edit', 'aria-hidden': 'true', text: 'Edit' })
+      ]))
+    ]);
+  }
+  function foldedPanel(cls, gid, title, count, items, attrs, cardFor) {
+    var open = state.openOne && state.openOne[gid];
+    var rows = items.map(function (it, i) { return { it: it, i: i }; }).filter(function (x) { return str(x.it.name).trim(); }).map(function (x) {
+      var it = x.it;
+      if (open === x.i && cardFor) return openOneRow(gid, x.i, cardFor(x.i), it.name.trim());
       var tag = null;
       if (gid === 'nm') {
         var st = templeStatus(it, state.date);
@@ -611,8 +652,8 @@
       }
       if (gid === 'bt' && it.committed) tag = h('span', { class: 'fold-tag', text: baptismNote(it) });
       var plan = [str(it.action).trim(), str(it.assigned).trim() ? str(it.assigned).trim() : '', str(it.when).trim()].filter(Boolean).join(' · ');
-      return h('li', { class: 'fold-row' }, [
-        h('div', { class: 'fold-line' }, [h('span', { class: 'fold-name', text: it.name.trim() }), tag]),
+      return foldButton(gid, x.i, it.name.trim(), [
+        h('span', { class: 'fold-line' }, [h('span', { class: 'fold-name', text: it.name.trim() }), tag, it.actionCarried && str(it.action).trim() ? h('span', { class: 'fold-tag carried', text: 'Carried over' }) : null]),
         h('span', { class: 'fold-plan' + (plan ? '' : ' missing'), text: plan || 'No action item' })
       ]);
     });
@@ -625,13 +666,14 @@
     return h('section', a, [
       head,
       rows.length ? h('ul', { class: 'fold-list' }, rows) : h('p', { class: 'fold-empty', text: 'No names added.' }),
-      h('button', { type: 'button', class: 'btn-reopen', 'data-action': 'list-open', 'data-a': gid, text: 'Edit this list' })
+      rows.length ? h('p', { class: 'fold-hint', text: 'Tap a name to edit just that person.' }) : null,
+      h('button', { type: 'button', class: 'btn-reopen', 'data-action': 'list-open', 'data-a': gid, text: 'Edit the whole list' })
     ]);
   }
   function rerenderList(gid) { if (gid === 'rr') renderRR(); else if (gid === 'tn') renderTN(); else renderCP(); }
   function listDone(gid) {
     var finish = function () {
-      state.collapsed[gid] = true;
+      state.collapsed[gid] = true; delete state.openOne[gid];
       rerenderList(gid);
       saveDraft();
       var el = gid === 'rr' ? $('#rr-list') : gid === 'tn' ? $('#tn-list') : document.querySelector('[data-group="' + gid + '"]');
@@ -655,7 +697,7 @@
     } else finish();
   }
   function listOpen(gid) {
-    delete state.collapsed[gid];
+    delete state.collapsed[gid]; delete state.openOne[gid];
     rerenderList(gid);
     saveDraft();
   }
@@ -721,6 +763,9 @@
   var askSecondary = null;
   function ask(opts) {
     $('#confirm-title').textContent = opts.title;
+    // A green check for good news; the amber warning for everything else.
+    $('#confirm-sheet .warn-icon').hidden = !!opts.success;
+    $('#confirm-sheet .ok-icon').hidden = !opts.success;
     $('#confirm-body').textContent = opts.body || '';
     $('#confirm-body').hidden = !opts.body;
     var cmp = $('#confirm-compare');
@@ -789,7 +834,7 @@
       case 'remove-rr': {
         var rrIdx = +a, rItem = state.rr[rrIdx];
         var doRemoveRR = function () {
-          state.rr.splice(rrIdx, 1);
+          state.rr.splice(rrIdx, 1); delete state.openOne.rr;
           if (!state.rr.length) state.rr.push(blankRR());
           if (state.loaded && !state.rr.some(function (x) { return x.prefilled; })) state.loaded = null;
           renderRR(); saveDraft();
@@ -816,10 +861,22 @@
         break;
       }
       case 'list-open': listOpen(a); break;
+      case 'edit-one': {
+        state.openOne[a] = +b; rerenderList(a);
+        var oc = document.querySelector('.fold-open .card');
+        if (oc) oc.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        break;
+      }
+      case 'close-one': {
+        delete state.openOne[a]; rerenderList(a);
+        var fl = a === 'rr' ? $('#rr-list') : a === 'tn' ? $('#tn-list') : document.querySelector('[data-group="' + a + '"]');
+        if (fl) fl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        break;
+      }
       case 'remove-cp': {
         var cpList = a, cpIdx = +b, cItem = state.cp[a][+b];
         var doRemoveCP = function () {
-          state.cp[cpList].splice(cpIdx, 1);
+          state.cp[cpList].splice(cpIdx, 1); delete state.openOne[cpList];
           if (!state.cp[cpList].length) state.cp[cpList].push(blankAction());
           renderCP(); saveDraft();
         };
@@ -933,7 +990,7 @@
       case 'send': startSend(); break;
       case 'share': sharePdf(); break;
       case 'save-only': saveWithoutSending(); break;
-      case 'clear-now': closeSend(); clearForm(true); toast('Form cleared for next week.'); break;
+      case 'clear-now': closeSend(); clearForm(true); sentDone(true); break;
       case 'close-send': closeSend(); break;
     }
   }
@@ -1039,20 +1096,20 @@
       if (slot < 0) { toast('All three Name Next Ordinance spots are already filled.'); return; }
       var t = state.tn[slot];
       t.name = t.name || name; t.ordinance = t.ordinance || ord; t.need = t.need || item.need; t.hneed = t.hneed || item.hneed;
-      if (!str(t.action).trim()) { t.action = item.action; t.assigned = t.assigned || item.assigned; }
+      if (!str(t.action).trim()) { t.action = item.action; t.assigned = t.assigned || item.assigned; t.actionCarried = true; }
       renderTN();
     } else if (g) {
       var list = state.cp[g];
       var match = list.find(function (a) { return name && norm(a.name) === norm(name) && !hasText(a, ['action']); });
       if (match) {
-        match.action = item.action; match.assigned = match.assigned || item.assigned;
+        match.action = item.action; match.actionCarried = true; match.assigned = match.assigned || item.assigned;
         match.ordinance = match.ordinance || item.ordinance; match.need = match.need || item.need; match.hneed = match.hneed || item.hneed;
         if (g === 'nm') { match.bap = match.bap || item.bap; match.temple = match.temple || item.temple; }
         if (g === 'bt') { match.bap = match.bap || item.bap; match.committed = match.committed || item.committed; }
       }
       else {
         if (list.length === 1 && !list[0].sac && !hasText(list[0], CARD_KEYS)) list.pop();
-        item.carried = true; list.push(item);
+        item.carried = true; item.actionCarried = true; list.push(item);
       }
       renderCP();
     } else return;
@@ -1062,7 +1119,7 @@
   }
 
   function applyLoad(data, fileName) {
-    state.collapsed = {};
+    state.collapsed = {}; state.openOne = {};
     var items = extractActionItems(data);
     if (!items.length) {
       ask({ title: 'Nothing to load', body: 'Last week’s agenda doesn’t have any action items filled in.', primary: 'OK' });
@@ -1307,7 +1364,9 @@
         var d = shortDay(str(a.bap));
         sub = { text: a.committed ? 'Committed' + (d ? ' · ' + d : '') : 'Scheduled: ' + d, color: GROUP_PDF.bt.ink };
       }
-      return { boldFirst: true, sub: sub, note: str(a.hneed).trim(), cells: [str(a.name).trim(), str(a.ordinance).trim(), str(a.need).trim(), { check: !!a.sac, mark: true }, str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim()] };
+      var act = str(a.action).trim();
+      return { boldFirst: true, sub: sub, note: str(a.hneed).trim(), cells: [str(a.name).trim(), str(a.ordinance).trim(), str(a.need).trim(), { check: !!a.sac, mark: true },
+        a.actionCarried && act ? { text: act, meta: CARRIED_TEXT, metaItal: true } : act, str(a.assigned).trim(), str(a.when).trim()] };
     }
     var STATUS_PDF = { Yes: rgb(0.122, 0.42, 0.227), Partly: rgb(0.62, 0.42, 0.02), No: rgb(0.70, 0.16, 0.16) };
     var W = 612, H = 792, L = 48, R = 564, TOP = 40, BOTTOM = 46;
@@ -1703,7 +1762,10 @@
     heading('Plans to Find New People to Teach');
     y += 7;
     var fPlan = str(s.find.plan).trim();
-    var fRows = s.find.items.filter(assignHasText).map(function (x) { return { gid: 'fn', cells: [str(x.task).trim(), str(x.when).trim()] }; });
+    var fRows = s.find.items.filter(assignHasText).map(function (x) {
+      var t = str(x.task).trim();
+      return { gid: 'fn', cells: [x.carried && t ? { text: t, meta: CARRIED_TEXT, metaItal: true } : t, str(x.when).trim()] };
+    });
     if (fPlan) { table([48], ['PLAN'], [{ gid: 'fn', cells: [fPlan] }]); y += 8; }
     if (fRows.length || !fPlan) table([48, 470], ['ASSIGNMENT', 'WHEN'], fRows.length ? fRows : [{ empty: fPlan ? 'No assignments yet' : 'None this week' }]);
 
@@ -1744,7 +1806,7 @@
           : { plan: r.plan, happened: r.happened, notes: r.notes };
       }),
       cpDone: s.cpDone, cp: s.cp, tnDone: s.tnDone, tn: s.tn, ftDone: s.ftDone,
-      find: { plan: str(s.find.plan), items: s.find.items.map(function (x) { return { task: str(x.task), when: str(x.when) }; }) }
+      find: { plan: str(s.find.plan), items: s.find.items.map(function (x) { return { task: str(x.task), when: str(x.when), carried: !!x.carried }; }) }
     }));
   }
 
@@ -1970,7 +2032,7 @@
       }
       var ok = await rememberAgenda();
       closeSend(); clearForm(true);
-      toast(ok ? 'Shared and saved. The form is cleared for next week.' : 'Shared. This phone couldn’t keep a saved copy.');
+      sentDone(ok);
     } else {
       await downloadAndRemember();
     }
@@ -1989,6 +2051,14 @@
     toast('Saved on this phone. It will show in Load last week.');
   }
 
+  // After Send & Clear: a clear confirmation that it went out and the form is ready.
+  function sentDone(saved) {
+    ask({
+      title: 'Sent successfully', success: true,
+      body: 'Ready for your next meeting. ' + (saved ? 'A copy is saved on this phone for 4 weeks.' : 'This phone couldn’t keep a saved copy.'),
+      primary: 'Done'
+    });
+  }
   function closeSend() { closeOverlay('#send-sheet'); sendFile = null; sendPayload = null; resending = false; }
 
   /* ---------- wiring ---------- */
@@ -2009,6 +2079,14 @@
       if (path === 'ward') writeWard(String(val).trim());
       if (path === 'date') renderDateHint();
       if (path === 'conductingOther') writeConducting(state);
+      if (/\.name$/.test(path)) {
+        var pt = document.querySelector('[data-name-for="' + path + '"]');
+        if (pt) { var pv = String(val).trim(); pt.textContent = pv || pt.getAttribute('data-ph'); pt.classList.toggle('empty', !pv); }
+      }
+      if (/\.(action|task)$/.test(path) && !String(val).trim()) {
+        setPath(path.replace(/action$/, 'actionCarried').replace(/task$/, 'carried'), false);
+        var tagEl = t.closest('.field, .fn-assign'); tagEl = tagEl && tagEl.querySelector('.carried-tag'); if (tagEl) tagEl.remove();
+      }
       if (/\.sac$/.test(path) && val === true) toast('Remember to update sacrament attendance in the Covenant Path Report too.');
       if (/^cp\.\w+\.\d+\.name$/.test(path)) updateListCount(path.split('.')[1]);
       if (/^cp\.nm\.\d+\.(name|bap|temple)$/.test(path) || path === 'date') { updateTemple(); if (path === 'date') renderRR(); }

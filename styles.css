@@ -622,3 +622,29 @@ body.touring .actionbar { z-index: 10; }
 .sample-note { margin: 0; font-size: 14px; color: var(--muted, #5B6475); }
 .sample-page { display: block; width: 100%; height: auto; border: 1px solid var(--field-line); border-radius: 6px; box-shadow: 0 2px 8px rgba(27, 43, 75, 0.12); background: #FFFFFF; }
 #sample-sheet { z-index: 30; }
+
+/* The person's name, bold at the top of every card */
+.card-person { margin: 0; font-size: 18px; font-weight: 800; line-height: 1.2; color: var(--ink); overflow-wrap: anywhere; min-width: 0; }
+.card-person.empty { font-size: 15px; font-weight: 600; color: var(--muted); }
+.card-item.card-person { font-size: 18px; }
+.carried-tag { background: #FFF2D6; color: #7A5200; border: 1px solid #EBCB7A; white-space: nowrap; }
+
+/* Done lists: tap one name to edit just that person */
+.fold-row { padding: 0; }
+.fold-row-btn { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "line edit" "plan edit" "notes edit"; align-items: center; column-gap: 10px; row-gap: 2px;
+  width: 100%; padding: 10px 12px; border: none; background: none; font: inherit; text-align: left; color: inherit; cursor: pointer; }
+.fold-row-btn:active { background: var(--list-soft); }
+.fold-row-btn > .fold-line { grid-area: line; }
+.fold-row-btn > .fold-plan { grid-column: 1; }
+.fold-edit { grid-area: edit; grid-row: 1 / span 3; align-self: center; font-size: 13px; font-weight: 700; color: var(--list-ink); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--list-line); background: var(--card); }
+.fold-hint { margin: -4px 2px 0; font-size: 13px; color: var(--muted); }
+.fold-open { display: flex; flex-direction: column; gap: 10px; padding: 10px; background: var(--list-soft); }
+.fold-open + .fold-row, .fold-row + .fold-open { border-top: 1px solid var(--list-line); }
+.fold-open .card { box-shadow: none; }
+.btn-close-one { min-height: 44px; gap: 6px; display: inline-flex; align-items: center; justify-content: center; }
+.ok-icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #1F6B3A; }
+.ok-icon[hidden] { display: none; }
+.label-row { flex-wrap: wrap; row-gap: 4px; }
+.label-text { flex: 1 0 auto; }
+.warn-icon[hidden] { display: none; }
+.fold-tag.carried { background: #FFF2D6; color: #7A5200; border-color: #EBCB7A; }
