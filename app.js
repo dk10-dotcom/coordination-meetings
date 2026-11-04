@@ -189,6 +189,7 @@
       f.cp[g.id].forEach(function (a, i) { if (raw[i] && raw[i].carried) a.carried = true; });
     });
     var tn = cleanList(s.tn, blankName, CARD_KEYS);
+    tn.forEach(function (a, i) { if (Array.isArray(s.tn) && s.tn[i] && s.tn[i].carried) a.carried = true; });
     while (tn.length < 3) tn.push(blankName());
     f.tn = tn.slice(0, 3);
     var fd = s.find && typeof s.find === 'object' ? s.find : {};
@@ -610,7 +611,7 @@
         h('div', { class: 'card-title' }, [avatar(), nameInput(base + 'name', 'Focus name ' + (i + 1))]),
         h('div', { class: 'card-head-right' }, [sacToggle(base + 'sac', n.sac)])
       ]),
-      cardFields(base, 'Focus name', 'Focus name', 'e.g. Sun', null, '', 'e.g. A ride to the temple', 'e.g. Sacrament')
+      cardFields(base, 'Focus name', 'Focus name', 'e.g. Sun', n.carried ? h('span', { class: 'source', text: 'From last week' }) : null, '', 'e.g. A ride to the temple', 'e.g. Sacrament')
     ]);
   }
   function renderFN() {
@@ -1234,6 +1235,16 @@
       });
       state.cp[g.id] = cur.length ? cur : [blankAction()];
     });
+    // Name Next Ordinance: last week's focus names fill this week's empty spots (never over typed ones).
+    (Array.isArray(data.tn) ? data.tn : []).forEach(function (a) {
+      var n = a && str(a.name).trim();
+      if (!n || state.tn.some(function (t) { return norm(t.name) === norm(n); })) return;
+      var slot = state.tn.findIndex(function (t) { return !t.sac && !hasText(t, CARD_KEYS); });
+      if (slot < 0) return;
+      var c = blankName(); c.name = n; c.ordinance = str(a.ordinance).trim(); c.need = str(a.need).trim(); c.hneed = str(a.hneed).trim(); c.carried = true;
+      state.tn[slot] = c;
+      added++;
+    });
     return added;
   }
 
@@ -1359,7 +1370,7 @@
     state.loaded = { fileName: fileName, ward: str(data.ward), date: str(data.date), count: items.length };
     if (!state.ward.trim() && data.ward) { state.ward = str(data.ward); $('#ward').value = state.ward; writeWard(state.ward); }
     var carried = carryNames(data);
-    renderRR(); renderCP(); saveDraft();
+    renderRR(); renderCP(); renderTN(); saveDraft();
     toast('Loaded ' + items.length + (items.length === 1 ? ' action item' : ' action items') +
       (carried ? ' and ' + carried + (carried === 1 ? ' name' : ' names') : '') + ' from last week.');
     if (stepsOn) { var sh = $('#steps-home'); if (sh) sh.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
@@ -1368,7 +1379,7 @@
       writeFlag(NAMES_HINT_KEY);
       ask({
         title: 'Check the names that carried over',
-        body: 'Last week’s names are now in Covenant Path Report Review. Compare them to this week’s Covenant Path Report: add anyone new and remove anyone no longer listed.',
+        body: 'Last week’s names are now in Covenant Path Report Review and Name Next Ordinance. Compare them to this week’s Covenant Path Report and ward council’s focus names: add anyone new and remove anyone no longer listed.',
         primary: 'Show me the names', onPrimary: function () {
           if (stepsOn) { showView('cp', 'push'); return; }
           var g = $('#cp-groups'); if (g) g.scrollIntoView({ block: 'start', behavior: 'smooth' });
