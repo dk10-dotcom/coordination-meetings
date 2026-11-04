@@ -299,8 +299,8 @@
 
   function renderRR() {
     var list = $('#rr-list');
-    $('#rr-foot').hidden = !!state.collapsed.rr;
-    if (state.collapsed.rr) { list.replaceChildren(foldedRR()); renderLoadState(); return; }
+    $('#rr-foot').hidden = folded('rr');
+    if (folded('rr')) { list.replaceChildren(foldedRR()); renderLoadState(); return; }
     var many = state.rr.length > 1;
     list.replaceChildren.apply(list, state.rr.map(function (r, i) { return rrCard(r, i, many); }));
     renderLoadState();
@@ -502,7 +502,7 @@
       var extra = g.id === 'nm' ? [
         h('p', { class: 'temple-goal', text: 'Goal: every new member attends the temple for baptisms for the dead within 30 days of their baptism.' })
       ] : [];
-      if (state.collapsed[g.id]) return foldedPanel('list-panel list-' + g.id, g.id, g.title, countText(named), items, { 'data-group': g.id }, function (i) { return cpCard(g, items[i], i, many); });
+      if (folded(g.id)) return foldedPanel('list-panel list-' + g.id, g.id, g.title, countText(named), items, { 'data-group': g.id }, function (i) { return cpCard(g, items[i], i, many); });
       return h('section', { class: 'list-panel list-' + g.id, 'data-group': g.id, 'aria-label': g.title }, [head]
         .concat(extra).concat(cards).concat([h('div', { class: 'list-foot' }, [addButton('add-cp', g.id, 'Add action'), doneButton(g.id, g.title)])]));
     }));
@@ -594,7 +594,7 @@
       h('h3', { class: 'list-title', text: 'Focus names' }),
       h('span', { class: 'list-count', text: tnCountText() })
     ]);
-    if (state.collapsed.tn) { wrap.replaceChildren(foldedPanel('list-panel list-tn', 'tn', 'Focus names', tnCountText(), state.tn, {}, function (i) { return tnCard(state.tn[i], i); })); return; }
+    if (folded('tn')) { wrap.replaceChildren(foldedPanel('list-panel list-tn', 'tn', 'Focus names', tnCountText(), state.tn, {}, function (i) { return tnCard(state.tn[i], i); })); return; }
     wrap.replaceChildren(h('section', { class: 'list-panel list-tn', 'aria-label': 'Name Next Ordinance' }, [head].concat(cards).concat([h('div', { class: 'list-foot' }, [doneButton('tn', 'Focus names')])])));
   }
   function tnCard(n, i) {
@@ -632,7 +632,10 @@
     ]));
   }
   /* ---------- Done: fold a finished list to one line per person ---------- */
+  // In the four-step view each section is already its own page, so lists don't fold.
+  function folded(gid) { return !stepsOn && !!state.collapsed[gid]; }
   function doneButton(gid, title) {
+    if (stepsOn) return null;
     var b = h('button', { type: 'button', class: 'btn-done', 'data-action': 'list-done', 'data-a': gid, 'aria-label': 'Done with ' + title });
     b.appendChild(icon('check')); b.appendChild(document.createTextNode(' Done'));
     return b;
@@ -1136,8 +1139,8 @@
         if (isEmpty(state)) { toast('The form is already clear.'); break; }
         ask({
           title: 'Clear the whole form?',
-          body: 'Everything you’ve entered will be erased. This can’t be undone.',
-          primary: 'Clear form', onPrimary: function () { clearForm(false); toast('Form cleared.'); },
+          body: 'Everything except the ward name will be erased. This can’t be undone.',
+          primary: 'Clear form', onPrimary: function () { removeKey('localStorage', 'huddle-conducting'); clearForm(true); toast('Form cleared. The ward name is kept.'); },
           secondary: 'Cancel'
         });
         break;
