@@ -2178,12 +2178,12 @@
     try { return !!(navigator.canShare && navigator.share && navigator.canShare({ files: [file] })); } catch (e) { return false; }
   }
 
-  var SHARE_HINT = 'Your share menu opens. Only share via email or text message. Do not share through any other app.';
+  var SHARE_HINT = 'Only share via email or text message. Do not share through any other app.';
   function resetSendSheet() {
     sendFile = null; sendPayload = null;
     $('#send-title').textContent = resending ? 'Share this agenda again' : 'Send this week’s agenda';
     $('#share-btn').disabled = true; $('#share-btn').textContent = 'Share PDF';
-    $('#share-hint').textContent = resending ? 'Your share menu opens. Only share via email or text message. Do not share through any other app. The form on your screen isn’t changed.' : SHARE_HINT;
+    $('#share-hint').textContent = resending ? 'Only share via email or text message. Do not share through any other app. The form on your screen isn’t changed.' : SHARE_HINT;
     $('#send-recipients').hidden = false;
     $('#after-download').hidden = true;
   }
