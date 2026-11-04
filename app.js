@@ -254,7 +254,7 @@
     return h('label', { class: 'field' + (opts.full ? ' full' : '') }, [
       opts.tag ? h('span', { class: 'label-row' }, [h('span', { class: 'label-text', text: label }), opts.tag]) : label,
       opts.multi ? h('textarea', {
-        'data-bind': path, value: str(getPath(path)), placeholder: opts.placeholder || '', rows: '2',
+        'data-bind': path, value: str(getPath(path)), placeholder: opts.placeholder || '', rows: opts.rows || '2',
         autocomplete: 'off', autocapitalize: 'sentences', enterkeyhint: 'next', maxlength: '300'
       }) : h('input', {
         type: opts.type || 'text', 'data-bind': path, value: str(getPath(path)), placeholder: opts.placeholder || '',
@@ -420,7 +420,7 @@
       h('div', { class: 'card-zone zone-hd-wrap' }, [
         zoneLabel('hd', 'Huddle · How & When'),
         h('div', { class: 'card-grid' }, [
-          field('Action item for this week', base + 'action', { full: true, placeholder: 'What will we do to help?',
+          field('Action item for this week', base + 'action', { full: true, multi: true, rows: '3', placeholder: 'What might you do to assist them in being worthy and prepared for their next ordinance?',
             tag: getPath(base + 'actionCarried') && str(getPath(base + 'action')).trim() ? carriedTag() : null }),
           // Assigned to gets the wider share of its row; When is usually a day or two words.
           h('div', { class: 'assign-row' }, [
@@ -809,12 +809,13 @@
   function renderStepFoot() {
     var i = STEPS.findIndex(function (st) { return st.id === view; });
     if (i < 0) return;
-    var nxt = STEPS[i + 1];
+    var nxt = STEPS[i + 1], prv = STEPS[i - 1];
     $('#step-bar-num').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
     $('#step-done-label').textContent = state.stepsDone[view] ? 'Step complete · Back to all steps' : 'Mark step complete';
-    var sn = $('#step-next');
-    sn.hidden = !nxt;
-    if (nxt) sn.textContent = 'Next: ' + nxt.title + ' ›';
+    var sn = $('#step-next'), sp = $('#step-prev');
+    sn.hidden = !nxt; sp.hidden = !prv;
+    if (nxt) sn.replaceChildren(h('span', { class: 'step-nav-k', text: 'Next ›' }), h('span', { class: 'step-nav-t', text: nxt.title }));
+    if (prv) sp.replaceChildren(h('span', { class: 'step-nav-k', text: '‹ Back' }), h('span', { class: 'step-nav-t', text: prv.title }));
   }
   // Which parts of the page show: the step list (home), one step, or everything (view-all).
   function applyView() {
@@ -1008,6 +1009,11 @@
       case 'steps-home': goHome(); break;
       case 'step-done': {
         state.stepsDone[view] = true; saveDraft(); goHome();
+        break;
+      }
+      case 'step-prev': {
+        var pi = STEPS.findIndex(function (st) { return st.id === view; });
+        if (pi > 0) showView(STEPS[pi - 1].id, 'replace');
         break;
       }
       case 'step-next': {
