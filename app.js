@@ -2337,8 +2337,9 @@
         setPath(path.replace(/action$/, 'actionCarried').replace(/task$/, 'carried'), false);
         var tagEl = t.closest('.field, .fn-assign'); tagEl = tagEl && tagEl.querySelector('.carried-tag'); if (tagEl) tagEl.remove();
       }
-      if (/\.sac$/.test(path) && val === true) toast('Remember to update sacrament attendance in the Covenant Path Report too.', 7000);
-      if (/\.committed$/.test(path) && val === true) toast('Remember to update the Covenant Path Report in Tools too.', 7000);
+      // Covenant Path Report reminders: sacrament attendance on Covenant Path cards, and a new member's temple attendance.
+      if (/^cp\.\w+\.\d+\.sac$/.test(path) && val === true) toast('Remember to update sacrament attendance in the Covenant Path Report too.', 7000);
+      if (/^cp\.nm\.\d+\.temple$/.test(path) && val === true) toast('Remember to update temple attendance in the Covenant Path Report too.', 7000);
       if (/^cp\.\w+\.\d+\.name$/.test(path)) updateListCount(path.split('.')[1]);
       if (/^cp\.nm\.\d+\.(name|bap|temple)$/.test(path) || path === 'date') { updateTemple(); if (path === 'date') renderRR(); }
       if (/^tn\.\d+\.name$/.test(path)) { var tc = document.querySelector('.list-tn .list-count'); if (tc) tc.textContent = tnCountText(); }
