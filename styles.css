@@ -689,6 +689,10 @@ body.touring .actionbar { z-index: 10; }
 .details-sub { font-size: 13.5px; color: var(--muted); line-height: 1.3; }
 .details-full { display: flex; flex-direction: column; gap: 16px; }
 .details-full[hidden] { display: none; }
+.details-head { display: none; font-size: 17px; font-weight: 800; color: var(--ink); }
+/* Open Huddle Details sit between two rules so they read as their own block. */
+body.steps-on .details-full { border-top: 1.5px solid #C5CEDB; border-bottom: 1.5px solid #C5CEDB; padding: 16px 0 18px; }
+body.steps-on .details-head { display: block; }
 
 /* Four steps: a compact home so the steps show without scrolling */
 .cp-reminder { display: none; font-size: 14px; color: var(--text); }

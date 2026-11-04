@@ -166,7 +166,7 @@
           if (r.carryUndo && typeof r.carryUndo === 'object') {
             var cu = r.carryUndo, fo = {};
             if (cu.filled && typeof cu.filled === 'object') Object.keys(cu.filled).forEach(function (k) { if (CARD_KEYS.indexOf(k) >= 0 || k === 'temple' || k === 'committed') fo[k] = typeof cu.filled[k] === 'boolean' ? cu.filled[k] : str(cu.filled[k]); });
-            o.carryUndo = { g: str(cu.g), kind: ['new', 'fill', 'none'].indexOf(cu.kind) >= 0 ? cu.kind : 'fill', name: str(cu.name), action: str(cu.action), filled: fo };
+            o.carryUndo = { g: str(cu.g), kind: ['new', 'fill', 'none'].indexOf(cu.kind) >= 0 ? cu.kind : 'fill', name: str(cu.name), action: str(cu.action), appended: str(cu.appended), filled: fo };
           }
         }
         return o;
@@ -751,7 +751,7 @@
     renderConducting();
     renderDateHint();
     renderAttendees(); renderRR(); renderCP(); renderTN(); renderFN();
-    detailsOpen = detailsNeeded();
+    detailsOpen = false; // Huddle Details start closed; tap the box to open them.
     renderDetails(); renderSteps();
   }
 
@@ -852,7 +852,6 @@
     showView('home', 'replace');
   }
   // Ward, date, conducting and attendance: a one-line summary once they're filled in.
-  function detailsNeeded() { return !state.ward.trim() || !parseISO(state.date) || !state.conducting; }
   function renderDetails() {
     var full = $('#details-full'), sum = $('#details-summary');
     if (!full) return;
@@ -869,7 +868,7 @@
     show: function (v, details) { if (details) detailsOpen = true; showView(v || 'home', 'replace'); },
     openDetails: openDetails,
     current: function () { return view; },
-    reset: function () { detailsOpen = detailsNeeded(); showView('home', 'replace'); },
+    reset: function () { detailsOpen = false; showView('home', 'replace'); },
     enabled: function () { return stepsOn; }
   };
 
@@ -1259,6 +1258,16 @@
     });
     return filled;
   }
+  // Puts last week's action on a card that may already have one this week: fills it if empty,
+  // or adds it on a new line so neither is lost. Returns what Undo needs to take it back out.
+  function mergeAction(target, src, keys) {
+    var act = str(src.action).trim(), cur = str(target.action).trim();
+    var filled = fillEmpty(target, src, keys.filter(function (k) { return k !== 'action'; }).concat(cur ? [] : ['action']));
+    var appended = '';
+    if (act && cur && norm(cur).indexOf(norm(act)) < 0) { target.action = cur + '\n' + act; appended = act; }
+    if (act) target.actionCarried = true;
+    return { filled: filled, appended: appended };
+  }
   function carryForward(i) {
     var r = state.rr[i]; if (!r) return;
     var g = groupOf(r);
@@ -1282,18 +1291,16 @@
       var slot = state.tn.findIndex(function (n) { return name && norm(n.name) === norm(name); });
       if (slot < 0) slot = state.tn.findIndex(function (n) { return !n.sac && !hasText(n, CARD_KEYS); });
       if (slot < 0) { toast('All three Name Next Ordinance spots are already filled.'); return; }
-      var t = state.tn[slot];
-      var keys = ['name', 'ordinance', 'need', 'hneed'];
-      if (!str(t.action).trim()) { keys = keys.concat(['action', 'assigned']); t.actionCarried = true; }
-      undo = { g: 'tn', kind: 'fill', name: name, filled: fillEmpty(t, item, keys) };
+      var mt = mergeAction(state.tn[slot], item, ['name', 'ordinance', 'need', 'hneed', 'action', 'assigned']);
+      undo = { g: 'tn', kind: 'fill', name: name, filled: mt.filled, appended: mt.appended };
       renderTN();
     } else if (g) {
       var list = state.cp[g];
-      var match = list.find(function (a) { return name && norm(a.name) === norm(name) && !hasText(a, ['action']); });
+      var match = list.find(function (a) { return name && norm(a.name) === norm(name); });
       if (match) {
         var mk = ['action', 'assigned', 'ordinance', 'need', 'hneed'].concat(g === 'nm' ? ['bap', 'temple'] : g === 'bt' ? ['bap', 'committed'] : []);
-        undo = { g: g, kind: 'fill', name: name, filled: fillEmpty(match, item, mk) };
-        match.actionCarried = true;
+        var mc = mergeAction(match, item, mk);
+        undo = { g: g, kind: 'fill', name: name, filled: mc.filled, appended: mc.appended };
       }
       else {
         if (list.length === 1 && !list[0].sac && !hasText(list[0], CARD_KEYS)) list.pop();
@@ -1332,6 +1339,9 @@
             if (typeof c[k] === 'boolean') { if (c[k] === u.filled[k]) c[k] = false; }
             else if (str(c[k]).trim() === str(u.filled[k]).trim()) c[k] = '';
           });
+          // Take back an action that was added below this week's own.
+          var ap = str(u.appended).trim(), ca = str(c.action);
+          if (ap && ca.slice(-(ap.length + 1)) === '\n' + ap) c.action = ca.slice(0, -(ap.length + 1)).trim();
           c.actionCarried = false;
         }
         delete state.openOne[g];
