@@ -379,6 +379,18 @@ body.typing .actionbar { position: static; }
 .list-count { flex: none; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--card); color: var(--list-ink); border: 1px solid var(--list-line); }
 .list-panel .btn-add { border-color: var(--list-line); color: var(--list-ink); background: var(--card); }
 #cp-groups { gap: 18px; }
+/* A list with no one in it this week */
+.list-empty { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-radius: 12px;
+  background: var(--card); border: 1px dashed var(--list-line); }
+.list-empty-text { margin: 0; font-size: 15px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.list-empty.confirmed { border-style: solid; }
+.list-empty.confirmed .list-empty-text { color: var(--ink); font-weight: 600; }
+.list-empty.confirmed .list-empty-text svg { flex: none; width: 18px; height: 18px; color: #FFFFFF; background: #1F6B3A; border-radius: 50%; padding: 3px; box-sizing: content-box; }
+.list-empty-undo { flex: none; min-height: 36px; color: var(--list-ink); }
+.list-empty-foot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.btn-none { min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1.5px solid var(--list-line); background: var(--card); color: var(--list-ink);
+  font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+.btn-none:active { background: var(--list-soft); }
 
 /* Shared list colors: blue, green, purple, amber */
 .g-nm { --list-ink: #2E5597; --list-soft: #EDF2FA; --list-line: #BFD0EC; }

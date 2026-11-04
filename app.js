@@ -129,6 +129,7 @@
       conducting: readConducting().who, conductingOther: readConducting().other,
       rr: [blankRR(), blankRR()], loaded: null,
       cpDone: false, cp: { nm: [blankAction()], rm: [blankAction()], bt: [blankAction()] },
+      cpNone: { nm: false, rm: false, bt: false },
       collapsed: {}, openOne: {}, stepsDone: {},
       tnDone: false, tn: [blankName(), blankName(), blankName()],
       find: blankFind(),
@@ -182,6 +183,8 @@
     ['rr', 'cp', 'tn', 'fn'].forEach(function (k) { if (sd[k] === true) f.stepsDone[k] = true; });
     var col = s.collapsed && typeof s.collapsed === 'object' ? s.collapsed : {};
     ['rr', 'nm', 'rm', 'bt', 'tn'].forEach(function (k) { if (col[k]) f.collapsed[k] = true; });
+    var cn = s.cpNone && typeof s.cpNone === 'object' ? s.cpNone : {};
+    GROUPS.forEach(function (g) { f.cpNone[g.id] = cn[g.id] === true; });
     var cp = s.cp || {};
     GROUPS.forEach(function (g) {
       var raw = Array.isArray(cp[g.id]) ? cp[g.id] : [];
@@ -218,6 +221,7 @@
   function rrHasInput(r) { return !!r.happened || hasText(r, ['plan', 'notes']); }
   function isEmpty(s) {
     if (s.attendees.length || s.cpDone || s.tnDone || s.ftDone || s.loaded) return false;
+    if (GROUPS.some(function (g) { return s.cpNone && s.cpNone[g.id]; })) return false;
     if (s.rr.some(rrHasInput)) return false;
     if (GROUPS.some(function (g) { return s.cp[g.id].some(function (a) { return a.sac || hasText(a, CARD_KEYS); }); })) return false;
     if (s.tn.some(function (n) { return n.sac || hasText(n, CARD_KEYS); })) return false;
@@ -497,12 +501,41 @@
     var el = document.querySelector('.list-' + gid + ' .list-count');
     if (el) el.textContent = countText(countNamed(gid));
   }
+  // A list with no one on the Covenant Path Report this week. The huddle confirms it on purpose,
+  // so the PDF can tell "reviewed, no one" apart from "not filled in".
+  function listEmpty(gid, s) {
+    return (s || state).cp[gid].every(function (a) { return !a.sac && !a.temple && !a.committed && !hasText(a, CARD_KEYS); });
+  }
+  function noneConfirmed(gid, s) { s = s || state; return !!(s.cpNone && s.cpNone[gid]) && listEmpty(gid, s); }
+  var showBlank = {};
+  function emptyListPanel(g) {
+    var ok = noneConfirmed(g.id);
+    var body = ok
+      ? h('div', { class: 'list-empty confirmed' }, [
+          h('p', { class: 'list-empty-text' }, [icon('check'), h('span', { text: 'No one on the Covenant Path Report this week' })]),
+          h('button', { type: 'button', class: 'btn-link list-empty-undo', 'data-action': 'cp-none-undo', 'data-a': g.id, 'aria-label': 'Undo none this week for ' + g.title, text: 'Undo' })
+        ])
+      : h('div', { class: 'list-empty' }, [h('p', { class: 'list-empty-text', text: 'No one in this list yet.' })]);
+    var foot = h('div', { class: 'list-empty-foot' }, [
+      addButton('cp-add-first', g.id, 'Add a person'),
+      ok ? null : h('button', { type: 'button', class: 'btn-none', 'data-action': 'cp-none', 'data-a': g.id }, ['Confirm none this week'])
+    ]);
+    return h('section', { class: 'list-panel list-' + g.id + ' is-empty', 'data-group': g.id, 'aria-label': g.title }, [
+      h('div', { class: 'list-head' }, [
+        h('h3', { class: 'list-title', text: g.title }),
+        h('span', { class: 'list-count', text: ok ? 'None this week' : countText(0) })
+      ]), body, foot]);
+  }
   function renderCP() {
     var wrap = $('#cp-groups');
     wrap.replaceChildren.apply(wrap, GROUPS.map(function (g) {
       var items = state.cp[g.id];
+      if (!listEmpty(g.id)) state.cpNone[g.id] = false;
+      // (The long all-on-one-page layout, used only for testing, keeps the blank card.)
+      if (stepsOn && listEmpty(g.id) && !showBlank[g.id]) return emptyListPanel(g);
+      // Every card can be removed; removing the last one brings back the empty-list choice.
       var many = items.length > 1;
-      var cards = items.map(function (it, i) { return cpCard(g, it, i, many); });
+      var cards = items.map(function (it, i) { return cpCard(g, it, i, stepsOn || many); });
       var named = countNamed(g.id);
       var head = h('div', { class: 'list-head' }, [
         h('h3', { class: 'list-title', text: g.title }),
@@ -781,7 +814,7 @@
       var list = id === 'tn' ? state.tn : GROUPS.reduce(function (a, g) { return a.concat(state.cp[g.id]); }, []);
       var named = list.filter(function (a) { return str(a.name).trim(); });
       var missing = named.filter(function (a) { return !str(a.action).trim(); }).length;
-      if (!named.length) return { text: 'No names yet' };
+      if (!named.length) return { text: id === 'cp' && GROUPS.every(function (g) { return noneConfirmed(g.id); }) ? 'No one on the report this week' : 'No names yet' };
       var lead = id === 'tn' ? named.length + ' of 3 focus names' : plural(named.length, 'person', 'people');
       return { text: lead + ' · ' + (missing ? missing + (missing === 1 ? ' needs' : ' need') + ' an action' : 'everyone has a plan'), warn: missing > 0 };
     }
@@ -931,7 +964,7 @@
   function clearForm(keepWard) {
     removeKey('sessionStorage', DRAFT_KEY);
     if (!keepWard) { removeKey('localStorage', WARD_KEY); removeKey('localStorage', 'huddle-conducting'); }
-    state = freshState();
+    state = freshState(); showBlank = {};
     view = 'home';
     try { history.replaceState({ hv: 'home' }, ''); } catch (e) { /* ignore */ }
     renderAll(); applyView();
@@ -991,6 +1024,11 @@
         } else doRemoveRR();
         break;
       }
+      case 'cp-add-first':
+        showBlank[a] = true; state.cpNone[a] = false; renderCP(); saveDraft();
+        focusLast('[data-group="' + a + '"] input[data-bind$=".name"]'); break;
+      case 'cp-none': state.cpNone[a] = true; showBlank[a] = false; renderCP(); saveDraft(); break;
+      case 'cp-none-undo': state.cpNone[a] = false; renderCP(); saveDraft(); break;
       case 'add-cp':
         state.cp[a].push(blankAction()); renderCP(); saveDraft();
         focusLast('[data-group="' + a + '"] input[data-bind$=".name"]'); break;
@@ -1041,7 +1079,7 @@
         var cpList = a, cpIdx = +b, cItem = state.cp[a][+b];
         var doRemoveCP = function () {
           state.cp[cpList].splice(cpIdx, 1); delete state.openOne[cpList];
-          if (!state.cp[cpList].length) state.cp[cpList].push(blankAction());
+          if (!state.cp[cpList].length) { state.cp[cpList].push(blankAction()); showBlank[cpList] = false; }
           renderCP(); saveDraft();
         };
         if (cItem && (cItem.sac || cItem.temple || cItem.committed || hasText(cItem, CARD_KEYS))) {
@@ -1987,7 +2025,7 @@
     GROUPS.forEach(function (g) {
       cpRows.push({ group: g.title, gid: g.id });
       var filled = s.cp[g.id].filter(function (a) { return a.sac || hasText(a, CARD_KEYS); });
-      if (!filled.length) cpRows.push({ empty: 'None this week' });
+      if (!filled.length) cpRows.push({ empty: noneConfirmed(g.id, s) ? 'No one on the Covenant Path Report this week' : 'Not reviewed' });
       filled.forEach(function (a) { cpRows.push(cardRow(a, g.id)); });
     });
     table(CARD_COLS, ['NAME'].concat(CARD_HEADS), cpRows, CARD_GROUPS);
@@ -2052,7 +2090,7 @@
               group: r.group || '', pname: r.pname || '', ord: r.ord || '', need: r.need || '', hneed: r.hneed || '', sac: !!r.sac, bap: r.bap || '', temple: !!r.temple, committed: !!r.committed, carriedFwd: !!r.carriedFwd, carryUndo: r.carryUndo || null }
           : { plan: r.plan, happened: r.happened, notes: r.notes };
       }),
-      cpDone: s.cpDone, cp: s.cp, tnDone: s.tnDone, tn: s.tn, ftDone: s.ftDone,
+      cpDone: s.cpDone, cp: s.cp, cpNone: s.cpNone, tnDone: s.tnDone, tn: s.tn, ftDone: s.ftDone,
       find: { plan: str(s.find.plan), items: s.find.items.map(function (x) { return { task: str(x.task), when: str(x.when), carried: !!x.carried }; }) }
     }));
   }
