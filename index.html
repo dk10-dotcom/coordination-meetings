@@ -71,6 +71,29 @@
         <p class="info-text">Huddles decide <strong>how</strong> and <strong>when</strong> to help.</p>
       </div>
     </div>
+    <section class="start-here" aria-label="Load last week">
+        <div class="load-panel" id="load-panel">
+          <button type="button" class="btn-outline" data-action="load">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5h6l3 3v10h-9z"/><path d="M10.5 2.5v3h3"/><path d="M9 8v5M6.8 10.8L9 13l2.2-2.2"/></svg>
+            Load last week
+          </button>
+          <p class="hint center">Choose an agenda saved on this phone. Its action items fill in Return and Report, and its names carry over.</p>
+        </div>
+
+        <div class="loaded-banner" id="loaded-banner" hidden>
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#1F6B3A" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="9"/><path d="M7 11.5l2.6 2.5L15 8.5"/></svg>
+          <div class="loaded-text">
+            <p class="loaded-title">Loaded last week’s agenda</p>
+            <p class="loaded-sub" id="loaded-sub"></p>
+          </div>
+          <button type="button" class="btn-small green" data-action="unload">Remove</button>
+        </div>
+
+        <p class="load-reminder">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="9" r="7.2"/><path d="M9 8.2v4.3M9 5.6v.2"/></svg>
+          <span><strong>Reminder:</strong> Check carried-over names against the Covenant Path Report. Add new names and remove any no longer listed.</span>
+        </p>
+      </section>
     <div class="details-summary" id="details-summary" hidden>
       <div class="details-summary-text">
         <p class="details-line" id="details-line"></p>
@@ -107,29 +130,6 @@
     </div>
   </header>
 
-  <section class="start-here" aria-label="Load last week">
-      <div class="load-panel" id="load-panel">
-        <button type="button" class="btn-outline" data-action="load">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5h6l3 3v10h-9z"/><path d="M10.5 2.5v3h3"/><path d="M9 8v5M6.8 10.8L9 13l2.2-2.2"/></svg>
-          Load last week
-        </button>
-        <p class="hint center">Choose an agenda saved on this phone. Its action items fill in Return and Report, and its names carry over.</p>
-      </div>
-
-      <div class="loaded-banner" id="loaded-banner" hidden>
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#1F6B3A" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="9"/><path d="M7 11.5l2.6 2.5L15 8.5"/></svg>
-        <div class="loaded-text">
-          <p class="loaded-title">Loaded last week’s agenda</p>
-          <p class="loaded-sub" id="loaded-sub"></p>
-        </div>
-        <button type="button" class="btn-small green" data-action="unload">Remove</button>
-      </div>
-
-      <p class="load-reminder">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="9" r="7.2"/><path d="M9 8.2v4.3M9 5.6v.2"/></svg>
-        <span><strong>Reminder:</strong> Check carried-over names against the Covenant Path Report. Add new names and remove any no longer listed.</span>
-      </p>
-    </section>
 
   <section class="steps-home" id="steps-home" aria-labelledby="steps-title" hidden>
     <div class="steps-progress">
