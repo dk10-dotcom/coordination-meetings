@@ -732,3 +732,15 @@ body.steps-on .btn-done { display: none; }
 .step-nav-btn[hidden] { display: none; }
 .step-nav-k { font-size: 13px; font-weight: 800; }
 .step-nav-t { font-size: 14px; font-weight: 600; color: var(--ink); line-height: 1.25; }
+
+/* The name, typed right in the bold title at the top of each card */
+.card-head.name-head { flex-wrap: wrap; row-gap: 10px; }
+.name-head .card-title { flex: 1 1 100%; }
+.card-name-input { flex: 1; min-width: 0; height: 46px; padding: 0 12px; border: 1px solid var(--field-line); border-radius: 10px; background: var(--card);
+  font: inherit; font-size: 19px; font-weight: 800; color: var(--ink); }
+.card-name-input::placeholder { font-weight: 600; color: #8A93A3; }
+.card-name-input:focus-visible { outline: 3px solid #7FA2DB; outline-offset: 2px; }
+.name-head .card-head-right { flex: 1 1 100%; justify-content: flex-start; }
+.zone-label-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.fixed-value { margin: 0; min-height: 44px; display: flex; align-items: center; padding: 0 12px; border-radius: 8px; background: #F3F5F9; border: 1px dashed var(--field-line);
+  font-size: 16px; font-weight: 700; color: var(--ink); }

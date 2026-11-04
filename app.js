@@ -26,7 +26,7 @@
     { id: 'wml', label: 'Ward mission leader' },
     { id: 'tfhl', label: 'TFH leader' },
     { id: 'tfhc', label: 'TFH consultants' },
-    { id: 'hc', label: 'High Councilman' }
+    { id: 'hc', label: 'High Councilor' }
   ];
   var GROUPS = [
     { id: 'nm', title: 'New members' },
@@ -388,6 +388,14 @@
   }
   var CARRIED_TEXT = 'Carried over from last week';
   function carriedTag() { return h('span', { class: 'source carried-tag', text: CARRIED_TEXT }); }
+  // The person's name, typed right in the bold title at the top of the card.
+  function nameInput(path, ph) {
+    return h('input', { type: 'text', class: 'card-name-input', 'data-bind': path, value: str(getPath(path)), placeholder: ph,
+      'aria-label': 'Name', autocomplete: 'off', autocapitalize: 'words', enterkeyhint: 'next', maxlength: '300' });
+  }
+  // Those being taught: the next ordinance is always baptism.
+  var FIXED_ORD = { bt: 'Baptism' };
+  function ordOf(a, gid) { return FIXED_ORD[gid] || str(a.ordinance).trim(); }
   function cardLabel(n, label, extra) {
     return h('div', { class: 'card-title' }, [
       avatar(),
@@ -401,7 +409,7 @@
   function zoneLabel(kind, text) {
     return h('p', { class: 'zone-label zone-' + kind }, [h('span', { class: 'zone-dot', 'aria-hidden': 'true' }), text]);
   }
-  function cardFields(base, nameLabel, namePh, whenPh, tag, withBap, needPh, ordPh, wcExtra) {
+  function cardFields(base, nameLabel, namePh, whenPh, tag, withBap, needPh, ordPh, wcExtra, fixedOrd) {
     var hneedVal = str(getPath(base + 'hneed')).trim();
     var hneedField = field('Huddle notes', base + 'hneed', { full: true, multi: true, placeholder: 'Anything to relay back to ward council' });
     if (!hneedVal) hneedField.hidden = true;
@@ -409,11 +417,11 @@
     return h('div', { class: 'card-zones' }, [
       wcExtra || null,
       h('div', { class: 'card-zone zone-wc-wrap' }, [
-        zoneLabel('wc', 'Ward Council · Who & What'),
+        tag ? h('div', { class: 'zone-label-row' }, [zoneLabel('wc', 'Ward Council · Who & What'), tag]) : zoneLabel('wc', 'Ward Council · Who & What'),
         h('div', { class: 'card-grid' }, [
-          field(nameLabel, base + 'name', { placeholder: namePh, cap: 'words', full: true, tag: tag }),
           withBap ? field(withBap, base + 'bap', { type: 'date', full: true }) : null,
-          field('Next ordinance', base + 'ordinance', { placeholder: ordPh || 'e.g. Baptism', full: true }),
+          fixedOrd ? h('div', { class: 'field full' }, ['Next ordinance', h('p', { class: 'fixed-value', text: fixedOrd })])
+            : field('Next ordinance', base + 'ordinance', { placeholder: ordPh || 'e.g. Baptism', full: true }),
           field('Needs', base + 'need', { full: true, multi: true, placeholder: needPh || 'e.g. A ride to church' })
         ])
       ]),
@@ -511,15 +519,13 @@
   function cpCard(g, it, i, many) {
         var base = 'cp.' + g.id + '.' + i + '.';
         return h('div', { class: 'card' }, [
-          h('div', { class: 'card-head' }, [
-            h('div', { class: 'card-title' }, [avatar(), personTitle(base + 'name', 'New name')]),
-            h('div', { class: 'card-head-right' }, [
-              sacToggle(base + 'sac', it.sac),
-              many ? removeButton('remove-cp', g.id, i, 'Remove action ' + (i + 1) + ' for ' + g.title) : null
-            ])
+          h('div', { class: 'card-head name-head' }, [
+            h('div', { class: 'card-title' }, [avatar(), nameInput(base + 'name', 'Name'),
+              many ? removeButton('remove-cp', g.id, i, 'Remove action ' + (i + 1) + ' for ' + g.title) : null]),
+            h('div', { class: 'card-head-right' }, [sacToggle(base + 'sac', it.sac)])
           ]),
           cardFields(base, 'Name', 'From the Covenant Path Report', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: 'From last week' }) : null, g.id === 'nm' ? 'Baptism date' : g.id === 'bt' ? 'Scheduled baptismal date' : '', 'Identify a need from the Covenant Path Report', '',
-            g.id === 'nm' ? templeBox(base, i, it) : g.id === 'bt' ? committedBox(base, it) : null),
+            g.id === 'nm' ? templeBox(base, i, it) : g.id === 'bt' ? committedBox(base, it) : null, FIXED_ORD[g.id]),
           g.id === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': i }, ['Convert to new member']) : null
         ]);
   }
@@ -600,8 +606,8 @@
   function tnCard(n, i) {
     var base = 'tn.' + i + '.';
     return h('div', { class: 'card' }, [
-      h('div', { class: 'card-head' }, [
-        h('div', { class: 'card-title' }, [avatar(), personTitle(base + 'name', 'Name ' + (i + 1))]),
+      h('div', { class: 'card-head name-head' }, [
+        h('div', { class: 'card-title' }, [avatar(), nameInput(base + 'name', 'Focus name ' + (i + 1))]),
         h('div', { class: 'card-head-right' }, [sacToggle(base + 'sac', n.sac)])
       ]),
       cardFields(base, 'Focus name', 'Focus name', 'e.g. Sun', null, '', 'e.g. A ride to the temple', 'e.g. Sacrament')
@@ -872,11 +878,11 @@
 
   /* ---------- toast & sheets ---------- */
   var toastTimer = null;
-  function toast(msg) {
+  function toast(msg, ms) {
     var t = $('#toast');
     t.textContent = msg; t.hidden = false;
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { t.hidden = true; }, 3200);
+    toastTimer = setTimeout(function () { t.hidden = true; }, ms || 3200);
   }
 
   var lastFocus = null;
@@ -1196,7 +1202,7 @@
   }
   // One of last week's name cards, as a Return and Report item (all of its fields come along).
   function itemFrom(a, gid) {
-    var name = str(a.name).trim(), ord = str(a.ordinance).trim();
+    var name = str(a.name).trim(), ord = ordOf(a, gid);
     return {
       source: SOURCE[gid], group: gid, pname: name, ord: ord, need: str(a.need).trim(), hneed: str(a.hneed).trim(), sac: !!a.sac,
       bap: gid === 'nm' || gid === 'bt' ? str(a.bap) : '', temple: gid === 'nm' && !!a.temple, committed: gid === 'bt' && !!a.committed,
@@ -1589,7 +1595,7 @@
         sub = { text: a.committed ? 'Committed' + (d ? ' · ' + d : '') : 'Scheduled: ' + d, color: GROUP_PDF.bt.ink };
       }
       var act = str(a.action).trim();
-      return { boldFirst: true, sub: sub, note: str(a.hneed).trim(), cells: [str(a.name).trim(), str(a.ordinance).trim(), str(a.need).trim(), { check: !!a.sac, mark: true },
+      return { boldFirst: true, sub: sub, note: str(a.hneed).trim(), cells: [str(a.name).trim(), ordOf(a, gid), str(a.need).trim(), { check: !!a.sac, mark: true },
         a.actionCarried && act ? { text: act, meta: CARRIED_TEXT, metaItal: true } : act, str(a.assigned).trim(), str(a.when).trim()] };
     }
     var STATUS_PDF = { Yes: rgb(0.122, 0.42, 0.227), Partly: rgb(0.62, 0.42, 0.02), No: rgb(0.70, 0.16, 0.16) };
@@ -2320,7 +2326,8 @@
         setPath(path.replace(/action$/, 'actionCarried').replace(/task$/, 'carried'), false);
         var tagEl = t.closest('.field, .fn-assign'); tagEl = tagEl && tagEl.querySelector('.carried-tag'); if (tagEl) tagEl.remove();
       }
-      if (/\.sac$/.test(path) && val === true) toast('Remember to update sacrament attendance in the Covenant Path Report too.');
+      if (/\.sac$/.test(path) && val === true) toast('Remember to update sacrament attendance in the Covenant Path Report too.', 7000);
+      if (/\.committed$/.test(path) && val === true) toast('Remember to update the Covenant Path Report in Tools too.', 7000);
       if (/^cp\.\w+\.\d+\.name$/.test(path)) updateListCount(path.split('.')[1]);
       if (/^cp\.nm\.\d+\.(name|bap|temple)$/.test(path) || path === 'date') { updateTemple(); if (path === 'date') renderRR(); }
       if (/^tn\.\d+\.name$/.test(path)) { var tc = document.querySelector('.list-tn .list-count'); if (tc) tc.textContent = tnCountText(); }
