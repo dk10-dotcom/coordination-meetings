@@ -722,3 +722,5 @@ body.steps-on[data-view="home"] .top-buttons .help-link { padding: 0 12px; }
 body.steps-on .start-here { padding-top: 0; }
 body.steps-on .wrap { gap: 16px; }
 .help-steps-note { margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--card); border: 1px solid var(--card-line); font-size: 15px; color: var(--text); }
+body.steps-on[data-view="home"] .load-panel .hint { display: none; }
+body.steps-on[data-view="home"] .load-panel { padding: 0; border: none; background: none; box-shadow: none; }

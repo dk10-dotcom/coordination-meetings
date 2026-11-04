@@ -819,11 +819,8 @@
     document.body.classList.toggle('steps-on', !all);
     document.body.setAttribute('data-view', all ? 'all' : view);
     var home = all || view === 'home';
-    // Load last week lives at the top of step 1 in the step view, and under the header on the long page.
-    var sh = $('.start-here'), rrSec = document.querySelector('[data-step="rr"]');
-    if (!all && sh.parentNode !== rrSec) rrSec.insertBefore(sh, rrSec.querySelector('#rr-list'));
-    if (all && sh.parentNode === rrSec) $('header.top').insertAdjacentElement('afterend', sh);
-    $('header.top').hidden = !home; sh.hidden = !all && view !== 'rr'; $('.fine-notes').hidden = !home;
+    // Load last week sits on the home screen, between the meeting details and the four steps.
+    $('header.top').hidden = !home; $('.start-here').hidden = !home; $('.fine-notes').hidden = !home;
     $('#steps-home').hidden = all || view !== 'home';
     $('#step-bar').hidden = all || home; $('#step-foot').hidden = all || home;
     Array.prototype.forEach.call(document.querySelectorAll('[data-step]'), function (el) { el.hidden = !all && el.getAttribute('data-step') !== view; });
