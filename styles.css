@@ -689,15 +689,17 @@ body.touring .actionbar { z-index: 10; }
 .step-foot .btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .step-foot .btn-link { min-height: 44px; font-weight: 700; color: var(--accent); }
 
-.details-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 14px;
-  background: var(--card); border: 1px solid var(--card-line); }
-.details-summary-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.details-line { font-size: 15px; color: var(--text); }
-.details-line b { color: var(--ink); }
-.details-sub { font-size: 13.5px; color: var(--muted); }
+.details-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 12px 14px; border-radius: 16px;
+  background: var(--card); border: 1px solid var(--card-line); box-shadow: 0 1px 2px rgba(27,43,75,.06), 0 3px 10px rgba(27,43,75,.07);
+  font: inherit; text-align: left; color: inherit; cursor: pointer; }
+.details-summary:active { background: #F6F8FC; }
+.details-summary-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.details-title { font-size: 17px; font-weight: 800; color: var(--ink); line-height: 1.2; }
+.details-line { font-size: 14px; color: var(--text); line-height: 1.3; }
+.details-line b { color: var(--ink); font-weight: 700; }
+.details-sub { font-size: 13.5px; color: var(--muted); line-height: 1.3; }
 .details-full { display: flex; flex-direction: column; gap: 16px; }
 .details-full[hidden] { display: none; }
-.details-summary .btn-small { border: 1px solid var(--accent-line); background: var(--card); color: var(--accent); font-weight: 700; }
 
 /* Four steps: a compact home so the steps show without scrolling */
 .cp-reminder { display: none; font-size: 14px; color: var(--text); }
