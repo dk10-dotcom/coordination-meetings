@@ -757,7 +757,7 @@
 
   /* ---------- Four steps: the agenda opens as a short checklist ---------- */
   // Return and Report, Covenant Path Report Review, Name Next Ordinance, Find New People to Teach.
-  // Tap a step to open just that section; "Mark step complete" checks it off.
+  // Tap a section to open just that part; "Mark section done" gives it a green check.
   var STEPS = [
     { id: 'rr', title: 'Return and Report', band: 'last' },
     { id: 'cp', title: 'Covenant Path Report Review', band: 'this' },
@@ -789,36 +789,32 @@
     if (!plan && !k) return { text: 'Not started' };
     return { text: (plan ? 'Plan written' : 'No plan yet') + ' · ' + plural(k, 'assignment', 'assignments'), warn: !plan || !k };
   }
+  // Sections open in any order; a finished one gets a green check.
   function renderSteps() {
     if (!$('#steps-home')) return;
-    var done = STEPS.filter(function (st) { return state.stepsDone[st.id]; }).length;
-    var next = STEPS.filter(function (st) { return !state.stepsDone[st.id]; })[0];
-    $('#steps-count').textContent = done + ' of ' + STEPS.length + ' done';
-    $('#steps-bar-fill').style.width = (done / STEPS.length * 100) + '%';
-    var row = function (st, n) {
-      var isDone = !!state.stepsDone[st.id], isNext = next && next.id === st.id, status = stepStatus(st.id);
+    var row = function (st) {
+      var isDone = !!state.stepsDone[st.id], status = stepStatus(st.id);
       var num = h('span', { class: 'step-num', 'aria-hidden': 'true' });
-      if (isDone) num.appendChild(icon('check')); else num.textContent = String(n);
-      return h('li', {}, [h('button', { type: 'button', class: 'step-row' + (isDone ? ' done' : '') + (isNext ? ' next' : ''), 'data-action': 'open-step', 'data-a': st.id,
-        'aria-label': 'Step ' + n + ', ' + st.title + (isDone ? ', complete' : '') + '. ' + status.text }, [
+      if (isDone) num.appendChild(icon('check'));
+      return h('li', {}, [h('button', { type: 'button', class: 'step-row' + (isDone ? ' done' : ''), 'data-action': 'open-step', 'data-a': st.id,
+        'aria-label': st.title + (isDone ? ', done' : '') + '. ' + status.text }, [
         num,
         h('span', { class: 'step-text' }, [
-          h('span', { class: 'step-title' }, [st.title, isNext ? h('span', { class: 'step-tag', text: 'Up next' }) : null]),
+          h('span', { class: 'step-title', text: st.title }),
           h('span', { class: 'step-status' + (status.warn && !isDone ? ' warn' : ''), text: status.text })
         ]),
         h('span', { class: 'step-chev', 'aria-hidden': 'true', text: '›' })
       ])]);
     };
-    $('#steps-last').replaceChildren.apply($('#steps-last'), STEPS.filter(function (st) { return st.band === 'last'; }).map(function (st) { return row(st, STEPS.indexOf(st) + 1); }));
-    $('#steps-this').replaceChildren.apply($('#steps-this'), STEPS.filter(function (st) { return st.band === 'this'; }).map(function (st) { return row(st, STEPS.indexOf(st) + 1); }));
+    $('#steps-last').replaceChildren.apply($('#steps-last'), STEPS.filter(function (st) { return st.band === 'last'; }).map(row));
+    $('#steps-this').replaceChildren.apply($('#steps-this'), STEPS.filter(function (st) { return st.band === 'this'; }).map(row));
     if (view !== 'home') renderStepFoot();
   }
   function renderStepFoot() {
     var i = STEPS.findIndex(function (st) { return st.id === view; });
     if (i < 0) return;
     var nxt = STEPS[i + 1], prv = STEPS[i - 1];
-    $('#step-bar-num').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
-    $('#step-done-label').textContent = state.stepsDone[view] ? 'Step complete · Back to all steps' : 'Mark step complete';
+    $('#step-done-label').textContent = state.stepsDone[view] ? 'Done · Back to all sections' : 'Mark section done';
     var sn = $('#step-next'), sp = $('#step-prev');
     sn.hidden = !nxt; sp.hidden = !prv;
     if (nxt) sn.replaceChildren(h('span', { class: 'step-nav-k', text: 'Next ›' }), h('span', { class: 'step-nav-t', text: nxt.title }));
@@ -830,7 +826,7 @@
     document.body.classList.toggle('steps-on', !all);
     document.body.setAttribute('data-view', all ? 'all' : view);
     var home = all || view === 'home';
-    // Load last week sits on the home screen, between the meeting details and the four steps.
+    // Load last week sits on the home screen, above the meeting details and the four sections.
     $('header.top').hidden = !home; $('.start-here').hidden = !home; $('.fine-notes').hidden = !home;
     $('#steps-home').hidden = all || view !== 'home';
     $('#step-bar').hidden = all || home; $('#step-foot').hidden = all || home;
