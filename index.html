@@ -36,6 +36,14 @@
     </div>
   </div>
 
+  <div class="step-bar" id="step-bar" hidden>
+    <button type="button" class="step-back" data-action="steps-home" aria-label="Back to all steps">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M11 3.5L5.5 9l5.5 5.5"/></svg>
+      All steps
+    </button>
+    <span class="step-bar-num" id="step-bar-num"></span>
+  </div>
+
   <header class="top">
     <div class="title-row">
       <h1>Weekly Coordination Meeting Agenda</h1>
@@ -59,10 +67,18 @@
       </div>
       <div class="info-card orange">
         <p class="info-kicker">How · When</p>
-        <p class="info-title">Weekly Coordination Meeting</p>
+        <p class="info-title"><span class="t-long">Weekly Coordination Meeting</span><span class="t-short">The huddle</span></p>
         <p class="info-text">Huddles decide <strong>how</strong> and <strong>when</strong> to help.</p>
       </div>
     </div>
+    <div class="details-summary" id="details-summary" hidden>
+      <div class="details-summary-text">
+        <p class="details-line" id="details-line"></p>
+        <p class="details-sub" id="details-sub"></p>
+      </div>
+      <button type="button" class="btn-small" data-action="open-details" aria-label="Edit ward, date, conducting and attendance">Edit</button>
+    </div>
+    <div class="details-full" id="details-full">
     <div class="grid-2">
       <label class="field">Ward
         <input type="text" id="ward" data-bind="ward" placeholder="Ward name" autocomplete="off" autocapitalize="words">
@@ -86,6 +102,8 @@
       <span id="h-attendees">Attendees</span>
       <span class="attendees-hint">Make an extra effort to involve the youth. Tap everyone who attended.</span>
       <div class="chips" id="attendee-list"></div>
+    </div>
+    <button type="button" class="btn-outline full details-done" data-action="close-details" hidden>Done with meeting details</button>
     </div>
   </header>
 
@@ -113,8 +131,19 @@
       </p>
     </section>
 
+  <section class="steps-home" id="steps-home" aria-labelledby="steps-title" hidden>
+    <div class="steps-progress">
+      <div class="steps-progress-row"><h2 id="steps-title">This week’s huddle</h2><span id="steps-count"></span></div>
+      <div class="steps-bar" aria-hidden="true"><span id="steps-bar-fill"></span></div>
+    </div>
+    <p class="steps-band">Last week</p>
+    <ul class="steps-list" id="steps-last"></ul>
+    <p class="steps-band">This week’s plan</p>
+    <ul class="steps-list" id="steps-this"></ul>
+  </section>
+
   <div class="week-band" role="presentation"><span class="week-label">Last week</span><span class="week-sub">Did it happen?</span></div>
-  <section class="section" aria-labelledby="h-rr">
+  <section class="section" aria-labelledby="h-rr" data-step="rr">
     <div class="section-head">
       <div class="head-line"><h2 id="h-rr">Return and Report</h2></div>
       <p class="muted">Mark each of last week’s items. If one didn’t happen, tap <strong class="ink">Carry forward</strong> to try again this week.</p>
@@ -134,9 +163,10 @@
   </section>
 
   <div class="week-band" role="presentation"><span class="week-label">This week’s plan</span><span class="week-sub">Ward council: who &amp; what · Huddle: how &amp; when</span></div>
-  <section class="section plan" aria-labelledby="h-plan">
+  <section class="section plan" aria-labelledby="h-plan" data-step="cp">
     <div class="section-head">
       <h2 id="h-plan">Covenant Path Report Review</h2>
+      <p class="cp-reminder"><strong>Reminder:</strong> Check carried-over names against the Covenant Path Report in Tools. Add new names and remove any no longer listed.</p>
     </div>
 
     <div class="stack">
@@ -145,7 +175,7 @@
 
   </section>
 
-  <section class="section plan" aria-labelledby="h-tn">
+  <section class="section plan" aria-labelledby="h-tn" data-step="tn">
     <div class="section-head">
       <h2 id="h-tn">Name Next Ordinance (Ward Council Focus Names)</h2>
     </div>
@@ -156,7 +186,7 @@
 
   </section>
 
-  <section class="section plan" aria-labelledby="h-fn">
+  <section class="section plan" aria-labelledby="h-fn" data-step="fn">
     <div class="section-head">
       <h2 id="h-fn">Plans to Find New People to Teach</h2>
     </div>
@@ -168,6 +198,14 @@
 
     <div class="stack" id="fn-list"></div>
   </section>
+
+  <div class="step-foot" id="step-foot" hidden>
+    <button type="button" class="btn-primary full" data-action="step-done">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M3.5 9.5l3.5 3.3L14.5 5"/></svg>
+      <span id="step-done-label">Mark step complete</span>
+    </button>
+    <button type="button" class="btn-link" data-action="step-next" id="step-next"></button>
+  </div>
 
   <div class="fine-notes">
     <p class="fine">Keep copies on your phone secure, and delete them when they’re no longer needed.</p>
@@ -337,6 +375,8 @@
       <p><strong>After huddle:</strong> Send it to the bishop-approved list, the stake presidency and the full-time missionaries. It’s critical to keep the Covenant Path Report in Tools updated as needs are met and tasks are completed, including sacrament attendance.</p>
     </div>
 
+    <p class="help-steps-note"><strong>The agenda is four steps:</strong> Return and Report, Covenant Path Report Review, Name Next Ordinance, and Find New People to Teach. Tap a step to open it, tap <strong>Mark step complete</strong> when you finish, and tap <strong>All steps</strong> to go back.</p>
+
     <ol class="help-steps">
       <li>
         <p><strong>Add it to your Home Screen first, before you fill anything in.</strong> Tap <strong>Add to Home Screen</strong> at the top (iPhone: use Safari; Android: use Chrome). From then on, open it from the new icon. On iPhone, anything saved in Safari won’t carry over to the app.</p>
@@ -345,7 +385,7 @@
         </ul>
       </li>
       <li>
-        <p><strong>Before the meeting, tap Load last week</strong> (under Attendees) and choose last week’s agenda. First week? Skip loading, and add the names from the Covenant Path Report.</p>
+        <p><strong>Before the meeting, open step 1, Return and Report, and tap Load last week.</strong> Choose last week’s agenda. First week? Skip loading, and add the names from the Covenant Path Report.</p>
         <ul>
           <li>Last week’s names carry over, marked <strong>From last week</strong>. Compare them to this week’s Covenant Path Report in Tools: add anyone new, remove anyone no longer listed, and fill in each person’s next ordinance and need.</li>
           <li><strong>New members:</strong> enter the baptism date. The red <strong>Temple attendance</strong> box counts down the 30 days to baptisms for the dead and stays red, week after week, until you check it.</li>
@@ -356,7 +396,7 @@
         </ul>
       </li>
       <li>
-        <p><strong>At the meeting, take attendance.</strong> Check the date and who’s conducting, then tap everyone who attended.</p>
+        <p><strong>At the meeting, take attendance.</strong> Tap <strong>Edit</strong> next to the ward and date, check who’s conducting, then tap everyone who attended.</p>
         <ul>
           <li>Under <strong>Return and Report</strong>, mark each item <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>; the card turns green, amber or red.</li>
           <li>Marked <strong>Partly</strong> or <strong>No</strong>? Tap <strong>Carry forward to this week</strong> to add it to this week’s plan without retyping. It’s marked <strong>Carried over from last week</strong> on the card and on the PDF. Changed your mind? Tap <strong>Undo</strong> to take it back off this week’s plan.</li>

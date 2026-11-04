@@ -129,7 +129,7 @@
       conducting: readConducting().who, conductingOther: readConducting().other,
       rr: [blankRR(), blankRR()], loaded: null,
       cpDone: false, cp: { nm: [blankAction()], rm: [blankAction()], bt: [blankAction()] },
-      collapsed: {}, openOne: {},
+      collapsed: {}, openOne: {}, stepsDone: {},
       tnDone: false, tn: [blankName(), blankName(), blankName()],
       find: blankFind(),
       ftDone: false
@@ -178,6 +178,8 @@
       : null;
     f.cpDone = !!s.cpDone; f.tnDone = !!s.tnDone; f.ftDone = !!s.ftDone;
     // Lists marked Done stay folded only within the draft; a saved agenda always opens fully.
+    var sd = s.stepsDone && typeof s.stepsDone === 'object' ? s.stepsDone : {};
+    ['rr', 'cp', 'tn', 'fn'].forEach(function (k) { if (sd[k] === true) f.stepsDone[k] = true; });
     var col = s.collapsed && typeof s.collapsed === 'object' ? s.collapsed : {};
     ['rr', 'nm', 'rm', 'bt', 'tn'].forEach(function (k) { if (col[k]) f.collapsed[k] = true; });
     var cp = s.cp || {};
@@ -200,6 +202,7 @@
   var draftTimer = null;
   function saveDraft() {
     clearTimeout(draftTimer);
+    if (typeof renderSteps === 'function') renderSteps();
     draftTimer = setTimeout(function () { writeJSON('sessionStorage', DRAFT_KEY, state); }, 250);
   }
   function getPath(path) {
@@ -738,7 +741,133 @@
     renderConducting();
     renderDateHint();
     renderAttendees(); renderRR(); renderCP(); renderTN(); renderFN();
+    detailsOpen = detailsNeeded();
+    renderDetails(); renderSteps();
   }
+
+  /* ---------- Four steps: the agenda opens as a short checklist ---------- */
+  // Return and Report, Covenant Path Report Review, Name Next Ordinance, Find New People to Teach.
+  // Tap a step to open just that section; "Mark step complete" checks it off.
+  var STEPS = [
+    { id: 'rr', title: 'Return and Report', band: 'last' },
+    { id: 'cp', title: 'Covenant Path Report Review', band: 'this' },
+    { id: 'tn', title: 'Name Next Ordinance', band: 'this' },
+    { id: 'fn', title: 'Find New People to Teach', band: 'this' }
+  ];
+  var VIEW_ALL_KEY = 'huddle-view-all';
+  var stepsOn = !readFlag(VIEW_ALL_KEY);
+  var view = 'home';
+  var detailsOpen = false;
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+  function stepStatus(id) {
+    if (id === 'rr') {
+      var items = state.rr.filter(rrShown), n = items.length;
+      if (!n) return { text: state.loaded ? 'Nothing to report' : 'Load last week to fill this in' };
+      var marked = items.filter(function (r) { return r.happened; }).length;
+      var carried = items.filter(function (r) { return r.carriedFwd; }).length;
+      return { text: plural(n, 'item', 'items') + ' · ' + (marked === n ? 'all marked' : marked + ' of ' + n + ' marked') + (carried ? ' · ' + carried + ' carried forward' : ''), warn: marked < n };
+    }
+    if (id === 'cp' || id === 'tn') {
+      var list = id === 'tn' ? state.tn : GROUPS.reduce(function (a, g) { return a.concat(state.cp[g.id]); }, []);
+      var named = list.filter(function (a) { return str(a.name).trim(); });
+      var missing = named.filter(function (a) { return !str(a.action).trim(); }).length;
+      if (!named.length) return { text: 'No names yet' };
+      var lead = id === 'tn' ? named.length + ' of 3 focus names' : plural(named.length, 'person', 'people');
+      return { text: lead + ' · ' + (missing ? missing + (missing === 1 ? ' needs' : ' need') + ' an action' : 'everyone has a plan'), warn: missing > 0 };
+    }
+    var plan = str(state.find.plan).trim(), k = state.find.items.filter(function (x) { return str(x.task).trim(); }).length;
+    if (!plan && !k) return { text: 'Not started' };
+    return { text: (plan ? 'Plan written' : 'No plan yet') + ' · ' + plural(k, 'assignment', 'assignments'), warn: !plan || !k };
+  }
+  function renderSteps() {
+    if (!$('#steps-home')) return;
+    var done = STEPS.filter(function (st) { return state.stepsDone[st.id]; }).length;
+    var next = STEPS.filter(function (st) { return !state.stepsDone[st.id]; })[0];
+    $('#steps-count').textContent = done + ' of ' + STEPS.length + ' done';
+    $('#steps-bar-fill').style.width = (done / STEPS.length * 100) + '%';
+    var row = function (st, n) {
+      var isDone = !!state.stepsDone[st.id], isNext = next && next.id === st.id, status = stepStatus(st.id);
+      var num = h('span', { class: 'step-num', 'aria-hidden': 'true' });
+      if (isDone) num.appendChild(icon('check')); else num.textContent = String(n);
+      return h('li', {}, [h('button', { type: 'button', class: 'step-row' + (isDone ? ' done' : '') + (isNext ? ' next' : ''), 'data-action': 'open-step', 'data-a': st.id,
+        'aria-label': 'Step ' + n + ', ' + st.title + (isDone ? ', complete' : '') + '. ' + status.text }, [
+        num,
+        h('span', { class: 'step-text' }, [
+          h('span', { class: 'step-title' }, [st.title, isNext ? h('span', { class: 'step-tag', text: 'Up next' }) : null]),
+          h('span', { class: 'step-status' + (status.warn && !isDone ? ' warn' : ''), text: status.text })
+        ]),
+        h('span', { class: 'step-chev', 'aria-hidden': 'true', text: '›' })
+      ])]);
+    };
+    $('#steps-last').replaceChildren.apply($('#steps-last'), STEPS.filter(function (st) { return st.band === 'last'; }).map(function (st) { return row(st, STEPS.indexOf(st) + 1); }));
+    $('#steps-this').replaceChildren.apply($('#steps-this'), STEPS.filter(function (st) { return st.band === 'this'; }).map(function (st) { return row(st, STEPS.indexOf(st) + 1); }));
+    if (view !== 'home') renderStepFoot();
+  }
+  function renderStepFoot() {
+    var i = STEPS.findIndex(function (st) { return st.id === view; });
+    if (i < 0) return;
+    var nxt = STEPS[i + 1];
+    $('#step-bar-num').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    $('#step-done-label').textContent = state.stepsDone[view] ? 'Step complete · Back to all steps' : 'Mark step complete';
+    var sn = $('#step-next');
+    sn.hidden = !nxt;
+    if (nxt) sn.textContent = 'Next: ' + nxt.title + ' ›';
+  }
+  // Which parts of the page show: the step list (home), one step, or everything (view-all).
+  function applyView() {
+    var all = !stepsOn;
+    document.body.classList.toggle('steps-on', !all);
+    document.body.setAttribute('data-view', all ? 'all' : view);
+    var home = all || view === 'home';
+    // Load last week lives at the top of step 1 in the step view, and under the header on the long page.
+    var sh = $('.start-here'), rrSec = document.querySelector('[data-step="rr"]');
+    if (!all && sh.parentNode !== rrSec) rrSec.insertBefore(sh, rrSec.querySelector('#rr-list'));
+    if (all && sh.parentNode === rrSec) $('header.top').insertAdjacentElement('afterend', sh);
+    $('header.top').hidden = !home; sh.hidden = !all && view !== 'rr'; $('.fine-notes').hidden = !home;
+    $('#steps-home').hidden = all || view !== 'home';
+    $('#step-bar').hidden = all || home; $('#step-foot').hidden = all || home;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-step]'), function (el) { el.hidden = !all && el.getAttribute('data-step') !== view; });
+    Array.prototype.forEach.call(document.querySelectorAll('.week-band'), function (el) { el.hidden = !all; });
+    renderDetails(); renderSteps();
+  }
+  // mode: 'push' adds a history entry (so Back returns to the list), 'replace' swaps it, otherwise no history change.
+  function showView(v, mode) {
+    if (!stepsOn) v = 'home';
+    view = v;
+    try {
+      if (mode === 'push') history.pushState({ hv: v }, '');
+      else if (mode === 'replace') history.replaceState({ hv: v }, '');
+    } catch (e) { /* ignore */ }
+    applyView();
+    window.scrollTo(0, 0);
+  }
+  function goHome() {
+    if (view === 'home') return;
+    var st = null; try { st = history.state; } catch (e) { /* ignore */ }
+    if (st && st.hv && st.hv !== 'home') { try { history.back(); return; } catch (e) { /* fall through */ } }
+    showView('home', 'replace');
+  }
+  // Ward, date, conducting and attendance: a one-line summary once they're filled in.
+  function detailsNeeded() { return !state.ward.trim() || !parseISO(state.date) || !state.conducting; }
+  function renderDetails() {
+    var full = $('#details-full'), sum = $('#details-summary');
+    if (!full) return;
+    var open = !stepsOn || detailsOpen;
+    full.hidden = !open; sum.hidden = open;
+    var doneBtn = full.querySelector('.details-done'); if (doneBtn) doneBtn.hidden = !stepsOn;
+    var d = parseISO(state.date);
+    $('#details-line').replaceChildren(h('b', { text: state.ward.trim() || 'Ward not set' }), ' · ' + (d ? d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : 'No date'));
+    var n = state.attendees.length;
+    $('#details-sub').textContent = (conductingLabel(state) ? conductingLabel(state) + ' · ' : '') + (n ? n + ' attended' : 'Attendance not taken yet');
+  }
+  function openDetails() { detailsOpen = true; if (view !== 'home') showView('home', 'replace'); renderDetails(); }
+  window.HuddleView = {
+    show: function (v, details) { if (details) detailsOpen = true; showView(v || 'home', 'replace'); },
+    openDetails: openDetails,
+    current: function () { return view; },
+    reset: function () { detailsOpen = detailsNeeded(); showView('home', 'replace'); },
+    enabled: function () { return stepsOn; }
+  };
 
   /* ---------- toast & sheets ---------- */
   var toastTimer = null;
@@ -800,7 +929,9 @@
     removeKey('sessionStorage', DRAFT_KEY);
     if (!keepWard) { removeKey('localStorage', WARD_KEY); removeKey('localStorage', 'huddle-conducting'); }
     state = freshState();
-    renderAll();
+    view = 'home';
+    try { history.replaceState({ hv: 'home' }, ''); } catch (e) { /* ignore */ }
+    renderAll(); applyView();
     window.scrollTo(0, 0);
   }
 
@@ -873,6 +1004,19 @@
         break;
       }
       case 'list-open': listOpen(a); break;
+      case 'open-step': showView(a, 'push'); break;
+      case 'steps-home': goHome(); break;
+      case 'step-done': {
+        state.stepsDone[view] = true; saveDraft(); goHome();
+        break;
+      }
+      case 'step-next': {
+        var si = STEPS.findIndex(function (st) { return st.id === view; });
+        if (si >= 0 && STEPS[si + 1]) showView(STEPS[si + 1].id, 'replace');
+        break;
+      }
+      case 'open-details': openDetails(); var wf = $('#ward'); if (wf && !state.ward.trim()) wf.focus(); break;
+      case 'close-details': detailsOpen = false; renderDetails(); window.scrollTo(0, 0); break;
       case 'edit-one': {
         state.openOne[a] = +b; rerenderList(a);
         var oc = document.querySelector('.fold-open .card');
@@ -920,7 +1064,7 @@
         if (!orec) break;
         var doOpen = function () {
           state = normalizeState(orec.data); state.loaded = null;
-          renderAll(); saveDraft(); window.scrollTo(0, 0);
+          view = 'home'; renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
           toast('Opened the ' + shortDate(orec.date) + ' agenda. Make your changes, then send or save it again.');
         };
         if (!isEmpty(state)) {
@@ -1206,13 +1350,15 @@
     renderRR(); renderCP(); saveDraft();
     toast('Loaded ' + items.length + (items.length === 1 ? ' action item' : ' action items') +
       (carried ? ' and ' + carried + (carried === 1 ? ' name' : ' names') : '') + ' from last week.');
-    var sec = $('#h-rr'); if (sec) sec.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    if (stepsOn) { var sh = $('#steps-home'); if (sh) sh.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
+    else { var sec = $('#h-rr'); if (sec) sec.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
     if (carried && !readFlag(NAMES_HINT_KEY)) {
       writeFlag(NAMES_HINT_KEY);
       ask({
         title: 'Check the names that carried over',
         body: 'Last week’s names are now in Covenant Path Report Review. Compare them to this week’s Covenant Path Report: add anyone new and remove anyone no longer listed.',
         primary: 'Show me the names', onPrimary: function () {
+          if (stepsOn) { showView('cp', 'push'); return; }
           var g = $('#cp-groups'); if (g) g.scrollIntoView({ block: 'start', behavior: 'smooth' });
         },
         secondary: 'Got it'
@@ -2028,11 +2174,11 @@
   // Ward, date and some content are needed before sending or saving.
   function readyToSave(verb) {
     if (!state.ward.trim()) {
-      ask({ title: 'Add your ward name first', body: 'The ward name goes on the PDF and helps you load the right agenda next week.', primary: 'OK', onPrimary: function () { $('#ward').focus(); } });
+      ask({ title: 'Add your ward name first', body: 'The ward name goes on the PDF and helps you load the right agenda next week.', primary: 'OK', onPrimary: function () { openDetails(); $('#ward').focus(); } });
       return false;
     }
     if (!parseISO(state.date)) {
-      ask({ title: 'Add the meeting date first', primary: 'OK', onPrimary: function () { $('#date').focus(); } });
+      ask({ title: 'Add the meeting date first', primary: 'OK', onPrimary: function () { openDetails(); $('#date').focus(); } });
       return false;
     }
     if (isEmpty(state)) {
@@ -2141,6 +2287,15 @@
     fileInput = $('#file-input');
     fileInput.addEventListener('change', onFilePicked);
     renderAll();
+    // Four-step view: start on the step list; the phone's Back gesture returns to it from a step.
+    try { history.replaceState({ hv: 'home' }, ''); } catch (e) { /* ignore */ }
+    applyView();
+    window.addEventListener('popstate', function (e) {
+      var v = e.state && e.state.hv;
+      if (!stepsOn) return;
+      view = v && v !== 'home' && STEPS.some(function (st) { return st.id === v; }) ? v : 'home';
+      applyView(); window.scrollTo(0, 0);
+    });
 
     var onEdit = function (e) {
       var t = e.target;
