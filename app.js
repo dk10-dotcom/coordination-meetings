@@ -133,6 +133,7 @@
       collapsed: {}, openOne: {}, stepsDone: {},
       tnDone: false, tn: [blankName(), blankName(), blankName()],
       find: blankFind(),
+      practiceSnapshot: null,
       ftDone: false
     };
   }
@@ -175,8 +176,10 @@
       if (!f.rr.length) f.rr = [blankRR()];
     }
     f.loaded = s.loaded && typeof s.loaded === 'object'
-      ? { fileName: str(s.loaded.fileName), ward: str(s.loaded.ward), date: str(s.loaded.date), count: +s.loaded.count || 0 }
+      ? { fileName: str(s.loaded.fileName), ward: str(s.loaded.ward), date: str(s.loaded.date), count: +s.loaded.count || 0, practice: !!s.loaded.practice }
       : null;
+    // A practice week remembers the form as it was, so removing it puts everything back.
+    f.practiceSnapshot = f.loaded && f.loaded.practice && s.practiceSnapshot && typeof s.practiceSnapshot === 'object' ? s.practiceSnapshot : null;
     f.cpDone = !!s.cpDone; f.tnDone = !!s.tnDone; f.ftDone = !!s.ftDone;
     // Lists marked Done stay folded only within the draft; a saved agenda always opens fully.
     var sd = s.stepsDone && typeof s.stepsDone === 'object' ? s.stepsDone : {};
@@ -457,6 +460,13 @@
   function renderLoadState() {
     $('#load-panel').hidden = !!state.loaded;
     $('#loaded-banner').hidden = !state.loaded;
+    $('#loaded-banner').classList.toggle('practice', !!(state.loaded && state.loaded.practice));
+    if (state.loaded && state.loaded.practice) {
+      $('#loaded-banner .loaded-title').textContent = 'Practice week loaded';
+      $('#loaded-sub').textContent = 'Sample names only. Remove it before your real huddle.';
+      return;
+    }
+    $('#loaded-banner .loaded-title').textContent = 'Loaded last week’s agenda';
     if (state.loaded) {
       var L = state.loaded;
       var bits = [L.fileName || 'Last week’s PDF'];
@@ -834,7 +844,7 @@
         num,
         h('span', { class: 'step-text' }, [
           h('span', { class: 'step-title', text: st.title }),
-          h('span', { class: 'step-status' + (status.warn && !isDone ? ' warn' : ''), text: status.text })
+          h('span', { class: 'step-status' + (status.warn ? ' warn' : ''), text: status.text })
         ]),
         h('span', { class: 'step-chev', 'aria-hidden': 'true', text: '›' })
       ])]);
@@ -1144,6 +1154,7 @@
         break;
       }
       case 'load-file': closeOverlay('#load-sheet'); pickFile(); break;
+      case 'practice': ['#load-sheet', '#help-sheet'].forEach(function (id) { if (!$(id).hidden) closeOverlay(id); }); startPractice(); break;
       case 'close-load': closeOverlay('#load-sheet'); break;
       case 'delete-all':
         closeOverlay('#load-sheet');
@@ -1180,6 +1191,7 @@
         writeJSON('sessionStorage', 'huddle-install-dismissed', true);
         break;
       case 'unload': {
+        if (state.loaded && state.loaded.practice) { confirmRemovePractice(); break; }
         var doUnload = function () {
           state.rr = [blankRR(), blankRR()]; state.loaded = null;
           // Take back carried-over names nobody has added anything to yet.
@@ -1226,6 +1238,42 @@
     return data;
   }
 
+  /* ---------- Practice week ----------
+   * A made-up "last week" so a first-time user can try Load last week, Return and Report and carry forward.
+   * One sample person in each Covenant Path list and three focus names. It can't be sent or saved. */
+  function isoShift(days) {
+    var d = parseISO(state.date) || new Date();
+    d.setDate(d.getDate() + days);
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  }
+  function practiceData() {
+    var card = function (o) { return Object.assign(blankAction(), o); };
+    return {
+      app: APP_ID, v: DATA_VERSION, ward: 'Sample Ward', date: isoShift(-7), conducting: 'wml', attendees: [], rr: [],
+      cp: {
+        nm: [card({ name: 'Daniel Rivera', bap: isoShift(-12), ordinance: 'Temple baptisms', need: 'A ride to the temple', action: 'Invite him on the ward temple trip Saturday', assigned: 'Bro. Patel', when: 'Sat' })],
+        rm: [card({ name: 'Olivia Chen', ordinance: 'Endowment', need: 'A friend at church', action: 'Sit with her family at sacrament meeting', assigned: 'Sister Diaz', when: 'Sun' })],
+        bt: [card({ name: 'Marcus Hill', bap: isoShift(10), committed: true, need: 'Get to know ward members', action: 'Invite him to the ward dinner Friday', assigned: 'Elders quorum', when: 'Fri' })]
+      },
+      tn: [
+        card({ name: 'Grace Thompson', ordinance: 'Sealing', need: 'Help preparing family names', action: 'Family history consultant visits to prepare names', assigned: 'Sister Nguyen', when: 'Thu' }),
+        card({ name: 'Samuel Ortiz', ordinance: 'Melchizedek Priesthood', need: 'Someone to study with', action: 'Elders quorum president meets with him', assigned: 'Bro. Young', when: 'Tue' }),
+        card({ name: 'Emma Walsh', ordinance: 'Endowment', need: 'Temple preparation class', action: 'Invite her to the temple prep class', assigned: 'Sister Lee', when: 'Sun' })
+      ],
+      find: { plan: 'Invite friends to the ward Christmas devotional', items: [{ task: 'Each family invites one friend', when: 'Sun', carried: false }] }
+    };
+  }
+  function startPractice() { applyLoad(practiceData(), 'Practice week', { practice: true }); }
+  function removePractice() {
+    var snap = state.practiceSnapshot;
+    state = normalizeState(snap || null); state.loaded = null; state.practiceSnapshot = null;
+    view = 'home'; renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
+    toast('Practice week removed. The form is back the way it was.');
+  }
+  function confirmRemovePractice() {
+    ask({ title: 'Remove the practice week?', body: 'The sample names and anything you entered while practicing are cleared, and the form goes back to how it was.',
+      primary: 'Remove practice week', onPrimary: removePractice, secondary: 'Cancel' });
+  }
   function extractActionItems(data) {
     var items = [];
     var cp = data.cp || {};
@@ -1414,7 +1462,9 @@
     });
   }
 
-  function applyLoad(data, fileName) {
+  function applyLoad(data, fileName, opts) {
+    opts = opts || {};
+    var snap = opts.practice ? (state.practiceSnapshot || JSON.parse(JSON.stringify(state))) : null;
     state.collapsed = {}; state.openOne = {};
     var items = extractActionItems(data);
     if (!items.length) {
@@ -1424,12 +1474,14 @@
     state.rr = items.map(function (it) {
       return { prefilled: true, source: it.source, group: it.group, pname: it.pname, ord: it.ord, need: it.need || '', hneed: it.hneed || '', sac: !!it.sac, bap: it.bap || '', temple: !!it.temple, committed: !!it.committed, person: it.person, action: it.action, assigned: it.assigned, when: it.when, plan: '', happened: '', notes: '' };
     });
-    state.loaded = { fileName: fileName, ward: str(data.ward), date: str(data.date), count: items.length };
-    if (!state.ward.trim() && data.ward) { state.ward = str(data.ward); $('#ward').value = state.ward; writeWard(state.ward); }
+    state.loaded = { fileName: fileName, ward: str(data.ward), date: str(data.date), count: items.length, practice: !!opts.practice };
+    state.practiceSnapshot = snap;
+    if (!opts.practice && !state.ward.trim() && data.ward) { state.ward = str(data.ward); $('#ward').value = state.ward; writeWard(state.ward); }
     var carried = carryNames(data);
     renderRR(); renderCP(); renderTN(); saveDraft();
-    toast('Loaded ' + items.length + (items.length === 1 ? ' action item' : ' action items') +
-      (carried ? ' and ' + carried + (carried === 1 ? ' name' : ' names') : '') + ' from last week.');
+    toast(opts.practice ? 'Practice week loaded: ' + items.length + ' sample action items are in Return and Report, and the names carried over.'
+      : 'Loaded ' + items.length + (items.length === 1 ? ' action item' : ' action items') +
+      (carried ? ' and ' + carried + (carried === 1 ? ' name' : ' names') : '') + ' from last week.', opts.practice ? 6000 : undefined);
     if (stepsOn) { var sh = $('#steps-home'); if (sh) sh.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
     else { var sec = $('#h-rr'); if (sec) sec.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
     if (carried && !readFlag(NAMES_HINT_KEY)) {
@@ -1583,9 +1635,9 @@
     }
     if (!list.length) {
       ask({
-        title: 'No saved agendas to load',
-        body: 'There are no agendas saved on this phone yet. Each agenda you send or save is kept here for 4 weeks. If last week’s PDF is in your email or Files, choose Load from a file.',
-        primary: 'OK',
+        title: 'No saved agendas yet',
+        body: 'Each agenda you send or save is kept on this phone for 4 weeks. First time? Try a practice week with sample names to see how Load last week works. If last week’s PDF is in your email or Files, choose Load from a file.',
+        primary: 'Try a practice week', onPrimary: startPractice,
         secondary: 'Load from a file', onSecondary: pickFile
       });
       return;
@@ -2253,6 +2305,11 @@
 
   // Ward, date and some content are needed before sending or saving.
   function readyToSave(verb) {
+    if (state.loaded && state.loaded.practice) {
+      ask({ title: 'Remove the practice week first', body: 'Practice names can’t be ' + (verb === 'save' ? 'saved' : 'sent') + '. Remove the practice week, then fill in your real huddle.',
+        primary: 'Remove practice week', onPrimary: removePractice, secondary: 'Cancel' });
+      return false;
+    }
     if (!state.ward.trim()) {
       ask({ title: 'Add your ward name first', body: 'The ward name goes on the PDF and helps you load the right agenda next week.', primary: 'OK', onPrimary: function () { openDetails(); $('#ward').focus(); } });
       return false;
