@@ -210,6 +210,7 @@
   function saveDraft() {
     clearTimeout(draftTimer);
     if (typeof renderSteps === 'function') renderSteps();
+    if (tourDemo) return; // the tour's sample card is never saved
     draftTimer = setTimeout(function () { writeJSON('sessionStorage', DRAFT_KEY, state); }, 250);
   }
   function getPath(path) {
@@ -444,7 +445,7 @@
     btn.replaceChildren(icon(sent ? 'check' : 'chat'), h('span', { class: 'bta-label', text: textAssignLabel(base) }));
   }
   function textAssignment(base) {
-    if (state.loaded && state.loaded.practice) { toast('Practice week: texting is turned off for sample names.'); return; }
+    if (tourDemo || (state.loaded && state.loaded.practice)) { toast('Texting is turned off for sample names.'); return; }
     if (!textReady(base)) return;
     var body = assignmentText(base);
     var phone = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent)) ||
@@ -955,7 +956,8 @@
     show: function (v, details) { if (details) detailsOpen = true; showView(v || 'home', 'replace'); },
     openDetails: openDetails,
     current: function () { return view; },
-    reset: function () { detailsOpen = false; showView('home', 'replace'); },
+    reset: function () { setTourDemo(false); detailsOpen = false; showView('home', 'replace'); },
+    tourDemo: function (on) { setTourDemo(on); },
     enabled: function () { return stepsOn; }
   };
 
@@ -1306,6 +1308,20 @@
       ],
       find: { plan: 'Invite friends to the ward Christmas devotional', items: [{ task: 'Each family invites one friend', when: 'Sun', carried: false }] }
     };
+  }
+  // Tour only: when New members is empty, the tour shows one sample card so the name card stops have fields to point at.
+  // It's never saved, and the real list comes back as soon as the tour moves on or ends.
+  var tourDemo = null;
+  function setTourDemo(on) {
+    if (on && !tourDemo && listEmpty('nm')) {
+      clearTimeout(draftTimer); // a save waiting to run must not catch the sample card
+      tourDemo = { nm: state.cp.nm };
+      state.cp.nm = [Object.assign(blankAction(), { name: 'Daniel Rivera', bap: isoShift(-12), ordinance: 'Temple baptisms', need: 'A ride to the temple',
+        action: 'Drive him to the temple for baptisms', assigned: 'Bro. Patel', when: 'Sat 9 am' })];
+      renderCP();
+    } else if (!on && tourDemo) {
+      state.cp.nm = tourDemo.nm; tourDemo = null; renderCP(); saveDraft();
+    }
   }
   function startPractice() { applyLoad(practiceData(), 'Practice week', { practice: true }); }
   function removePractice() {

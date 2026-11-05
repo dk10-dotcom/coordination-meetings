@@ -19,8 +19,9 @@
     { target: '#steps-home', stepsOnly: true, title: 'Four sections', text: 'The agenda has **four sections**. Tap any one to open it, in whatever order works for your huddle. When a section is finished, tap **Mark section done** and it gets a green check here. If something is still missing, like an action item, its status stays orange.' },
     { target: ['#rr-list .card', '#rr-list'], view: 'rr', title: 'Return and Report', text: 'When you load last week’s agenda, the action items from last week’s plans load here. Tap **Yes**, **Partly** or **No** for each, and add a note about how it went.',
       demo: '<p class="tour-demo-cap">Tap Partly or No and this button appears:</p><span class="tour-demo-btn">Carry forward to this week</span><p class="tour-demo-cap">It adds the item to this week’s plan without retyping.</p>' },
-    { target: ['[data-group="nm"] .card', '#cp-groups'], view: 'cp', title: 'Name cards', text: 'Each person’s card has two halves. The top is from ward council: name, next ordinance and needs. **The person conducting should fill in the top half from ward council before the huddle.** The bottom is the huddle’s: one action item, who will do it, and when. If a list has no one this week, tap **Confirm none this week**.',
+    { target: ['[data-group="nm"] .card .zone-wc-wrap', '#cp-groups'], view: 'cp', title: 'Name cards: ward council’s half', text: 'Each card has two halves. The top is ward council’s: next ordinance and needs. **The person conducting fills it in from ward council before the huddle.**',
       demoClass: 'important', demo: '<p class="tour-callout"><span class="tour-callout-icon" aria-hidden="true">!</span><span><strong>Never add confidential information to this agenda.</strong></span></p>' },
+    { target: ['[data-group="nm"] .card .zone-hd-wrap', '#cp-groups'], view: 'cp', title: 'Name cards: the huddle’s half', text: 'The bottom half is the huddle’s: one action item, who will do it, and when. Use **+ Add a note for ward council** to relay anything back.' },
     { target: ['.btn-text-assign', '[data-group="nm"] .card', '#cp-groups'], view: 'cp', title: 'Text the assignment', text: 'Once a card has an action item and someone assigned, tap **Text this assignment** before everyone leaves. Messages opens with the name, the action and when. Pick who to send it to, and the card shows **Texted**.',
       demo: '<span class="tour-demo-btn">Text this assignment</span><p class="tour-demo-cap">Needs and notes are never included in the text.</p>' },
     { target: '[data-group="nm"] .temple-box', view: 'cp', title: 'The 30-day temple goal', text: 'Our goal is to help every new member attend the temple for baptisms for the dead within **30 days of their baptism**. Enter the baptism date and this box counts down the days. It stays red until it’s checked off, so the huddle stays focused on helping them get there.',
@@ -43,7 +44,10 @@
   // In the four-step view, open the part of the agenda each stop talks about.
   function setView(step) {
     var hv = window.HuddleView;
-    if (hv && hv.enabled()) hv.show(step.view || 'home', !!step.details);
+    if (!hv || !hv.enabled()) return;
+    // Name card stops show a sample card when New members is empty, so there are fields to look at.
+    if (hv.tourDemo) hv.tourDemo(step.view === 'cp');
+    hv.show(step.view || 'home', !!step.details);
   }
 
   // **words** in a step become bold; everything else is plain text.
@@ -134,6 +138,9 @@
       var r = targetEl.getBoundingClientRect();
       el.bubble.style.width = Math.min(360, window.innerWidth - 32) + 'px';
       var offset = (64 + r.height + 20 + el.bubble.offsetHeight + 8 > window.innerHeight) ? 16 : 64;
+      // Never tuck the target under the sticky "All sections" bar.
+      var bar = document.getElementById('step-bar');
+      if (bar && !bar.hidden) offset = Math.max(offset, bar.getBoundingClientRect().height + 8);
       window.scrollTo(0, Math.max(0, window.scrollY + r.top - offset));
     }
     place();
