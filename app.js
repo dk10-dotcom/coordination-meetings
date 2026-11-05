@@ -142,7 +142,7 @@
     var out = list.filter(function (x) { return x && typeof x === 'object'; }).map(function (x) {
       var o = maker();
       keys.forEach(function (k) { o[k] = str(x[k]); });
-      o.sac = !!x.sac; o.temple = !!x.temple; o.committed = !!x.committed; o.actionCarried = !!x.actionCarried;
+      o.sac = !!x.sac; o.temple = !!x.temple; o.committed = !!x.committed; o.actionCarried = !!x.actionCarried; o.texted = !!x.texted;
       return o;
     });
     return out.length ? out : [maker()];
@@ -252,6 +252,7 @@
     return el;
   }
   var ICONS = {
+    chat: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4.5h12v7.5H8l-3.5 3v-3H3z"/></svg>',
     check: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>',
     plus: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>',
     x: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 5l8 8M13 5l-8 8"/></svg>'
@@ -417,6 +418,47 @@
   function zoneLabel(kind, text) {
     return h('p', { class: 'zone-label zone-' + kind }, [h('span', { class: 'zone-dot', 'aria-hidden': 'true' }), text]);
   }
+  /* ---------- Text an assignment ----------
+   * Opens Messages with the assignment written out, so the person assigned leaves the huddle with a text.
+   * Only the name on the card, the action and when go in it: no needs, notes, list or ordinance. Nothing is stored or sent by the app. */
+  function assignmentText(base) {
+    var who = str(getPath(base + 'name')).trim(), act = str(getPath(base + 'action')).trim(), when = str(getPath(base + 'when')).trim();
+    var ward = state.ward.trim();
+    return ['Your assignment from the ' + (ward ? ward + ' ' : '') + 'coordination huddle:',
+      who ? 'For: ' + who : null, 'What: ' + act, when ? 'When: ' + when : null,
+      'Please report back at next week’s huddle. Thank you!'].filter(Boolean).join('\n');
+  }
+  function textReady(base) { return !!(str(getPath(base + 'action')).trim() && str(getPath(base + 'assigned')).trim()); }
+  function textAssignLabel(base) { return getPath(base + 'texted') ? 'Texted · Send again' : 'Text this assignment'; }
+  function textAssignButton(base) {
+    var sent = !!getPath(base + 'texted');
+    return h('button', { type: 'button', class: 'btn-text-assign' + (sent ? ' sent' : ''), 'data-action': 'text-assign', 'data-a': base, hidden: !textReady(base) }, [
+      icon(sent ? 'check' : 'chat'), h('span', { class: 'bta-label', text: textAssignLabel(base) })
+    ]);
+  }
+  function refreshTextButton(base, scope) {
+    var btn = (scope || document).querySelector('.btn-text-assign[data-a="' + base + '"]');
+    if (!btn) return;
+    var sent = !!getPath(base + 'texted');
+    btn.hidden = !textReady(base); btn.classList.toggle('sent', sent);
+    btn.replaceChildren(icon(sent ? 'check' : 'chat'), h('span', { class: 'bta-label', text: textAssignLabel(base) }));
+  }
+  function textAssignment(base) {
+    if (state.loaded && state.loaded.practice) { toast('Practice week: texting is turned off for sample names.'); return; }
+    if (!textReady(base)) return;
+    var body = assignmentText(base);
+    var phone = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent)) ||
+      !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+    if (phone) {
+      var link = document.createElement('a');
+      link.href = 'sms:?&body=' + encodeURIComponent(body);
+      document.body.appendChild(link); link.click(); link.remove();
+      toast('Messages is opening. Pick who to send it to.', 5000);
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(body).then(function () { toast('Copied. Paste it into a text message.'); }, function () { toast('Couldn’t copy. Try on your phone.'); });
+    } else { toast('Open the agenda on your phone to text assignments.'); }
+    setPath(base + 'texted', true); refreshTextButton(base); saveDraft();
+  }
   function cardFields(base, nameLabel, namePh, whenPh, tag, withBap, needPh, ordPh, wcExtra, fixedOrd) {
     var hneedVal = str(getPath(base + 'hneed')).trim();
     var hneedField = field('Huddle notes', base + 'hneed', { full: true, multi: true, placeholder: 'Anything to relay back to ward council' });
@@ -443,6 +485,7 @@
             field('Assigned to', base + 'assigned', { placeholder: 'Who will do it', cap: 'words' }),
             field('When', base + 'when', { placeholder: whenPh })
           ]),
+          textAssignButton(base),
           hneedField
         ]),
         hneedLink
@@ -1121,6 +1164,7 @@
         } else openLoad();
         break;
       case 'carry-fwd': carryForward(+a); break;
+      case 'text-assign': textAssignment(a); break;
       case 'undo-carry': confirmUndoCarry(+a); break;
       case 'conducting':
         state.conducting = state.conducting === a ? '' : a;
@@ -2459,6 +2503,9 @@
         var pt = document.querySelector('[data-name-for="' + path + '"]');
         if (pt) { var pv = String(val).trim(); pt.textContent = pv || pt.getAttribute('data-ph'); pt.classList.toggle('empty', !pv); }
       }
+      // Text this assignment: appears once there's an action and someone assigned; editing it after texting resets it.
+      var tm = /^((?:cp\.\w+|tn)\.\d+\.)(name|action|assigned|when)$/.exec(path);
+      if (tm) { if (getPath(tm[1] + 'texted')) setPath(tm[1] + 'texted', false); refreshTextButton(tm[1], t.closest('.card') || document); }
       if (/\.(action|task)$/.test(path) && !String(val).trim()) {
         setPath(path.replace(/action$/, 'actionCarried').replace(/task$/, 'carried'), false);
         var tagEl = t.closest('.field, .fn-assign'); tagEl = tagEl && tagEl.querySelector('.carried-tag'); if (tagEl) tagEl.remove();
