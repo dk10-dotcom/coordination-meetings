@@ -426,7 +426,7 @@
     var ward = state.ward.trim();
     return ['Your assignment from the ' + (ward ? ward + ' ' : '') + 'coordination huddle:',
       who ? 'For: ' + who : null, 'What: ' + act, when ? 'When: ' + when : null,
-      'Please report back at next week’s huddle. Thank you!'].filter(Boolean).join('\n');
+      'Please report back. Thank you!'].filter(Boolean).join('\n');
   }
   function textReady(base) { return !!(str(getPath(base + 'action')).trim() && str(getPath(base + 'assigned')).trim()); }
   function textAssignLabel(base) { return getPath(base + 'texted') ? 'Texted · Send again' : 'Text this assignment'; }
