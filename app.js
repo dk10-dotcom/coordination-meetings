@@ -894,7 +894,8 @@
     var d = parseISO(state.date);
     $('#details-line').replaceChildren(h('b', { text: state.ward.trim() || 'Ward not set' }), ' · ' + (d ? d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : 'No date'));
     var n = state.attendees.length;
-    $('#details-sub').textContent = (conductingLabel(state) ? conductingLabel(state) + ' · ' : '') + (n ? n + ' attended' : 'Attendance not taken yet');
+    // Attendance shows in the same dark orange as other steps that still need action, until it's taken.
+    $('#details-sub').replaceChildren(conductingLabel(state) ? conductingLabel(state) + ' · ' : '', n ? n + ' attended' : h('span', { class: 'warn', text: 'Attendance not taken yet' }));
   }
   function openDetails() { detailsOpen = true; if (view !== 'home') showView('home', 'replace'); renderDetails(); }
   window.HuddleView = {
@@ -1048,7 +1049,18 @@
       case 'open-step': showView(a, 'push'); break;
       case 'steps-home': goHome(); break;
       case 'step-done': {
-        state.stepsDone[view] = true; saveDraft(); goHome();
+        var doneView = view;
+        var finish = function () { state.stepsDone[doneView] = true; saveDraft(); goHome(); };
+        // Covenant Path Report Review: check the report in Tools was updated before checking it off.
+        var hasPeople = GROUPS.some(function (g) { return countNamed(g.id) > 0; });
+        if (doneView === 'cp' && !state.stepsDone.cp && hasPeople) {
+          ask({
+            title: 'Did you update the Covenant Path Report in Tools?',
+            body: 'Update sacrament attendance, temple attendance and anything else that changed for the people in this section.',
+            primary: 'Yes, mark done', onPrimary: finish,
+            secondary: 'Not yet', onSecondary: function () { toast('Update it in Tools, then tap Mark section done.', 5000); }
+          });
+        } else finish();
         break;
       }
       case 'step-prev': {
