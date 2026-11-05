@@ -180,6 +180,8 @@ h2 { font-size: 22px; font-weight: 700; color: var(--ink); }
 .loaded-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 auto; }
 .loaded-title { font-size: 15px; font-weight: 700; color: var(--green-ink); }
 .loaded-sub { font-size: 13px; color: #2F5A3D; overflow-wrap: anywhere; }
+.practice-entry .agenda-row { background: #FFF6E5; border-color: #EBCB7A; }
+.practice-entry .agenda-row-title { color: #7A5200; }
 .loaded-banner.practice { background: #FFF6E5; border-color: #EBCB7A; }
 .loaded-banner.practice .loaded-title { color: #7A5200; }
 .loaded-banner.practice .loaded-sub { color: #6B4A00; }

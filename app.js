@@ -1644,6 +1644,18 @@
     }
     savedById = {};
     var wrap = $('#agenda-list');
+    // The practice week is always offered at the end of the list, so it's there even after real agendas are saved.
+    var pchev = h('span', { class: 'chev', 'aria-hidden': 'true' });
+    pchev.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4l5 5-5 5"/></svg>';
+    var practiceRow = h('div', { class: 'agenda-entry practice-entry' }, [
+      h('button', { type: 'button', class: 'agenda-row', 'data-action': 'practice' }, [
+        h('span', { class: 'agenda-row-text' }, [
+          h('span', { class: 'agenda-row-title', text: 'Practice week' }),
+          h('span', { class: 'agenda-row-sub', text: 'Sample names · 7 action items · can’t be sent or saved' })
+        ]),
+        pchev
+      ])
+    ]);
     wrap.replaceChildren.apply(wrap, list.map(function (r) {
       savedById[r.id] = r;
       var n = extractActionItems(r.data).length;
@@ -1663,7 +1675,7 @@
           h('button', { type: 'button', class: 'btn-small', 'data-action': 'share-agenda', 'data-a': r.id, 'aria-label': 'Share the ' + shortDate(r.date) + ' agenda again', text: 'Share again' })
         ])
       ]);
-    }));
+    }).concat([practiceRow]));
     openOverlay('#load-sheet', '.agenda-row');
   }
 
