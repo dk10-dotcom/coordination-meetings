@@ -623,6 +623,10 @@ body.touring .actionbar { z-index: 10; }
 .help-warning { display: flex; align-items: center; gap: 10px; margin: 0; padding: 12px 14px; border-radius: 12px; background: #FBEAEA; border: 1.5px solid #E8B4B4; font-size: 15px; color: #7A1C1C; }
 .help-warning strong { color: #8E1F1F; }
 .help-warning-icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #B22A2A; color: #FFFFFF; font-size: 15px; font-weight: 800; }
+.help-video { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px 14px; border-radius: 12px; background: var(--card); border: 1px solid var(--accent-line); }
+.help-video-title { margin: 0; font-size: 16px; font-weight: 700; color: var(--ink); }
+.help-video-sub { margin: 0; font-size: 13px; color: var(--text); }
+.help-video video { display: block; width: 100%; aspect-ratio: 16 / 9; margin-top: 6px; border-radius: 8px; background: #F3F5F9; border: 1px solid var(--line); }
 .btn-sample { margin-top: -6px; text-decoration: none; background: var(--card); border-color: var(--accent-line); }
 
 /* Sample agenda viewer: a Close button that stays at the top while scrolling */

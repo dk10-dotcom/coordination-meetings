@@ -926,6 +926,7 @@
   }
   function closeOverlay(id) {
     $(id).hidden = true;
+    Array.prototype.forEach.call($(id).querySelectorAll('video'), function (v) { try { v.pause(); } catch (e) { /* ignore */ } });
     if (!document.querySelector('.overlay:not([hidden])')) document.body.style.overflow = '';
     if (lastFocus && lastFocus.focus) { try { lastFocus.focus({ preventScroll: true }); } catch (e) { /* ignore */ } }
   }
