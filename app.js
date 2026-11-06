@@ -205,6 +205,22 @@
     return f;
   }
 
+  /* ---------- Covenant Path Report link ----------
+   * iPhone: membertools:// opens the Member Tools app (tested). Android: open the app by its ID, or the web report if it isn't installed.
+   * Anything else: the report in Leader and Clerk Resources. Member Tools opens to its home screen; the report is under Reports. */
+  var LCR_REPORT = 'https://lcr.churchofjesuschrist.org/one-work/progress-record?lang=eng';
+  function toolsHref() {
+    var ua = navigator.userAgent || '';
+    if (/iPhone|iPad|iPod/.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua))) return 'membertools://';
+    if (/Android/.test(ua)) return 'intent://#Intent;package=org.lds.ldstools;S.browser_fallback_url=' + encodeURIComponent(LCR_REPORT) + ';end';
+    return LCR_REPORT;
+  }
+  function setToolsLinks() {
+    var href = toolsHref();
+    Array.prototype.forEach.call(document.querySelectorAll('[data-tools-link]'), function (a) { a.setAttribute('href', href); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setToolsLinks); else setToolsLinks();
+
   var state = normalizeState(readJSON('sessionStorage', DRAFT_KEY));
   var draftTimer = null;
   function saveDraft() {
@@ -998,6 +1014,8 @@
     $('#confirm-sheet .ok-icon').hidden = !opts.success;
     $('#confirm-body').textContent = opts.body || '';
     $('#confirm-body').hidden = !opts.body;
+    var cl = $('#confirm-link');
+    if (cl) { cl.hidden = !opts.link; if (opts.link) cl.textContent = opts.link; }
     var cmp = $('#confirm-compare');
     if (opts.compare && opts.compare.length) {
       cmp.replaceChildren.apply(cmp, opts.compare.map(function (row) {
@@ -1114,6 +1132,7 @@
             title: 'Did you update the Covenant Path Report in Tools?',
             body: 'Update sacrament attendance, temple attendance and anything else that changed for the people in this section.',
             primary: 'Yes, mark done', onPrimary: finish,
+            link: 'Open the Covenant Path Report',
             secondary: 'Not yet', onSecondary: function () { toast('Update it in Tools, then tap Mark section done.', 5000); }
           });
         } else finish();
