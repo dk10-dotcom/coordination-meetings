@@ -920,8 +920,9 @@
     $('#step-done-label').textContent = state.stepsDone[view] ? 'Done · Back to all sections' : 'Mark section done';
     var sn = $('#step-next'), sp = $('#step-prev');
     sn.hidden = !nxt; sp.hidden = !prv;
-    if (nxt) sn.replaceChildren(h('span', { class: 'step-nav-k', text: 'Next ›' }), h('span', { class: 'step-nav-t', text: nxt.title }));
-    if (prv) sp.replaceChildren(h('span', { class: 'step-nav-k', text: '‹ Back' }), h('span', { class: 'step-nav-t', text: prv.title }));
+    // A quiet shortcut line, not steps: "‹ Return and Report · Name Next Ordinance ›"
+    if (nxt) { sn.textContent = nxt.title + ' ›'; sn.setAttribute('aria-label', 'Go to ' + nxt.title); }
+    if (prv) { sp.textContent = '‹ ' + prv.title; sp.setAttribute('aria-label', 'Go to ' + prv.title); }
   }
   // Which parts of the page show: the step list (home), one step, or everything (view-all).
   function applyView() {
@@ -933,6 +934,8 @@
     $('header.top').hidden = !home; $('.start-here').hidden = !home; $('.fine-notes').hidden = !home;
     $('#steps-home').hidden = all || view !== 'home';
     $('#step-bar').hidden = all || home; $('#step-foot').hidden = all || home;
+    // Save and Send live on the home screen, where all four sections come together; inside a section they're hidden.
+    var bar = $('.actionbar'); if (bar) bar.hidden = !all && !home;
     Array.prototype.forEach.call(document.querySelectorAll('[data-step]'), function (el) { el.hidden = !all && el.getAttribute('data-step') !== view; });
     Array.prototype.forEach.call(document.querySelectorAll('.week-band'), function (el) { el.hidden = !all; });
     renderDetails(); renderSteps();

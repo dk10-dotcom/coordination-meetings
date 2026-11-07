@@ -761,13 +761,11 @@ body.steps-on .wrap { gap: 16px; }
 body.steps-on[data-view="home"] .load-panel .hint { display: none; }
 body.steps-on[data-view="home"] .load-panel { padding: 0; border: none; background: none; box-shadow: none; }
 body.steps-on .btn-done { display: none; }
-.step-nav { display: flex; justify-content: space-between; gap: 12px; width: 100%; }
-.step-nav-btn { display: flex; flex-direction: column; gap: 2px; max-width: 48%; min-height: 52px; padding: 8px 12px; border-radius: 12px;
-  border: 1px solid var(--card-line); background: var(--card); font: inherit; color: var(--accent); cursor: pointer; text-align: left; }
-.step-nav-btn.next { margin-left: auto; text-align: right; align-items: flex-end; }
+.step-nav { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; width: 100%; }
+.step-nav-btn { max-width: 48%; min-height: 40px; padding: 8px 2px; border: 0; background: none; font: inherit; font-size: 14px; font-weight: 600; line-height: 1.3;
+  color: var(--accent); text-align: left; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--accent-line); cursor: pointer; }
+.step-nav-btn.next { margin-left: auto; text-align: right; }
 .step-nav-btn[hidden] { display: none; }
-.step-nav-k { font-size: 13px; font-weight: 800; }
-.step-nav-t { font-size: 14px; font-weight: 600; color: var(--ink); line-height: 1.25; }
 
 /* The name, typed right in the bold title at the top of each card */
 .card-head.name-head { flex-wrap: wrap; row-gap: 10px; }
