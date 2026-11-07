@@ -38,8 +38,8 @@
 
   <div class="step-bar" id="step-bar" hidden>
     <button type="button" class="step-back" data-action="steps-home" aria-label="Back to all sections">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M11 3.5L5.5 9l5.5 5.5"/></svg>
-      All sections
+      <svg width="20" height="20" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M11 3.5L5.5 9l5.5 5.5"/></svg>
+      Back
     </button>
   </div>
 
@@ -102,7 +102,10 @@
       <span class="step-chev" aria-hidden="true">›</span>
     </button>
     <div class="details-full" id="details-full">
-    <p class="details-head">Huddle Details</p>
+    <div class="details-head">
+      <span class="details-head-title">Huddle Details</span>
+      <button type="button" class="btn-collapse" data-action="close-details" aria-label="Close huddle details">Close<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M3.5 10L8 5.5l4.5 4.5"/></svg></button>
+    </div>
     <div class="grid-2">
       <label class="field">Ward
         <input type="text" id="ward" data-bind="ward" placeholder="Ward name" autocomplete="off" autocapitalize="words">
@@ -206,6 +209,7 @@
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M3.5 9.5l3.5 3.3L14.5 5"/></svg>
       <span id="step-done-label">Mark section done</span>
     </button>
+    <button type="button" class="btn-link step-undone" data-action="step-undone" hidden>Marked by mistake? Mark as not done</button>
     <div class="step-nav">
       <button type="button" class="step-nav-btn prev" data-action="step-prev" id="step-prev"></button>
       <button type="button" class="step-nav-btn next" data-action="step-next" id="step-next"></button>
@@ -395,7 +399,7 @@
       <p><strong>After huddle:</strong> Send it to the bishop-approved list, the stake presidency and the full-time missionaries. It’s critical to keep the Covenant Path Report in Tools updated as needs are met and tasks are completed, including sacrament attendance.</p>
     </div>
 
-    <p class="help-steps-note"><strong>The agenda has four sections:</strong> Return and Report, Covenant Path Report Review, Name Next Ordinance, and Find New People to Teach. Open them in any order. Tap <strong>Mark section done</strong> to give a section a green check, and tap <strong>All sections</strong> to go back. If something is still missing, like an action item, the section’s status stays orange. Marking <strong>Covenant Path Report Review</strong> done asks whether you’ve updated the report in Tools.</p>
+    <p class="help-steps-note"><strong>The agenda has four sections:</strong> Return and Report, Covenant Path Report Review, Name Next Ordinance, and Find New People to Teach. Open them in any order. Tap <strong>Mark section done</strong> to give a section a green check, and tap <strong>Back</strong> to return to the list. Checked one by mistake? Tap <strong>Undo</strong> right away, or open the section and tap <strong>Mark as not done</strong>. If something is still missing, like an action item, the section’s status stays orange. Marking <strong>Covenant Path Report Review</strong> done asks whether you’ve updated the report in Tools.</p>
 
     <ol class="help-steps">
       <li>
@@ -433,7 +437,7 @@
         </ul>
       </li>
       <li>
-        <p><strong>Send it.</strong> From the home screen (tap <strong>All sections</strong>), tap <strong>Send &amp; Clear</strong>, then <strong>Share PDF</strong>, and pick Mail or Messages. A copy is saved on your phone and the form clears for next week.</p>
+        <p><strong>Send it.</strong> From the home screen (tap <strong>Back</strong>), tap <strong>Send &amp; Clear</strong>, then <strong>Share PDF</strong>, and pick Mail or Messages. A copy is saved on your phone and the form clears for next week.</p>
         <ul>
           <li><strong>Saved agendas last 4 weeks,</strong> then delete themselves. They live only on that phone, in that app.</li>
           <li><strong>Send to the bishop-approved list, the stake presidency and the full-time missionaries.</strong> Make sure the elders quorum representative is included, so he can run the next meeting if you’re away.</li>

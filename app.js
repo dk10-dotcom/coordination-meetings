@@ -917,7 +917,8 @@
     var i = STEPS.findIndex(function (st) { return st.id === view; });
     if (i < 0) return;
     var nxt = STEPS[i + 1], prv = STEPS[i - 1];
-    $('#step-done-label').textContent = state.stepsDone[view] ? 'Done · Back to all sections' : 'Mark section done';
+    $('#step-done-label').textContent = state.stepsDone[view] ? 'Section done · Back' : 'Mark section done';
+    var und = $('.step-undone'); if (und) und.hidden = !state.stepsDone[view];
     var sn = $('#step-next'), sp = $('#step-prev');
     sn.hidden = !nxt; sp.hidden = !prv;
     // A quiet shortcut line, not steps: "‹ Return and Report · Name Next Ordinance ›"
@@ -982,9 +983,15 @@
 
   /* ---------- toast & sheets ---------- */
   var toastTimer = null;
-  function toast(msg, ms) {
+  function toast(msg, ms, action) {
     var t = $('#toast');
-    t.textContent = msg; t.hidden = false;
+    t.replaceChildren(h('span', { text: msg }));
+    if (action) {
+      var ab = h('button', { type: 'button', class: 'toast-action', text: action.label });
+      ab.addEventListener('click', function () { t.hidden = true; clearTimeout(toastTimer); action.run(); });
+      t.appendChild(ab);
+    }
+    t.hidden = false;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { t.hidden = true; }, ms || 3200);
   }
@@ -1127,7 +1134,11 @@
       case 'steps-home': goHome(); break;
       case 'step-done': {
         var doneView = view;
-        var finish = function () { state.stepsDone[doneView] = true; saveDraft(); goHome(); };
+        var finish = function () {
+          state.stepsDone[doneView] = true; saveDraft(); goHome();
+          var st = STEPS.filter(function (x) { return x.id === doneView; })[0];
+          toast((st ? st.title : 'Section') + ' marked done.', 6000, { label: 'Undo', run: function () { delete state.stepsDone[doneView]; saveDraft(); } });
+        };
         // Covenant Path Report Review: check the report in Tools was updated before checking it off.
         var hasPeople = GROUPS.some(function (g) { return countNamed(g.id) > 0; });
         if (doneView === 'cp' && !state.stepsDone.cp && hasPeople) {
@@ -1141,6 +1152,7 @@
         } else finish();
         break;
       }
+      case 'step-undone': delete state.stepsDone[view]; saveDraft(); renderStepFoot(); toast('Marked as not done.'); break;
       case 'step-prev': {
         var pi = STEPS.findIndex(function (st) { return st.id === view; });
         if (pi > 0) showView(STEPS[pi - 1].id, 'replace');

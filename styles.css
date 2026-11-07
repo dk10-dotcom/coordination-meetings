@@ -337,6 +337,7 @@ body.typing .actionbar { position: static; }
   max-width: calc(100% - 32px); width: max-content;
   background: var(--ink); color: #FFFFFF; padding: 12px 16px; border-radius: 12px;
   font-size: 15px; font-weight: 600; box-shadow: 0 6px 20px rgba(20, 30, 50, 0.25);
+  display: flex; align-items: center;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -712,8 +713,9 @@ body.touring .actionbar { z-index: 10; }
 .step-bar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 10px;
   margin: calc(-1 * max(24px, env(safe-area-inset-top, 0px))) -16px 0; padding: max(10px, env(safe-area-inset-top, 0px)) 16px 8px; background: rgba(243,245,249,.96);
   border-bottom: 1px solid var(--line); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-.step-back { display: inline-flex; align-items: center; gap: 4px; min-height: 40px; padding: 0 12px 0 6px; border: none; background: none;
-  color: var(--accent); font-size: 16px; font-weight: 700; cursor: pointer; }
+.step-back { display: inline-flex; align-items: center; gap: 6px; min-height: 46px; padding: 0 20px 0 12px; border: none; border-radius: 999px;
+  background: var(--accent); color: #FFFFFF; font: inherit; font-size: 17px; font-weight: 800; cursor: pointer; box-shadow: 0 1px 2px rgba(27,43,75,.15); }
+.step-back:active { filter: brightness(.92); }
 .step-foot { display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 6px; }
 .step-foot .btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .step-foot .btn-link { min-height: 44px; font-weight: 700; color: var(--accent); }
@@ -733,7 +735,12 @@ body.touring .actionbar { z-index: 10; }
 .details-head { display: none; font-size: 17px; font-weight: 800; color: var(--ink); }
 /* Open Huddle Details sit between two rules so they read as their own block. */
 body.steps-on .details-full { border-top: 1.5px solid #C5CEDB; border-bottom: 1.5px solid #C5CEDB; padding: 16px 0 18px; }
-body.steps-on .details-head { display: block; }
+body.steps-on .details-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.btn-collapse { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--accent-line);
+  background: var(--card); color: var(--accent); font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+.step-undone { min-height: 40px; font-size: 14px; color: var(--muted); }
+.toast-action { flex: none; margin-left: 12px; min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1.5px solid rgba(255,255,255,.7);
+  background: transparent; color: #FFFFFF; font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; }
 
 /* Four steps: a compact home so the steps show without scrolling */
 .cp-reminder { display: none; font-size: 14px; color: var(--text); }
