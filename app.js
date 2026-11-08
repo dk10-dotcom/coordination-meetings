@@ -396,7 +396,9 @@
           carry = h('button', { type: 'button', class: 'btn-outline full btn-carry', 'data-action': 'carry-fwd', 'data-a': i, text: 'Carry forward to this week' });
         }
       }
-      return h('div', { class: 'card rr-card' + (gid ? ' g-' + gid : ''), 'data-status': statusOf(r.happened) }, [head, body, seg, carry, field('Notes', 'rr.' + i + '.notes', { placeholder: 'Optional' })]);
+      return h('div', { class: 'card rr-card' + (gid ? ' g-' + gid : ''), 'data-status': statusOf(r.happened) }, [head, body,
+        // Happened? and the notes stay together so the tour can point at them.
+        h('div', { class: 'rr-answer' }, [seg, carry, field('Notes for ward council', 'rr.' + i + '.notes', { placeholder: 'Optional' })])]);
   }
 
   function statusOf(v) { return { Yes: 'yes', Partly: 'partly', No: 'no' }[v] || ''; }
