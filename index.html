@@ -57,6 +57,11 @@
         </button>
       </div>
     </div>
+    <button type="button" class="meeting-date" id="meeting-date" data-action="edit-date" aria-label="Change the meeting date">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4.5" width="14" height="12.5" rx="2"/><path d="M3 8.5h14M7 2.8v3.4M13 2.8v3.4"/></svg>
+      <span class="md-text">Meeting date</span>
+    </button>
+    <p class="sent-line" id="sent-line" hidden></p>
     <p class="meeting-time">About 15 minutes</p>
     <div class="info-pair" aria-label="How this works">
       <div class="info-card blue">
@@ -71,7 +76,19 @@
       </div>
     </div>
     <section class="start-here" aria-label="Load last week">
-        <div class="load-panel" id="load-panel">
+        <div class="newweek-panel" id="newweek-panel" hidden>
+        <p class="newweek-due" id="newweek-due" hidden></p>
+        <div class="newweek-row">
+          <button type="button" class="btn-outline newweek-btn" id="newweek-btn" data-action="new-agenda">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M14.5 6.5A6 6 0 1 0 15 11"/><path d="M15 2.8v3.9h-3.9"/></svg>
+            Start a new agenda
+          </button>
+          <button type="button" class="info-btn" data-action="newweek-info" aria-label="What Start a new agenda does" aria-expanded="false">i</button>
+        </div>
+        <p class="newweek-info" id="newweek-info" hidden>Keeps your names and needs. Moves last week’s actions into Return and Report.</p>
+        <button type="button" class="btn-link newweek-load" data-action="load-other">Or load a saved or shared agenda</button>
+      </div>
+      <div class="load-panel" id="load-panel">
           <button type="button" class="btn-outline" data-action="load">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5h6l3 3v10h-9z"/><path d="M10.5 2.5v3h3"/><path d="M9 8v5M6.8 10.8L9 13l2.2-2.2"/></svg>
             Load last week
@@ -227,7 +244,7 @@
       <button type="button" class="btn-secondary btn-save" data-action="save-only">Save without sending</button>
       <button type="button" class="btn-primary" data-action="send">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11.5V2.5M5.5 6L9 2.5 12.5 6"/><path d="M3.5 9.5v5h11v-5"/></svg>
-        Send &amp; Clear
+        <span id="send-label">Send</span>
       </button>
     </div>
   </div>
@@ -253,8 +270,8 @@
     <button type="button" class="btn-primary full" data-action="share" id="share-btn" disabled>Share PDF</button>
 
     <div class="after-download" id="after-download" hidden>
-      <p>Attach the downloaded PDF to an email or message. When it’s sent, clear the form.</p>
-      <button type="button" class="btn-secondary full" data-action="clear-now">Clear the form</button>
+      <p>Attach the downloaded PDF to an email or message. The agenda stays filled in for follow-up this week.</p>
+      <button type="button" class="btn-secondary full" data-action="clear-now">Done</button>
     </div>
 
     <button type="button" class="btn-secondary full" data-action="close-send">Keep editing</button>
@@ -394,9 +411,10 @@
     <p class="help-warning"><span class="help-warning-icon" aria-hidden="true">!</span><span><strong>Never add confidential information to this agenda.</strong></span></p>
 
     <div class="help-rhythm">
-      <p><strong>Before huddle:</strong> Load last week’s agenda and check the names against the Covenant Path Report (in Tools). In the <strong>Covenant Path Report Review</strong> and <strong>Name Next Ordinance</strong> sections, fill in each person’s name and next ordinance, and identify a need.</p>
-      <p><strong>During huddle:</strong> Take attendance, mark what happened last week, and check sacrament attendance. Then plan one action item per person: who will do it, and when, and text each assignment before everyone leaves. Make plans to help find new people to teach in <strong>Plans to Find New People to Teach</strong>.</p>
-      <p><strong>After huddle:</strong> Send it to the bishop-approved list, the stake presidency and the full-time missionaries. It’s critical to keep the Covenant Path Report in Tools updated as needs are met and tasks are completed, including sacrament attendance.</p>
+      <p><strong>In ward council:</strong> Tap <strong>Start a new agenda</strong>. Last week’s action items move into Return and Report, and your names and needs stay. Check the names against the Covenant Path Report (in Tools), and update each person’s next ordinance and need.</p>
+      <p><strong>During huddle:</strong> Take attendance, mark what happened last week, and check sacrament attendance. Then plan one action item per person (who will do it, and when) and text each assignment before everyone leaves. Make plans in <strong>Plans to Find New People to Teach</strong>.</p>
+      <p><strong>After huddle:</strong> Send it to the bishop-approved list, the stake presidency and the full-time missionaries. The agenda stays filled in for the week.</p>
+      <p><strong>During the week:</strong> Tap <strong>Mark completed</strong> when someone finishes an assignment, and update names and needs as things change. Keep the Covenant Path Report in Tools updated, including sacrament attendance.</p>
     </div>
 
     <p class="help-steps-note"><strong>The agenda has four sections:</strong> Return and Report, Covenant Path Report Review, Name Next Ordinance, and Find New People to Teach. Open them in any order. Tap <strong>Mark section done</strong> to give a section a green check, and tap <strong>Back</strong> to return to the list. Checked one by mistake? Tap <strong>Undo</strong> right away, or open the section and tap <strong>Mark as not done</strong>. If something is still missing, like an action item, the section’s status stays orange. Marking <strong>Covenant Path Report Review</strong> done asks whether you’ve updated the report in Tools.</p>
@@ -405,19 +423,21 @@
       <li>
         <p><strong>Add it to your Home Screen first, before you fill anything in.</strong> Tap <strong>Add to Home Screen</strong> at the top (iPhone: use Safari; Android: use Chrome). From then on, open it from the new icon. On iPhone, anything saved in Safari won’t carry over to the app.</p>
         <ul>
-          <li><strong>Don’t delete the Home Screen icon.</strong> Deleting it erases every agenda saved on that phone, and previous weeks will no longer show in Load last week. PDFs you already shared aren’t affected, and you can still use <strong>Load from a file</strong>.</li>
+          <li><strong>Don’t delete the Home Screen icon.</strong> Deleting it erases the agenda and every saved copy on that phone. PDFs you already shared aren’t affected, and you can still use <strong>Load from a file</strong>.</li>
         </ul>
       </li>
       <li>
-        <p><strong>Before the meeting, tap Load last week</strong> (under the Ward Council and huddle boxes) and choose last week’s agenda. First week? Skip loading and add the names from the Covenant Path Report, or choose <strong>Practice week</strong> at the bottom of the list to try it with sample names.</p>
+        <p><strong>Each week in ward council, tap Start a new agenda</strong> (under the Ward Council and huddle boxes). Last week’s action items move into Return and Report, and anything marked <strong>Completed</strong> during the week is already marked Yes. Names, next ordinances and needs stay; attendance, answers and checks clear. Tap the <strong>i</strong> next to the button to see this anytime.</p>
         <ul>
-          <li>Last week’s names carry over, including the Name Next Ordinance focus names, marked <strong>From last week</strong>. Compare them to this week’s Covenant Path Report in Tools: add anyone new, remove anyone no longer listed, and fill in each person’s next ordinance and need.</li>
+          <li><strong>The date at the top</strong> shows which meeting you’re working on. Tap it to change the date. Once the meeting date has passed, Start a new agenda turns blue so it’s easy to spot.</li>
+          <li><strong>First time?</strong> Tap <strong>Load last week</strong> to load last week’s agenda, choose <strong>Practice week</strong> to try it with sample names, or add the names from the Covenant Path Report.</li>
+          <li>Names carried into the new agenda are marked <strong>From last week</strong>. Compare them to this week’s Covenant Path Report in Tools: add anyone new, remove anyone no longer listed, and update each person’s next ordinance and need.</li>
           <li><strong>New members:</strong> enter the baptism date. The red <strong>Temple attendance</strong> box counts down the 30 days to baptisms for the dead and stays red, week after week, until you check it.</li>
           <li><strong>Those being taught:</strong> check <strong>Committed to baptism</strong> and enter the scheduled baptismal date once it’s set. Once they’re baptized, tap <strong>Convert to new member</strong> to move them to New members.</li>
           <li><strong>No one in a list this week?</strong> Tap <strong>Confirm none this week</strong> on that list. The PDF then shows it was reviewed and empty; a list left blank prints <strong>Not reviewed</strong>.</li>
           <li>Under <strong>Name Next Ordinance</strong>, add the focus names from Ward Council, with each person’s next ordinance and need.</li>
-          <li>Last week’s action items appear under <strong>Return and Report</strong>, color-coded by list.</li>
-          <li><strong>Someone else running the meeting?</strong> They use <strong>Load from a file</strong> with last week’s PDF.</li>
+          <li><strong>Names nobody has updated in 4 weeks</strong> ask “Still on the Covenant Path Report?” Tap <strong>Keep</strong> or <strong>Remove</strong>. After 5 weeks with no changes, a name is removed automatically.</li>
+          <li><strong>Someone else running the meeting?</strong> On their phone, they tap <strong>Load last week</strong> (or <strong>Or load a saved or shared agenda</strong>) and choose <strong>Load from a file</strong> with your last PDF.</li>
         </ul>
       </li>
       <li>
@@ -437,12 +457,19 @@
         </ul>
       </li>
       <li>
-        <p><strong>Send it.</strong> From the home screen (tap <strong>Back</strong>), tap <strong>Send &amp; Clear</strong>, then <strong>Share PDF</strong>, and pick Mail or Messages. A copy is saved on your phone and the form clears for next week.</p>
+        <p><strong>Send it.</strong> From the home screen (tap <strong>Back</strong>), tap <strong>Send</strong>, then <strong>Share PDF</strong>, and pick Mail or Messages. If anything is still open, <strong>Ready to send?</strong> lists it first; tap a line to go there, or send anyway.</p>
         <ul>
-          <li><strong>Saved agendas last 4 weeks,</strong> then delete themselves. They live only on that phone, in that app.</li>
+          <li><strong>The agenda stays filled in.</strong> A green line under the date shows when it was sent. Change something afterward and it turns orange, <strong>Changed since sent</strong>; tap <strong>Send again</strong> to share the update.</li>
           <li><strong>Send to the bishop-approved list, the stake presidency and the full-time missionaries.</strong> Make sure the elders quorum representative is included, so he can run the next meeting if you’re away.</li>
-          <li>Not ready to send? Tap <strong>Save without sending</strong>. It saves a copy and keeps the form filled in. This is helpful while you’re preparing the agenda before the huddle.</li>
-          <li>Need to fix something or resend? Tap <strong>Load last week</strong>, then <strong>Open to edit</strong> or <strong>Share again</strong>.</li>
+          <li><strong>A copy of each agenda is kept for 4 weeks,</strong> then deletes itself. It lives only on that phone, in that app.</li>
+          <li>Not ready to send? Tap <strong>Save without sending</strong> to keep a copy.</li>
+          <li>Need to resend an older week? Tap <strong>Or load a saved or shared agenda</strong>, then <strong>Share again</strong> or <strong>Open to edit</strong>.</li>
+        </ul>
+      </li>
+      <li>
+        <p><strong>Follow up during the week.</strong> When someone finishes an assignment, open their card and tap <strong>Mark completed</strong>. It shows as <strong>Yes</strong> in next week’s Return and Report. Marking Completed doesn’t count as a change to the agenda you sent.</p>
+        <ul>
+          <li>Update names, needs and next ordinances as things change, and keep the Covenant Path Report in Tools current.</li>
         </ul>
       </li>
     </ol>

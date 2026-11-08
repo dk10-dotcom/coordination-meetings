@@ -1,7 +1,8 @@
 /* Weekly Coordination Meeting Agenda
  * Everything runs on the device. Nothing is sent to a server.
- * - The form keeps a temporary draft in this browser tab only (sessionStorage),
- *   so a reload mid-meeting doesn't lose work. It is erased by Send & Clear or Clear.
+ * - The agenda stays filled in on this phone (localStorage) from week to week. Send shares the PDF
+ *   without clearing it; "Start a new agenda" moves last week's actions into Return and Report.
+ *   Names not touched in 5 weeks are removed, so nothing stays longer than the saved copies do.
  * - The ward name is remembered on this device (localStorage) for convenience.
  * - Send builds a flattened PDF with pdf-lib and hands it to the phone's share menu.
  *   A copy of the form data is tucked into the PDF so "Load last week" can read it back.
@@ -10,7 +11,8 @@
 (function () {
   var APP_ID = 'huddle-agenda';
   var DATA_VERSION = 1;
-  var DRAFT_KEY = 'huddle-draft-v1';
+  var DRAFT_KEY = 'huddle-draft-v1', LIVE_KEY = 'huddle-agenda-v1';
+  var STALE_FLAG = 28, STALE_DROP = 35; // days: ask after 4 weeks untouched, remove after 5
   var WARD_KEY = 'huddle-ward';
   var DOC_TITLE = 'Weekly Coordination Meeting Agenda';
   var MAX_AGE_DAYS = 14;
@@ -134,6 +136,7 @@
       tnDone: false, tn: [blankName(), blankName(), blankName()],
       find: blankFind(),
       practiceSnapshot: null,
+      sentAt: '', sentSig: '', rolledFrom: '',
       ftDone: false
     };
   }
@@ -143,6 +146,7 @@
       var o = maker();
       keys.forEach(function (k) { o[k] = str(x[k]); });
       o.sac = !!x.sac; o.temple = !!x.temple; o.committed = !!x.committed; o.actionCarried = !!x.actionCarried; o.texted = !!x.texted;
+      o.doneMid = !!x.doneMid; o.touched = parseISO(str(x.touched)) ? str(x.touched) : '';
       return o;
     });
     return out.length ? out : [maker()];
@@ -181,6 +185,7 @@
     // A practice week remembers the form as it was, so removing it puts everything back.
     f.practiceSnapshot = f.loaded && f.loaded.practice && s.practiceSnapshot && typeof s.practiceSnapshot === 'object' ? s.practiceSnapshot : null;
     f.cpDone = !!s.cpDone; f.tnDone = !!s.tnDone; f.ftDone = !!s.ftDone;
+    f.sentAt = str(s.sentAt); f.sentSig = str(s.sentSig); f.rolledFrom = parseISO(str(s.rolledFrom)) ? str(s.rolledFrom) : '';
     // Lists marked Done stay folded only within the draft; a saved agenda always opens fully.
     var sd = s.stepsDone && typeof s.stepsDone === 'object' ? s.stepsDone : {};
     ['rr', 'cp', 'tn', 'fn'].forEach(function (k) { if (sd[k] === true) f.stepsDone[k] = true; });
@@ -200,7 +205,7 @@
     f.tn = tn.slice(0, 3);
     var fd = s.find && typeof s.find === 'object' ? s.find : {};
     f.find.plan = str(fd.plan);
-    var fi = Array.isArray(fd.items) ? fd.items.filter(function (x) { return x && typeof x === 'object'; }).map(function (x) { return { task: str(x.task), when: str(x.when), carried: !!x.carried }; }) : [];
+    var fi = Array.isArray(fd.items) ? fd.items.filter(function (x) { return x && typeof x === 'object'; }).map(function (x) { return { task: str(x.task), when: str(x.when), carried: !!x.carried, doneMid: !!x.doneMid }; }) : [];
     f.find.items = fi.length ? fi : [blankAssign()];
     return f;
   }
@@ -221,13 +226,15 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setToolsLinks); else setToolsLinks();
 
-  var state = normalizeState(readJSON('sessionStorage', DRAFT_KEY));
+  var state = normalizeState(readJSON('localStorage', LIVE_KEY) || readJSON('sessionStorage', DRAFT_KEY));
+  var staleRemoved = sweepStale(state);
   var draftTimer = null;
   function saveDraft() {
     clearTimeout(draftTimer);
     if (typeof renderSteps === 'function') renderSteps();
     if (tourDemo) return; // the tour's sample card is never saved
-    draftTimer = setTimeout(function () { writeJSON('sessionStorage', DRAFT_KEY, state); }, 250);
+    if (typeof renderSent === 'function') { renderSent(); renderLoadState(); }
+    draftTimer = setTimeout(function () { writeJSON('localStorage', LIVE_KEY, state); }, 250);
   }
   function getPath(path) {
     return path.split('.').reduce(function (o, k) { return o == null ? undefined : o[k]; }, state);
@@ -269,6 +276,7 @@
     return el;
   }
   var ICONS = {
+    circle: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="5.6"/></svg>',
     chat: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4.5h12v7.5H8l-3.5 3v-3H3z"/></svg>',
     check: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>',
     plus: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>',
@@ -504,7 +512,7 @@
             field('Assigned to', base + 'assigned', { placeholder: 'Who will do it', cap: 'words' }),
             field('When', base + 'when', { placeholder: whenPh })
           ]),
-          textAssignButton(base),
+          h('div', { class: 'assign-actions' }, [textAssignButton(base), completedButton(base)]),
           hneedField
         ]),
         hneedLink
@@ -520,7 +528,18 @@
     ]);
   }
   function renderLoadState() {
-    $('#load-panel').hidden = !!state.loaded;
+    // Once the agenda has anything in it, the weekly button is Start a new agenda; Load stays for someone else's agenda.
+    var practice = !!(state.loaded && state.loaded.practice);
+    var live = !isEmpty(state) && !practice;
+    var nw = $('#newweek-panel');
+    if (nw) {
+      nw.hidden = !live;
+      var d = parseISO(state.date), due = live && d && d < parseISO(todayISO());
+      $('#newweek-btn').className = (due ? 'btn-primary' : 'btn-outline') + ' newweek-btn';
+      $('#newweek-due').hidden = !due;
+      if (due) $('#newweek-due').textContent = 'The ' + monthDay(state.date) + ' meeting has passed.';
+    }
+    $('#load-panel').hidden = !!state.loaded || live;
     $('#loaded-banner').hidden = !state.loaded;
     $('#loaded-banner').classList.toggle('practice', !!(state.loaded && state.loaded.practice));
     if (state.loaded && state.loaded.practice) {
@@ -625,6 +644,7 @@
   function cpCard(g, it, i, many) {
         var base = 'cp.' + g.id + '.' + i + '.';
         return h('div', { class: 'card' }, [
+          staleNote(base, it, false),
           h('div', { class: 'card-head name-head' }, [
             h('div', { class: 'card-title' }, [avatar(), nameInput(base + 'name', 'Name'),
               many ? removeButton('remove-cp', g.id, i, 'Remove action ' + (i + 1) + ' for ' + g.title) : null]),
@@ -712,6 +732,7 @@
   function tnCard(n, i) {
     var base = 'tn.' + i + '.';
     return h('div', { class: 'card' }, [
+      staleNote(base, n, true),
       h('div', { class: 'card-head name-head' }, [
         h('div', { class: 'card-title' }, [avatar(), nameInput(base + 'name', 'Focus name ' + (i + 1))]),
         h('div', { class: 'card-head-right' }, [sacToggle(base + 'sac', n.sac)])
@@ -733,7 +754,8 @@
         h('div', { class: 'fn-fields' }, [
           field('Who will do what', base + 'task', { multi: true, placeholder: 'e.g. Bro. Lee invites a neighbor to the ward party' }),
           field('When', base + 'when', { placeholder: 'e.g. Sat' })
-        ])
+        ]),
+        completedButton(base)
       ]);
     });
     wrap.replaceChildren(h('section', { class: 'list-panel list-fn', 'aria-label': 'Plans to find new people to teach' }, [
@@ -857,7 +879,7 @@
     renderDateHint();
     renderAttendees(); renderRR(); renderCP(); renderTN(); renderFN();
     detailsOpen = false; // Huddle Details start closed; tap the box to open them.
-    renderDetails(); renderSteps();
+    renderDetails(); renderSteps(); renderSent();
   }
 
   /* ---------- Four steps: the agenda opens as a short checklist ---------- */
@@ -877,7 +899,7 @@
   function stepStatus(id) {
     if (id === 'rr') {
       var items = state.rr.filter(rrShown), n = items.length;
-      if (!n) return { text: state.loaded ? 'Nothing to report' : 'Load last week to fill this in' };
+      if (!n) return { text: state.loaded || state.rolledFrom ? 'Nothing to report from last week' : isEmpty(state) ? 'Load last week to fill this in' : 'Fills in when you start a new agenda' };
       var marked = items.filter(function (r) { return r.happened; }).length;
       var carried = items.filter(function (r) { return r.carriedFwd; }).length;
       return { text: plural(n, 'item', 'items') + ' · ' + (marked === n ? 'all marked' : marked + ' of ' + n + ' marked') + (carried ? ' · ' + carried + ' carried forward' : ''), warn: marked < n };
@@ -1034,7 +1056,18 @@
         return h('div', { class: 'compare-row' }, [h('span', { text: row[0] }), h('span', { text: row[1] })]);
       }));
       cmp.hidden = false;
+    } else if (opts.jumps && opts.jumps.length) {
+      // "Ready to send?": each open item is a row that goes straight to it.
+      cmp.replaceChildren.apply(cmp, opts.jumps.map(function (j) {
+        var b = h('button', { type: 'button', class: 'jump-row' }, [h('span', { text: j.text }), h('span', { class: 'jump-chev', 'aria-hidden': 'true', text: '›' })]);
+        b.addEventListener('click', function () { closeOverlay('#confirm-sheet'); j.go(); });
+        return b;
+      }));
+      cmp.hidden = false;
     } else { cmp.hidden = true; cmp.replaceChildren(); }
+    cmp.classList.toggle('jumps', !!(opts.jumps && opts.jumps.length));
+    // The explanation reads first when there's a list to tap; a ward/date comparison reads before it.
+    var cb = $('#confirm-body'); if (opts.jumps && opts.jumps.length) cb.after(cmp); else cb.before(cmp);
     var p = $('#confirm-primary'), s = $('#confirm-secondary');
     p.textContent = opts.primary || 'OK';
     p.onclick = function () { closeOverlay('#confirm-sheet'); if (opts.onPrimary) opts.onPrimary(); };
@@ -1047,9 +1080,9 @@
   }
 
   /* ---------- actions ---------- */
-  // keepWard: Send & Clear keeps the ward for next week; the Clear button erases it too.
+  // keepWard keeps the ward name; the Clear button erases it too.
   function clearForm(keepWard) {
-    removeKey('sessionStorage', DRAFT_KEY);
+    removeKey('sessionStorage', DRAFT_KEY); removeKey('localStorage', LIVE_KEY);
     if (!keepWard) { removeKey('localStorage', WARD_KEY); removeKey('localStorage', 'huddle-conducting'); }
     state = freshState(); showBlank = {};
     view = 'home';
@@ -1191,6 +1224,7 @@
         } else doRemoveCP();
         break;
       }
+      case 'load-other':
       case 'load':
         if (state.rr.some(rrHasInput)) {
           ask({
@@ -1203,6 +1237,28 @@
         break;
       case 'carry-fwd': carryForward(+a); break;
       case 'text-assign': textAssignment(a); break;
+      case 'toggle-completed': {
+        var on = !getPath(a + 'doneMid');
+        setPath(a + 'doneMid', on);
+        if (!/^find/.test(a)) setPath(a + 'touched', todayISO());
+        saveDraft(); refreshCompleted(a);
+        if (on) toast('Marked completed. It will show as Yes in next week’s Return and Report.', 5000);
+        break;
+      }
+      case 'stale-keep': setPath(a + 'touched', todayISO()); if (/^tn/.test(a)) renderTN(); else renderCP(); saveDraft(); toast('Kept. It won’t ask again for 4 weeks.'); break;
+      case 'stale-remove': {
+        var sp = a.split('.');
+        if (sp[0] === 'tn') { state.tn[+sp[1]] = blankName(); renderTN(); }
+        else { state.cp[sp[1]].splice(+sp[2], 1); if (!state.cp[sp[1]].length) { state.cp[sp[1]].push(blankAction()); showBlank[sp[1]] = false; } renderCP(); }
+        saveDraft(); toast('Removed.');
+        break;
+      }
+      case 'edit-date': openDetails(); setTimeout(function () { var df = $('#date'); if (df) df.focus(); }, 60); break;
+      case 'newweek-info': {
+        var inf = $('#newweek-info'); inf.hidden = !inf.hidden; btn.setAttribute('aria-expanded', inf.hidden ? 'false' : 'true');
+        break;
+      }
+      case 'new-agenda': confirmNewAgenda(); break;
       case 'undo-carry': confirmUndoCarry(+a); break;
       case 'conducting':
         state.conducting = state.conducting === a ? '' : a;
@@ -1300,7 +1356,7 @@
       case 'send': startSend(); break;
       case 'share': sharePdf(); break;
       case 'save-only': saveWithoutSending(); break;
-      case 'clear-now': closeSend(); clearForm(true); sentDone(true); break;
+      case 'clear-now': closeSend(); sentDone(true); break;
       case 'close-send': closeSend(); break;
     }
   }
@@ -1359,6 +1415,132 @@
       state.cp.nm = tourDemo.nm; tourDemo = null; renderCP(); saveDraft();
     }
   }
+  /* ---------- Sent line, meeting date and the weekly agenda ---------- */
+  function hashStr(s) { var x = 5381; for (var i = 0; i < s.length; i++) x = ((x << 5) + x + s.charCodeAt(i)) | 0; return String(x >>> 0); }
+  function cardSig(a) { return [str(a.name).trim(), str(a.bap), str(a.ordinance).trim(), str(a.need).trim(), str(a.hneed).trim(), str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim(), !!a.sac, !!a.temple, !!a.committed]; }
+  // Everything that goes on the PDF. Follow-up marks (Completed, Texted) and section checks don't count as changes.
+  function agendaSig(s) {
+    return hashStr(JSON.stringify([s.ward.trim(), s.date, s.conducting, str(s.conductingOther).trim(), s.attendees.slice().sort(),
+      s.rr.map(function (r) { return [str(r.person), str(r.action), str(r.assigned), str(r.when), str(r.plan).trim(), r.happened, str(r.notes).trim(), !!r.carriedFwd]; }),
+      GROUPS.map(function (g) { return s.cp[g.id].map(cardSig); }), GROUPS.map(function (g) { return !!(s.cpNone && s.cpNone[g.id]); }),
+      s.tn.map(cardSig), str(s.find.plan).trim(), s.find.items.map(function (x) { return [str(x.task).trim(), str(x.when).trim()]; })]));
+  }
+  function markSent() { state.sentAt = new Date().toISOString(); state.sentSig = agendaSig(state); saveDraft(); }
+  function changedSinceSent() { return !!state.sentAt && state.sentSig !== agendaSig(state); }
+  function monthDay(iso) { var d = parseISO(iso); return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''; }
+  function renderSent() {
+    var md = $('#meeting-date .md-text');
+    if (md) { var d = parseISO(state.date); md.textContent = d ? d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + ' huddle' : 'Set the meeting date'; }
+    var sl = $('#sent-line');
+    if (sl) {
+      if (!state.sentAt) sl.hidden = true;
+      else {
+        var t = new Date(state.sentAt);
+        var when = t.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' at ' + t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase();
+        var ch = changedSinceSent();
+        sl.hidden = false; sl.className = 'sent-line' + (ch ? ' changed' : '');
+        sl.textContent = ch ? 'Changed since sent ' + when + '. Send again to update.' : '✓ Sent ' + when;
+      }
+    }
+    var lbl = $('#send-label'); if (lbl) lbl.textContent = state.sentAt ? 'Send again' : 'Send';
+  }
+
+  // Before sending: what's still open, each with a way to jump to it.
+  function openItems() {
+    var out = [];
+    var go = function (id) { return function () { if (stepsOn) showView(id, 'push'); }; };
+    if (!state.attendees.length) out.push({ text: 'Attendance not taken', go: function () { if (stepsOn && view !== 'home') showView('home', 'replace'); openDetails(); } });
+    var rr = state.rr.filter(rrShown), unmarked = rr.filter(function (r) { return !r.happened; }).length;
+    if (rr.length && unmarked) out.push({ text: 'Return and Report: ' + unmarked + ' not marked', go: go('rr') });
+    var needs = function (list) { return list.filter(function (a) { return str(a.name).trim() && !str(a.action).trim(); }).length; };
+    var cpN = GROUPS.reduce(function (n, g) { return n + needs(state.cp[g.id]); }, 0);
+    if (cpN) out.push({ text: 'Covenant Path Report Review: ' + cpN + (cpN === 1 ? ' person needs' : ' people need') + ' an action', go: go('cp') });
+    GROUPS.forEach(function (g) { if (listEmpty(g.id) && !noneConfirmed(g.id)) out.push({ text: g.title + ': not reviewed', go: go('cp') }); });
+    var tnN = needs(state.tn);
+    if (tnN) out.push({ text: 'Name Next Ordinance: ' + tnN + (tnN === 1 ? ' person needs' : ' people need') + ' an action', go: go('tn') });
+    if (!str(state.find.plan).trim()) out.push({ text: 'Find New People to Teach: no plan yet', go: go('fn') });
+    return out;
+  }
+
+  // Start a new agenda: last week's actions move into Return and Report (with anything marked Completed as Yes),
+  // names and needs stay, and the weekly parts clear. Undo puts everything back.
+  function nextMeetingDate(prev) {
+    var today = parseISO(todayISO()), d = parseISO(prev) || parseISO(todayISO());
+    d.setDate(d.getDate() + 7);
+    while (d < today) d.setDate(d.getDate() + 7);
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  }
+  function rrFromItem(it, happened) {
+    return { prefilled: true, source: it.source, group: it.group, pname: it.pname, ord: it.ord, need: it.need || '', hneed: it.hneed || '', sac: !!it.sac, bap: it.bap || '', temple: !!it.temple, committed: !!it.committed,
+      person: it.person, action: it.action, assigned: it.assigned, when: it.when, plan: '', happened: happened || '', notes: '' };
+  }
+  function confirmNewAgenda() {
+    var next = nextMeetingDate(state.date);
+    var n = extractActionItems(state).length;
+    var note = !state.sentAt ? ' This agenda hasn’t been sent.' : changedSinceSent() ? ' You’ve changed this agenda since you sent it.' : '';
+    ask({
+      title: 'Start the ' + monthDay(next) + ' agenda?',
+      body: 'Keeps your names and needs. ' + (n ? n + (n === 1 ? ' action item moves' : ' action items move') + ' into Return and Report. ' : '') + 'Attendance, answers and checks clear.' + note,
+      primary: 'Start new agenda', onPrimary: function () { startNewAgenda(next); }, secondary: 'Cancel'
+    });
+  }
+  function startNewAgenda(next) {
+    var snap = JSON.parse(JSON.stringify(state));
+    var data = JSON.parse(JSON.stringify(state));
+    // Keep last week in the saved agendas too, so it can be shared again or loaded by someone else.
+    if (data.ward.trim() && parseISO(data.date) && !isEmpty(data)) { try { saveAgenda(makePayload(data)).catch(function () {}); } catch (e) { /* ignore */ } }
+    sweepStale(data);
+    var items = extractActionItems(data);
+    var f = freshState();
+    f.ward = data.ward; f.conducting = data.conducting; f.conductingOther = data.conductingOther; f.date = next; f.rolledFrom = data.date;
+    state = f; showBlank = {};
+    state.rr = items.length ? items.map(function (it) { return rrFromItem(it, it.done ? 'Yes' : ''); }) : [blankRR(), blankRR()];
+    carryNames(data);
+    view = 'home';
+    try { history.replaceState({ hv: 'home' }, ''); } catch (e) { /* ignore */ }
+    renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
+    var done = items.filter(function (it) { return it.done; }).length;
+    toast('Started the ' + monthDay(next) + ' agenda.' + (items.length ? ' ' + items.length + (items.length === 1 ? ' item is' : ' items are') + ' in Return and Report' + (done ? ', ' + done + ' already marked Yes' : '') + '.' : ''), 8000,
+      { label: 'Undo', run: function () { state = normalizeState(snap); showBlank = {}; view = 'home'; renderAll(); applyView(); saveDraft(); toast('Back to the ' + monthDay(snap.date) + ' agenda.'); } });
+  }
+
+  // Completed: a quick mark during the week when someone finishes their assignment.
+  function completedButton(base) {
+    var on = !!getPath(base + 'doneMid');
+    var has = str(getPath(base + (/^find/.test(base) ? 'task' : 'action'))).trim();
+    return h('button', { type: 'button', class: 'btn-completed' + (on ? ' on' : ''), 'data-action': 'toggle-completed', 'data-a': base, 'aria-pressed': on ? 'true' : 'false', hidden: !has },
+      [icon(on ? 'check' : 'circle'), h('span', { text: on ? 'Completed' : 'Mark completed' })]);
+  }
+  function refreshCompleted(base) {
+    var old = document.querySelector('.btn-completed[data-a="' + base + '"]');
+    if (old) old.replaceWith(completedButton(base));
+  }
+
+  // The 4-week check on names: untouched for 4 weeks asks "Still on the Covenant Path Report?"; 5 weeks removes it.
+  function cardAge(a) { var t = str(a.touched); return parseISO(t) ? daysBetween(t, todayISO()) : 0; }
+  function sweepStale(s) {
+    var removed = 0;
+    var check = function (a) {
+      if (!str(a.name).trim()) return true;
+      if (!parseISO(str(a.touched))) { a.touched = todayISO(); return true; }
+      if (cardAge(a) >= STALE_DROP) { removed++; return false; }
+      return true;
+    };
+    GROUPS.forEach(function (g) { var keep = s.cp[g.id].filter(check); s.cp[g.id] = keep.length ? keep : [blankAction()]; });
+    s.tn = s.tn.map(function (a) { return check(a) ? a : blankName(); });
+    return removed;
+  }
+  function staleNote(base, a, isTn) {
+    if (!str(a.name).trim() || cardAge(a) < STALE_FLAG) return null;
+    return h('div', { class: 'stale-note' }, [
+      h('p', { text: 'Not updated in 4 weeks. ' + (isTn ? 'Still a focus name?' : 'Still on the Covenant Path Report?') }),
+      h('div', { class: 'stale-actions' }, [
+        h('button', { type: 'button', class: 'btn-small', 'data-action': 'stale-keep', 'data-a': base, text: 'Keep' }),
+        h('button', { type: 'button', class: 'btn-small danger', 'data-action': 'stale-remove', 'data-a': base, text: 'Remove' })
+      ])
+    ]);
+  }
+
   function startPractice() { applyLoad(practiceData(), 'Practice week', { practice: true }); }
   function removePractice() {
     var snap = state.practiceSnapshot;
@@ -1387,7 +1569,7 @@
     (Array.isArray(fd.items) ? fd.items : []).forEach(function (x) {
       if (!x || !str(x.task).trim()) return;
       items.push({ source: SOURCE.fn, group: 'fn', pname: '', ord: '', need: '', hneed: '', sac: false, bap: '', temple: false, committed: false,
-        person: '', action: str(x.task).trim(), assigned: '', when: str(x.when).trim() });
+        person: '', action: str(x.task).trim(), assigned: '', when: str(x.when).trim(), done: !!x.doneMid });
     });
     return items;
   }
@@ -1398,7 +1580,8 @@
       source: SOURCE[gid], group: gid, pname: name, ord: ord, need: str(a.need).trim(), hneed: str(a.hneed).trim(), sac: !!a.sac,
       bap: gid === 'nm' || gid === 'bt' ? str(a.bap) : '', temple: gid === 'nm' && !!a.temple, committed: gid === 'bt' && !!a.committed,
       person: ord ? (name ? name + ' · ' : '') + 'Next: ' + ord : name,
-      action: str(a.action).trim(), assigned: str(a.assigned).trim(), when: str(a.when).trim()
+      action: str(a.action).trim(), assigned: str(a.assigned).trim(), when: str(a.when).trim(),
+      done: !!a.doneMid && !!str(a.action).trim()
     };
   }
 
@@ -1411,13 +1594,13 @@
       var names = [], info = {};
       (Array.isArray(cp[g.id]) ? cp[g.id] : []).forEach(function (a) {
         var n = a && str(a.name).trim();
-        if (n && names.every(function (x) { return norm(x) !== norm(n); })) { names.push(n); info[norm(n)] = { ordinance: str(a.ordinance).trim(), need: str(a.need).trim(), hneed: str(a.hneed).trim(), bap: str(a.bap), temple: !!a.temple, committed: !!a.committed }; }
+        if (n && names.every(function (x) { return norm(x) !== norm(n); })) { names.push(n); info[norm(n)] = { ordinance: str(a.ordinance).trim(), need: str(a.need).trim(), hneed: str(a.hneed).trim(), bap: str(a.bap), temple: !!a.temple, committed: !!a.committed, touched: parseISO(str(a.touched)) ? str(a.touched) : '' }; }
       });
       if (!names.length) return;
       var cur = state.cp[g.id].filter(function (a) { return a.sac || hasText(a, CARD_KEYS); });
       names.forEach(function (n) {
         if (cur.some(function (a) { return norm(a.name) === norm(n); })) return;
-        var c = blankAction(); c.name = n; c.ordinance = info[norm(n)].ordinance; c.need = info[norm(n)].need; c.hneed = info[norm(n)].hneed; c.carried = true;
+        var c = blankAction(); c.name = n; c.ordinance = info[norm(n)].ordinance; c.need = info[norm(n)].need; c.hneed = info[norm(n)].hneed; c.carried = true; c.touched = info[norm(n)].touched;
         if (g.id === 'nm') { c.bap = info[norm(n)].bap; c.temple = info[norm(n)].temple; }
         if (g.id === 'bt') { c.bap = info[norm(n)].bap; c.committed = info[norm(n)].committed; }
         cur.push(c);
@@ -1432,6 +1615,7 @@
       var slot = state.tn.findIndex(function (t) { return !t.sac && !hasText(t, CARD_KEYS); });
       if (slot < 0) return;
       var c = blankName(); c.name = n; c.ordinance = str(a.ordinance).trim(); c.need = str(a.need).trim(); c.hneed = str(a.hneed).trim(); c.carried = true;
+      c.touched = parseISO(str(a.touched)) ? str(a.touched) : '';
       state.tn[slot] = c;
       added++;
     });
@@ -1567,9 +1751,7 @@
       ask({ title: 'Nothing to load', body: 'Last week’s agenda doesn’t have any action items filled in.', primary: 'OK' });
       return;
     }
-    state.rr = items.map(function (it) {
-      return { prefilled: true, source: it.source, group: it.group, pname: it.pname, ord: it.ord, need: it.need || '', hneed: it.hneed || '', sac: !!it.sac, bap: it.bap || '', temple: !!it.temple, committed: !!it.committed, person: it.person, action: it.action, assigned: it.assigned, when: it.when, plan: '', happened: '', notes: '' };
-    });
+    state.rr = items.map(function (it) { return rrFromItem(it, ''); });
     state.loaded = { fileName: fileName, ward: str(data.ward), date: str(data.date), count: items.length, practice: !!opts.practice };
     state.practiceSnapshot = snap;
     if (!opts.practice && !state.ward.trim() && data.ward) { state.ward = str(data.ward); $('#ward').value = state.ward; writeWard(state.ward); }
@@ -2268,7 +2450,7 @@
     }));
   }
 
-  /* ---------- Send & Clear ---------- */
+  /* ---------- Send (the agenda stays filled in) ---------- */
   var sendFile = null, sendPayload = null, resending = false;
   var isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   var isAndroid = /Android/i.test(navigator.userAgent);
@@ -2434,9 +2616,17 @@
   }
 
   // src = a saved agenda to share again; otherwise the form on screen.
-  async function startSend(src) {
+  async function startSend(src, checked) {
     resending = !!src;
     if (!resending && !readyToSave('send')) return;
+    if (!resending && !checked) {
+      var open = openItems();
+      if (open.length) {
+        ask({ title: 'Ready to send?', body: 'A few things are still open. Tap one to go to it, or send anyway.', jumps: open,
+          primary: 'Send anyway', onPrimary: function () { startSend(null, true); }, secondary: 'Go back' });
+        return;
+      }
+    }
     var agenda = src || state;
     resetSendSheet();
     var name = fileName(agenda);
@@ -2451,7 +2641,7 @@
       if (!canShareFiles(sendFile)) {
         // No share menu for files here (some desktop browsers): download instead.
         $('#share-hint').textContent = resending ? 'Saves the PDF to your Downloads. Attach it to an email or message.'
-          : 'Saves the PDF to your Downloads. Attach it to an email or message, then clear the form. A copy is also saved in this app for 4 weeks.';
+          : 'Saves the PDF to your Downloads. Attach it to an email or message. A copy is also saved in this app for 4 weeks.';
         $('#share-btn').textContent = 'Download PDF';
       }
       $('#share-btn').disabled = false;
@@ -2471,6 +2661,7 @@
   async function downloadAndRemember() {
     download(sendFile);
     var ok = await rememberAgenda();
+    if (!resending) markSent();
     $('#after-download').hidden = false;
     if (!ok) toast('This phone couldn’t keep a saved copy.');
   }
@@ -2494,7 +2685,7 @@
         return;
       }
       var ok = await rememberAgenda();
-      closeSend(); clearForm(true);
+      markSent(); closeSend();
       sentDone(ok);
     } else {
       await downloadAndRemember();
@@ -2514,11 +2705,11 @@
     toast('Saved on this phone. It will show in Load last week.');
   }
 
-  // After Send & Clear: a clear confirmation that it went out and the form is ready.
+  // After sending: a clear confirmation that it went out; the agenda stays for follow-up.
   function sentDone(saved) {
     ask({
       title: 'Sent successfully', success: true,
-      body: 'Ready for your next meeting. ' + (saved ? 'A copy is saved on this phone for 4 weeks.' : 'This phone couldn’t keep a saved copy.'),
+      body: 'The agenda stays filled in for follow-up this week. When it’s time for the next ward council, tap Start a new agenda. ' + (saved ? 'A copy is saved on this phone for 4 weeks.' : 'This phone couldn’t keep a saved copy.'),
       primary: 'Done'
     });
   }
@@ -2532,6 +2723,7 @@
     fileInput = $('#file-input');
     fileInput.addEventListener('change', onFilePicked);
     renderAll();
+    if (staleRemoved) { saveDraft(); toast('Removed ' + staleRemoved + (staleRemoved === 1 ? ' name' : ' names') + ' not updated in 5 weeks.', 6000); }
     // Four-step view: start on the step list; the phone's Back gesture returns to it from a step.
     try { history.replaceState({ hv: 'home' }, ''); } catch (e) { /* ignore */ }
     applyView();
@@ -2558,6 +2750,11 @@
       // Text this assignment: appears once there's an action and someone assigned; editing it after texting resets it.
       var tm = /^((?:cp\.\w+|tn)\.\d+\.)(name|action|assigned|when)$/.exec(path);
       if (tm) { if (getPath(tm[1] + 'texted')) setPath(tm[1] + 'texted', false); refreshTextButton(tm[1], t.closest('.card') || document); }
+      // Any change to a name card counts as touching it (the 4-week check).
+      var tch = /^((?:cp\.\w+|tn)\.\d+\.)(\w+)$/.exec(path);
+      if (tch && tch[2] !== 'touched') setPath(tch[1] + 'touched', todayISO());
+      var ta = /^((?:cp\.\w+|tn)\.\d+\.)action$/.exec(path) || /^(find\.items\.\d+\.)task$/.exec(path);
+      if (ta) refreshCompleted(ta[1]);
       if (/\.(action|task)$/.test(path) && !String(val).trim()) {
         setPath(path.replace(/action$/, 'actionCarried').replace(/task$/, 'carried'), false);
         var tagEl = t.closest('.field, .fn-assign'); tagEl = tagEl && tagEl.querySelector('.carried-tag'); if (tagEl) tagEl.remove();
@@ -2571,7 +2768,7 @@
       saveDraft();
     };
     // Save the draft right away if the app is closed or put in the background.
-    var flushDraft = function () { clearTimeout(draftTimer); writeJSON('sessionStorage', DRAFT_KEY, state); };
+    var flushDraft = function () { clearTimeout(draftTimer); if (!tourDemo) writeJSON('localStorage', LIVE_KEY, state); };
     window.addEventListener('pagehide', flushDraft);
     document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') flushDraft(); });
     document.addEventListener('input', onEdit);
