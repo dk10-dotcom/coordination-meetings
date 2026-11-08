@@ -973,7 +973,7 @@
   }
   function openDetails() { detailsOpen = true; if (view !== 'home') showView('home', 'replace'); renderDetails(); }
   window.HuddleView = {
-    show: function (v, details) { if (details) detailsOpen = true; showView(v || 'home', 'replace'); },
+    show: function (v, details) { detailsOpen = !!details; showView(v || 'home', 'replace'); },
     openDetails: openDetails,
     current: function () { return view; },
     reset: function () { setTourDemo(false); detailsOpen = false; showView('home', 'replace'); },
