@@ -844,3 +844,8 @@ body.tour-newweek #load-panel { display: none !important; }
   font: inherit; font-size: 17px; font-weight: 600; color: var(--ink); }
 .confirm-field textarea { font-size: 15px; font-weight: 500; resize: vertical; }
 .btn-handoff { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+
+/* Nudge by the date once the huddle has passed */
+.date-nudge { align-self: flex-start; margin: -6px 0 0; padding: 6px 0; border: 0; background: none; font: inherit; font-size: 14px; font-weight: 700;
+  color: var(--orange-ink); text-align: left; text-decoration: underline; text-decoration-color: rgba(154,68,22,.35); text-underline-offset: 3px; cursor: pointer; }
+.confirm-tertiary { align-self: center; min-height: 40px; font-size: 15px; }

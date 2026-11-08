@@ -533,10 +533,13 @@
     var nw = $('#newweek-panel');
     if (nw) {
       nw.hidden = !live;
+    }
+    // Once the huddle date has passed, a nudge by the date points to next week.
+    var nudge = $('#date-nudge');
+    if (nudge) {
       var d = parseISO(state.date), due = live && d && d < parseISO(todayISO());
-      $('#newweek-btn').className = (due ? 'btn-primary' : 'btn-outline') + ' newweek-btn';
-      $('#newweek-due').hidden = !due;
-      if (due) $('#newweek-due').textContent = 'The ' + monthDay(state.date) + ' meeting has passed.';
+      nudge.hidden = !due;
+      if (due) nudge.textContent = 'The ' + monthDay(state.date) + ' huddle has passed. Tap the date, or here, to start next week.';
     }
     $('#load-panel').hidden = !!state.loaded || live;
     $('#loaded-banner').hidden = !state.loaded;
@@ -898,7 +901,7 @@
   function stepStatus(id) {
     if (id === 'rr') {
       var items = state.rr.filter(rrShown), n = items.length;
-      if (!n) return { text: state.loaded || state.rolledFrom ? 'Nothing to report from last week' : isEmpty(state) ? 'Load last week to fill this in' : 'Fills in when you start a new agenda' };
+      if (!n) return { text: state.loaded || state.rolledFrom ? 'Nothing to report from last week' : isEmpty(state) ? 'Load last week to fill this in' : 'Fills in when you start next week’s agenda' };
       var marked = items.filter(function (r) { return r.happened; }).length;
       var carried = items.filter(function (r) { return r.carriedFwd; }).length;
       return { text: plural(n, 'item', 'items') + ' · ' + (marked === n ? 'all marked' : marked + ' of ' + n + ' marked') + (carried ? ' · ' + carried + ' carried forward' : ''), warn: marked < n };
@@ -1084,6 +1087,12 @@
       askSecondary = function () { closeOverlay('#confirm-sheet'); if (opts.onSecondary) opts.onSecondary(); };
       s.onclick = askSecondary;
     } else { s.hidden = true; s.onclick = null; askSecondary = null; }
+    var tb = $('#confirm-tertiary');
+    if (tb) {
+      tb.hidden = !opts.tertiary;
+      if (opts.tertiary) { tb.textContent = opts.tertiary.label; tb.onclick = function () { closeOverlay('#confirm-sheet'); opts.tertiary.run(); }; }
+      else tb.onclick = null;
+    }
     openOverlay('#confirm-sheet', '#confirm-primary');
   }
 
@@ -1255,11 +1264,8 @@
         break;
       }
       case 'edit-date': openDetails(); setTimeout(function () { var df = $('#date'); if (df) df.focus(); }, 60); break;
-      case 'newweek-info': {
-        var inf = $('#newweek-info'); inf.hidden = !inf.hidden; btn.setAttribute('aria-expanded', inf.hidden ? 'false' : 'true');
-        break;
-      }
       case 'new-agenda': confirmNewAgenda(); break;
+      case 'next-week': askNewWeek(nextMeetingDate(state.date)); break;
       case 'undo-carry': confirmUndoCarry(+a); break;
       case 'conducting':
         state.conducting = state.conducting === a ? '' : a;
@@ -1486,6 +1492,29 @@
       primary: 'Start new agenda', onPrimary: function () { var v = ($('#confirm-date') || {}).value; startNewAgenda(parseISO(v) ? v : next); }, secondary: 'Cancel'
     });
   }
+  // Changing the date to a new week (4+ days later) on a filled-in agenda is how a new week starts.
+  function isWeekJump(prev, next) {
+    if (isEmpty(state) || (state.loaded && state.loaded.practice)) return false;
+    var gap = parseISO(prev) && parseISO(next) ? daysBetween(prev, next) : null;
+    return gap !== null && gap >= 4;
+  }
+  function setDateOnly(next) {
+    state.date = next; var df = $('#date'); if (df) df.value = next;
+    renderDateHint(); updateTemple(); renderRR(); saveDraft();
+    toast('Date changed to ' + monthDay(next) + '.');
+  }
+  function askNewWeek(next) {
+    var n = extractActionItems(state).length;
+    var note = !state.sentAt ? ' This agenda hasn’t been sent.' : changedSinceSent() ? ' You’ve changed this agenda since you sent it.' : '';
+    ask({
+      title: 'Start the ' + monthDay(next) + ' agenda?',
+      body: 'Keeps your names and needs. ' + (n ? n + (n === 1 ? ' action item moves' : ' action items move') + ' into Return and Report. ' : '') + 'Attendance, answers and checks clear.' + note,
+      primary: 'Start the ' + monthDay(next) + ' agenda', onPrimary: function () { startNewAgenda(next); },
+      secondary: 'Just change the date', onSecondary: function () { setDateOnly(next); },
+      tertiary: { label: 'Load a handoff instead', run: function () { openOverlay('#load-sheet', '#load-title'); } }
+    });
+  }
+
   function startNewAgenda(next) {
     var snap = JSON.parse(JSON.stringify(state));
     var data = JSON.parse(JSON.stringify(state));
@@ -2877,6 +2906,17 @@
       var path = t && t.getAttribute && t.getAttribute('data-bind');
       if (!path) return;
       var val = t.type === 'checkbox' ? t.checked : t.value;
+      // Moving this week's date forward to a new week asks whether to start a new agenda.
+      // Wait for the picker to close (the change event), and leave the date as it was until they choose.
+      if (path === 'date' && isWeekJump(state.date, String(val))) {
+        if (e.type === 'change') {
+          var nd = String(val);
+          t.value = state.date;
+          try { t.blur(); } catch (err) { /* ignore */ }
+          setTimeout(function () { askNewWeek(nd); }, 200);
+        }
+        return;
+      }
       setPath(path, val);
       if (path === 'ward') writeWard(String(val).trim());
       if (path === 'date') renderDateHint();

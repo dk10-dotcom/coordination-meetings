@@ -63,6 +63,7 @@
       <input type="date" id="date" class="md-input" data-bind="date" aria-label="This week’s huddle date">
     </label>
     <p class="sent-line" id="sent-line" hidden></p>
+    <button type="button" class="date-nudge" id="date-nudge" data-action="next-week" hidden></button>
     <p class="meeting-time">About 15 minutes</p>
     <div class="info-pair" aria-label="How this works">
       <div class="info-card blue">
@@ -78,16 +79,7 @@
     </div>
     <section class="start-here" aria-label="Load last week">
         <div class="newweek-panel" id="newweek-panel" hidden>
-        <p class="newweek-due" id="newweek-due" hidden></p>
-        <div class="newweek-row">
-          <button type="button" class="btn-outline newweek-btn" id="newweek-btn" data-action="new-agenda">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M14.5 6.5A6 6 0 1 0 15 11"/><path d="M15 2.8v3.9h-3.9"/></svg>
-            Start a new agenda
-          </button>
-          <button type="button" class="info-btn" data-action="newweek-info" aria-label="What Start a new agenda does" aria-expanded="false">i</button>
-        </div>
-        <p class="newweek-info" id="newweek-info" hidden>Keeps your names and needs. Moves last week’s actions into Return and Report.</p>
-        <button type="button" class="btn-link newweek-load" data-action="load-other">Or load a handoff or PDF</button>
+        <button type="button" class="btn-link newweek-load" data-action="load-other">Load a handoff or PDF</button>
       </div>
       <div class="load-panel" id="load-panel">
           <button type="button" class="btn-outline" data-action="load">
@@ -413,7 +405,7 @@
     <p class="help-warning"><span class="help-warning-icon" aria-hidden="true">!</span><span><strong>Never add confidential information to this agenda.</strong></span></p>
 
     <div class="help-rhythm">
-      <p><strong>In ward council:</strong> Tap <strong>Start a new agenda</strong>. Last week’s action items move into Return and Report, and your names and needs stay. Check the names against the Covenant Path Report (in Tools), and update each person’s next ordinance and need.</p>
+      <p><strong>In ward council:</strong> Tap the date at the top and pick this week’s huddle. When it asks, tap the <strong>Start</strong> button: last week’s action items move into Return and Report, and your names and needs stay. Check the names against the Covenant Path Report (in Tools), and update each person’s next ordinance and need.</p>
       <p><strong>During huddle:</strong> Take attendance, mark what happened last week, and check sacrament attendance. Then plan one action item per person (who will do it, and when) and text each assignment before everyone leaves. Make plans in <strong>Plans to Find New People to Teach</strong>.</p>
       <p><strong>After huddle:</strong> Send it to the bishop-approved list, the stake presidency and the full-time missionaries, and include yourself so you have a copy. The agenda stays filled in for the week.</p>
       <p><strong>During the week:</strong> Tap <strong>Mark completed</strong> when someone finishes an assignment, and update names and needs as things change. Keep the Covenant Path Report in Tools updated, including sacrament attendance.</p>
@@ -429,9 +421,9 @@
         </ul>
       </li>
       <li>
-        <p><strong>Each week in ward council, tap Start a new agenda</strong> (under the Ward Council and huddle boxes). Last week’s action items move into Return and Report, and anything marked <strong>Completed</strong> during the week is already marked Yes. Names, next ordinances and needs stay; attendance, answers and checks clear. It suggests next week’s date, and you can change it before you start. Tap the <strong>i</strong> next to the button to see this anytime.</p>
+        <p><strong>Each week in ward council, tap the date at the top and pick this week’s huddle.</strong> The app asks whether to start that week’s agenda. Tap the <strong>Start</strong> button, and last week’s action items move into Return and Report, with anything marked <strong>Completed</strong> already set to Yes. Names, next ordinances and needs stay; attendance, answers and checks clear. Undo is right there if you tap it by mistake.</p>
         <ul>
-          <li><strong>This week’s huddle date</strong> is at the top of the page. Tap it to change it. Once that date has passed, Start a new agenda turns blue so it’s easy to spot. Return and Report shows which huddle its items came from.</li>
+          <li><strong>Only fixing the date?</strong> Choose <strong>Just change the date</strong>. Small changes (a few days, or earlier) just change it without asking. Once the huddle date has passed, an orange line under it reminds you to start next week; you can tap that line too. Return and Report shows which huddle its items came from.</li>
           <li><strong>First time?</strong> Just start filling it in with the names from the Covenant Path Report. To try it with sample names first, tap <strong>Try a practice week</strong> at the top of How to use.</li>
           <li>Names carried into the new agenda are marked <strong>From last week</strong>. Compare them to this week’s Covenant Path Report in Tools: add anyone new, remove anyone no longer listed, and update each person’s next ordinance and need.</li>
           <li><strong>New members:</strong> enter the baptism date. The red <strong>Temple attendance</strong> box counts down the 30 days to baptisms for the dead and stays red, week after week, until you check it.</li>
@@ -506,6 +498,7 @@
     <div class="stack tight">
       <button type="button" class="btn-primary full" id="confirm-primary"></button>
       <button type="button" class="btn-secondary full" id="confirm-secondary"></button>
+      <button type="button" class="btn-link confirm-tertiary" id="confirm-tertiary" hidden></button>
     </div>
   </div>
 </div>
