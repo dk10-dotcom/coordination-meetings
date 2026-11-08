@@ -246,7 +246,7 @@ h2 { font-size: 22px; font-weight: 700; color: var(--ink); }
 }
 body.typing .actionbar { position: static; }
 .actionbar-row { display: flex; gap: 10px; }
-.actionbar-row .btn-save { flex: 1 1 0; font-size: 13.5px; padding: 0 8px; white-space: nowrap; }
+.actionbar-row .btn-save, .actionbar-row .btn-handoff { flex: 1 1 0; font-size: 16px; padding: 0 8px; white-space: nowrap; }
 .actionbar-row .btn-primary { flex: 1.15 1 0; }
 .fine-notes { display: flex; flex-direction: column; gap: 6px; margin-bottom: -12px; align-items: center; }
 .clear-link { margin-top: 4px; }
@@ -792,10 +792,15 @@ body.steps-on .btn-done { display: none; }
 body.touring { padding-bottom: 75vh; }
 
 /* ---------- The agenda stays filled in: meeting date, sent line, Start a new agenda ---------- */
-.meeting-date { display: inline-flex; align-items: center; gap: 10px; align-self: flex-start; margin: -2px 0 0; padding: 6px 2px; border: 0; background: none;
-  font: inherit; font-size: 21px; font-weight: 800; color: var(--accent); text-align: left; cursor: pointer; }
-.meeting-date svg { flex: none; }
-.meeting-date .md-text { text-decoration: underline; text-decoration-color: var(--accent-line); text-underline-offset: 5px; text-decoration-thickness: 2px; }
+.meeting-date { position: relative; display: inline-flex; flex-direction: column; align-items: flex-start; gap: 0; align-self: flex-start; margin: -2px 0 0;
+  padding: 4px 2px; cursor: pointer; }
+.md-kicker { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.md-row { display: inline-flex; align-items: center; gap: 8px; font-size: 22px; font-weight: 800; color: var(--accent); }
+.md-row .md-text { text-decoration: underline; text-decoration-color: var(--accent-line); text-underline-offset: 5px; text-decoration-thickness: 2px; }
+.md-pencil { flex: none; }
+/* The real date input covers the label, so a tap opens the phone's date picker. */
+.md-input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; opacity: 0; cursor: pointer; font-size: 16px; }
+.meeting-date:focus-within .md-row .md-text { text-decoration-color: var(--accent); }
 .sent-line { margin: -8px 0 0; font-size: 14px; font-weight: 700; color: #1F6B3A; }
 .sent-line.changed { color: var(--orange-ink); }
 .newweek-panel { display: flex; flex-direction: column; gap: 6px; }
@@ -829,3 +834,13 @@ body.touring { padding-bottom: 75vh; }
 /* Tour: show Start a new agenda on its stop */
 body.tour-newweek #newweek-panel { display: flex !important; }
 body.tour-newweek #load-panel { display: none !important; }
+
+/* Return and Report: which huddle it came from */
+.rr-from { margin: 2px 0 0; font-size: 13px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); }
+/* Date and paste fields inside a question */
+.compare.fieldwrap { padding: 4px 0; background: none; border: 0; }
+.confirm-field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 700; color: var(--muted); }
+.confirm-field input, .confirm-field textarea { width: 100%; min-height: 48px; padding: 10px 12px; border: 1px solid var(--card-line); border-radius: 10px; background: var(--card);
+  font: inherit; font-size: 17px; font-weight: 600; color: var(--ink); }
+.confirm-field textarea { font-size: 15px; font-weight: 500; resize: vertical; }
+.btn-handoff { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }

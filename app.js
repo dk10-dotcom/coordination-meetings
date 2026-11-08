@@ -473,17 +473,7 @@
   function textAssignment(base) {
     if (tourDemo || (state.loaded && state.loaded.practice)) { toast('Texting is turned off for sample names.'); return; }
     if (!textReady(base)) return;
-    var body = assignmentText(base);
-    var phone = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent)) ||
-      !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
-    if (phone) {
-      var link = document.createElement('a');
-      link.href = 'sms:?&body=' + encodeURIComponent(body);
-      document.body.appendChild(link); link.click(); link.remove();
-      toast('Messages is opening. Pick who to send it to.', 5000);
-    } else if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(body).then(function () { toast('Copied. Paste it into a text message.'); }, function () { toast('Couldn’t copy. Try on your phone.'); });
-    } else { toast('Open the agenda on your phone to text assignments.'); }
+    openMessages(assignmentText(base));
     setPath(base + 'texted', true); refreshTextButton(base); saveDraft();
   }
   function cardFields(base, nameLabel, namePh, whenPh, tag, withBap, needPh, ordPh, wcExtra, fixedOrd) {
@@ -527,7 +517,16 @@
       h('span', { text: 'Attended sacrament' })
     ]);
   }
+  // "From the November 8 huddle": which agenda Return and Report came from.
+  function renderRRFrom() {
+    var rf = $('#rr-from'); if (!rf) return;
+    var from = state.rolledFrom || (state.loaded && state.loaded.date) || '';
+    var d = parseISO(from);
+    rf.hidden = !d;
+    if (d) rf.textContent = (state.loaded && state.loaded.practice ? 'Practice week: from the ' : 'From the ') + d.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) + ' huddle';
+  }
   function renderLoadState() {
+    renderRRFrom();
     // Once the agenda has anything in it, the weekly button is Start a new agenda; Load stays for someone else's agenda.
     var practice = !!(state.loaded && state.loaded.practice);
     var live = !isEmpty(state) && !practice;
@@ -990,7 +989,7 @@
     full.hidden = !open; sum.hidden = open;
     var doneBtn = full.querySelector('.details-done'); if (doneBtn) doneBtn.hidden = !stepsOn;
     var d = parseISO(state.date);
-    $('#details-line').replaceChildren(h('b', { text: state.ward.trim() || 'Ward not set' }), ' · ' + (d ? d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : 'No date'));
+    $('#details-line').replaceChildren(h('b', { text: state.ward.trim() || 'Ward not set' }));
     var n = state.attendees.length;
     // Attendance shows in the same dark orange as other steps that still need action, until it's taken.
     $('#details-sub').replaceChildren(conductingLabel(state) ? conductingLabel(state) + ' · ' : '', n ? n + ' attended' : h('span', { class: 'warn', text: 'Attendance not taken yet' }));
@@ -1056,6 +1055,14 @@
         return h('div', { class: 'compare-row' }, [h('span', { text: row[0] }), h('span', { text: row[1] })]);
       }));
       cmp.hidden = false;
+    } else if (opts.dateField) {
+      cmp.replaceChildren(h('label', { class: 'confirm-field' }, [opts.dateField.label,
+        h('input', { type: 'date', id: 'confirm-date', value: opts.dateField.value })]));
+      cmp.hidden = false;
+    } else if (opts.textField) {
+      cmp.replaceChildren(h('label', { class: 'confirm-field' }, [opts.textField.label,
+        h('textarea', { id: 'confirm-text', rows: '3', placeholder: opts.textField.placeholder || '', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false' })]));
+      cmp.hidden = false;
     } else if (opts.jumps && opts.jumps.length) {
       // "Ready to send?": each open item is a row that goes straight to it.
       cmp.replaceChildren.apply(cmp, opts.jumps.map(function (j) {
@@ -1066,6 +1073,7 @@
       cmp.hidden = false;
     } else { cmp.hidden = true; cmp.replaceChildren(); }
     cmp.classList.toggle('jumps', !!(opts.jumps && opts.jumps.length));
+    cmp.classList.toggle('fieldwrap', !!(opts.dateField || opts.textField));
     // The explanation reads first when there's a list to tap; a ward/date comparison reads before it.
     var cb = $('#confirm-body'); if (opts.jumps && opts.jumps.length) cb.after(cmp); else cb.before(cmp);
     var p = $('#confirm-primary'), s = $('#confirm-secondary');
@@ -1225,16 +1233,9 @@
         break;
       }
       case 'load-other':
-      case 'load':
-        if (state.rr.some(rrHasInput)) {
-          ask({
-            title: 'Replace the items below?',
-            body: 'Loading last week replaces what you’ve typed in Return and Report.',
-            primary: 'Choose last week', onPrimary: openLoad,
-            secondary: 'Cancel'
-          });
-        } else openLoad();
-        break;
+      case 'load': openOverlay('#load-sheet', '#load-title'); break;
+      case 'paste-handoff': closeOverlay('#load-sheet'); pasteHandoff(); break;
+      case 'handoff': startHandoff(); break;
       case 'carry-fwd': carryForward(+a); break;
       case 'text-assign': textAssignment(a); break;
       case 'toggle-completed': {
@@ -1430,7 +1431,7 @@
   function monthDay(iso) { var d = parseISO(iso); return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''; }
   function renderSent() {
     var md = $('#meeting-date .md-text');
-    if (md) { var d = parseISO(state.date); md.textContent = d ? d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + ' huddle' : 'Set the meeting date'; }
+    if (md) { var d = parseISO(state.date); md.textContent = d ? d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : 'Set the date'; }
     var sl = $('#sent-line');
     if (sl) {
       if (!state.sentAt) sl.hidden = true;
@@ -1479,16 +1480,15 @@
     var n = extractActionItems(state).length;
     var note = !state.sentAt ? ' This agenda hasn’t been sent.' : changedSinceSent() ? ' You’ve changed this agenda since you sent it.' : '';
     ask({
-      title: 'Start the ' + monthDay(next) + ' agenda?',
+      title: 'Start a new agenda?',
       body: 'Keeps your names and needs. ' + (n ? n + (n === 1 ? ' action item moves' : ' action items move') + ' into Return and Report. ' : '') + 'Attendance, answers and checks clear.' + note,
-      primary: 'Start new agenda', onPrimary: function () { startNewAgenda(next); }, secondary: 'Cancel'
+      dateField: { label: 'This week’s huddle', value: next },
+      primary: 'Start new agenda', onPrimary: function () { var v = ($('#confirm-date') || {}).value; startNewAgenda(parseISO(v) ? v : next); }, secondary: 'Cancel'
     });
   }
   function startNewAgenda(next) {
     var snap = JSON.parse(JSON.stringify(state));
     var data = JSON.parse(JSON.stringify(state));
-    // Keep last week in the saved agendas too, so it can be shared again or loaded by someone else.
-    if (data.ward.trim() && parseISO(data.date) && !isEmpty(data)) { try { saveAgenda(makePayload(data)).catch(function () {}); } catch (e) { /* ignore */ } }
     sweepStale(data);
     var items = extractActionItems(data);
     var f = freshState();
@@ -1539,6 +1539,140 @@
         h('button', { type: 'button', class: 'btn-small danger', 'data-action': 'stale-remove', 'data-a': base, text: 'Remove' })
       ])
     ]);
+  }
+
+  /* ---------- Messages, clipboard ---------- */
+  function isPhone() {
+    return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent)) ||
+      !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+  }
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
+    return new Promise(function (resolve, reject) {
+      try {
+        var ta = h('textarea', { value: text, readonly: 'readonly' }); ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select(); var ok = document.execCommand('copy'); ta.remove();
+        if (ok) resolve(); else reject(new Error('copy failed'));
+      } catch (e) { reject(e); }
+    });
+  }
+  // Opens Messages with the text written out (phones); on a computer, copies it instead.
+  function openMessages(body) {
+    if (isPhone()) {
+      var link = document.createElement('a');
+      link.href = 'sms:?&body=' + encodeURIComponent(body);
+      document.body.appendChild(link); link.click(); link.remove();
+      toast('Messages is opening. Pick who to send it to.', 5000);
+    } else {
+      copyText(body).then(function () { toast('Copied. Paste it into a text message.'); }, function () { toast('Couldn’t copy. Try on your phone.'); });
+    }
+  }
+
+  /* ---------- Handoff link ----------
+   * For when someone else conducts: the whole agenda rides in the link's # part, which browsers never send
+   * to the website, so nothing is stored online. Opening the link loads it on the other leader's phone. */
+  function b64url(bytes) {
+    var bin = '';
+    for (var i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function unb64url(s) {
+    s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '=';
+    var bin = atob(s), out = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  async function packHandoff(s) {
+    var c = JSON.parse(JSON.stringify(s));
+    delete c.practiceSnapshot; delete c.loaded; c.sentAt = ''; c.sentSig = ''; c.collapsed = {}; c.openOne = {};
+    var bytes = new TextEncoder().encode(JSON.stringify({ app: APP_ID, kind: 'handoff', v: 1, s: c })), tag = 'j';
+    if (window.CompressionStream) {
+      try { bytes = new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer()); tag = 'z'; } catch (e) { /* send uncompressed */ }
+    }
+    return tag + b64url(bytes);
+  }
+  async function unpackHandoff(code) {
+    var bytes = unb64url(code.slice(1));
+    if (code[0] === 'z') bytes = new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
+    var obj = JSON.parse(new TextDecoder().decode(bytes));
+    if (!obj || obj.app !== APP_ID || obj.kind !== 'handoff' || !obj.s) throw new Error('not a handoff');
+    return obj.s;
+  }
+  function handoffUrl(code) { return location.origin + location.pathname.replace(/index\.html$/, '') + '#handoff=' + code; }
+  function startHandoff() {
+    if (state.loaded && state.loaded.practice) { toast('Remove the practice week before handing off.'); return; }
+    if (isEmpty(state)) { toast('Nothing to hand off yet.'); return; }
+    // Build the link first, so tapping the button opens Messages right away.
+    packHandoff(state).then(function (code) {
+      var d = parseISO(state.date);
+      var msg = 'Handoff: the ' + (state.ward.trim() ? state.ward.trim() + ' ' : '') + 'coordination agenda' + (d ? ' for ' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : '') +
+        '. Tap the link to load it into the Weekly Coordination Meeting Agenda app:\n' + handoffUrl(code);
+      ask({
+        title: 'Hand off this agenda?',
+        body: 'For when someone else conducts. This texts them a link that loads this agenda on their phone. Send it only to the leader filling in.',
+        primary: 'Text the handoff', onPrimary: function () { openMessages(msg); }, secondary: 'Cancel'
+      });
+    }, function () { toast('Couldn’t make the handoff. Try again.'); });
+  }
+  // A handoff link was opened.
+  function checkHandoffLink() {
+    var m = /[#&]handoff=([A-Za-z0-9_-]+)/.exec(location.hash || '');
+    if (!m) return;
+    var code = m[1];
+    try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) { /* ignore */ }
+    unpackHandoff(code).then(function (s) {
+      var ua = navigator.userAgent || '';
+      var ios = /iPhone|iPad|iPod/.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua));
+      var standalone = navigator.standalone === true || !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+      if (ios && !standalone) {
+        ask({
+          title: 'Open this handoff in the app',
+          body: 'On iPhone, links open in Safari instead of your Home Screen app. Tap Copy handoff, open the app from your Home Screen, then tap Load a handoff or PDF → Paste a handoff.',
+          primary: 'Copy handoff', onPrimary: function () {
+            copyText(handoffUrl(code)).then(function () { toast('Copied. Now open the app from your Home Screen.', 8000); }, function () { toast('Couldn’t copy. Press and hold the link in Messages to copy it.', 8000); });
+          },
+          secondary: 'Load it here in Safari', onSecondary: function () { confirmApplyAgenda(s, 'handoff'); }
+        });
+      } else confirmApplyAgenda(s, 'handoff');
+    }, function () {
+      ask({ title: 'This handoff link didn’t work', body: 'Ask for the link again, or load the agenda from its PDF.', primary: 'OK' });
+    });
+  }
+  function pasteHandoff() {
+    var manual = function (msg) {
+      ask({ title: 'Paste a handoff', body: msg || 'Paste the handoff link you were texted.', textField: { label: 'Handoff link', placeholder: 'https://…#handoff=…' },
+        primary: 'Load', onPrimary: function () { useText(($('#confirm-text') || {}).value, true); }, secondary: 'Cancel' });
+    };
+    var useText = function (text, typed) {
+      var m = /handoff=([A-Za-z0-9_-]+)/.exec(text || '');
+      if (!m) { if (typed) ask({ title: 'That isn’t a handoff link', body: 'Copy the whole link from the text, then try again.', primary: 'OK' }); else manual('There’s no handoff link on the clipboard. Paste it here:'); return; }
+      unpackHandoff(m[1]).then(function (s) { confirmApplyAgenda(s, 'handoff'); }, function () { ask({ title: 'This handoff link didn’t work', body: 'Ask for the link again, or load the agenda from its PDF.', primary: 'OK' }); });
+    };
+    if (navigator.clipboard && navigator.clipboard.readText) navigator.clipboard.readText().then(function (t) { useText(t, false); }, function () { manual(); });
+    else manual();
+  }
+
+  // Loading a handoff or a PDF puts that agenda on this phone as it was (Undo puts yours back).
+  function confirmApplyAgenda(data, how) {
+    var incoming = normalizeState(data);
+    incoming.loaded = null; incoming.practiceSnapshot = null; incoming.sentAt = ''; incoming.sentSig = '';
+    var rows = [['Ward', incoming.ward.trim() || 'Not listed'], ['Huddle', longDate(incoming.date) || 'No date']];
+    if (state.ward.trim() && incoming.ward.trim() && norm(state.ward) !== norm(incoming.ward)) rows.push(['This phone’s ward', state.ward.trim()]);
+    ask({
+      title: how === 'handoff' ? 'Load this handoff?' : 'Load this agenda?', compare: rows,
+      body: isEmpty(state) ? 'It becomes the agenda on this phone.' : 'It replaces the agenda on this phone. You can undo it right after.',
+      primary: 'Load it', onPrimary: function () { applyAgenda(incoming); }, secondary: 'Cancel'
+    });
+  }
+  function applyAgenda(incoming) {
+    var snap = JSON.parse(JSON.stringify(state));
+    state = incoming; showBlank = {}; sweepStale(state);
+    if (state.ward.trim()) writeWard(state.ward.trim());
+    view = 'home';
+    try { history.replaceState({ hv: 'home' }, ''); } catch (e) { /* ignore */ }
+    renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
+    toast('Loaded the ' + (monthDay(state.date) || '') + ' agenda.', 8000,
+      { label: 'Undo', run: function () { state = normalizeState(snap); showBlank = {}; view = 'home'; renderAll(); applyView(); saveDraft(); toast('Your agenda is back.'); } });
   }
 
   function startPractice() { applyLoad(practiceData(), 'Practice week', { practice: true }); }
@@ -1791,7 +1925,7 @@
       });
       return;
     }
-    checkAndApply(data, f.name, pickFile);
+    confirmApplyAgenda(data, 'pdf');
   }
 
   // Ward and date checks before loading. chooseAgain reopens wherever the agenda came from.
@@ -2605,7 +2739,7 @@
       return false;
     }
     if (!parseISO(state.date)) {
-      ask({ title: 'Add the meeting date first', primary: 'OK', onPrimary: function () { openDetails(); $('#date').focus(); } });
+      ask({ title: 'Add this week’s huddle date first', body: 'Tap the date at the top to set it.', primary: 'OK', onPrimary: function () { window.scrollTo(0, 0); } });
       return false;
     }
     if (isEmpty(state)) {
@@ -2641,7 +2775,7 @@
       if (!canShareFiles(sendFile)) {
         // No share menu for files here (some desktop browsers): download instead.
         $('#share-hint').textContent = resending ? 'Saves the PDF to your Downloads. Attach it to an email or message.'
-          : 'Saves the PDF to your Downloads. Attach it to an email or message. A copy is also saved in this app for 4 weeks.';
+          : 'Saves the PDF to your Downloads. Attach it to an email or message.';
         $('#share-btn').textContent = 'Download PDF';
       }
       $('#share-btn').disabled = false;
@@ -2660,10 +2794,8 @@
 
   async function downloadAndRemember() {
     download(sendFile);
-    var ok = await rememberAgenda();
     if (!resending) markSent();
     $('#after-download').hidden = false;
-    if (!ok) toast('This phone couldn’t keep a saved copy.');
   }
 
   async function sharePdf() {
@@ -2684,9 +2816,8 @@
         await downloadAndRemember();
         return;
       }
-      var ok = await rememberAgenda();
       markSent(); closeSend();
-      sentDone(ok);
+      sentDone();
     } else {
       await downloadAndRemember();
     }
@@ -2709,7 +2840,7 @@
   function sentDone(saved) {
     ask({
       title: 'Sent successfully', success: true,
-      body: 'The agenda stays filled in for follow-up this week. When it’s time for the next ward council, tap Start a new agenda. ' + (saved ? 'A copy is saved on this phone for 4 weeks.' : 'This phone couldn’t keep a saved copy.'),
+      body: 'The agenda stays filled in for follow-up this week. When it’s time for the next ward council, tap Start a new agenda. Tip: include yourself when you send it, so you always have a copy of the PDF.',
       primary: 'Done'
     });
   }
@@ -2723,6 +2854,13 @@
     fileInput = $('#file-input');
     fileInput.addEventListener('change', onFilePicked);
     renderAll();
+    checkHandoffLink();
+    window.addEventListener('hashchange', checkHandoffLink);
+    // Tapping the date opens the phone's date picker right there.
+    var dateIn = $('#date');
+    if (dateIn) dateIn.addEventListener('click', function () { try { if (dateIn.showPicker) dateIn.showPicker(); } catch (e) { /* the input still works */ } });
+    // Saved copies of agendas are no longer kept on the phone; clear any left from before.
+    if (!readFlag('huddle-saved-cleared')) { try { deleteAllAgendas().then(function () { writeFlag('huddle-saved-cleared'); }, function () { writeFlag('huddle-saved-cleared'); }); } catch (e) { /* ignore */ } }
     if (staleRemoved) { saveDraft(); toast('Removed ' + staleRemoved + (staleRemoved === 1 ? ' name' : ' names') + ' not updated in 5 weeks.', 6000); }
     // Four-step view: start on the step list; the phone's Back gesture returns to it from a step.
     try { history.replaceState({ hv: 'home' }, ''); } catch (e) { /* ignore */ }

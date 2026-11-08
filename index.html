@@ -57,10 +57,11 @@
         </button>
       </div>
     </div>
-    <button type="button" class="meeting-date" id="meeting-date" data-action="edit-date" aria-label="Change the meeting date">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4.5" width="14" height="12.5" rx="2"/><path d="M3 8.5h14M7 2.8v3.4M13 2.8v3.4"/></svg>
-      <span class="md-text">Meeting date</span>
-    </button>
+    <label class="meeting-date" id="meeting-date">
+      <span class="md-kicker">This week’s huddle</span>
+      <span class="md-row"><span class="md-text">Set the date</span><svg class="md-pencil" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 15l1-4 8.5-8.5a2 2 0 0 1 3 3L7 14z"/><path d="M11 4l3 3"/></svg></span>
+      <input type="date" id="date" class="md-input" data-bind="date" aria-label="This week’s huddle date">
+    </label>
     <p class="sent-line" id="sent-line" hidden></p>
     <p class="meeting-time">About 15 minutes</p>
     <div class="info-pair" aria-label="How this works">
@@ -86,14 +87,14 @@
           <button type="button" class="info-btn" data-action="newweek-info" aria-label="What Start a new agenda does" aria-expanded="false">i</button>
         </div>
         <p class="newweek-info" id="newweek-info" hidden>Keeps your names and needs. Moves last week’s actions into Return and Report.</p>
-        <button type="button" class="btn-link newweek-load" data-action="load-other">Or load a saved or shared agenda</button>
+        <button type="button" class="btn-link newweek-load" data-action="load-other">Or load a handoff or PDF</button>
       </div>
       <div class="load-panel" id="load-panel">
           <button type="button" class="btn-outline" data-action="load">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5h6l3 3v10h-9z"/><path d="M10.5 2.5v3h3"/><path d="M9 8v5M6.8 10.8L9 13l2.2-2.2"/></svg>
-            Load last week
+            Load a handoff or PDF
           </button>
-          <p class="hint center">Choose an agenda saved on this phone. Its action items fill in Return and Report, and its names carry over.</p>
+          <p class="hint center">Got a handoff from another leader, or need to restore from a PDF? Otherwise, just start filling it in.</p>
         </div>
 
         <div class="loaded-banner" id="loaded-banner" hidden>
@@ -126,10 +127,6 @@
     <div class="grid-2">
       <label class="field">Ward
         <input type="text" id="ward" data-bind="ward" placeholder="Ward name" autocomplete="off" autocapitalize="words">
-      </label>
-      <label class="field">Date
-        <input type="date" id="date" data-bind="date" aria-describedby="date-hint">
-        <span class="date-hint" id="date-hint"></span>
       </label>
     </div>
     <div class="field conduct-field">
@@ -164,6 +161,7 @@
     <div class="section-head">
       <div class="head-line"><h2 id="h-rr">Return and Report</h2></div>
       <p class="muted">Mark each of last week’s items. If one didn’t happen, tap <strong class="ink">Carry forward</strong> to try again this week.</p>
+      <p class="rr-from" id="rr-from" hidden></p>
     </div>
 
     <div class="stack" id="rr-list"></div>
@@ -241,7 +239,10 @@
 
   <div class="actionbar">
     <div class="actionbar-row">
-      <button type="button" class="btn-secondary btn-save" data-action="save-only">Save without sending</button>
+      <button type="button" class="btn-secondary btn-handoff" data-action="handoff">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 9h10"/><path d="M9.5 5.5L13 9l-3.5 3.5"/><path d="M15.5 3.5v11"/></svg>
+        Hand off
+      </button>
       <button type="button" class="btn-primary" data-action="send">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11.5V2.5M5.5 6L9 2.5 12.5 6"/><path d="M3.5 9.5v5h11v-5"/></svg>
         <span id="send-label">Send</span>
@@ -283,12 +284,13 @@
 <div class="overlay" id="load-sheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="load-title">
     <div class="grab" aria-hidden="true"></div>
-    <h2 id="load-title">Load last week</h2>
-    <p class="step-hint">Tap an agenda to bring in its action items. Use <strong>Open to edit</strong> to change it, or <strong>Share again</strong> to resend its PDF.</p>
-    <div class="agenda-list" id="agenda-list"></div>
-    <button type="button" class="btn-secondary full" data-action="load-file">Load from a file instead</button>
+    <h2 id="load-title">Load an agenda</h2>
+    <p class="step-hint">Loading replaces the agenda on this phone. You can undo it right after.</p>
+    <button type="button" class="btn-primary full" data-action="paste-handoff">Paste a handoff</button>
+    <p class="hint">Another leader texted you a handoff link? Copy it, then tap Paste a handoff.</p>
+    <button type="button" class="btn-secondary full" data-action="load-file">Load from a PDF</button>
+    <p class="hint">Use the agenda PDF that was sent out, for example if this phone lost its agenda.</p>
     <button type="button" class="btn-secondary full" data-action="close-load">Cancel</button>
-    <button type="button" class="btn-link danger" data-action="delete-all">Delete all saved agendas</button>
   </div>
 </div>
 
@@ -413,7 +415,7 @@
     <div class="help-rhythm">
       <p><strong>In ward council:</strong> Tap <strong>Start a new agenda</strong>. Last week’s action items move into Return and Report, and your names and needs stay. Check the names against the Covenant Path Report (in Tools), and update each person’s next ordinance and need.</p>
       <p><strong>During huddle:</strong> Take attendance, mark what happened last week, and check sacrament attendance. Then plan one action item per person (who will do it, and when) and text each assignment before everyone leaves. Make plans in <strong>Plans to Find New People to Teach</strong>.</p>
-      <p><strong>After huddle:</strong> Send it to the bishop-approved list, the stake presidency and the full-time missionaries. The agenda stays filled in for the week.</p>
+      <p><strong>After huddle:</strong> Send it to the bishop-approved list, the stake presidency and the full-time missionaries, and include yourself so you have a copy. The agenda stays filled in for the week.</p>
       <p><strong>During the week:</strong> Tap <strong>Mark completed</strong> when someone finishes an assignment, and update names and needs as things change. Keep the Covenant Path Report in Tools updated, including sacrament attendance.</p>
     </div>
 
@@ -423,21 +425,21 @@
       <li>
         <p><strong>Add it to your Home Screen first, before you fill anything in.</strong> Tap <strong>Add to Home Screen</strong> at the top (iPhone: use Safari; Android: use Chrome). From then on, open it from the new icon. On iPhone, anything saved in Safari won’t carry over to the app.</p>
         <ul>
-          <li><strong>Don’t delete the Home Screen icon.</strong> Deleting it erases the agenda and every saved copy on that phone. PDFs you already shared aren’t affected, and you can still use <strong>Load from a file</strong>.</li>
+          <li><strong>Don’t delete the Home Screen icon.</strong> Deleting it erases the agenda on that phone. PDFs you already sent aren’t affected, and you can bring the agenda back with <strong>Load from a PDF</strong>.</li>
         </ul>
       </li>
       <li>
-        <p><strong>Each week in ward council, tap Start a new agenda</strong> (under the Ward Council and huddle boxes). Last week’s action items move into Return and Report, and anything marked <strong>Completed</strong> during the week is already marked Yes. Names, next ordinances and needs stay; attendance, answers and checks clear. Tap the <strong>i</strong> next to the button to see this anytime.</p>
+        <p><strong>Each week in ward council, tap Start a new agenda</strong> (under the Ward Council and huddle boxes). Last week’s action items move into Return and Report, and anything marked <strong>Completed</strong> during the week is already marked Yes. Names, next ordinances and needs stay; attendance, answers and checks clear. It suggests next week’s date, and you can change it before you start. Tap the <strong>i</strong> next to the button to see this anytime.</p>
         <ul>
-          <li><strong>The date at the top</strong> shows which meeting you’re working on. Tap it to change the date. Once the meeting date has passed, Start a new agenda turns blue so it’s easy to spot.</li>
-          <li><strong>First time?</strong> Tap <strong>Load last week</strong> to load last week’s agenda, choose <strong>Practice week</strong> to try it with sample names, or add the names from the Covenant Path Report.</li>
+          <li><strong>This week’s huddle date</strong> is at the top of the page. Tap it to change it. Once that date has passed, Start a new agenda turns blue so it’s easy to spot. Return and Report shows which huddle its items came from.</li>
+          <li><strong>First time?</strong> Just start filling it in with the names from the Covenant Path Report. To try it with sample names first, tap <strong>Try a practice week</strong> at the top of How to use.</li>
           <li>Names carried into the new agenda are marked <strong>From last week</strong>. Compare them to this week’s Covenant Path Report in Tools: add anyone new, remove anyone no longer listed, and update each person’s next ordinance and need.</li>
           <li><strong>New members:</strong> enter the baptism date. The red <strong>Temple attendance</strong> box counts down the 30 days to baptisms for the dead and stays red, week after week, until you check it.</li>
           <li><strong>Those being taught:</strong> check <strong>Committed to baptism</strong> and enter the scheduled baptismal date once it’s set. Once they’re baptized, tap <strong>Convert to new member</strong> to move them to New members.</li>
           <li><strong>No one in a list this week?</strong> Tap <strong>Confirm none this week</strong> on that list. The PDF then shows it was reviewed and empty; a list left blank prints <strong>Not reviewed</strong>.</li>
           <li>Under <strong>Name Next Ordinance</strong>, add the focus names from Ward Council, with each person’s next ordinance and need.</li>
           <li><strong>Names nobody has updated in 4 weeks</strong> ask “Still on the Covenant Path Report?” Tap <strong>Keep</strong> or <strong>Remove</strong>. After 5 weeks with no changes, a name is removed automatically.</li>
-          <li><strong>Someone else running the meeting?</strong> On their phone, they tap <strong>Load last week</strong> (or <strong>Or load a saved or shared agenda</strong>) and choose <strong>Load from a file</strong> with your last PDF.</li>
+          <li><strong>Someone else running the meeting?</strong> Tap <strong>Hand off</strong> (next to Send) and text them the link. On Android it loads right away. On iPhone the link opens in Safari: they tap <strong>Copy handoff</strong>, open the app from the Home Screen, then tap <strong>Load a handoff or PDF → Paste a handoff</strong>. They can hand it back the same way.</li>
         </ul>
       </li>
       <li>
@@ -461,9 +463,8 @@
         <ul>
           <li><strong>The agenda stays filled in.</strong> A green line under the date shows when it was sent. Change something afterward and it turns orange, <strong>Changed since sent</strong>; tap <strong>Send again</strong> to share the update.</li>
           <li><strong>Send to the bishop-approved list, the stake presidency and the full-time missionaries.</strong> Make sure the elders quorum representative is included, so he can run the next meeting if you’re away.</li>
-          <li><strong>A copy of each agenda is kept for 4 weeks,</strong> then deletes itself. It lives only on that phone, in that app.</li>
-          <li>Not ready to send? Tap <strong>Save without sending</strong> to keep a copy.</li>
-          <li>Need to resend an older week? Tap <strong>Or load a saved or shared agenda</strong>, then <strong>Share again</strong> or <strong>Open to edit</strong>.</li>
+          <li><strong>Include yourself when you send it,</strong> so you always have a copy of the PDF. The agenda itself lives only on this phone, in this app.</li>
+          <li>If this phone ever loses its agenda, tap <strong>Load a handoff or PDF → Load from a PDF</strong> and choose the last PDF you sent.</li>
         </ul>
       </li>
       <li>
