@@ -893,3 +893,38 @@ body[data-view="start"] .meeting-time { display: none; }
 .send-date[hidden] { display: none; }
 .send-date-change { font-weight: 700; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
 .send-date input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+
+/* Huddle and ward council screens: no title, help buttons or Send bar; those live on the opening screen */
+body[data-view="home"] .title-row { display: none; }
+/* The two Covenant Path Report checks */
+.check-box { display: flex; align-items: stretch; border-radius: 14px; background: var(--amber-soft); border: 1.5px solid var(--amber-line); overflow: hidden; }
+.check-box.done { background: #E4F3E9; border-color: #8CC6A0; }
+.check-tick { display: flex; align-items: center; justify-content: center; flex: none; width: 58px; cursor: pointer; }
+.check-tick input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.check-mark { width: 28px; height: 28px; border-radius: 8px; border: 2px solid #B98A1B; background: #FFFFFF; display: block; position: relative; }
+.check-tick input:focus-visible + .check-mark { outline: 3px solid var(--accent-line); outline-offset: 2px; }
+.check-box.done .check-mark { background: #1F6B3A; border-color: #1F6B3A; }
+.check-box.done .check-mark::after { content: ''; position: absolute; left: 8px; top: 3px; width: 7px; height: 13px; border: solid #FFFFFF; border-width: 0 3px 3px 0; transform: rotate(45deg); }
+.check-open { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 14px 12px 0; border: 0; background: none; font: inherit; text-align: left; color: inherit; cursor: pointer; }
+.check-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.check-line { font-size: 16px; font-weight: 800; color: var(--ink); line-height: 1.25; }
+.check-sub { font-size: 13.5px; color: var(--text); line-height: 1.3; }
+.check-box.done .cpr-step-k { color: #1F6B3A; }
+.check-box .cpr-step-k { margin: 0; }
+/* Quick name lists and the after-huddle review */
+.quick-panel { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; }
+.quick-panel .wc-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 15px; }
+.quick-names { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.quick-names li { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; border-top: 1px solid rgba(27,43,75,.1); }
+.quick-name { font-size: 16px; font-weight: 700; color: var(--ink); overflow-wrap: anywhere; }
+.quick-none { margin: 0; font-size: 14px; color: var(--muted); }
+.quick-add { display: flex; gap: 8px; }
+.quick-input { flex: 1; min-width: 0; min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1.5px solid var(--field-line); background: #FFFFFF; font: inherit; font-size: 16px; color: var(--ink); }
+.quick-add-btn { flex: none; min-height: 44px; padding: 0 16px; }
+.after-card { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; }
+.after-name { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 0 0 2px; font-size: 16px; font-weight: 800; color: var(--ink); }
+.after-fact { margin: 0; font-size: 14.5px; color: var(--text); line-height: 1.35; overflow-wrap: anywhere; }
+.after-k { display: inline-block; min-width: 0; margin-right: 6px; font-weight: 700; color: var(--muted); }
+.after-k::after { content: ':'; }
+.after-fact.yes { color: #1F6B3A; font-weight: 700; }
+.after-fact.partly { color: #7A5A00; } .after-fact.no { color: #9B2C2C; }

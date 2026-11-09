@@ -138,7 +138,7 @@
       tnDone: false, tn: [blankName(), blankName(), blankName()],
       find: blankFind(),
       practiceSnapshot: null,
-      sentAt: '', sentSig: '', rolledFrom: '', dateManual: false,
+      sentAt: '', sentSig: '', rolledFrom: '', dateManual: false, verified: { before: false, after: false },
       ftDone: false
     };
   }
@@ -187,7 +187,7 @@
     // A practice week remembers the form as it was, so removing it puts everything back.
     f.practiceSnapshot = f.loaded && f.loaded.practice && s.practiceSnapshot && typeof s.practiceSnapshot === 'object' ? s.practiceSnapshot : null;
     f.cpDone = !!s.cpDone; f.tnDone = !!s.tnDone; f.ftDone = !!s.ftDone;
-    f.dateManual = !!s.dateManual; f.sentAt = str(s.sentAt); f.sentSig = str(s.sentSig); f.rolledFrom = parseISO(str(s.rolledFrom)) ? str(s.rolledFrom) : '';
+    f.dateManual = !!s.dateManual; f.verified = { before: !!(s.verified && s.verified.before), after: !!(s.verified && s.verified.after) }; f.sentAt = str(s.sentAt); f.sentSig = str(s.sentSig); f.rolledFrom = parseISO(str(s.rolledFrom)) ? str(s.rolledFrom) : '';
     // Lists marked Done stay folded only within the draft; a saved agenda always opens fully.
     var sd = s.stepsDone && typeof s.stepsDone === 'object' ? s.stepsDone : {};
     ['rr', 'cp', 'tn', 'fn'].forEach(function (k) { if (sd[k] === true) f.stepsDone[k] = true; });
@@ -975,12 +975,12 @@
     // Names edited in ward council show up on the huddle's cards.
     if (shownView === 'wc' && view !== 'wc') { renderCP(); renderTN(); }
     shownView = view;
-    renderWC();
+    renderWC(); renderChecks();
     if (start) renderDoors();
     $('#steps-home').hidden = all || view !== 'home';
     $('#step-bar').hidden = all || home || start || wc; $('#step-foot').hidden = all || home || start || wc;
     // Hand off and Send live on the opening screen and the huddle's list; inside a section they're hidden.
-    var bar = $('.actionbar'); if (bar) bar.hidden = !all && !home && !start;
+    var bar = $('.actionbar'); if (bar) bar.hidden = !all && !start;
     Array.prototype.forEach.call(document.querySelectorAll('[data-step]'), function (el) { el.hidden = !all && el.getAttribute('data-step') !== view; });
     Array.prototype.forEach.call(document.querySelectorAll('.week-band'), function (el) { el.hidden = !all; });
     renderDetails(); renderSteps();
@@ -1031,8 +1031,79 @@
     wrap.replaceChildren.apply(wrap, [panel('tn', 'Name Next Ordinance (focus names)', state.tn, function (i) { return 'tn.' + i + '.'; })]
       .concat(GROUPS.map(function (g) { return panel(g.id, g.title, state.cp[g.id], function (i) { return 'cp.' + g.id + '.' + i + '.'; }); })));
   }
+  /* ---------- The two Covenant Path Report checks on the opening screen ---------- */
+  function allNames() {
+    var out = [];
+    state.tn.forEach(function (a, i) { if (str(a.name).trim()) out.push({ gid: 'tn', i: i, a: a, base: 'tn.' + i + '.' }); });
+    GROUPS.forEach(function (g) { state.cp[g.id].forEach(function (a, i) { if (str(a.name).trim()) out.push({ gid: g.id, i: i, a: a, base: 'cp.' + g.id + '.' + i + '.' }); }); });
+    return out;
+  }
+  function renderChecks() {
+    [['before', 'Tap to see and fix the names', 'Done. Tap to look again.'], ['after', 'Tap to see what to update. Check this off to send.', 'Done. You can send.']].forEach(function (c) {
+      var on = !!state.verified[c[0]], box = $('#' + c[0] + '-box'); if (!box) return;
+      box.classList.toggle('done', on); $('#' + c[0] + '-check').checked = on; $('#' + c[0] + '-sub').textContent = on ? c[2] : c[1];
+    });
+  }
+  function setVerified(which, on) { state.verified[which] = !!on; renderChecks(); saveDraft(); }
+  // Before ward council: one line per name, with add and remove.
+  function renderBefore() {
+    var wrap = $('#before-list'); if (!wrap) return;
+    var groups = [{ id: 'tn', title: 'Name Next Ordinance (focus names)' }].concat(GROUPS.map(function (g) { return { id: g.id, title: g.title }; }));
+    wrap.replaceChildren.apply(wrap, groups.map(function (g) {
+      var list = g.id === 'tn' ? state.tn : state.cp[g.id];
+      var rows = list.map(function (a, i) { return { a: a, i: i }; }).filter(function (x) { return str(x.a.name).trim(); });
+      var full = g.id === 'tn' && rows.length >= state.tn.length;
+      return h('section', { class: 'list-panel quick-panel list-' + g.id, 'data-quick': g.id, 'aria-label': g.title }, [
+        h('h3', { class: 'wc-title' }, [g.title, h('span', { class: 'list-count', text: String(rows.length) })]),
+        rows.length ? h('ul', { class: 'quick-names' }, rows.map(function (x) {
+          return h('li', {}, [h('span', { class: 'quick-name', text: x.a.name.trim() }),
+            removeButton(g.id === 'tn' ? 'quick-remove-tn' : 'remove-cp', g.id === 'tn' ? x.i : g.id, g.id === 'tn' ? '' : x.i, 'Remove ' + x.a.name.trim())]);
+        })) : h('p', { class: 'quick-none', text: 'No one listed' }),
+        full ? null : h('div', { class: 'quick-add' }, [
+          h('input', { type: 'text', class: 'quick-input', placeholder: 'Add a name', 'aria-label': 'Add a name to ' + g.title, autocomplete: 'off', autocapitalize: 'words', enterkeyhint: 'done', maxlength: '300' }),
+          h('button', { type: 'button', class: 'btn-outline quick-add-btn', 'data-action': 'quick-add', 'data-a': g.id, text: 'Add' })
+        ])
+      ]);
+    }));
+  }
+  function quickAdd(gid, name) {
+    name = str(name).trim(); if (!name) return false;
+    var list = gid === 'tn' ? state.tn : state.cp[gid];
+    var slot = list.filter(function (a) { return !str(a.name).trim() && !hasText(a, CARD_KEYS); })[0];
+    if (!slot) { if (gid === 'tn') { toast('There are three focus names. Remove one first.'); return false; } slot = blankAction(); list.push(slot); }
+    slot.name = name; slot.touched = todayISO();
+    if (gid !== 'tn') { state.cpNone[gid] = false; showBlank[gid] = true; }
+    renderCP(); renderTN(); renderBefore(); renderDoors(); saveDraft();
+    return true;
+  }
+  // After the huddle: what to carry over to the Covenant Path Report, person by person.
+  function renderAfter() {
+    var wrap = $('#after-list'); if (!wrap) return;
+    var names = allNames();
+    var label = { tn: 'Focus name', nm: 'New member', rm: 'Returning member', bt: 'Being taught' };
+    var rows = names.map(function (x) {
+      var a = x.a, r = null;
+      for (var i = 0; i < state.rr.length; i++) { var q = state.rr[i]; if (q.prefilled && groupOf(q) === x.gid && norm(rrPerson(q)) === norm(a.name) && str(q.action).trim()) { r = q; break; } }
+      var fact = function (k, v, cls) { return h('p', { class: 'after-fact' + (cls ? ' ' + cls : '') }, [h('span', { class: 'after-k', text: k }), v]); };
+      var who = [str(a.assigned).trim(), str(a.when).trim()].filter(Boolean).join(' · ');
+      return h('div', { class: 'card after-card g-' + x.gid }, [
+        h('p', { class: 'after-name' }, [a.name.trim(), h('span', { class: 'source', text: label[x.gid] })]),
+        fact('Sacrament', a.sac ? 'Attended' : 'Not marked', a.sac ? 'yes' : ''),
+        x.gid === 'nm' ? fact('Temple', a.temple ? 'Attended' : 'Not yet', a.temple ? 'yes' : '') : null,
+        x.gid === 'bt' && a.committed ? fact('Baptism', 'Committed' + (monthDay(a.bap) ? ' · ' + monthDay(a.bap) : ''), 'yes') : null,
+        str(a.ordinance).trim() ? fact('Next ordinance', a.ordinance.trim()) : null,
+        str(a.need).trim() ? fact('Needs', a.need.trim()) : null,
+        r ? fact('Reported back', (str(r.action).trim()) + ': ' + ({ Yes: 'Done', Partly: 'Partly done', No: 'Not done' }[r.happened] || 'Pending') + (str(r.notes).trim() ? ' · ' + r.notes.trim() : ''), statusOf(r.happened)) : null,
+        str(a.action).trim() ? fact('New assignment', a.action.trim() + (who ? ' (' + who + ')' : '')) : null,
+        str(a.hneed).trim() ? fact('Huddle notes', a.hneed.trim()) : null
+      ]);
+    });
+    wrap.replaceChildren.apply(wrap, rows.length ? rows : [h('p', { class: 'quick-none', text: 'No names yet. Add them under Ward council.' })]);
+  }
+
   // The two doors on the opening screen say where things stand.
   function renderDoors() {
+    renderChecks();
     var names = state.tn.filter(function (a) { return str(a.name).trim(); }).length + GROUPS.reduce(function (n, g) { return n + countNamed(g.id); }, 0);
     $('#door-wc-sub').textContent = names ? plural(names, 'name', 'names') + ' · next ordinances and needs' : 'Names, next ordinances and needs';
     var items = state.rr.filter(rrShown), marked = items.filter(function (r) { return r.happened; }).length;
@@ -1264,6 +1335,18 @@
       case 'open-wc': showView('wc', 'push'); break;
       case 'open-huddle': syncDate(); showView('home', 'push'); break;
       case 'go-start': goStart(); break;
+      case 'open-before': renderBefore(); openOverlay('#before-sheet', '#before-title'); $('#before-sheet .sheet').scrollTop = 0; break;
+      case 'close-before': closeOverlay('#before-sheet'); break;
+      case 'before-done': closeOverlay('#before-sheet'); setVerified('before', true); toast('Before ward council: done.'); break;
+      case 'open-after': renderAfter(); openOverlay('#after-sheet', '#after-title'); $('#after-sheet .sheet').scrollTop = 0; break;
+      case 'close-after': closeOverlay('#after-sheet'); break;
+      case 'after-done': closeOverlay('#after-sheet'); setVerified('after', true); toast('Covenant Path Report updated. You can send.'); break;
+      case 'quick-add': { var qi = btn.parentNode.querySelector('.quick-input'); if (quickAdd(a, qi && qi.value)) { var nq = document.querySelector('#before-list [data-quick="' + a + '"] .quick-input'); if (nq) nq.focus(); } break; }
+      case 'quick-remove-tn': {
+        var qn = state.tn[+a], qdo = function () { state.tn[+a] = blankName(); renderTN(); renderBefore(); renderDoors(); saveDraft(); };
+        if (qn && hasText(qn, CARD_KEYS.filter(function (k) { return k !== 'name'; }))) confirmRemove('Remove ' + qn.name.trim() + '?', qdo); else qdo();
+        break;
+      }
       case 'wc-add': state.cp[a].push(blankAction()); state.cpNone[a] = false; showBlank[a] = true;
         renderCP(); renderWC(); saveDraft(); focusLast('#wc-list [data-wc="' + a + '"] input[data-bind$=".name"]'); break;
       case 'steps-home': goHome(); break;
@@ -1307,7 +1390,7 @@
         var doRemoveCP = function () {
           state.cp[cpList].splice(cpIdx, 1); delete state.openOne[cpList];
           if (!state.cp[cpList].length) { state.cp[cpList].push(blankAction()); showBlank[cpList] = false; }
-          renderCP(); renderWC(); saveDraft();
+          renderCP(); renderWC(); renderBefore(); if (view === 'start') renderDoors(); saveDraft();
         };
         if (cItem && (cItem.sac || cItem.temple || cItem.committed || hasText(cItem, CARD_KEYS))) {
           confirmRemove(str(cItem.name).trim() ? 'Remove ' + cItem.name.trim() + '?' : 'Remove this card?', doRemoveCP);
@@ -2774,7 +2857,6 @@
   var SHARE_HINT = 'Only share via email or text message. Do not share through any other app.';
   function resetSendSheet() {
     sendFile = null; sendPayload = null;
-    var tcb = $('#tools-check'); if (tcb) { tcb.checked = false; tcb.closest('.tools-check').classList.remove('nudge'); }
     $('#send-title').textContent = resending ? 'Share this agenda again' : 'Send this agenda';
     $('#share-btn').disabled = true; $('#share-btn').textContent = 'Share PDF';
     $('#share-hint').textContent = resending ? 'Only share via email or text message. Do not share through any other app. The form on your screen isn’t changed.' : SHARE_HINT;
@@ -2813,6 +2895,11 @@
   async function startSend(src, checked) {
     resending = !!src;
     if (!resending && syncDate()) saveDraft();
+    if (!resending && !state.verified.after && readyToSave('send')) {
+      ask({ title: 'Update the Covenant Path Report first', body: 'Before you send, check off “After the huddle, before you send” on the opening screen. It shows what to update for each person.',
+        primary: 'Show me what to update', onPrimary: function () { if (stepsOn && view !== 'start') showView('start', 'replace'); renderAfter(); openOverlay('#after-sheet', '#after-title'); }, secondary: 'Cancel' });
+      return;
+    }
     if (!resending && !readyToSave('send')) return;
     if (!resending && !checked) {
       var open = openItems();
@@ -2825,7 +2912,6 @@
     var agenda = src || state;
     resetSendSheet();
     $('#send-title').textContent = resending ? 'Share the ' + (monthDay(agenda.date) || 'last') + ' agenda again' : 'Send this huddle’s agenda';
-    $('#send-tools').hidden = resending;
     $('#send-date-row').hidden = resending;
     $('#send-date-text').textContent = parseISO(agenda.date) ? parseISO(agenda.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : 'today';
     $('#send-date').value = agenda.date;
@@ -2866,14 +2952,6 @@
 
   async function sharePdf() {
     if (!sendFile) return;
-    // The Covenant Path Report has to be confirmed as updated before the PDF goes out.
-    var tc = $('#tools-check');
-    if (!resending && tc && !tc.checked) {
-      var box = tc.closest('.tools-check'); box.classList.remove('nudge'); void box.offsetWidth; box.classList.add('nudge');
-      box.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      toast('Check the box first: confirm the Covenant Path Report is updated.', 5000);
-      return;
-    }
     if (resending) {
       if (canShareFiles(sendFile)) {
         try { await navigator.share({ files: [sendFile], title: sendFile.name }); }
@@ -2923,10 +3001,11 @@
     $('#send-date').addEventListener('click', function () { try { if (this.showPicker) this.showPicker(); } catch (e) { /* the input still works */ } });
     $('#send-date').addEventListener('change', function () {
       var v = this.value; if (!parseISO(v) || resending || v === state.date) return;
-      var was = $('#tools-check').checked;
       state.date = v; state.dateManual = true; $('#date').value = v; saveDraft();
-      startSend(null, true).then(function () { $('#tools-check').checked = was; });
+      startSend(null, true);
     });
+    ['before', 'after'].forEach(function (w) { $('#' + w + '-check').addEventListener('change', function () { setVerified(w, this.checked); }); });
+    $('#before-list').addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.classList.contains('quick-input')) { e.preventDefault(); var b2 = e.target.parentNode.querySelector('[data-action="quick-add"]'); if (b2) b2.click(); } });
     renderAll();
     checkHandoffLink();
     window.addEventListener('hashchange', checkHandoffLink);
@@ -2999,7 +3078,7 @@
     });
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;
-      var top = ['#confirm-sheet', '#sample-sheet', '#load-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#find-tips-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
+      var top = ['#confirm-sheet', '#sample-sheet', '#load-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#find-tips-sheet', '#before-sheet', '#after-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
       if (top) dismissSheet(top);
     });
     enableSwipeDown();
