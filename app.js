@@ -148,6 +148,7 @@
       var o = maker();
       keys.forEach(function (k) { o[k] = str(x[k]); });
       o.sac = !!x.sac; o.temple = !!x.temple; o.committed = !!x.committed; o.actionCarried = !!x.actionCarried; o.texted = !!x.texted;
+      o.lastSac = x.lastSac === true ? true : x.lastSac === false ? false : null;
       o.doneMid = !!x.doneMid; o.touched = parseISO(str(x.touched)) ? str(x.touched) : '';
       return o;
     });
@@ -993,11 +994,11 @@
   }
   /* ---------- Ward council: every name with only what ward council decides ---------- */
   // The last huddle's assignment for a name, if there was one (its row in Return and Report).
-  function lastAction(gid, name, any) {
+  function lastAction(gid, name) {
     var nm = norm(name); if (!nm) return null;
     for (var i = 0; i < state.rr.length; i++) {
       var r = state.rr[i];
-      if (r.prefilled && groupOf(r) === gid && norm(rrPerson(r)) === nm && (any || str(r.action).trim())) return r;
+      if (r.prefilled && groupOf(r) === gid && norm(rrPerson(r)) === nm && str(r.action).trim()) return r;
     }
     return null;
   }
@@ -1022,9 +1023,8 @@
         facts.push(['Temple', a.temple ? 'Attended' : parseISO(str(a.bap)) ? 'Not yet · ' + ts.text : 'Not yet', a.temple ? 'yes' : (ts.left !== undefined && ts.left <= 0 ? 'no' : '')]);
       }
       if (gid === 'bt') facts.push(['Baptism', a.committed ? 'Committed' + (monthDay(a.bap) ? ' · scheduled ' + monthDay(a.bap) : ', no date yet') : monthDay(a.bap) ? 'Scheduled ' + monthDay(a.bap) : 'Not committed yet', a.committed ? 'yes' : '']);
-      var rs = lastAction(gid, a.name, true);
       if (a.sac) facts.push(['Sacrament', 'Attended (marked this huddle)', 'yes']);
-      else if (rs) facts.push(['Sacrament', rs.sac ? 'Attended, as of the last huddle' : 'Not marked at the last huddle', rs.sac ? 'yes' : '']);
+      else if (a.lastSac === true || a.lastSac === false) facts.push(['Sacrament', a.lastSac ? 'Attended, as of the last huddle' : 'Not marked at the last huddle', a.lastSac ? 'yes' : '']);
       if (str(a.hneed).trim()) facts.push(['Huddle notes', a.hneed.trim()]);
     }
     var details = facts.length ? h('div', { class: 'wc-last wc-details' }, [h('p', { class: 'wc-last-k', text: 'Details' })].concat(facts.map(function (f) {
@@ -1526,11 +1526,11 @@
         break;
       }
       case 'clear':
-        if (isEmpty(state)) { toast('The form is already clear.'); break; }
+        if (isEmpty(state)) { toast('There’s nothing to erase.'); break; }
         ask({
-          title: 'Clear the whole form?',
-          body: 'Everything except the ward name will be erased. This can’t be undone.',
-          primary: 'Clear form', onPrimary: function () { removeKey('localStorage', 'huddle-conducting'); clearForm(true); toast('Form cleared. The ward name is kept.'); },
+          title: 'Erase everything?',
+          body: 'Every name, need and assignment on this phone will be erased, along with the last huddle you sent. The ward name is kept. This can’t be undone.',
+          primary: 'Erase everything', onPrimary: function () { removeKey('localStorage', 'huddle-conducting'); clearForm(true); toast('Everything is erased. The ward name is kept.'); },
           secondary: 'Cancel'
         });
         break;
@@ -1851,10 +1851,10 @@
     var snap = state.practiceSnapshot;
     state = normalizeState(snap || null); state.loaded = null; state.practiceSnapshot = null;
     resetView(); renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
-    toast('Practice week removed. The form is back the way it was.');
+    toast('Practice week removed. Your own names are back the way they were.');
   }
   function confirmRemovePractice() {
-    ask({ title: 'Remove the practice week?', body: 'The sample names and anything you entered while practicing are cleared, and the form goes back to how it was.',
+    ask({ title: 'Remove the practice week?', body: 'The sample names and anything you entered while practicing are cleared, and your own names come back the way they were.',
       primary: 'Remove practice week', onPrimary: removePractice, secondary: 'Cancel' });
   }
   function extractActionItems(data) {
@@ -1862,12 +1862,12 @@
     var cp = data.cp || {};
     GROUPS.forEach(function (g) {
       (Array.isArray(cp[g.id]) ? cp[g.id] : []).forEach(function (a) {
-        if (!a || !hasText(a, ['name', 'action'])) return;
+        if (!a || !str(a.action).trim()) return; // a name with no assignment has nothing to report back
         items.push(itemFrom(a, g.id));
       });
     });
     (Array.isArray(data.tn) ? data.tn : []).forEach(function (n) {
-      if (!n || !hasText(n, ['name', 'action'])) return;
+      if (!n || !str(n.action).trim()) return;
       items.push(itemFrom(n, 'tn'));
     });
     var fd = data.find && typeof data.find === 'object' ? data.find : {};
@@ -1899,13 +1899,13 @@
       var names = [], info = {};
       (Array.isArray(cp[g.id]) ? cp[g.id] : []).forEach(function (a) {
         var n = a && str(a.name).trim();
-        if (n && names.every(function (x) { return norm(x) !== norm(n); })) { names.push(n); info[norm(n)] = { ordinance: str(a.ordinance).trim(), need: str(a.need).trim(), hneed: str(a.hneed).trim(), bap: str(a.bap), temple: !!a.temple, committed: !!a.committed, touched: parseISO(str(a.touched)) ? str(a.touched) : '' }; }
+        if (n && names.every(function (x) { return norm(x) !== norm(n); })) { names.push(n); info[norm(n)] = { ordinance: str(a.ordinance).trim(), need: str(a.need).trim(), hneed: str(a.hneed).trim(), bap: str(a.bap), temple: !!a.temple, committed: !!a.committed, sac: !!a.sac, touched: parseISO(str(a.touched)) ? str(a.touched) : '' }; }
       });
       if (!names.length) return;
       var cur = state.cp[g.id].filter(function (a) { return a.sac || hasText(a, CARD_KEYS); });
       names.forEach(function (n) {
         if (cur.some(function (a) { return norm(a.name) === norm(n); })) return;
-        var c = blankAction(); c.name = n; c.ordinance = info[norm(n)].ordinance; c.need = info[norm(n)].need; c.hneed = info[norm(n)].hneed; c.carried = true; c.touched = info[norm(n)].touched;
+        var c = blankAction(); c.name = n; c.ordinance = info[norm(n)].ordinance; c.need = info[norm(n)].need; c.hneed = info[norm(n)].hneed; c.carried = true; c.touched = info[norm(n)].touched; c.lastSac = info[norm(n)].sac;
         if (g.id === 'nm') { c.bap = info[norm(n)].bap; c.temple = info[norm(n)].temple; }
         if (g.id === 'bt') { c.bap = info[norm(n)].bap; c.committed = info[norm(n)].committed; }
         cur.push(c);
@@ -1919,7 +1919,7 @@
       if (!n || state.tn.some(function (t) { return norm(t.name) === norm(n); })) return;
       var slot = state.tn.findIndex(function (t) { return !t.sac && !hasText(t, CARD_KEYS); });
       if (slot < 0) return;
-      var c = blankName(); c.name = n; c.ordinance = str(a.ordinance).trim(); c.need = str(a.need).trim(); c.hneed = str(a.hneed).trim(); c.carried = true;
+      var c = blankName(); c.name = n; c.ordinance = str(a.ordinance).trim(); c.need = str(a.need).trim(); c.hneed = str(a.hneed).trim(); c.carried = true; c.lastSac = !!a.sac;
       c.touched = parseISO(str(a.touched)) ? str(a.touched) : '';
       state.tn[slot] = c;
       added++;
@@ -2089,7 +2089,7 @@
       writeFlag(NAMES_HINT_KEY);
       ask({
         title: 'Check the names that carried over',
-        body: 'Last week’s names are now in Covenant Path Report Review and Name Next Ordinance. Compare them to this week’s Covenant Path Report and ward council’s focus names: add anyone new and remove anyone no longer listed.',
+        body: 'These names stay from one huddle to the next. Before ward council, compare them to this week’s Covenant Path Report: add anyone new and remove anyone no longer listed.',
         primary: 'Show me the names', onPrimary: function () {
           if (stepsOn) { showView('cp', 'push'); return; }
           var g = $('#cp-groups'); if (g) g.scrollIntoView({ block: 'start', behavior: 'smooth' });
@@ -2905,7 +2905,7 @@
     sendFile = null; sendPayload = null;
     $('#send-title').textContent = resending ? 'Share this agenda again' : 'Send this agenda';
     $('#share-btn').disabled = true; $('#share-btn').textContent = 'Share PDF';
-    $('#share-hint').textContent = resending ? 'Only share via email or text message. Do not share through any other app. The form on your screen isn’t changed.' : SHARE_HINT;
+    $('#share-hint').textContent = resending ? 'Only share via email or text message. Do not share through any other app. Your current huddle isn’t changed.' : SHARE_HINT;
     $('#send-recipients').hidden = false;
   }
 
@@ -2923,16 +2923,16 @@
       return false;
     }
     if (!state.ward.trim()) {
-      ask({ title: 'Add your ward name first', body: 'The ward name goes on the PDF and helps you load the right agenda next week.', primary: 'OK', onPrimary: function () { openDetails(); $('#ward').focus(); } });
+      ask({ title: 'Add your ward name first', body: 'The ward name goes on the PDF. It’s in Huddle Details.', primary: 'OK', onPrimary: function () { openDetails(); $('#ward').focus(); } });
       return false;
     }
     if (!parseISO(state.date)) {
-      ask({ title: 'Add the huddle date first', body: 'Tap the date at the top to set it.', primary: 'OK', onPrimary: function () { window.scrollTo(0, 0); } });
+      ask({ title: 'The huddle date is missing', body: 'Close the app, open it again, and tap Send. It’s dated today automatically.', primary: 'OK', onPrimary: function () { window.scrollTo(0, 0); } });
       return false;
     }
     // Report-backs from the last huddle count as something to send, even if every name has since been removed.
     if (isEmpty(state) && !state.rr.some(function (r) { return r.prefilled; })) {
-      ask({ title: 'Nothing to ' + verb + ' yet', body: 'Fill in the agenda first.', primary: 'OK' });
+      ask({ title: 'Nothing to ' + verb + ' yet', body: 'Add names under Ward council first.', primary: 'OK' });
       return false;
     }
     return true;
@@ -3085,6 +3085,26 @@
       if (path === 'date') { state.dateManual = true; renderDateHint(); }
       // Ward council: once a name is finished being typed, its Details and last assignment follow the new name.
       // (Only those boxes are redrawn, so the field being typed in next keeps its place.)
+      var rn = e.type === 'change' ? /^(?:cp\.(\w+)|(tn))\.\d+\.name$/.exec(path) : null;
+      if (rn) {
+        var rg = rn[1] || 'tn', was = str(t._nameWas).trim(), now = String(val).trim();
+        t._nameWas = now;
+        var pend = was && now && norm(was) !== norm(now) && !lastAction(rg, now) ? state.rr.filter(function (r) { return r.prefilled && groupOf(r) === rg && norm(rrPerson(r)) === norm(was) && str(r.action).trim(); }) : [];
+        if (pend.length) {
+          var rcard = t.closest('.wc-card');
+          ask({
+            title: 'Is this the same person?', compare: [['Was', was], ['Now', now]],
+            body: was + ' has an assignment from the last huddle. If you’re fixing the name, it stays with ' + now + '. If this is someone else, it stays under ' + was + '.',
+            primary: 'Same person, fix the name', onPrimary: function () {
+              pend.forEach(function (r) { r.pname = now; });
+              renderRR(); saveDraft();
+              if (rcard && view === 'wc') { Array.prototype.forEach.call(rcard.querySelectorAll('.wc-last'), function (x) { x.remove(); }); wcExtras(rg, getPath(path.replace(/\.name$/, '')) || {}).forEach(function (x) { rcard.appendChild(x); }); }
+              toast('Name fixed. The last assignment stays with ' + now + '.');
+            },
+            secondary: 'Different person'
+          });
+        }
+      }
       var wcc = e.type === 'change' && view === 'wc' && /\.name$/.test(path) ? t.closest('.wc-card') : null;
       if (wcc) {
         Array.prototype.forEach.call(wcc.querySelectorAll('.wc-last'), function (x) { x.remove(); });
@@ -3118,6 +3138,8 @@
     var flushDraft = function () { clearTimeout(draftTimer); if (!tourDemo) writeJSON('localStorage', LIVE_KEY, state); };
     window.addEventListener('pagehide', flushDraft);
     document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') flushDraft(); });
+    // Remember a name as it was when the field was entered, to notice a rename.
+    document.addEventListener('focusin', function (e) { var t = e.target; if (t && t.getAttribute && /\.name$/.test(t.getAttribute('data-bind') || '') && t._nameWas === undefined) t._nameWas = t.value; });
     document.addEventListener('input', onEdit);
     document.addEventListener('change', onEdit);
     document.addEventListener('click', function (e) {
