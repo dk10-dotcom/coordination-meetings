@@ -653,7 +653,7 @@
               many ? removeButton('remove-cp', g.id, i, 'Remove action ' + (i + 1) + ' for ' + g.title) : null]),
             h('div', { class: 'card-head-right' }, [sacToggle(base + 'sac', it.sac)])
           ]),
-          cardFields(base, 'Name', 'From the Covenant Path Report', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: fromLabel() }) : null, g.id === 'nm' ? 'Baptism date' : g.id === 'bt' ? 'Scheduled baptismal date' : '', 'Identify a need from the Covenant Path Report', '',
+          cardFields(base, 'Name', 'From the Covenant Path Report', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: fromLabel() }) : null, g.id === 'nm' ? 'Baptism date' : g.id === 'bt' ? 'Scheduled baptismal date' : '', 'Tap their name in the Covenant Path Report to identify needs', '',
             g.id === 'nm' ? templeBox(base, i, it) : g.id === 'bt' ? committedBox(base, it) : null, FIXED_ORD[g.id]),
           g.id === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': i }, ['Convert to new member']) : null
         ]);
@@ -1016,7 +1016,7 @@
       ]),
       gid === 'nm' ? field('Baptism date', base + 'bap', { type: 'date' }) : null,
       field('Next ordinance', base + 'ordinance', { placeholder: gid === 'bt' ? 'Baptism' : 'e.g. Temple baptisms' }),
-      field('Needs', base + 'need', { multi: true, placeholder: 'What do they need to get there?' }),
+      field('Needs', base + 'need', { multi: true, rows: gid === 'tn' ? '2' : '3', placeholder: gid === 'tn' ? 'What do they need to get there?' : 'Tap their name in the Covenant Path Report to identify needs' }),
       last
     ]);
   }
