@@ -401,6 +401,9 @@
           h('p', { class: 'carried-note', text: '✓ Added to ' + nextPlan() }),
           h('button', { type: 'button', class: 'btn-undo', 'data-action': 'undo-carry', 'data-a': i, 'aria-label': 'Undo carry forward' }, ['Undo'])
         ]);
+      } else if (r.prefilled && (r.happened === 'Partly' || r.happened === 'No') && groupOf(r) && !stillListed(r)) {
+        // The person is no longer on that list, so there's no card to carry the assignment to.
+        carry = h('p', { class: 'carry-none', text: (rrPerson(r) || 'This name') + ' is no longer on the ' + (groupOf(r) === 'tn' ? 'Name Next Ordinance' : 'Covenant Path Report') + ' list, so there’s nothing to carry forward.' });
       } else if (r.prefilled && (r.happened === 'Partly' || r.happened === 'No') && groupOf(r)) {
         {
           carry = h('button', { type: 'button', class: 'btn-outline full btn-carry', 'data-action': 'carry-fwd', 'data-a': i, text: 'Carry forward to this huddle' });
@@ -972,8 +975,10 @@
     $('header.top').hidden = !home && !start; $('.start-here').hidden = !home && !start; $('.fine-notes').hidden = !home && !start;
     $('#start-home').hidden = !start; $('#wc-view').hidden = !wc; $('#mode-bar').hidden = all || !(view === 'home' || wc);
     $('#mode-title').textContent = wc ? 'Ward council' : 'Huddle';
+    var stp = STEPS.filter(function (x) { return x.id === view; })[0]; $('#step-title').textContent = stp ? stp.title : '';
     // Names edited in ward council show up on the huddle's cards.
     if (shownView === 'wc' && view !== 'wc') { renderCP(); renderTN(); }
+    if (!all && view === 'rr' && shownView !== 'rr') renderRR(); // names may have changed since it was drawn
     shownView = view;
     renderWC(); renderChecks();
     if (start) renderDoors();
@@ -1034,7 +1039,6 @@
   /* ---------- The two Covenant Path Report checks on the opening screen ---------- */
   function allNames() {
     var out = [];
-    state.tn.forEach(function (a, i) { if (str(a.name).trim()) out.push({ gid: 'tn', i: i, a: a, base: 'tn.' + i + '.' }); });
     GROUPS.forEach(function (g) { state.cp[g.id].forEach(function (a, i) { if (str(a.name).trim()) out.push({ gid: g.id, i: i, a: a, base: 'cp.' + g.id + '.' + i + '.' }); }); });
     return out;
   }
@@ -1048,7 +1052,8 @@
   // Before ward council: one line per name, with add and remove.
   function renderBefore() {
     var wrap = $('#before-list'); if (!wrap) return;
-    var groups = [{ id: 'tn', title: 'Name Next Ordinance (focus names)' }].concat(GROUPS.map(function (g) { return { id: g.id, title: g.title }; }));
+    // Covenant Path Report lists only; focus names come from ward council, not the report.
+    var groups = GROUPS.map(function (g) { return { id: g.id, title: g.title }; });
     wrap.replaceChildren.apply(wrap, groups.map(function (g) {
       var list = g.id === 'tn' ? state.tn : state.cp[g.id];
       var rows = list.map(function (a, i) { return { a: a, i: i }; }).filter(function (x) { return str(x.a.name).trim(); });
@@ -1098,7 +1103,7 @@
         str(a.hneed).trim() ? fact('Huddle notes', a.hneed.trim()) : null
       ]);
     });
-    wrap.replaceChildren.apply(wrap, rows.length ? rows : [h('p', { class: 'quick-none', text: 'No names yet. Add them under Ward council.' })]);
+    wrap.replaceChildren.apply(wrap, rows.length ? rows : [h('p', { class: 'quick-none', text: 'No one is on the Covenant Path Report lists yet.' })]);
   }
 
   // The two doors on the opening screen say where things stand.
@@ -1924,8 +1929,15 @@
     if (act) target.actionCarried = true;
     return { filled: filled, appended: appended };
   }
+  // Is the person this item was for still on their list? (Finding assignments have no person.)
+  function stillListed(r) {
+    var g = groupOf(r); if (g === 'fn') return true;
+    var nm = norm(rrPerson(r)); if (!nm || !g) return false;
+    return (g === 'tn' ? state.tn : state.cp[g] || []).some(function (a) { return norm(a.name) === nm; });
+  }
   function carryForward(i) {
     var r = state.rr[i]; if (!r) return;
+    if (!stillListed(r)) { renderRR(); return; }
     var g = groupOf(r);
     var name = str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim();
     var ord = str(r.ord).trim() || (str(r.person).split(' · Next: ')[1] || '').trim();
