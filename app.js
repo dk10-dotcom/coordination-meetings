@@ -992,11 +992,11 @@
   }
   /* ---------- Ward council: every name with only what ward council decides ---------- */
   // The last huddle's assignment for a name, if there was one (its row in Return and Report).
-  function lastAction(gid, name) {
+  function lastAction(gid, name, any) {
     var nm = norm(name); if (!nm) return null;
     for (var i = 0; i < state.rr.length; i++) {
       var r = state.rr[i];
-      if (r.prefilled && groupOf(r) === gid && norm(rrPerson(r)) === nm && str(r.action).trim()) return r;
+      if (r.prefilled && groupOf(r) === gid && norm(rrPerson(r)) === nm && (any || str(r.action).trim())) return r;
     }
     return null;
   }
@@ -1011,6 +1011,23 @@
         h('p', { class: 'wc-last-action', text: str(r.action).trim() + (who ? ' (' + who + ')' : '') })
       ]);
     }
+    // Details: what's already known about this person, read-only (it's edited in the huddle).
+    var facts = [];
+    if (str(a.name).trim()) {
+      if (gid === 'nm') {
+        if (parseISO(str(a.bap))) facts.push(['Baptized', monthDay(a.bap)]);
+        var ts = templeStatus(a, state.date);
+        facts.push(['Temple', a.temple ? 'Attended' : parseISO(str(a.bap)) ? 'Not yet · ' + ts.text : 'Not yet', a.temple ? 'yes' : (ts.left !== undefined && ts.left <= 0 ? 'no' : '')]);
+      }
+      if (gid === 'bt') facts.push(['Baptism', a.committed ? 'Committed' + (monthDay(a.bap) ? ' · scheduled ' + monthDay(a.bap) : ', no date yet') : monthDay(a.bap) ? 'Scheduled ' + monthDay(a.bap) : 'Not committed yet', a.committed ? 'yes' : '']);
+      var rs = lastAction(gid, a.name, true);
+      if (a.sac) facts.push(['Sacrament', 'Attended (marked this huddle)', 'yes']);
+      else if (rs) facts.push(['Sacrament', rs.sac ? 'Attended, as of the last huddle' : 'Not marked at the last huddle', rs.sac ? 'yes' : '']);
+      if (str(a.hneed).trim()) facts.push(['Huddle notes', a.hneed.trim()]);
+    }
+    var details = facts.length ? h('div', { class: 'wc-last wc-details' }, [h('p', { class: 'wc-last-k', text: 'Details' })].concat(facts.map(function (f) {
+      return h('p', { class: 'after-fact' + (f[2] ? ' ' + f[2] : '') }, [h('span', { class: 'after-k', text: f[0] }), f[1]]);
+    }))) : null;
     return h('div', { class: 'card wc-card g-' + gid }, [
       h('div', { class: 'wc-card-head' }, [
         field(gid === 'tn' ? 'Focus name' : 'Name', base + 'name', { placeholder: gid === 'tn' ? 'Focus name' : 'From the Covenant Path Report', cap: 'words' }),
@@ -1019,6 +1036,7 @@
       gid === 'nm' ? field('Baptism date', base + 'bap', { type: 'date' }) : null,
       field('Next ordinance', base + 'ordinance', { placeholder: gid === 'bt' ? 'Baptism' : 'e.g. Temple baptisms' }),
       field('Needs', base + 'need', { multi: true, rows: gid === 'tn' ? '2' : '3', placeholder: gid === 'tn' ? 'What do they need to get there?' : 'Tap their name in the Covenant Path Report to identify needs' }),
+      details,
       last
     ]);
   }

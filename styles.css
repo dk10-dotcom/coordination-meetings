@@ -930,5 +930,7 @@ body[data-view="home"] .title-row { display: none; }
 .after-fact.partly { color: #7A5A00; } .after-fact.no { color: #9B2C2C; }
 /* Section titles sit beside Back, always on screen */
 body.steps-on [data-step] .section-head h2, body.steps-on [data-step] .head-line, #h-wc { display: none; }
-.step-title { text-align: right; line-height: 1.2; font-size: 16px; min-width: 0; }
+.bar-title { text-align: right; line-height: 1.2; font-size: 16px; min-width: 0; }
 .carry-none { margin: 0; padding: 10px 12px; border-radius: 10px; background: #F4F6FA; border: 1px solid var(--card-line); font-size: 14px; color: var(--muted); line-height: 1.35; }
+.huddle-tips { align-self: flex-start; }
+.wc-details { gap: 3px; }

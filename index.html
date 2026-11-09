@@ -41,7 +41,7 @@
       <svg width="20" height="20" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M11 3.5L5.5 9l5.5 5.5"/></svg>
       Back
     </button>
-    <span class="mode-title step-title" id="step-title"></span>
+    <span class="mode-title bar-title" id="step-title"></span>
   </div>
 
   <div class="step-bar" id="mode-bar" hidden>
@@ -56,10 +56,6 @@
     <div class="title-row">
       <h1>Ward Mission Leader Process</h1>
       <div class="top-buttons">
-        <button type="button" class="help-link" data-action="tips" aria-haspopup="dialog">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 2.2a4.8 4.8 0 0 0-2.9 8.6c.5.4.8 1 .8 1.6v.4h4.2v-.4c0-.6.3-1.2.8-1.6A4.8 4.8 0 0 0 9 2.2z"/><path d="M7.2 15.6h3.6"/></svg>
-          Tips for an effective meeting
-        </button>
         <button type="button" class="help-link" data-action="help" aria-haspopup="dialog">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="9" r="7.2"/><path d="M6.9 7a2.1 2.1 0 1 1 3 1.9c-.6.3-.9.8-.9 1.4v.3"/><path d="M9 13v.2"/></svg>
           How to use
@@ -168,10 +164,13 @@
       <p class="help-warning wc-warning"><span class="help-warning-icon" aria-hidden="true">!</span><span><strong>Never add confidential information to this agenda.</strong></span></p>
     </div>
     <div class="stack" id="wc-list"></div>
-    <button type="button" class="btn-primary full" data-action="go-start">Done with ward council</button>
   </section>
 
   <section class="steps-home" id="steps-home" aria-label="Agenda sections" hidden>
+    <button type="button" class="help-link huddle-tips" data-action="tips" aria-haspopup="dialog">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 2.2a4.8 4.8 0 0 0-2.9 8.6c.5.4.8 1 .8 1.6v.4h4.2v-.4c0-.6.3-1.2.8-1.6A4.8 4.8 0 0 0 9 2.2z"/><path d="M7.2 15.6h3.6"/></svg>
+      Tips for an effective meeting
+    </button>
     <p class="steps-band" id="band-rr">From the last huddle</p>
     <ul class="steps-list" id="steps-last"></ul>
     <p class="steps-band" id="band-plan">This huddle’s plan</p>
@@ -477,13 +476,13 @@
     <div class="help-rhythm">
       <p><strong>Two checks against the Covenant Path Report bracket the week,</strong> and each has a box on the opening screen that turns green when you check it. <strong>Before ward council:</strong> tap it to see every name at a glance, add or remove names, and open the report. <strong>After the huddle, before you send:</strong> tap it to see each person’s sacrament attendance, temple attendance, needs and assignment, so you know what to update in the report. <strong>Send only works once that second box is checked.</strong> Both lists show the Covenant Path Report names only; focus names are chosen by ward council and aren’t part of the report.</p>
       <p><strong>The app opens to three things:</strong> <strong>Ward council</strong>, <strong>Huddle</strong> and <strong>Send</strong>. Use them in that order each week. There’s no date to set: the PDF is stamped with the day you send it.</p>
-      <p><strong>Ward council:</strong> Tap <strong>Ward council</strong>. Every name is in one list with only what ward council decides: the name, the next ordinance and the need. Check the names against the Covenant Path Report (in Tools), add anyone new and remove anyone no longer listed. A name that had an assignment at the last huddle shows it, with how it went (<strong>Done</strong>, <strong>Partly done</strong>, <strong>Not done</strong> or <strong>Pending</strong>), so ward council can plan from it. It can’t be changed there; the huddle marks it.</p>
+      <p><strong>Ward council:</strong> Tap <strong>Ward council</strong> (and <strong>Back</strong> when you’re finished). Under each name, a short <strong>Details</strong> box shows what’s known: baptism date and temple status for a new member, a scheduled baptism for someone being taught, and whether they attended sacrament meeting as of the last huddle. Every name is in one list with only what ward council decides: the name, the next ordinance and the need. Check the names against the Covenant Path Report (in Tools), add anyone new and remove anyone no longer listed. A name that had an assignment at the last huddle shows it, with how it went (<strong>Done</strong>, <strong>Partly done</strong>, <strong>Not done</strong> or <strong>Pending</strong>), so ward council can plan from it. It can’t be changed there; the huddle marks it.</p>
       <p><strong>Huddle:</strong> Tap <strong>Huddle</strong>. Take attendance in Huddle Details, then go down the four sections: mark Return and Report, check sacrament and temple attendance, and plan one action item per person (who will do it, and when). Text each assignment before everyone leaves.</p>
       <p><strong>Send:</strong> Tap <strong>Send</strong>. First check off <strong>After the huddle, before you send</strong> on the opening screen, then share the PDF with the bishop-approved list, the stake presidency and the full-time missionaries, and include yourself. Sending finishes the huddle: its assignments move into Return and Report for next time, and the names and needs stay.</p>
       <p><strong>During the week:</strong> As people report back, mark their assignments in <strong>Huddle → Return and Report</strong>.</p>
     </div>
 
-    <p class="help-steps-note"><strong>The huddle has four sections:</strong> Return and Report, Covenant Path Report Review, Name Next Ordinance, and Find New People to Teach. Open them in any order. Tap <strong>Mark section done</strong> as you finish each one, so you can see what’s left; it’s optional and doesn’t stop you from sending. The checks clear when you send. The section’s name stays at the top beside <strong>Back</strong>; tap Back to return to the list. Checked one by mistake? Tap <strong>Undo</strong> right away, or open the section and tap <strong>Mark as not done</strong>. If something is still missing, like an action item, the section’s status stays orange.</p>
+    <p class="help-steps-note"><strong>The huddle has four sections:</strong> Return and Report, Covenant Path Report Review, Name Next Ordinance, and Find New People to Teach. Open them in any order. <strong>Tips for an effective meeting</strong> is at the top of the Huddle screen. Tap <strong>Mark section done</strong> as you finish each one, so you can see what’s left; it’s optional and doesn’t stop you from sending. The checks clear when you send. The section’s name stays at the top beside <strong>Back</strong>; tap Back to return to the list. Checked one by mistake? Tap <strong>Undo</strong> right away, or open the section and tap <strong>Mark as not done</strong>. If something is still missing, like an action item, the section’s status stays orange.</p>
 
     <ol class="help-steps">
       <li>
