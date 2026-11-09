@@ -988,25 +988,22 @@
   /* ---------- Ward council: every name with only what ward council decides ---------- */
   // The last huddle's assignment for a name, if there was one (its row in Return and Report).
   function lastAction(gid, name) {
-    var nm = norm(name); if (!nm) return -1;
+    var nm = norm(name); if (!nm) return null;
     for (var i = 0; i < state.rr.length; i++) {
       var r = state.rr[i];
-      if (r.prefilled && groupOf(r) === gid && norm(rrPerson(r)) === nm) return i;
+      if (r.prefilled && groupOf(r) === gid && norm(rrPerson(r)) === nm && str(r.action).trim()) return r;
     }
-    return -1;
+    return null;
   }
   function wcCard(gid, base, a, idx, removable) {
-    var ri = lastAction(gid, a.name), r = ri >= 0 && str(state.rr[ri].action).trim() ? state.rr[ri] : null;
-    var last = null;
+    // Read-only here: ward council sees what was assigned and how it went, so it can plan from it. The huddle marks it.
+    var r = lastAction(gid, a.name), last = null;
     if (r) {
       var who = [str(r.assigned).trim(), str(r.when).trim()].filter(Boolean).join(' · ');
+      var st = { Yes: 'Done', Partly: 'Partly done', No: 'Not done' }[r.happened] || 'Pending';
       last = h('div', { class: 'wc-last' }, [
-        h('p', { class: 'wc-last-k', text: 'Last huddle’s assignment' }),
-        h('p', { class: 'wc-last-action', text: (str(r.action).trim() || 'No action item was written.') + (who ? ' (' + who + ')' : '') }),
-        h('div', { class: 'seg wc-seg', role: 'group', 'aria-label': 'Did it happen?' }, ['Yes', 'Partly', 'No'].map(function (v) {
-          return h('button', { type: 'button', 'data-action': 'happened', 'data-a': ri, 'data-b': v, 'aria-pressed': r.happened === v ? 'true' : 'false', text: v });
-        })),
-        r.happened ? null : h('p', { class: 'wc-last-hint', text: 'Not reported yet. Mark it here if you know, or in the huddle.' })
+        h('p', { class: 'wc-last-k' }, ['Last huddle’s assignment', h('span', { class: 'wc-status', 'data-status': statusOf(r.happened) || 'pending', text: st })]),
+        h('p', { class: 'wc-last-action', text: str(r.action).trim() + (who ? ' (' + who + ')' : '') })
       ]);
     }
     return h('div', { class: 'card wc-card g-' + gid }, [
@@ -1037,7 +1034,7 @@
   // The two doors on the opening screen say where things stand.
   function renderDoors() {
     var names = state.tn.filter(function (a) { return str(a.name).trim(); }).length + GROUPS.reduce(function (n, g) { return n + countNamed(g.id); }, 0);
-    $('#door-wc-sub').textContent = names ? plural(names, 'name', 'names') + ' · update next ordinances and needs' : 'Add the names, next ordinances and needs';
+    $('#door-wc-sub').textContent = names ? plural(names, 'name', 'names') + ' · next ordinances and needs' : 'Names, next ordinances and needs';
     var items = state.rr.filter(rrShown), marked = items.filter(function (r) { return r.happened; }).length;
     $('#door-hd-sub').textContent = items.length ? marked + ' of ' + items.length + ' reported back · then plan the assignments' : 'Report back, take attendance, plan the assignments';
   }
@@ -1223,7 +1220,6 @@
         });
         var rc = btn.closest('.card'); if (rc) rc.setAttribute('data-status', statusOf(r.happened));
         if (r.prefilled) renderRR();
-        if (view === 'wc') renderWC();
         saveDraft(); break;
       }
       case 'add-rr':
@@ -2778,6 +2774,7 @@
   var SHARE_HINT = 'Only share via email or text message. Do not share through any other app.';
   function resetSendSheet() {
     sendFile = null; sendPayload = null;
+    var tcb = $('#tools-check'); if (tcb) { tcb.checked = false; tcb.closest('.tools-check').classList.remove('nudge'); }
     $('#send-title').textContent = resending ? 'Share this agenda again' : 'Send this agenda';
     $('#share-btn').disabled = true; $('#share-btn').textContent = 'Share PDF';
     $('#share-hint').textContent = resending ? 'Only share via email or text message. Do not share through any other app. The form on your screen isn’t changed.' : SHARE_HINT;
@@ -2866,6 +2863,14 @@
 
   async function sharePdf() {
     if (!sendFile) return;
+    // The Covenant Path Report has to be confirmed as updated before the PDF goes out.
+    var tc = $('#tools-check');
+    if (!resending && tc && !tc.checked) {
+      var box = tc.closest('.tools-check'); box.classList.remove('nudge'); void box.offsetWidth; box.classList.add('nudge');
+      box.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      toast('Check the box first: confirm the Covenant Path Report is updated.', 5000);
+      return;
+    }
     if (resending) {
       if (canShareFiles(sendFile)) {
         try { await navigator.share({ files: [sendFile], title: sendFile.name }); }

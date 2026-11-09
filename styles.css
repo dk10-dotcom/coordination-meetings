@@ -867,13 +867,25 @@ body[data-view="start"] #meeting-date, body[data-view="start"] #details-summary,
 .wc-card { display: flex; flex-direction: column; gap: 10px; }
 .wc-card-head { display: flex; align-items: flex-end; gap: 8px; }
 .wc-card-head .field { flex: 1; min-width: 0; }
-.wc-last { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 12px; background: #F4F6FA; border: 1px solid var(--card-line); }
-.wc-last-k { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.wc-last-action { margin: 0; font-size: 15px; color: var(--ink); line-height: 1.35; }
-.wc-last-hint { margin: 0; font-size: 13px; color: var(--muted); }
 .wc-warning { margin: 0; }
 .send-tools { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; border-radius: 12px; background: var(--amber-soft); border: 1px solid var(--amber-line); font-size: 15px; line-height: 1.4; }
 .send-tools[hidden] { display: none; }
 .send-tools p { margin: 0; }
 .send-tools-link { display: flex; align-items: center; justify-content: center; min-height: 46px; text-decoration: none; }
 .help-info-pair { margin-bottom: 4px; }
+/* The huddle is dated the day it's sent, so the date isn't shown or tappable. (The field stays for PDFs loaded with their own date.) */
+#meeting-date { height: 1px; min-height: 0; margin: 0; padding: 0; overflow: hidden; opacity: 0; pointer-events: none; }
+.tools-check { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 10px; background: var(--card); border: 1.5px solid var(--amber-line); font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.35; cursor: pointer; }
+.tools-check input { flex: none; width: 24px; height: 24px; margin: 0; accent-color: var(--accent); }
+.tools-check.nudge { border-color: var(--orange-ink); box-shadow: 0 0 0 3px rgba(154,68,22,.18); animation: tools-nudge .35s; }
+@keyframes tools-nudge { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.cpr-step { margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--amber-soft); border: 1px solid var(--amber-line); font-size: 14.5px; line-height: 1.4; color: var(--ink); }
+.cpr-step-k { display: block; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--orange-ink); margin-bottom: 2px; }
+.wc-last { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 12px; background: #F4F6FA; border: 1px solid var(--card-line); }
+.wc-last-k { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.wc-last-action { margin: 0; font-size: 15px; color: var(--ink); line-height: 1.35; }
+.wc-status { padding: 3px 9px; border-radius: 999px; font-size: 12px; letter-spacing: 0; text-transform: none; background: #E6E9EF; color: #4A5568; }
+.wc-status[data-status="yes"] { background: #DDF0E3; color: #1F6B3A; }
+.wc-status[data-status="partly"] { background: #FBF0CF; color: #7A5A00; }
+.wc-status[data-status="no"] { background: #FBE3E1; color: #9B2C2C; }
+body[data-view="start"] .meeting-time { display: none; }
