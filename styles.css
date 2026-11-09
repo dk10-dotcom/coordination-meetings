@@ -733,8 +733,9 @@ body.touring .actionbar { z-index: 10; }
 .details-full { display: flex; flex-direction: column; gap: 16px; }
 .details-full[hidden] { display: none; }
 .details-head { display: none; font-size: 17px; font-weight: 800; color: var(--ink); }
-/* Open Huddle Details sit between two rules so they read as their own block. */
-body.steps-on .details-full { border-top: 1.5px solid #C5CEDB; border-bottom: 1.5px solid #C5CEDB; padding: 16px 0 18px; }
+/* Open Huddle Details stay inside the same white card, so it reads as the box opening up. */
+body.steps-on .details-full { padding: 12px 14px 16px; border-radius: 16px; background: var(--card); border: 1px solid var(--card-line);
+  box-shadow: 0 1px 2px rgba(27,43,75,.06), 0 3px 10px rgba(27,43,75,.07); }
 body.steps-on .details-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .btn-collapse { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--accent-line);
   background: var(--card); color: var(--accent); font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
