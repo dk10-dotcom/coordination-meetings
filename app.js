@@ -2826,6 +2826,9 @@
     resetSendSheet();
     $('#send-title').textContent = resending ? 'Share the ' + (monthDay(agenda.date) || 'last') + ' agenda again' : 'Send this huddle’s agenda';
     $('#send-tools').hidden = resending;
+    $('#send-date-row').hidden = resending;
+    $('#send-date-text').textContent = parseISO(agenda.date) ? parseISO(agenda.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : 'today';
+    $('#send-date').value = agenda.date;
     var name = fileName(agenda);
     $('#send-filename').textContent = name;
     $('#send-status').textContent = 'Making your PDF…';
@@ -2916,6 +2919,14 @@
     fileInput = $('#file-input');
     fileInput.addEventListener('change', onFilePicked);
     syncDate();
+    // Change date on the Send screen: re-dates this huddle and remakes the PDF (the Tools box stays as it was).
+    $('#send-date').addEventListener('click', function () { try { if (this.showPicker) this.showPicker(); } catch (e) { /* the input still works */ } });
+    $('#send-date').addEventListener('change', function () {
+      var v = this.value; if (!parseISO(v) || resending || v === state.date) return;
+      var was = $('#tools-check').checked;
+      state.date = v; state.dateManual = true; $('#date').value = v; saveDraft();
+      startSend(null, true).then(function () { $('#tools-check').checked = was; });
+    });
     renderAll();
     checkHandoffLink();
     window.addEventListener('hashchange', checkHandoffLink);
