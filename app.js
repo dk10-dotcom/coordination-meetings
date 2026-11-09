@@ -427,7 +427,7 @@
   // Labels name the huddle (by date) instead of "last week" / "this week".
   function prevHuddle(s) { s = s || state; return s.rolledFrom || (s.loaded && s.loaded.date) || ''; }
   function fromLabel(s) { var d = monthDay(prevHuddle(s)); return d ? 'From the ' + d + ' huddle' : 'From the last huddle'; }
-  function planLabel(s) { var d = monthDay((s || state).date); return d ? 'Plan for the ' + d + ' huddle' : 'Plan for the next huddle'; }
+  function planLabel(s) { var d = monthDay((s || state).date); return d ? d + ' huddle plan' : 'Next huddle plan'; }
   function nextPlan() { var d = monthDay(state.date); return d ? 'the ' + d + ' plan' : 'the next huddle’s plan'; }
   function carriedText(s) { var d = monthDay(prevHuddle(s)); return d ? 'Carried over from ' + d : 'Carried over from the last huddle'; }
   function carriedTag() { return h('span', { class: 'source carried-tag', text: carriedText() }); }
@@ -2504,7 +2504,7 @@
 
     /* ----- Covenant Path Report Review ----- */
     y += 18;
-    band(monthDay(s.date) ? 'PLAN FROM THE ' + monthDay(s.date).toUpperCase() + ' HUDDLE' : 'THIS HUDDLE’S PLAN', 'Who and what from ward council; how and when from the huddle');
+    band(monthDay(s.date) ? monthDay(s.date).toUpperCase() + ' HUDDLE PLAN' : 'THIS HUDDLE’S PLAN', 'Who and what from ward council; how and when from the huddle');
     heading('Covenant Path Report Review');
     // The PDF keeps only the table; the how-to lines live on the form.
     y += 7;
