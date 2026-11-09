@@ -296,7 +296,6 @@ body.typing .actionbar { position: static; }
 .step-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
 .step-title { font-size: 17px; font-weight: 700; }
 .step-hint { font-size: 15px; color: var(--text); }
-.after-download { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; border-radius: 12px; background: var(--amber-soft); border: 1px solid var(--amber-line); font-size: 15px; }
 .confirm-head { display: flex; align-items: center; gap: 12px; }
 .warn-icon { flex: none; width: 40px; height: 40px; border-radius: 50%; background: #FFF3D6; display: inline-flex; align-items: center; justify-content: center; }
 .compare { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border: 1px solid var(--card-line); border-radius: 12px; background: #F7F9FC; }
@@ -801,8 +800,9 @@ body.touring { padding-bottom: 75vh; }
 /* The real date input covers the label, so a tap opens the phone's date picker. */
 .md-input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; opacity: 0; cursor: pointer; font-size: 16px; }
 .meeting-date:focus-within .md-row .md-text { text-decoration-color: var(--accent); }
-.sent-line { margin: -8px 0 0; font-size: 14px; font-weight: 700; color: #1F6B3A; }
-.sent-line.changed { color: var(--orange-ink); }
+.sent-line { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; margin: -8px 0 0; font-size: 14px; font-weight: 700; color: #1F6B3A; }
+.sent-sep { color: var(--muted); font-weight: 400; }
+.sent-share { min-height: 36px; padding: 0; border: 0; background: none; font: inherit; font-size: 14px; font-weight: 700; color: var(--accent, #1F4E79); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .newweek-panel { display: flex; flex-direction: column; gap: 6px; }
 .newweek-row { display: flex; align-items: center; gap: 10px; }
 .newweek-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; font-size: 17px; }
@@ -814,11 +814,6 @@ body.touring { padding-bottom: 75vh; }
 .newweek-load { align-self: center; min-height: 36px; font-size: 14px; color: var(--muted); }
 /* Text this assignment and Completed sit side by side under the assignment */
 .assign-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-.btn-completed { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--line);
-  background: #FFFFFF; color: var(--muted); font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
-.btn-completed span[aria-hidden] { display: inline-flex; }
-.btn-completed.on { border-color: #1F6B3A; background: #1F6B3A; color: #FFFFFF; }
-.fn-assign .btn-completed { align-self: flex-start; margin-top: 8px; }
 /* 4-week check on a name */
 .stale-note { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-radius: 10px; background: #FFF6E5; border: 1px solid #EBCB7A; }
 .stale-note p { margin: 0; font-size: 14px; font-weight: 700; color: #7A5200; }
@@ -832,8 +827,6 @@ body.touring { padding-bottom: 75vh; }
 .jump-chev { flex: none; font-size: 22px; color: #9AA3B2; }
 
 /* Tour: show Start a new agenda on its stop */
-body.tour-newweek #newweek-panel { display: flex !important; }
-body.tour-newweek #load-panel { display: none !important; }
 
 /* Return and Report: which huddle it came from */
 .rr-from { margin: 2px 0 0; font-size: 13px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); }
@@ -846,6 +839,4 @@ body.tour-newweek #load-panel { display: none !important; }
 .btn-handoff { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 
 /* Nudge by the date once the huddle has passed */
-.date-nudge { align-self: flex-start; margin: -6px 0 0; padding: 6px 0; border: 0; background: none; font: inherit; font-size: 14px; font-weight: 700;
-  color: var(--orange-ink); text-align: left; text-decoration: underline; text-decoration-color: rgba(154,68,22,.35); text-underline-offset: 3px; cursor: pointer; }
 .confirm-tertiary { align-self: center; min-height: 40px; font-size: 15px; }

@@ -11,18 +11,18 @@
     { title: 'Welcome!', text: 'This quick tour shows how the agenda works, top to bottom. It takes about a minute. Tap **Start** to begin.' },
     { target: '.info-pair', title: 'Who decides what', text: 'Ward council decides **who** to focus on and **what** each person’s next ordinance is. The huddle decides **how** and **when** to help. The entire agenda follows that format.' },
     { target: '.top-buttons', title: 'Help is always here', text: 'The **“How to use”** tab has the step-by-step instructions, and this tour. The **“Tips for an effective meeting”** tab has the principles for a great huddle.' },
-    { target: '#meeting-date', title: 'This week’s huddle', text: 'This is the date of the huddle you’re working on. **Each week in ward council, tap it and pick this week’s date.** The app asks to start a new agenda: last week’s action items move into Return and Report, and your names and needs stay. After you send, a green line under the date shows when it went out.',
+    { target: '#meeting-date', title: 'Next huddle', text: 'This is your next huddle, and **the app is always getting ready for it.** Ward council updates the names and needs before the meeting, and the huddle fills in the plans. Wrong date? Tap it and pick the right one.',
       demoClass: 'important', demo: '<p class="tour-callout"><span class="tour-callout-icon" aria-hidden="true">!</span><span><strong>Important:</strong> Check the names in this week’s Covenant Path Report lists against the actual Covenant Path Report in Tools. Add anyone new and remove anyone no longer listed.</span></p>' },
     { target: 'header .grid-2', details: true, title: 'Your ward', text: 'Tap **Huddle Details** to open these. Add your ward; it’s remembered on this phone.' },
     { target: '#conduct-seg', details: true, title: 'Who’s conducting', text: 'Select who’s conducting. This will typically be the ward mission leader. **The person conducting the huddle is responsible for filling out this entire agenda and sharing it with the bishop-approved list, the stake presidency and the full-time missionaries.**' },
     { target: '.attendees-field', details: true, title: 'Take attendance', text: 'At the meeting, tap everyone who came. The youth are listed first: make an extra effort to involve them. Until attendance is taken, Huddle Details shows it in orange.' },
     { target: '#steps-home', stepsOnly: true, title: 'Four sections', text: 'Tap any of the **four sections** to open it, in any order. **Mark section done** gives it a green check here. Orange means something is still missing.' },
-    { target: ['#rr-list .card .rr-answer', '#rr-list .card', '#rr-list'], view: 'rr', title: 'Return and Report', text: 'When you start a new agenda, last week’s action items show up here, with anything marked Completed already set to Yes. The label at the top says which huddle they came from. Tap **Yes**, **Partly** or **No** for each. Use **Notes for ward council** to say how it went, so it’s ready to report back to ward council.',
+    { target: ['#rr-list .card .rr-answer', '#rr-list .card', '#rr-list'], view: 'rr', title: 'Return and Report', text: 'The assignments from the last huddle show up here, labeled with the huddle they came from. **During the week, as people report back, tap Yes, Partly or No.** It’s the one place to mark them; the huddle confirms the rest. Use **Notes for ward council** to say how it went.',
       demo: '<p class="tour-demo-cap">Tap Partly or No and this button appears:</p><span class="tour-demo-btn">Carry forward to this week</span><p class="tour-demo-cap">It adds the item to this week’s plan without retyping.</p>' },
     { target: '.btn-tools', view: 'cp', title: 'Jump to the Covenant Path Report', text: 'Tap **Open the Covenant Path Report** to go straight to the Member Tools app, then tap **Reports → Covenant Path Progress**. On a computer it opens the report in Leader and Clerk Resources.' },
     { target: ['[data-group="nm"] .card .zone-wc-wrap', '#cp-groups'], view: 'cp', title: 'Name cards: ward council’s half', text: 'Each card has two halves. The top is ward council’s: next ordinance and needs. **The person conducting fills it in from ward council before the huddle.**',
       demoClass: 'important', demo: '<p class="tour-callout"><span class="tour-callout-icon" aria-hidden="true">!</span><span><strong>Never add confidential information to this agenda.</strong></span></p>' },
-    { target: ['[data-group="nm"] .card .zone-hd-wrap', '#cp-groups'], view: 'cp', title: 'Name cards: the huddle’s half', text: 'The bottom half is the huddle’s: one action item, who will do it, and when. During the week, tap **Mark completed** when it’s done; it shows as Yes in next week’s Return and Report.' },
+    { target: ['[data-group="nm"] .card .zone-hd-wrap', '#cp-groups'], view: 'cp', title: 'Name cards: the huddle’s half', text: 'The bottom half is the huddle’s: one action item, who will do it, and when. After you send, each action item moves into Return and Report for the next huddle.' },
     { target: ['.btn-text-assign', '[data-group="nm"] .card', '#cp-groups'], view: 'cp', title: 'Text the assignment', text: 'Once a card has an action item and someone assigned, tap **Text this assignment** before everyone leaves. Messages opens with the name, the action and when. Pick who to send it to, and the card shows **Texted**.',
       demo: '<span class="tour-demo-btn">Text this assignment</span><p class="tour-demo-cap">Needs and notes are never included in the text.</p>' },
     { target: '[data-group="nm"] .temple-box', view: 'cp', title: 'The 30-day temple goal', text: 'Our goal is to help every new member attend the temple for baptisms for the dead within **30 days of their baptism**. Enter the baptism date and this box counts down the days. It stays red until it’s checked off, so the huddle stays focused on helping them get there.',
@@ -30,8 +30,8 @@
     { target: '[data-group="nm"] .btn-done', view: 'cp', allOnly: true, title: 'Done with a list?', text: 'Tap **Done** to collapse a finished list to one line per person. This helps you see what you’ve finished and where to stay focused during the meeting. Tap a name to edit just that person, or tap the title to open the whole list.' },
     { target: '#tn-list .list-panel', view: 'tn', title: 'Name Next Ordinance', text: 'Add the focus names from ward council, with each person’s next ordinance and need, then plan an action the same way. The huddle can add more needs in the same Needs box, and add a note to relay anything back to ward council.' },
     { target: ['.btn-find-tips', '#h-fn'], view: 'fn', title: 'Finding new people to teach', text: 'Write the ward’s plan to find new people to teach, then add any applicable assignments. Tap **Tips for finding new people to teach** for ideas.' },
-    { target: '.actionbar [data-action="handoff"]', title: 'Someone else conducting?', text: 'Tap **Hand off** to text this agenda to the leader filling in. They tap the link and it loads on their phone, ready to run the huddle.' },
-    { target: '.actionbar', title: 'Send', text: 'After the huddle, **Send** makes a PDF report and opens your share menu. Send it to the bishop-approved list, the stake presidency and the full-time missionaries. If anything is still open, **Ready to send?** lists it first. The agenda stays filled in for follow-up during the week.',
+    { target: '.actionbar [data-action="handoff"]', title: 'Someone else conducting?', text: 'Tap **Hand off** to text this agenda to the leader filling in. They tap the link and it loads on their phone, ready to run the huddle. When they send it, load their PDF with **Load a handoff or PDF** to set up your next huddle.' },
+    { target: '.actionbar', title: 'Send', text: 'After the huddle, **Send** makes a PDF report and opens your share menu. Send it to the bishop-approved list, the stake presidency and the full-time missionaries. **Sending closes the huddle:** the app sets up the next one, and this huddle’s assignments move into Return and Report. Need it again? Tap **Share again** under the date.',
       demoClass: 'tip', demo: '<p class="tour-callout"><span class="tour-callout-icon" aria-hidden="true">✓</span><span><strong>Tip:</strong> Include yourself when you send it, so you always have a copy of the PDF.</span></p>' },
     { title: 'Update the Covenant Path Report', text: '**After the huddle, the person conducting updates the Covenant Path Report in Tools** with any changes: sacrament attendance, needs that have been met, and anything else that changed. **Open the Covenant Path Report** at the top of Covenant Path Report Review jumps to Member Tools, and marking that section done asks if you’ve updated it. A current report is what makes next week’s huddle work.' },
     { title: 'You’re all set', text: 'Everything stays on your phone, and nothing is saved online. How to use has the training video, this tour, a sample agenda and a practice week whenever you need them.' }
@@ -46,8 +46,6 @@
   // In the four-step view, open the part of the agenda each stop talks about.
   function setView(step) {
     var hv = window.HuddleView;
-    // Show the Start a new agenda button on its stop, even on a brand-new form where it's normally hidden.
-    document.body.classList.toggle('tour-newweek', !!step.newweek);
     if (!hv || !hv.enabled()) return;
     // Name card stops show a sample card when New members is empty, so there are fields to look at.
     if (hv.tourDemo) hv.tourDemo(step.view === 'cp');
@@ -212,7 +210,7 @@
     active = false;
     markSeen();
     if (el.root) el.root.hidden = true;
-    document.body.classList.remove('touring'); document.body.classList.remove('tour-newweek');
+    document.body.classList.remove('touring');
     if (window.HuddleView && window.HuddleView.enabled()) window.HuddleView.reset();
   }
 

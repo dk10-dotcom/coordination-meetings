@@ -1,17 +1,19 @@
 /* Weekly Coordination Meeting Agenda
  * Everything runs on the device. Nothing is sent to a server.
- * - The agenda stays filled in on this phone (localStorage) from week to week. Send shares the PDF
- *   without clearing it; "Start a new agenda" moves last week's actions into Return and Report.
- *   Names not touched in 5 weeks are removed, so nothing stays longer than the saved copies do.
+ * - The agenda on this phone (localStorage) is always the next huddle. Send shares the PDF and closes
+ *   the huddle: its actions move into Return and Report for the next one, names and needs stay, and one
+ *   copy of the sent huddle is kept so it can be shared again (replaced at the next send).
+ *   Names not touched in 5 weeks are removed.
  * - The ward name is remembered on this device (localStorage) for convenience.
  * - Send builds a flattened PDF with pdf-lib and hands it to the phone's share menu.
- *   A copy of the form data is tucked into the PDF so "Load last week" can read it back.
+ *   A copy of the form data is tucked into the PDF so "Load from a PDF" can set up the next huddle from it.
  */
 'use strict';
 (function () {
   var APP_ID = 'huddle-agenda';
   var DATA_VERSION = 1;
   var DRAFT_KEY = 'huddle-draft-v1', LIVE_KEY = 'huddle-agenda-v1';
+  var LAST_SENT_KEY = 'huddle-last-sent';
   var STALE_FLAG = 28, STALE_DROP = 35; // days: ask after 4 weeks untouched, remove after 5
   var WARD_KEY = 'huddle-ward';
   var DOC_TITLE = 'Weekly Coordination Meeting Agenda';
@@ -502,7 +504,7 @@
             field('Assigned to', base + 'assigned', { placeholder: 'Who will do it', cap: 'words' }),
             field('When', base + 'when', { placeholder: whenPh })
           ]),
-          h('div', { class: 'assign-actions' }, [textAssignButton(base), completedButton(base)]),
+          h('div', { class: 'assign-actions' }, [textAssignButton(base)]),
           hneedField
         ]),
         hneedLink
@@ -527,19 +529,12 @@
   }
   function renderLoadState() {
     renderRRFrom();
-    // Once the agenda has anything in it, the weekly button is Start a new agenda; Load stays for someone else's agenda.
+    // Once the agenda has anything in it, Load a handoff or PDF shrinks to a quiet link.
     var practice = !!(state.loaded && state.loaded.practice);
     var live = !isEmpty(state) && !practice;
     var nw = $('#newweek-panel');
     if (nw) {
       nw.hidden = !live;
-    }
-    // Once the huddle date has passed, a nudge by the date points to next week.
-    var nudge = $('#date-nudge');
-    if (nudge) {
-      var d = parseISO(state.date), due = live && d && d < parseISO(todayISO());
-      nudge.hidden = !due;
-      if (due) nudge.textContent = 'The ' + monthDay(state.date) + ' huddle has passed. Tap the date, or here, to start next week.';
     }
     $('#load-panel').hidden = !!state.loaded || live;
     $('#loaded-banner').hidden = !state.loaded;
@@ -756,8 +751,7 @@
         h('div', { class: 'fn-fields' }, [
           field('Who will do what', base + 'task', { multi: true, placeholder: 'e.g. Bro. Lee invites a neighbor to the ward party' }),
           field('When', base + 'when', { placeholder: 'e.g. Sat' })
-        ]),
-        completedButton(base)
+        ])
       ]);
     });
     wrap.replaceChildren(h('section', { class: 'list-panel list-fn', 'aria-label': 'Plans to find new people to teach' }, [
@@ -901,10 +895,11 @@
   function stepStatus(id) {
     if (id === 'rr') {
       var items = state.rr.filter(rrShown), n = items.length;
-      if (!n) return { text: state.loaded || state.rolledFrom ? 'Nothing to report from last week' : isEmpty(state) ? 'Load last week to fill this in' : 'Fills in when you start next week’s agenda' };
+      var from = monthDay(state.rolledFrom || (state.loaded && state.loaded.date) || '');
+      if (!n) return { text: from ? 'Nothing to report from the ' + from + ' huddle' : 'Fills in after you send a huddle' };
       var marked = items.filter(function (r) { return r.happened; }).length;
       var carried = items.filter(function (r) { return r.carriedFwd; }).length;
-      return { text: plural(n, 'item', 'items') + ' · ' + (marked === n ? 'all marked' : marked + ' of ' + n + ' marked') + (carried ? ' · ' + carried + ' carried forward' : ''), warn: marked < n };
+      return { text: (from ? 'From ' + from : plural(n, 'item', 'items')) + ' · ' + (marked === n ? 'all ' + n + ' marked' : marked + ' of ' + n + ' marked') + (carried ? ' · ' + carried + ' carried forward' : ''), warn: marked < n };
     }
     if (id === 'cp' || id === 'tn') {
       var list = id === 'tn' ? state.tn : GROUPS.reduce(function (a, g) { return a.concat(state.cp[g.id]); }, []);
@@ -1099,7 +1094,7 @@
   /* ---------- actions ---------- */
   // keepWard keeps the ward name; the Clear button erases it too.
   function clearForm(keepWard) {
-    removeKey('sessionStorage', DRAFT_KEY); removeKey('localStorage', LIVE_KEY);
+    removeKey('sessionStorage', DRAFT_KEY); removeKey('localStorage', LIVE_KEY); removeKey('localStorage', LAST_SENT_KEY);
     if (!keepWard) { removeKey('localStorage', WARD_KEY); removeKey('localStorage', 'huddle-conducting'); }
     state = freshState(); showBlank = {};
     view = 'home';
@@ -1247,14 +1242,6 @@
       case 'handoff': startHandoff(); break;
       case 'carry-fwd': carryForward(+a); break;
       case 'text-assign': textAssignment(a); break;
-      case 'toggle-completed': {
-        var on = !getPath(a + 'doneMid');
-        setPath(a + 'doneMid', on);
-        if (!/^find/.test(a)) setPath(a + 'touched', todayISO());
-        saveDraft(); refreshCompleted(a);
-        if (on) toast('Marked completed. It will show as Yes in next week’s Return and Report.', 5000);
-        break;
-      }
       case 'stale-keep': setPath(a + 'touched', todayISO()); if (/^tn/.test(a)) renderTN(); else renderCP(); saveDraft(); toast('Kept. It won’t ask again for 4 weeks.'); break;
       case 'stale-remove': {
         var sp = a.split('.');
@@ -1264,8 +1251,6 @@
         break;
       }
       case 'edit-date': openDetails(); setTimeout(function () { var df = $('#date'); if (df) df.focus(); }, 60); break;
-      case 'new-agenda': confirmNewAgenda(); break;
-      case 'next-week': askNewWeek(nextMeetingDate(state.date)); break;
       case 'undo-carry': confirmUndoCarry(+a); break;
       case 'conducting':
         state.conducting = state.conducting === a ? '' : a;
@@ -1363,7 +1348,7 @@
       case 'send': startSend(); break;
       case 'share': sharePdf(); break;
       case 'save-only': saveWithoutSending(); break;
-      case 'clear-now': closeSend(); sentDone(true); break;
+      case 'share-last': shareLast(); break;
       case 'close-send': closeSend(); break;
     }
   }
@@ -1422,34 +1407,28 @@
       state.cp.nm = tourDemo.nm; tourDemo = null; renderCP(); saveDraft();
     }
   }
-  /* ---------- Sent line, meeting date and the weekly agenda ---------- */
-  function hashStr(s) { var x = 5381; for (var i = 0; i < s.length; i++) x = ((x << 5) + x + s.charCodeAt(i)) | 0; return String(x >>> 0); }
-  function cardSig(a) { return [str(a.name).trim(), str(a.bap), str(a.ordinance).trim(), str(a.need).trim(), str(a.hneed).trim(), str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim(), !!a.sac, !!a.temple, !!a.committed]; }
-  // Everything that goes on the PDF. Follow-up marks (Completed, Texted) and section checks don't count as changes.
-  function agendaSig(s) {
-    return hashStr(JSON.stringify([s.ward.trim(), s.date, s.conducting, str(s.conductingOther).trim(), s.attendees.slice().sort(),
-      s.rr.map(function (r) { return [str(r.person), str(r.action), str(r.assigned), str(r.when), str(r.plan).trim(), r.happened, str(r.notes).trim(), !!r.carriedFwd]; }),
-      GROUPS.map(function (g) { return s.cp[g.id].map(cardSig); }), GROUPS.map(function (g) { return !!(s.cpNone && s.cpNone[g.id]); }),
-      s.tn.map(cardSig), str(s.find.plan).trim(), s.find.items.map(function (x) { return [str(x.task).trim(), str(x.when).trim()]; })]));
-  }
-  function markSent() { state.sentAt = new Date().toISOString(); state.sentSig = agendaSig(state); saveDraft(); }
-  function changedSinceSent() { return !!state.sentAt && state.sentSig !== agendaSig(state); }
+  /* ---------- The next huddle and the last one sent ---------- */
   function monthDay(iso) { var d = parseISO(iso); return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''; }
+  // The last huddle sent from this phone: one copy, so it can be shared again. Replaced at the next send.
+  function readLastSent() {
+    var ls = readJSON('localStorage', LAST_SENT_KEY);
+    return ls && ls.data && parseISO(str(ls.date)) ? ls : null;
+  }
   function renderSent() {
     var md = $('#meeting-date .md-text');
     if (md) { var d = parseISO(state.date); md.textContent = d ? d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : 'Set the date'; }
     var sl = $('#sent-line');
     if (sl) {
-      if (!state.sentAt) sl.hidden = true;
-      else {
-        var t = new Date(state.sentAt);
-        var when = t.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' at ' + t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase();
-        var ch = changedSinceSent();
-        sl.hidden = false; sl.className = 'sent-line' + (ch ? ' changed' : '');
-        sl.textContent = ch ? 'Changed since sent ' + when + '. Send again to update.' : '✓ Sent ' + when;
-      }
+      var ls = readLastSent();
+      var practice = !!(state.loaded && state.loaded.practice);
+      sl.hidden = !ls || practice;
+      if (ls && !practice) $('#sent-line-text').textContent = '✓ ' + monthDay(ls.date) + ' huddle sent';
     }
-    var lbl = $('#send-label'); if (lbl) lbl.textContent = state.sentAt ? 'Send again' : 'Send';
+  }
+  function shareLast() {
+    var ls = readLastSent();
+    if (!ls) { toast('There’s no sent huddle to share.'); return; }
+    startSend(normalizeState(ls.data));
   }
 
   // Before sending: what's still open, each with a way to jump to it.
@@ -1469,8 +1448,7 @@
     return out;
   }
 
-  // Start a new agenda: last week's actions move into Return and Report (with anything marked Completed as Yes),
-  // names and needs stay, and the weekly parts clear. Undo puts everything back.
+  // The next huddle is a week after this one (or the next one not already past).
   function nextMeetingDate(prev) {
     var today = parseISO(todayISO()), d = parseISO(prev) || parseISO(todayISO());
     d.setDate(d.getDate() + 7);
@@ -1481,42 +1459,9 @@
     return { prefilled: true, source: it.source, group: it.group, pname: it.pname, ord: it.ord, need: it.need || '', hneed: it.hneed || '', sac: !!it.sac, bap: it.bap || '', temple: !!it.temple, committed: !!it.committed,
       person: it.person, action: it.action, assigned: it.assigned, when: it.when, plan: '', happened: happened || '', notes: '' };
   }
-  function confirmNewAgenda() {
-    var next = nextMeetingDate(state.date);
-    var n = extractActionItems(state).length;
-    var note = !state.sentAt ? ' This agenda hasn’t been sent.' : changedSinceSent() ? ' You’ve changed this agenda since you sent it.' : '';
-    ask({
-      title: 'Start a new agenda?',
-      body: 'Keeps your names and needs. ' + (n ? n + (n === 1 ? ' action item moves' : ' action items move') + ' into Return and Report. ' : '') + 'Attendance, answers and checks clear.' + note,
-      dateField: { label: 'This week’s huddle', value: next },
-      primary: 'Start new agenda', onPrimary: function () { var v = ($('#confirm-date') || {}).value; startNewAgenda(parseISO(v) ? v : next); }, secondary: 'Cancel'
-    });
-  }
-  // Changing the date to a new week (4+ days later) on a filled-in agenda is how a new week starts.
-  function isWeekJump(prev, next) {
-    if (isEmpty(state) || (state.loaded && state.loaded.practice)) return false;
-    var gap = parseISO(prev) && parseISO(next) ? daysBetween(prev, next) : null;
-    return gap !== null && gap >= 4;
-  }
-  function setDateOnly(next) {
-    state.date = next; var df = $('#date'); if (df) df.value = next;
-    renderDateHint(); updateTemple(); renderRR(); saveDraft();
-    toast('Date changed to ' + monthDay(next) + '.');
-  }
-  function askNewWeek(next) {
-    var n = extractActionItems(state).length;
-    var note = !state.sentAt ? ' This agenda hasn’t been sent.' : changedSinceSent() ? ' You’ve changed this agenda since you sent it.' : '';
-    ask({
-      title: 'Start the ' + monthDay(next) + ' agenda?',
-      body: 'Keeps your names and needs. ' + (n ? n + (n === 1 ? ' action item moves' : ' action items move') + ' into Return and Report. ' : '') + 'Attendance, answers and checks clear.' + note,
-      primary: 'Start the ' + monthDay(next) + ' agenda', onPrimary: function () { startNewAgenda(next); },
-      secondary: 'Just change the date', onSecondary: function () { setDateOnly(next); },
-      tertiary: { label: 'Load a handoff instead', run: function () { openOverlay('#load-sheet', '#load-title'); } }
-    });
-  }
-
-  function startNewAgenda(next) {
-    var snap = JSON.parse(JSON.stringify(state));
+  // Set up the next huddle from this one: its action items move into Return and Report,
+  // names and needs stay, and the weekly parts (attendance, answers, checks) clear.
+  function rollForward(next) {
     var data = JSON.parse(JSON.stringify(state));
     sweepStale(data);
     var items = extractActionItems(data);
@@ -1528,21 +1473,33 @@
     view = 'home';
     try { history.replaceState({ hv: 'home' }, ''); } catch (e) { /* ignore */ }
     renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
-    var done = items.filter(function (it) { return it.done; }).length;
-    toast('Started the ' + monthDay(next) + ' agenda.' + (items.length ? ' ' + items.length + (items.length === 1 ? ' item is' : ' items are') + ' in Return and Report' + (done ? ', ' + done + ' already marked Yes' : '') + '.' : ''), 8000,
-      { label: 'Undo', run: function () { state = normalizeState(snap); showBlank = {}; view = 'home'; renderAll(); applyView(); saveDraft(); toast('Back to the ' + monthDay(snap.date) + ' agenda.'); } });
+    return items.length;
   }
-
-  // Completed: a quick mark during the week when someone finishes their assignment.
-  function completedButton(base) {
-    var on = !!getPath(base + 'doneMid');
-    var has = str(getPath(base + (/^find/.test(base) ? 'task' : 'action'))).trim();
-    return h('button', { type: 'button', class: 'btn-completed' + (on ? ' on' : ''), 'data-action': 'toggle-completed', 'data-a': base, 'aria-pressed': on ? 'true' : 'false', hidden: !has },
-      [icon(on ? 'check' : 'circle'), h('span', { text: on ? 'Completed' : 'Mark completed' })]);
-  }
-  function refreshCompleted(base) {
-    var old = document.querySelector('.btn-completed[data-a="' + base + '"]');
-    if (old) old.replaceWith(completedButton(base));
+  // Sending closes the huddle: a copy is kept to share again, and the app turns to the next huddle.
+  // Undo (right after) puts the sent huddle back on screen, for a fix and a resend.
+  function closeHuddle(downloaded) {
+    var snap = JSON.parse(JSON.stringify(state));
+    var prevLast = readJSON('localStorage', LAST_SENT_KEY);
+    var sentDate = state.date;
+    writeJSON('localStorage', LAST_SENT_KEY, { date: sentDate, ward: state.ward.trim(), sentAt: new Date().toISOString(), data: makePayload(state) });
+    var next = nextMeetingDate(sentDate);
+    var n = rollForward(next);
+    ask({
+      title: downloaded ? 'PDF downloaded' : 'Sent successfully', success: true,
+      body: (downloaded ? 'Attach it to an email or text message to send it. ' : '') +
+        'You’re set up for the next huddle, ' + parseISO(next).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + '. ' +
+        (n ? 'The ' + monthDay(sentDate) + ' assignments are in Return and Report: mark them as people report back. ' : '') +
+        'Names and needs stay for ward council to update. Tip: include yourself when you send it, so you always have a copy of the PDF.',
+      primary: 'Done',
+      secondary: 'Undo', onSecondary: function () {
+        state = normalizeState(snap); showBlank = {};
+        if (prevLast) writeJSON('localStorage', LAST_SENT_KEY, prevLast); else removeKey('localStorage', LAST_SENT_KEY);
+        view = 'home';
+        try { history.replaceState({ hv: 'home' }, ''); } catch (e) { /* ignore */ }
+        renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
+        toast('Back to the ' + monthDay(sentDate) + ' agenda. Send it again when it’s ready.', 6000);
+      }
+    });
   }
 
   // The 4-week check on names: untouched for 4 weeks asks "Still on the Covenant Path Report?"; 5 weeks removes it.
@@ -1681,26 +1638,31 @@
     else manual();
   }
 
-  // Loading a handoff or a PDF puts that agenda on this phone as it was (Undo puts yours back).
+  // A handoff is a huddle still being planned: it loads as it was.
+  // A PDF is a huddle that was sent: loading it sets up the next huddle from it, the same as sending does.
+  // Either way, Undo puts this phone's agenda back.
   function confirmApplyAgenda(data, how) {
     var incoming = normalizeState(data);
     incoming.loaded = null; incoming.practiceSnapshot = null; incoming.sentAt = ''; incoming.sentSig = '';
-    var rows = [['Ward', incoming.ward.trim() || 'Not listed'], ['Huddle', longDate(incoming.date) || 'No date']];
+    var pdf = how === 'pdf';
+    var rows = [['Ward', incoming.ward.trim() || 'Not listed'], [pdf ? 'Sent huddle' : 'Huddle', longDate(incoming.date) || 'No date']];
     if (state.ward.trim() && incoming.ward.trim() && norm(state.ward) !== norm(incoming.ward)) rows.push(['This phone’s ward', state.ward.trim()]);
+    var replaces = isEmpty(state) ? '' : ' It replaces the agenda on this phone. You can undo it right after.';
     ask({
-      title: how === 'handoff' ? 'Load this handoff?' : 'Load this agenda?', compare: rows,
-      body: isEmpty(state) ? 'It becomes the agenda on this phone.' : 'It replaces the agenda on this phone. You can undo it right after.',
-      primary: 'Load it', onPrimary: function () { applyAgenda(incoming); }, secondary: 'Cancel'
+      title: pdf ? 'Set up the next huddle from this PDF?' : 'Load this handoff?', compare: rows,
+      body: pdf ? 'Its assignments go into Return and Report, and its names and needs stay.' + replaces : (isEmpty(state) ? 'It becomes the agenda on this phone.' : replaces.trim()),
+      primary: pdf ? 'Set up the next huddle' : 'Load it', onPrimary: function () { applyAgenda(incoming, pdf); }, secondary: 'Cancel'
     });
   }
-  function applyAgenda(incoming) {
+  function applyAgenda(incoming, fromPdf) {
     var snap = JSON.parse(JSON.stringify(state));
     state = incoming; showBlank = {}; sweepStale(state);
     if (state.ward.trim()) writeWard(state.ward.trim());
+    if (fromPdf) rollForward(nextMeetingDate(state.date));
     view = 'home';
     try { history.replaceState({ hv: 'home' }, ''); } catch (e) { /* ignore */ }
     renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
-    toast('Loaded the ' + (monthDay(state.date) || '') + ' agenda.', 8000,
+    toast(fromPdf ? 'Set up the ' + monthDay(state.date) + ' huddle from the ' + monthDay(incoming.date) + ' PDF.' : 'Loaded the ' + (monthDay(state.date) || '') + ' agenda.', 8000,
       { label: 'Undo', run: function () { state = normalizeState(snap); showBlank = {}; view = 'home'; renderAll(); applyView(); saveDraft(); toast('Your agenda is back.'); } });
   }
 
@@ -2747,7 +2709,6 @@
     $('#share-btn').disabled = true; $('#share-btn').textContent = 'Share PDF';
     $('#share-hint').textContent = resending ? 'Only share via email or text message. Do not share through any other app. The form on your screen isn’t changed.' : SHARE_HINT;
     $('#send-recipients').hidden = false;
-    $('#after-download').hidden = true;
   }
 
   // Keep this week's agenda in the phone's saved agendas (newest 4).
@@ -2768,7 +2729,7 @@
       return false;
     }
     if (!parseISO(state.date)) {
-      ask({ title: 'Add this week’s huddle date first', body: 'Tap the date at the top to set it.', primary: 'OK', onPrimary: function () { window.scrollTo(0, 0); } });
+      ask({ title: 'Add the huddle date first', body: 'Tap the date at the top to set it.', primary: 'OK', onPrimary: function () { window.scrollTo(0, 0); } });
       return false;
     }
     if (isEmpty(state)) {
@@ -2792,6 +2753,7 @@
     }
     var agenda = src || state;
     resetSendSheet();
+    $('#send-title').textContent = (resending ? 'Share the ' : 'Send the ') + (monthDay(agenda.date) || 'huddle') + ' agenda' + (resending ? ' again' : '');
     var name = fileName(agenda);
     $('#send-filename').textContent = name;
     $('#send-status').textContent = 'Making your PDF…';
@@ -2821,10 +2783,10 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
   }
 
-  async function downloadAndRemember() {
+  // No share menu (some desktop browsers): the PDF downloads, and the huddle closes the same as sharing it.
+  async function downloadAndClose() {
     download(sendFile);
-    if (!resending) markSent();
-    $('#after-download').hidden = false;
+    closeSend(); closeHuddle(true);
   }
 
   async function sharePdf() {
@@ -2842,13 +2804,12 @@
         await navigator.share({ files: [sendFile], title: sendFile.name });
       } catch (e) {
         if (e && e.name === 'AbortError') return; // they closed the share menu; keep everything
-        await downloadAndRemember();
+        await downloadAndClose();
         return;
       }
-      markSent(); closeSend();
-      sentDone();
+      closeSend(); closeHuddle();
     } else {
-      await downloadAndRemember();
+      await downloadAndClose();
     }
   }
 
@@ -2865,14 +2826,6 @@
     toast('Saved on this phone. It will show in Load last week.');
   }
 
-  // After sending: a clear confirmation that it went out; the agenda stays for follow-up.
-  function sentDone(saved) {
-    ask({
-      title: 'Sent successfully', success: true,
-      body: 'The agenda stays filled in for follow-up this week. When it’s time for the next ward council, tap Start a new agenda. Tip: include yourself when you send it, so you always have a copy of the PDF.',
-      primary: 'Done'
-    });
-  }
   function closeSend() { closeOverlay('#send-sheet'); sendFile = null; sendPayload = null; resending = false; }
 
   /* ---------- wiring ---------- */
@@ -2890,6 +2843,8 @@
     if (dateIn) dateIn.addEventListener('click', function () { try { if (dateIn.showPicker) dateIn.showPicker(); } catch (e) { /* the input still works */ } });
     // Saved copies of agendas are no longer kept on the phone; clear any left from before.
     if (!readFlag('huddle-saved-cleared')) { try { deleteAllAgendas().then(function () { writeFlag('huddle-saved-cleared'); }, function () { writeFlag('huddle-saved-cleared'); }); } catch (e) { /* ignore */ } }
+    var lsOld = readJSON('localStorage', LAST_SENT_KEY);
+    if (lsOld && !(lsOld.sentAt && (Date.now() - Date.parse(lsOld.sentAt)) < STALE_DROP * 86400000)) { removeKey('localStorage', LAST_SENT_KEY); renderSent(); }
     if (staleRemoved) { saveDraft(); toast('Removed ' + staleRemoved + (staleRemoved === 1 ? ' name' : ' names') + ' not updated in 5 weeks.', 6000); }
     // Four-step view: start on the step list; the phone's Back gesture returns to it from a step.
     try { history.replaceState({ hv: 'home' }, ''); } catch (e) { /* ignore */ }
@@ -2906,17 +2861,6 @@
       var path = t && t.getAttribute && t.getAttribute('data-bind');
       if (!path) return;
       var val = t.type === 'checkbox' ? t.checked : t.value;
-      // Moving this week's date forward to a new week asks whether to start a new agenda.
-      // Wait for the picker to close (the change event), and leave the date as it was until they choose.
-      if (path === 'date' && isWeekJump(state.date, String(val))) {
-        if (e.type === 'change') {
-          var nd = String(val);
-          t.value = state.date;
-          try { t.blur(); } catch (err) { /* ignore */ }
-          setTimeout(function () { askNewWeek(nd); }, 200);
-        }
-        return;
-      }
       setPath(path, val);
       if (path === 'ward') writeWard(String(val).trim());
       if (path === 'date') renderDateHint();
@@ -2931,8 +2875,6 @@
       // Any change to a name card counts as touching it (the 4-week check).
       var tch = /^((?:cp\.\w+|tn)\.\d+\.)(\w+)$/.exec(path);
       if (tch && tch[2] !== 'touched') setPath(tch[1] + 'touched', todayISO());
-      var ta = /^((?:cp\.\w+|tn)\.\d+\.)action$/.exec(path) || /^(find\.items\.\d+\.)task$/.exec(path);
-      if (ta) refreshCompleted(ta[1]);
       if (/\.(action|task)$/.test(path) && !String(val).trim()) {
         setPath(path.replace(/action$/, 'actionCarried').replace(/task$/, 'carried'), false);
         var tagEl = t.closest('.field, .fn-assign'); tagEl = tagEl && tagEl.querySelector('.carried-tag'); if (tagEl) tagEl.remove();
