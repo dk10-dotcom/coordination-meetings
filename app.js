@@ -334,6 +334,7 @@
   }
 
   function renderRR() {
+    reconcileCarries();
     var list = $('#rr-list');
     $('#rr-foot').hidden = folded('rr');
     if (folded('rr')) { list.replaceChildren(foldedRR()); renderLoadState(); return; }
@@ -1000,7 +1001,8 @@
     }
     return null;
   }
-  function wcCard(gid, base, a, idx, removable) {
+  // The read-only boxes under a name: Details, and last huddle's assignment.
+  function wcExtras(gid, a) {
     // Read-only here: ward council sees what was assigned and how it went, so it can plan from it. The huddle marks it.
     var r = lastAction(gid, a.name), last = null;
     if (r) {
@@ -1028,6 +1030,10 @@
     var details = facts.length ? h('div', { class: 'wc-last wc-details' }, [h('p', { class: 'wc-last-k', text: 'Details' })].concat(facts.map(function (f) {
       return h('p', { class: 'after-fact' + (f[2] ? ' ' + f[2] : '') }, [h('span', { class: 'after-k', text: f[0] }), f[1]]);
     }))) : null;
+    return [details, last].filter(Boolean);
+  }
+  function wcCard(gid, base, a, idx, removable) {
+    var extras = wcExtras(gid, a);
     return h('div', { class: 'card wc-card g-' + gid }, [
       h('div', { class: 'wc-card-head' }, [
         field(gid === 'tn' ? 'Focus name' : 'Name', base + 'name', { placeholder: gid === 'tn' ? 'Focus name' : 'From the Covenant Path Report', cap: 'words' }),
@@ -1035,10 +1041,8 @@
       ]),
       gid === 'nm' ? field('Baptism date', base + 'bap', { type: 'date' }) : null,
       field('Next ordinance', base + 'ordinance', { placeholder: gid === 'bt' ? 'Baptism' : 'e.g. Temple baptisms' }),
-      field('Needs', base + 'need', { multi: true, rows: gid === 'tn' ? '2' : '3', placeholder: gid === 'tn' ? 'What do they need to get there?' : 'Tap their name in the Covenant Path Report to identify needs' }),
-      details,
-      last
-    ]);
+      field('Needs', base + 'need', { multi: true, rows: gid === 'tn' ? '2' : '3', placeholder: gid === 'tn' ? 'What do they need to get there?' : 'Tap their name in the Covenant Path Report to identify needs' })
+    ].concat(extras));
   }
   function renderWC() {
     var wrap = $('#wc-list'); if (!wrap) return;
@@ -1092,6 +1096,7 @@
   function quickAdd(gid, name) {
     name = str(name).trim(); if (!name) return false;
     var list = gid === 'tn' ? state.tn : state.cp[gid];
+    if (list.some(function (a) { return norm(a.name) === norm(name); })) { toast(name + ' is already on this list.'); return false; }
     var slot = list.filter(function (a) { return !str(a.name).trim() && !hasText(a, CARD_KEYS); })[0];
     if (!slot) { if (gid === 'tn') { toast('There are three focus names. Remove one first.'); return false; } slot = blankAction(); list.push(slot); }
     slot.name = name; slot.touched = todayISO();
@@ -1948,15 +1953,26 @@
     return { filled: filled, appended: appended };
   }
   // Is the person this item was for still on their list? (Finding assignments have no person.)
-  function stillListed(r) {
-    var g = groupOf(r); if (g === 'fn') return true;
-    var nm = norm(rrPerson(r)); if (!nm || !g) return false;
-    return (g === 'tn' ? state.tn : state.cp[g] || []).some(function (a) { return norm(a.name) === nm; });
+  // Which list is this person on now? Usually the one the item came from; someone converted from
+  // Those being taught to New members is followed to their new list. '' = no longer listed.
+  function currentGroup(r) {
+    var g = groupOf(r); if (g === 'fn') return 'fn';
+    var nm = norm(rrPerson(r)); if (!nm || !g) return '';
+    var on = function (list) { return (list || []).some(function (a) { return norm(a.name) === nm; }); };
+    if (g === 'tn') return on(state.tn) ? 'tn' : '';
+    if (on(state.cp[g])) return g;
+    var other = GROUPS.filter(function (x) { return x.id !== g && on(state.cp[x.id]); })[0];
+    return other ? other.id : '';
+  }
+  function stillListed(r) { return !!currentGroup(r); }
+  // A carried item whose person has since been removed is no longer on this huddle's plan.
+  function reconcileCarries() {
+    state.rr.forEach(function (r) { if (r.prefilled && r.carriedFwd && !stillListed(r)) { r.carriedFwd = false; delete r.carryUndo; } });
   }
   function carryForward(i) {
     var r = state.rr[i]; if (!r) return;
     if (!stillListed(r)) { renderRR(); return; }
-    var g = groupOf(r);
+    var g = currentGroup(r);
     var name = str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim();
     var ord = str(r.ord).trim() || (str(r.person).split(' · Next: ')[1] || '').trim();
     var item = blankAction();
@@ -2914,7 +2930,8 @@
       ask({ title: 'Add the huddle date first', body: 'Tap the date at the top to set it.', primary: 'OK', onPrimary: function () { window.scrollTo(0, 0); } });
       return false;
     }
-    if (isEmpty(state)) {
+    // Report-backs from the last huddle count as something to send, even if every name has since been removed.
+    if (isEmpty(state) && !state.rr.some(function (r) { return r.prefilled; })) {
       ask({ title: 'Nothing to ' + verb + ' yet', body: 'Fill in the agenda first.', primary: 'OK' });
       return false;
     }
@@ -2925,6 +2942,7 @@
   async function startSend(src, checked) {
     resending = !!src;
     if (!resending && syncDate()) saveDraft();
+    if (!resending) reconcileCarries();
     if (!resending && !state.verified.after && readyToSave('send')) {
       ask({ title: 'Update the Covenant Path Report first', body: 'Before you send, check off “After the huddle, before you send” on the opening screen. It shows what to update for each person.',
         primary: 'Show me what to update', onPrimary: function () { if (stepsOn && view !== 'start') showView('start', 'replace'); renderAfter(); openOverlay('#after-sheet', '#after-title'); }, secondary: 'Cancel' });
@@ -3065,6 +3083,14 @@
       setPath(path, val);
       if (path === 'ward') writeWard(String(val).trim());
       if (path === 'date') { state.dateManual = true; renderDateHint(); }
+      // Ward council: once a name is finished being typed, its Details and last assignment follow the new name.
+      // (Only those boxes are redrawn, so the field being typed in next keeps its place.)
+      var wcc = e.type === 'change' && view === 'wc' && /\.name$/.test(path) ? t.closest('.wc-card') : null;
+      if (wcc) {
+        Array.prototype.forEach.call(wcc.querySelectorAll('.wc-last'), function (x) { x.remove(); });
+        var wp = path.split('.'), wg = wp[0] === 'tn' ? 'tn' : wp[1], wa = getPath(path.replace(/name$/, '').replace(/\.$/, ''));
+        wcExtras(wg, wa || {}).forEach(function (x) { wcc.appendChild(x); });
+      }
       if (path === 'conductingOther') writeConducting(state);
       if (/\.name$/.test(path)) {
         var pt = document.querySelector('[data-name-for="' + path + '"]');
