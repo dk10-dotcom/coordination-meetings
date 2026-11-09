@@ -43,6 +43,14 @@
     </button>
   </div>
 
+  <div class="step-bar" id="mode-bar" hidden>
+    <button type="button" class="step-back" data-action="go-start" aria-label="Back to the start">
+      <svg width="20" height="20" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M11 3.5L5.5 9l5.5 5.5"/></svg>
+      Back
+    </button>
+    <span class="mode-title" id="mode-title">Huddle</span>
+  </div>
+
   <header class="top">
     <div class="title-row">
       <h1>Weekly Coordination Meeting Agenda</h1>
@@ -58,28 +66,13 @@
       </div>
     </div>
     <label class="meeting-date" id="meeting-date">
-      <span class="md-kicker">Next huddle</span>
+      <span class="md-kicker">Huddle date</span>
       <span class="md-row"><span class="md-text">Set the date</span><svg class="md-pencil" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 15l1-4 8.5-8.5a2 2 0 0 1 3 3L7 14z"/><path d="M11 4l3 3"/></svg></span>
-      <input type="date" id="date" class="md-input" data-bind="date" aria-label="Next huddle date">
+      <input type="date" id="date" class="md-input" data-bind="date" aria-label="Huddle date">
     </label>
     <p class="sent-line" id="sent-line" hidden><span id="sent-line-text"></span><span class="sent-sep" aria-hidden="true">·</span><button type="button" class="sent-share" data-action="share-last">Share again</button></p>
     <p class="meeting-time">About 15 minutes</p>
-    <div class="info-pair" aria-label="How this works">
-      <div class="info-card blue">
-        <p class="info-kicker">Who · What</p>
-        <p class="info-title">Ward Council</p>
-        <p class="info-text">Reviews the Covenant Path Report, then selects <strong>who</strong> to focus on and <strong>what</strong> each person’s next ordinance is.</p>
-      </div>
-      <div class="info-card orange">
-        <p class="info-kicker">How · When</p>
-        <p class="info-title"><span class="t-long">Weekly Coordination Meeting</span><span class="t-short">The huddle</span></p>
-        <p class="info-text">Huddles decide <strong>how</strong> and <strong>when</strong> to help.</p>
-      </div>
-    </div>
     <section class="start-here" aria-label="Load last week">
-        <div class="newweek-panel" id="newweek-panel" hidden>
-        <button type="button" class="btn-link newweek-load" data-action="load-other">Load a handoff or PDF</button>
-      </div>
       <div class="load-panel" id="load-panel">
           <button type="button" class="btn-outline" data-action="load">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5h6l3 3v10h-9z"/><path d="M10.5 2.5v3h3"/><path d="M9 8v5M6.8 10.8L9 13l2.2-2.2"/></svg>
@@ -140,10 +133,39 @@
   </header>
 
 
+  <section class="start-home" id="start-home" aria-label="Where to start" hidden>
+    <button type="button" class="door door-wc" data-action="open-wc">
+      <span class="door-text"><span class="door-kicker">Who · What</span><span class="door-title">Ward council</span><span class="door-sub" id="door-wc-sub">Add the names, next ordinances and needs</span></span>
+      <span class="step-chev" aria-hidden="true">›</span>
+    </button>
+    <button type="button" class="door door-hd" data-action="open-huddle">
+      <span class="door-text"><span class="door-kicker">How · When</span><span class="door-title">Huddle</span><span class="door-sub" id="door-hd-sub">Report back, take attendance, plan the assignments</span></span>
+      <span class="step-chev" aria-hidden="true">›</span>
+    </button>
+    <p class="door-then">Then tap <strong>Send</strong>.</p>
+    <div class="newweek-panel" id="newweek-panel">
+      <button type="button" class="btn-link newweek-load" data-action="load-other">Load a handoff or PDF</button>
+    </div>
+  </section>
+
+  <section class="wc-view" id="wc-view" aria-labelledby="h-wc" hidden>
+    <div class="section-head">
+      <h2 id="h-wc">Ward council</h2>
+      <p class="muted">Who to focus on, each person’s next ordinance, and what they need. The huddle plans the how and when.</p>
+      <p class="help-warning wc-warning"><span class="help-warning-icon" aria-hidden="true">!</span><span><strong>Never add confidential information to this agenda.</strong></span></p>
+      <a class="btn-tools" data-tools-link href="https://lcr.churchofjesuschrist.org/one-work/progress-record?lang=eng">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 3h6v6"/><path d="M17 3l-8 8"/><path d="M15 12v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4"/></svg>
+        <span class="btn-tools-text">Open the Covenant Path Report<span class="btn-tools-sub">Check these names against it: add anyone new, remove anyone no longer listed</span></span>
+      </a>
+    </div>
+    <div class="stack" id="wc-list"></div>
+    <button type="button" class="btn-primary full" data-action="go-start">Done with ward council</button>
+  </section>
+
   <section class="steps-home" id="steps-home" aria-label="Agenda sections" hidden>
     <p class="steps-band" id="band-rr">From the last huddle</p>
     <ul class="steps-list" id="steps-last"></ul>
-    <p class="steps-band" id="band-plan">Next huddle plan</p>
+    <p class="steps-band" id="band-plan">This huddle’s plan</p>
     <ul class="steps-list" id="steps-this"></ul>
   </section>
 
@@ -151,7 +173,7 @@
   <section class="section" aria-labelledby="h-rr" data-step="rr">
     <div class="section-head">
       <div class="head-line"><h2 id="h-rr">Return and Report</h2></div>
-      <p class="muted">Mark each assignment from the last huddle as people report back. If one didn’t happen, tap <strong class="ink">Carry forward</strong> to add it to the next huddle’s plan.</p>
+      <p class="muted">Mark each assignment from the last huddle as people report back. If one didn’t happen, tap <strong class="ink">Carry forward</strong> to add it to this huddle’s plan.</p>
       <p class="rr-from" id="rr-from" hidden></p>
     </div>
 
@@ -168,7 +190,7 @@
     </div>
   </section>
 
-  <div class="week-band" role="presentation"><span class="week-label" id="week-plan">Next huddle plan</span><span class="week-sub">Ward council: who &amp; what · Huddle: how &amp; when</span></div>
+  <div class="week-band" role="presentation"><span class="week-label" id="week-plan">This huddle’s plan</span><span class="week-sub">Ward council: who &amp; what · Huddle: how &amp; when</span></div>
   <section class="section plan" aria-labelledby="h-plan" data-step="cp">
     <div class="section-head">
       <h2 id="h-plan">Covenant Path Report Review</h2>
@@ -259,6 +281,10 @@
 
     <p class="send-recipients" id="send-recipients"><strong>Send to the bishop-approved list, the stake presidency and the full-time missionaries.</strong> Make sure the elders quorum representative is included.</p>
     <p class="step-hint share-rule" id="share-hint">Only share via email or text message. Do not share through any other app.</p>
+    <div class="send-tools" id="send-tools">
+      <p><strong>Update Tools first.</strong> Put this huddle’s changes in the Covenant Path Report: sacrament attendance, temple attendance, and needs that were met.</p>
+      <a class="btn-outline full send-tools-link" data-tools-link href="https://lcr.churchofjesuschrist.org/one-work/progress-record?lang=eng">Open the Covenant Path Report</a>
+    </div>
     <button type="button" class="btn-primary full" data-action="share" id="share-btn" disabled>Share PDF</button>
 
     <button type="button" class="btn-secondary full" data-action="close-send">Keep editing</button>
@@ -391,22 +417,34 @@
     <button type="button" class="btn-tour btn-sample" data-action="practice">
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5h6l3 3v10h-9z"/><path d="M10.5 2.5v3h3"/><path d="M9 8v5M6.8 10.8L9 13l2.2-2.2"/></svg>
       Try a practice week
-      <span class="btn-tour-sub">Sample names and a sample last huddle, to see Return and Report and carry forward</span>
+      <span class="btn-tour-sub">Sample names and sample assignments, to try Ward council, Huddle and carry forward</span>
     </button>
 
     <p class="help-conduct"><strong>Who uses this agenda:</strong> The person conducting the huddle is responsible for obtaining the information from ward council, filling out the entire agenda, and saving and sharing it with the right people. This is usually the ward mission leader. If he isn’t there, the elders quorum representative conducts.</p>
 
     <p class="help-warning"><span class="help-warning-icon" aria-hidden="true">!</span><span><strong>Never add confidential information to this agenda.</strong></span></p>
 
+    <div class="info-pair help-info-pair" aria-label="How this works">
+      <div class="info-card blue">
+        <p class="info-kicker">Who · What</p>
+        <p class="info-title">Ward Council</p>
+        <p class="info-text">Reviews the Covenant Path Report, then selects <strong>who</strong> to focus on and <strong>what</strong> each person’s next ordinance is.</p>
+      </div>
+      <div class="info-card orange">
+        <p class="info-kicker">How · When</p>
+        <p class="info-title"><span class="t-long">Weekly Coordination Meeting</span><span class="t-short">The huddle</span></p>
+        <p class="info-text">Huddles decide <strong>how</strong> and <strong>when</strong> to help.</p>
+      </div>
+    </div>
     <div class="help-rhythm">
-      <p><strong>The date at the top is always your next huddle.</strong> Everything you fill in goes toward it, and Send closes it. The home screen has two groups, each named by date: <strong>From the Nov 8 huddle</strong> is Return and Report (did the last huddle’s assignments happen?), and <strong>Nov 15 huddle plan</strong> is the other three sections (names, needs and action items for the next huddle). Your own dates show in place of these.</p>
-      <p><strong>In ward council:</strong> Check the names against the Covenant Path Report (in Tools), and update each person’s next ordinance and need, right in the next huddle’s agenda.</p>
-      <p><strong>During huddle:</strong> Take attendance, confirm Return and Report, and check sacrament attendance. Then plan one action item per person (who will do it, and when) and text each assignment before everyone leaves. Make plans in <strong>Plans to Find New People to Teach</strong>.</p>
-      <p><strong>After huddle:</strong> Tap <strong>Send</strong> and share it with the bishop-approved list, the stake presidency and the full-time missionaries, and include yourself so you have a copy. The app then sets up your next huddle, a week later: this huddle’s assignments move into Return and Report.</p>
-      <p><strong>During the week:</strong> As people report back, open <strong>Return and Report</strong> and mark each assignment. Keep the Covenant Path Report in Tools updated, including sacrament attendance.</p>
+      <p><strong>The app opens to three things:</strong> <strong>Ward council</strong>, <strong>Huddle</strong> and <strong>Send</strong>. Use them in that order each week. There’s no date to set: the PDF is stamped with the day you send it.</p>
+      <p><strong>Ward council:</strong> Tap <strong>Ward council</strong>. Every name is in one list with only what ward council decides: the name, the next ordinance and the need. Check the names against the Covenant Path Report (in Tools), add anyone new and remove anyone no longer listed. If a name had an assignment from the last huddle, it shows there too; mark it if you already know how it went.</p>
+      <p><strong>Huddle:</strong> Tap <strong>Huddle</strong>. Take attendance in Huddle Details, then go down the four sections: mark Return and Report, check sacrament and temple attendance, and plan one action item per person (who will do it, and when). Text each assignment before everyone leaves.</p>
+      <p><strong>Send:</strong> Tap <strong>Send</strong>. Update the Covenant Path Report in Tools first (the button is right there), then share the PDF with the bishop-approved list, the stake presidency and the full-time missionaries, and include yourself. Sending finishes the huddle: its assignments move into Return and Report for next time, and the names and needs stay.</p>
+      <p><strong>During the week:</strong> As people report back, mark their assignments in <strong>Huddle → Return and Report</strong>, or on their name in <strong>Ward council</strong>. It’s the same mark either way.</p>
     </div>
 
-    <p class="help-steps-note"><strong>The agenda has four sections:</strong> Return and Report, Covenant Path Report Review, Name Next Ordinance, and Find New People to Teach. Open them in any order. <strong>During the huddle,</strong> tap <strong>Mark section done</strong> as you finish each one, so you can see what’s left; it’s optional and doesn’t stop you from sending. The checks clear when you send. Tap <strong>Back</strong> to return to the list. Checked one by mistake? Tap <strong>Undo</strong> right away, or open the section and tap <strong>Mark as not done</strong>. If something is still missing, like an action item, the section’s status stays orange. Marking <strong>Covenant Path Report Review</strong> done asks whether you’ve updated the report in Tools.</p>
+    <p class="help-steps-note"><strong>The huddle has four sections:</strong> Return and Report, Covenant Path Report Review, Name Next Ordinance, and Find New People to Teach. Open them in any order. Tap <strong>Mark section done</strong> as you finish each one, so you can see what’s left; it’s optional and doesn’t stop you from sending. The checks clear when you send. Tap <strong>Back</strong> to return to the list. Checked one by mistake? Tap <strong>Undo</strong> right away, or open the section and tap <strong>Mark as not done</strong>. If something is still missing, like an action item, the section’s status stays orange.</p>
 
     <ol class="help-steps">
       <li>
@@ -416,24 +454,25 @@
         </ul>
       </li>
       <li>
-        <p><strong>The date at the top is your next huddle.</strong> The app is always getting ready for it. Ward council updates the names and needs before the meeting, the huddle fills in the plans, and <strong>Send</strong> closes it and sets up the next one.</p>
+        <p><strong>Before the huddle, tap Ward council.</strong> It lists every name with the three things ward council decides: who, their next ordinance, and what they need. Fill it in before or during ward council. Everything you enter here is already on the huddle’s cards when you tap Huddle.</p>
         <ul>
-          <li><strong>Wrong date?</strong> Tap it and pick the right one. It only changes the date.</li>
+          <li><strong>No date to set.</strong> The huddle is dated the day you send it. If you’re sending on a different day than you met, tap <strong>Huddle</strong>, then the small <strong>Huddle date</strong> line at the top, and pick the right day.</li>
           <li><strong>First time?</strong> Just start filling it in with the names from the Covenant Path Report. To try it with sample names first, tap <strong>Try a practice week</strong> at the top of How to use.</li>
-          <li><strong>In ward council,</strong> names kept from the last huddle are marked with its date, like <strong>From the Nov 8 huddle</strong>. Compare them to this week’s Covenant Path Report in Tools: add anyone new, remove anyone no longer listed, and update each person’s next ordinance and need.</li>
+          <li>Names kept from the last huddle are marked <strong>From the last huddle</strong>. Compare them to this week’s Covenant Path Report in Tools (tap <strong>Open the Covenant Path Report</strong>): add anyone new, remove anyone no longer listed, and update each person’s next ordinance and need.</li>
+          <li><strong>Last huddle’s assignment</strong> shows under a name that had one, with <strong>Yes</strong>, <strong>Partly</strong> and <strong>No</strong>. If you followed up during the week, mark it there; otherwise leave it for the huddle.</li>
           <li><strong>New members:</strong> enter the baptism date. The red <strong>Temple attendance</strong> box counts down the 30 days to baptisms for the dead and stays red, week after week, until you check it.</li>
-          <li><strong>Those being taught:</strong> check <strong>Committed to baptism</strong> and enter the scheduled baptismal date once it’s set. Once they’re baptized, tap <strong>Convert to new member</strong> to move them to New members.</li>
-          <li><strong>No one in a list this week?</strong> Tap <strong>Confirm none this week</strong> on that list. The PDF then shows it was reviewed and empty; a list left blank prints <strong>Not reviewed</strong>.</li>
-          <li>Under <strong>Name Next Ordinance</strong>, add the focus names from Ward Council, with each person’s next ordinance and need.</li>
+          <li><strong>Those being taught:</strong> in the huddle’s <strong>Covenant Path Report Review</strong>, check <strong>Committed to baptism</strong> and enter the scheduled baptismal date once it’s set. Once they’re baptized, tap <strong>Convert to new member</strong> to move them to New members.</li>
+          <li><strong>No one in a list this week?</strong> In the huddle’s <strong>Covenant Path Report Review</strong>, tap <strong>Confirm none this week</strong> on that list. The PDF then shows it was reviewed and empty; a list left blank prints <strong>Not reviewed</strong>.</li>
+          <li><strong>Name Next Ordinance</strong> holds the three focus names from ward council, with each person’s next ordinance and need.</li>
           <li><strong>Names nobody has updated in 4 weeks</strong> ask “Still on the Covenant Path Report?” Tap <strong>Keep</strong> or <strong>Remove</strong>. After 5 weeks with no changes, a name is removed automatically.</li>
-          <li><strong>Someone else running the meeting?</strong> Tap <strong>Hand off</strong> (next to Send) and text them the link. On Android it loads right away. On iPhone the link opens in Safari: they tap <strong>Copy handoff</strong>, open the app from the Home Screen, then tap <strong>Load a handoff or PDF → Paste a handoff</strong>. They can hand it back the same way. After they send it, open the PDF they sent you and tap <strong>Load a handoff or PDF → Load from a PDF</strong>; your app sets up the next huddle from it.</li>
+          <li><strong>Someone else running the meeting?</strong> Tap <strong>Hand off</strong> (next to Send) and text them the link. On Android it loads right away. On iPhone the link opens in Safari: they tap <strong>Copy handoff</strong>, open the app from the Home Screen, then tap <strong>Load a handoff or PDF</strong> (on the opening screen) <strong>→ Paste a handoff</strong>. They can hand it back the same way. After they send it, open the PDF they sent you and tap <strong>Load a handoff or PDF → Load from a PDF</strong>; your app sets up the next huddle from it.</li>
         </ul>
       </li>
       <li>
-        <p><strong>At the meeting, take attendance.</strong> Tap <strong>Huddle Details</strong>, check who’s conducting, then tap everyone who attended. Until you do, Huddle Details shows <strong>Attendance not taken yet</strong> in orange.</p>
+        <p><strong>At the meeting, tap Huddle and take attendance.</strong> Tap <strong>Huddle Details</strong>, check who’s conducting, then tap everyone who attended. Until you do, Huddle Details shows <strong>Attendance not taken yet</strong> in orange.</p>
         <ul>
-          <li>Under <strong>Return and Report</strong>, labeled with the huddle it came from, confirm each item <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>; the card turns green, amber or red.</li>
-          <li>Marked <strong>Partly</strong> or <strong>No</strong>? Tap <strong>Carry forward</strong> (it names the next huddle’s date, like <strong>Carry forward to Nov 15</strong>) to add it to that huddle’s plan without retyping. It’s marked <strong>Carried over from Nov 8</strong> on the card and on the PDF. Changed your mind? Tap <strong>Undo</strong> to take it back off the plan.</li>
+          <li>Under <strong>Return and Report</strong>, confirm each item <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>; the card turns green, amber or red.</li>
+          <li>Marked <strong>Partly</strong> or <strong>No</strong>? Tap <strong>Carry forward to this huddle</strong> to add it to this huddle’s plan without retyping. It’s marked <strong>Carried from last huddle</strong> on the card and on the PDF. Changed your mind? Tap <strong>Undo</strong> to take it back off the plan.</li>
           <li>Update the <strong>Covenant Path Report</strong> with any needs that have been fulfilled, including sacrament attendance. Tap <strong>Open the Covenant Path Report</strong> at the top of Covenant Path Report Review to jump to Member Tools.</li>
         </ul>
       </li>
@@ -446,17 +485,17 @@
         </ul>
       </li>
       <li>
-        <p><strong>Send it.</strong> From the home screen (tap <strong>Back</strong>), tap <strong>Send</strong>, then <strong>Share PDF</strong>, and pick Mail or Messages. If anything is still open, <strong>Ready to send?</strong> lists it first; tap a line to go there, or send anyway.</p>
+        <p><strong>Send it.</strong> From the huddle’s list or the opening screen (tap <strong>Back</strong>), tap <strong>Send</strong>. <strong>Update Tools first:</strong> the Send screen has an <strong>Open the Covenant Path Report</strong> button for sacrament attendance, temple attendance and needs that were met. Then tap <strong>Share PDF</strong>, and pick Mail or Messages. If anything is still open, <strong>Ready to send?</strong> lists it first; tap a line to go there, or send anyway.</p>
         <ul>
-          <li><strong>Sending closes the huddle.</strong> Right after, the app sets up your next huddle, a week later. This huddle’s action items move into Return and Report, and names and needs stay for ward council to update. Attendance, answers and checks clear. Sent it too soon? Tap <strong>Undo</strong> in the <strong>Sent successfully</strong> message, fix it, and send again.</li>
-          <li><strong>Need to share it again?</strong> Under the date, tap <strong>Share again</strong> next to <strong>✓ Nov 8 huddle sent</strong> (with your date). The app keeps only the last huddle you sent, and replaces it the next time you send.</li>
+          <li><strong>Sending closes the huddle.</strong> Right after, the app is ready for your next huddle. This huddle’s action items move into Return and Report, and names and needs stay for ward council to update. Attendance, answers and checks clear. Sent it too soon? Tap <strong>Undo</strong> in the <strong>Sent successfully</strong> message, fix it, and send again.</li>
+          <li><strong>Need to share it again?</strong> On the opening screen, tap <strong>Share again</strong> next to <strong>✓ Nov 8 huddle sent</strong> (with your date). The app keeps only the last huddle you sent, and replaces it the next time you send.</li>
           <li><strong>Send to the bishop-approved list, the stake presidency and the full-time missionaries.</strong> Make sure the elders quorum representative is included, so he can run the next meeting if you’re away.</li>
           <li><strong>Include yourself when you send it,</strong> so you always have a copy of the PDF. The agenda itself lives only on this phone, in this app.</li>
           <li>If this phone ever loses its agenda, tap <strong>Load a handoff or PDF → Load from a PDF</strong> and choose the last PDF you sent. The app sets up your next huddle from it.</li>
         </ul>
       </li>
       <li>
-        <p><strong>Follow up during the week.</strong> As people report back, open <strong>Return and Report</strong> and mark their assignments <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>. It’s the one place to mark them. The home screen shows how many are done, like <strong>From Nov 8 · 3 of 8 marked</strong>, and the huddle confirms the rest.</p>
+        <p><strong>Follow up during the week.</strong> As people report back, mark their assignments <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>, either in <strong>Huddle → Return and Report</strong> or on the name in <strong>Ward council</strong>. The Huddle button shows how many have reported back, and the huddle confirms the rest.</p>
         <ul>
           <li>Update names, needs and next ordinances as things change, and keep the Covenant Path Report in Tools current.</li>
         </ul>

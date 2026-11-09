@@ -138,7 +138,7 @@
       tnDone: false, tn: [blankName(), blankName(), blankName()],
       find: blankFind(),
       practiceSnapshot: null,
-      sentAt: '', sentSig: '', rolledFrom: '',
+      sentAt: '', sentSig: '', rolledFrom: '', dateManual: false,
       ftDone: false
     };
   }
@@ -187,7 +187,7 @@
     // A practice week remembers the form as it was, so removing it puts everything back.
     f.practiceSnapshot = f.loaded && f.loaded.practice && s.practiceSnapshot && typeof s.practiceSnapshot === 'object' ? s.practiceSnapshot : null;
     f.cpDone = !!s.cpDone; f.tnDone = !!s.tnDone; f.ftDone = !!s.ftDone;
-    f.sentAt = str(s.sentAt); f.sentSig = str(s.sentSig); f.rolledFrom = parseISO(str(s.rolledFrom)) ? str(s.rolledFrom) : '';
+    f.dateManual = !!s.dateManual; f.sentAt = str(s.sentAt); f.sentSig = str(s.sentSig); f.rolledFrom = parseISO(str(s.rolledFrom)) ? str(s.rolledFrom) : '';
     // Lists marked Done stay folded only within the draft; a saved agenda always opens fully.
     var sd = s.stepsDone && typeof s.stepsDone === 'object' ? s.stepsDone : {};
     ['rr', 'cp', 'tn', 'fn'].forEach(function (k) { if (sd[k] === true) f.stepsDone[k] = true; });
@@ -403,7 +403,7 @@
         ]);
       } else if (r.prefilled && (r.happened === 'Partly' || r.happened === 'No') && groupOf(r)) {
         {
-          carry = h('button', { type: 'button', class: 'btn-outline full btn-carry', 'data-action': 'carry-fwd', 'data-a': i, text: 'Carry forward to ' + (monthDay(state.date) || 'the next huddle') });
+          carry = h('button', { type: 'button', class: 'btn-outline full btn-carry', 'data-action': 'carry-fwd', 'data-a': i, text: 'Carry forward to this huddle' });
         }
       }
       return h('div', { class: 'card rr-card' + (gid ? ' g-' + gid : ''), 'data-status': statusOf(r.happened) }, [head, body,
@@ -426,10 +426,10 @@
   }
   // Labels name the huddle (by date) instead of "last week" / "this week".
   function prevHuddle(s) { s = s || state; return s.rolledFrom || (s.loaded && s.loaded.date) || ''; }
-  function fromLabel(s) { var d = monthDay(prevHuddle(s)); return d ? 'From the ' + d + ' huddle' : 'From the last huddle'; }
-  function planLabel(s) { var d = monthDay((s || state).date); return d ? d + ' huddle plan' : 'Next huddle plan'; }
-  function nextPlan() { var d = monthDay(state.date); return d ? 'the ' + d + ' plan' : 'the next huddle’s plan'; }
-  function carriedText(s) { var d = monthDay(prevHuddle(s)); return d ? 'Carried over from ' + d : 'Carried over from the last huddle'; }
+  function fromLabel(s) { var d = s ? monthDay(prevHuddle(s)) : ''; return d ? 'From the ' + d + ' huddle' : 'From the last huddle'; }
+  function planLabel() { return 'This huddle’s plan'; }
+  function nextPlan() { return 'this huddle’s plan'; }
+  function carriedText(s) { var d = s ? monthDay(prevHuddle(s)) : ''; return d ? 'Carried over from ' + d : 'Carried from last huddle'; }
   function carriedTag() { return h('span', { class: 'source carried-tag', text: carriedText() }); }
   // The person's name, typed right in the bold title at the top of the card.
   function nameInput(path, ph) {
@@ -530,7 +530,7 @@
     var from = state.rolledFrom || (state.loaded && state.loaded.date) || '';
     var d = parseISO(from);
     rf.hidden = !d;
-    if (d) rf.textContent = (state.loaded && state.loaded.practice ? 'Practice week: from the ' : 'From the ') + d.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) + ' huddle';
+    if (d) rf.textContent = state.loaded && state.loaded.practice ? 'Practice week: sample assignments' : 'From your last huddle';
   }
   function renderLoadState() {
     renderRRFrom();
@@ -541,7 +541,8 @@
     if (nw) {
       nw.hidden = !live;
     }
-    $('#load-panel').hidden = !!state.loaded || live;
+    if (nw) nw.hidden = practice;
+    $('#load-panel').hidden = true;
     $('#loaded-banner').hidden = !state.loaded;
     $('#loaded-banner').classList.toggle('practice', !!(state.loaded && state.loaded.practice));
     if (state.loaded && state.loaded.practice) {
@@ -578,7 +579,7 @@
       return row;
     });
     var head = h('button', { type: 'button', class: 'list-head fold-head', 'data-action': 'list-open', 'data-a': 'rr', 'aria-expanded': 'false', 'aria-label': 'Return and Report is done. Tap to open and edit.' }, [
-      h('span', { class: 'list-title' }, [h('span', { class: 'fold-check', 'aria-hidden': 'true' }, [icon('check')]), ' ' + fromLabel()]),
+      h('span', { class: 'list-title' }, [h('span', { class: 'fold-check', 'aria-hidden': 'true' }, [icon('check')]), ' Last huddle’s items']),
       h('span', { class: 'list-count', text: rows.length + (rows.length === 1 ? ' item' : ' items') })
     ]);
     return h('section', { class: 'list-panel rr-folded is-folded', 'aria-label': 'Return and Report' }, [
@@ -894,17 +895,28 @@
   ];
   var VIEW_ALL_KEY = 'huddle-view-all';
   var stepsOn = !readFlag(VIEW_ALL_KEY);
-  var view = 'home';
-  var detailsOpen = false;
+  // Screens: 'start' (Ward council / Huddle / Send), 'wc' (ward council's names and needs),
+  // 'home' (the huddle's list: details and the four sections) and one screen per section.
+  // A link ending in #huddle opens straight to the huddle's list.
+  var START = /(^|[#&])huddle($|&)/.test((location.hash || '').replace(/^#/, '')) ? 'home' : 'start';
+  var view = START;
+  var detailsOpen = false, shownView = '';
+  function resetView() { view = stepsOn ? START : 'home'; try { history.replaceState({ hv: view }, ''); } catch (e) { /* ignore */ } }
+  // The huddle date is today unless someone picked one for this huddle.
+  function syncDate() {
+    if (state.dateManual || state.date === todayISO()) return false;
+    state.date = todayISO(); var df = $('#date'); if (df) df.value = state.date;
+    return true;
+  }
   function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
   function stepStatus(id) {
     if (id === 'rr') {
       var items = state.rr.filter(rrShown), n = items.length;
-      var from = monthDay(state.rolledFrom || (state.loaded && state.loaded.date) || '');
-      if (!n) return { text: from ? 'Nothing to report from the ' + from + ' huddle' : 'Fills in after you send a huddle' };
+      var from = !!(state.rolledFrom || (state.loaded && state.loaded.date));
+      if (!n) return { text: from ? 'Nothing to report from the last huddle' : 'Nothing yet. After your first huddle, the assignments show up here.' };
       var marked = items.filter(function (r) { return r.happened; }).length;
       var carried = items.filter(function (r) { return r.carriedFwd; }).length;
-      return { text: (from ? 'From ' + from : plural(n, 'item', 'items')) + ' · ' + (marked === n ? 'all ' + n + ' marked' : marked + ' of ' + n + ' marked') + (carried ? ' · ' + carried + ' carried forward' : ''), warn: marked < n };
+      return { text: (marked === n ? 'All ' + n + ' marked' : marked + ' of ' + n + ' marked') + (carried ? ' · ' + carried + ' carried forward' : ''), warn: marked < n };
     }
     if (id === 'cp' || id === 'tn') {
       var list = id === 'tn' ? state.tn : GROUPS.reduce(function (a, g) { return a.concat(state.cp[g.id]); }, []);
@@ -956,27 +968,97 @@
     var all = !stepsOn;
     document.body.classList.toggle('steps-on', !all);
     document.body.setAttribute('data-view', all ? 'all' : view);
-    var home = all || view === 'home';
-    // Load last week sits on the home screen, above the meeting details and the four sections.
-    $('header.top').hidden = !home; $('.start-here').hidden = !home; $('.fine-notes').hidden = !home;
+    var home = all || view === 'home', start = !all && view === 'start', wc = !all && view === 'wc';
+    $('header.top').hidden = !home && !start; $('.start-here').hidden = !home && !start; $('.fine-notes').hidden = !home && !start;
+    $('#start-home').hidden = !start; $('#wc-view').hidden = !wc; $('#mode-bar').hidden = all || !(view === 'home' || wc);
+    $('#mode-title').textContent = wc ? 'Ward council' : 'Huddle';
+    // Names edited in ward council show up on the huddle's cards.
+    if (shownView === 'wc' && view !== 'wc') { renderCP(); renderTN(); }
+    shownView = view;
+    renderWC();
+    if (start) renderDoors();
     $('#steps-home').hidden = all || view !== 'home';
-    $('#step-bar').hidden = all || home; $('#step-foot').hidden = all || home;
-    // Save and Send live on the home screen, where all four sections come together; inside a section they're hidden.
-    var bar = $('.actionbar'); if (bar) bar.hidden = !all && !home;
+    $('#step-bar').hidden = all || home || start || wc; $('#step-foot').hidden = all || home || start || wc;
+    // Hand off and Send live on the opening screen and the huddle's list; inside a section they're hidden.
+    var bar = $('.actionbar'); if (bar) bar.hidden = !all && !home && !start;
     Array.prototype.forEach.call(document.querySelectorAll('[data-step]'), function (el) { el.hidden = !all && el.getAttribute('data-step') !== view; });
     Array.prototype.forEach.call(document.querySelectorAll('.week-band'), function (el) { el.hidden = !all; });
     renderDetails(); renderSteps();
   }
+  /* ---------- Ward council: every name with only what ward council decides ---------- */
+  // The last huddle's assignment for a name, if there was one (its row in Return and Report).
+  function lastAction(gid, name) {
+    var nm = norm(name); if (!nm) return -1;
+    for (var i = 0; i < state.rr.length; i++) {
+      var r = state.rr[i];
+      if (r.prefilled && groupOf(r) === gid && norm(rrPerson(r)) === nm) return i;
+    }
+    return -1;
+  }
+  function wcCard(gid, base, a, idx, removable) {
+    var ri = lastAction(gid, a.name), r = ri >= 0 && str(state.rr[ri].action).trim() ? state.rr[ri] : null;
+    var last = null;
+    if (r) {
+      var who = [str(r.assigned).trim(), str(r.when).trim()].filter(Boolean).join(' · ');
+      last = h('div', { class: 'wc-last' }, [
+        h('p', { class: 'wc-last-k', text: 'Last huddle’s assignment' }),
+        h('p', { class: 'wc-last-action', text: (str(r.action).trim() || 'No action item was written.') + (who ? ' (' + who + ')' : '') }),
+        h('div', { class: 'seg wc-seg', role: 'group', 'aria-label': 'Did it happen?' }, ['Yes', 'Partly', 'No'].map(function (v) {
+          return h('button', { type: 'button', 'data-action': 'happened', 'data-a': ri, 'data-b': v, 'aria-pressed': r.happened === v ? 'true' : 'false', text: v });
+        })),
+        r.happened ? null : h('p', { class: 'wc-last-hint', text: 'Not reported yet. Mark it here if you know, or in the huddle.' })
+      ]);
+    }
+    return h('div', { class: 'card wc-card g-' + gid }, [
+      h('div', { class: 'wc-card-head' }, [
+        field(gid === 'tn' ? 'Focus name' : 'Name', base + 'name', { placeholder: gid === 'tn' ? 'Focus name' : 'From the Covenant Path Report', cap: 'words' }),
+        removable ? removeButton('remove-cp', gid, idx, 'Remove ' + (str(a.name).trim() || 'this name')) : null
+      ]),
+      gid === 'nm' ? field('Baptism date', base + 'bap', { type: 'date' }) : null,
+      field('Next ordinance', base + 'ordinance', { placeholder: gid === 'bt' ? 'Baptism' : 'e.g. Temple baptisms' }),
+      field('Needs', base + 'need', { multi: true, placeholder: 'What do they need to get there?' }),
+      last
+    ]);
+  }
+  function renderWC() {
+    var wrap = $('#wc-list'); if (!wrap) return;
+    // Only built while it's on screen, so each field exists once on the page.
+    if (!stepsOn || view !== 'wc') { wrap.replaceChildren(); return; }
+    var panel = function (gid, title, list, baseOf) {
+      return h('section', { class: 'list-panel wc-panel list-' + gid, 'data-wc': gid, 'aria-label': title }, [
+        h('h3', { class: 'wc-title', text: title }),
+        h('div', { class: 'stack' }, list.map(function (a, i) { return wcCard(gid, baseOf(i), a, i, gid !== 'tn' && (list.length > 1 || hasText(a, CARD_KEYS))); })),
+        gid === 'tn' ? null : h('button', { type: 'button', class: 'btn-outline full wc-add', 'data-action': 'wc-add', 'data-a': gid, text: '+ Add a name' })
+      ]);
+    };
+    wrap.replaceChildren.apply(wrap, [panel('tn', 'Name Next Ordinance (focus names)', state.tn, function (i) { return 'tn.' + i + '.'; })]
+      .concat(GROUPS.map(function (g) { return panel(g.id, g.title, state.cp[g.id], function (i) { return 'cp.' + g.id + '.' + i + '.'; }); })));
+  }
+  // The two doors on the opening screen say where things stand.
+  function renderDoors() {
+    var names = state.tn.filter(function (a) { return str(a.name).trim(); }).length + GROUPS.reduce(function (n, g) { return n + countNamed(g.id); }, 0);
+    $('#door-wc-sub').textContent = names ? plural(names, 'name', 'names') + ' · update next ordinances and needs' : 'Add the names, next ordinances and needs';
+    var items = state.rr.filter(rrShown), marked = items.filter(function (r) { return r.happened; }).length;
+    $('#door-hd-sub').textContent = items.length ? marked + ' of ' + items.length + ' reported back · then plan the assignments' : 'Report back, take attendance, plan the assignments';
+  }
+
   // mode: 'push' adds a history entry (so Back returns to the list), 'replace' swaps it, otherwise no history change.
   function showView(v, mode) {
     if (!stepsOn) v = 'home';
     view = v;
     try {
-      if (mode === 'push') history.pushState({ hv: v }, '');
+      if (mode === 'push') history.pushState({ hv: v, pushed: true }, '');
       else if (mode === 'replace') history.replaceState({ hv: v }, '');
     } catch (e) { /* ignore */ }
     applyView();
     window.scrollTo(0, 0);
+  }
+  // Back from the huddle's list or ward council to the opening screen.
+  function goStart() {
+    if (view === 'start') return;
+    var st = null; try { st = history.state; } catch (e) { /* ignore */ }
+    if (st && (st.hv === 'home' || st.hv === 'wc') && st.pushed) { try { history.back(); return; } catch (e) { /* fall through */ } }
+    showView('start', 'replace');
   }
   function goHome() {
     if (view === 'home') return;
@@ -1002,7 +1084,7 @@
     show: function (v, details) { detailsOpen = !!details; showView(v || 'home', 'replace'); },
     openDetails: openDetails,
     current: function () { return view; },
-    reset: function () { setTourDemo(false); detailsOpen = false; showView('home', 'replace'); },
+    reset: function () { setTourDemo(false); detailsOpen = false; showView(START, 'replace'); },
     tourDemo: function (on) { setTourDemo(on); },
     enabled: function () { return stepsOn; }
   };
@@ -1102,8 +1184,7 @@
     removeKey('sessionStorage', DRAFT_KEY); removeKey('localStorage', LIVE_KEY); removeKey('localStorage', LAST_SENT_KEY);
     if (!keepWard) { removeKey('localStorage', WARD_KEY); removeKey('localStorage', 'huddle-conducting'); }
     state = freshState(); showBlank = {};
-    view = 'home';
-    try { history.replaceState({ hv: 'home' }, ''); } catch (e) { /* ignore */ }
+    resetView();
     renderAll(); applyView();
     window.scrollTo(0, 0);
   }
@@ -1142,6 +1223,7 @@
         });
         var rc = btn.closest('.card'); if (rc) rc.setAttribute('data-status', statusOf(r.happened));
         if (r.prefilled) renderRR();
+        if (view === 'wc') renderWC();
         saveDraft(); break;
       }
       case 'add-rr':
@@ -1183,6 +1265,11 @@
       }
       case 'list-open': listOpen(a); break;
       case 'open-step': showView(a, 'push'); break;
+      case 'open-wc': showView('wc', 'push'); break;
+      case 'open-huddle': syncDate(); showView('home', 'push'); break;
+      case 'go-start': goStart(); break;
+      case 'wc-add': state.cp[a].push(blankAction()); state.cpNone[a] = false; showBlank[a] = true;
+        renderCP(); renderWC(); saveDraft(); focusLast('#wc-list [data-wc="' + a + '"] input[data-bind$=".name"]'); break;
       case 'steps-home': goHome(); break;
       case 'step-done': {
         var doneView = view;
@@ -1191,17 +1278,7 @@
           var st = STEPS.filter(function (x) { return x.id === doneView; })[0];
           toast((st ? st.title : 'Section') + ' marked done.', 6000, { label: 'Undo', run: function () { delete state.stepsDone[doneView]; saveDraft(); } });
         };
-        // Covenant Path Report Review: check the report in Tools was updated before checking it off.
-        var hasPeople = GROUPS.some(function (g) { return countNamed(g.id) > 0; });
-        if (doneView === 'cp' && !state.stepsDone.cp && hasPeople) {
-          ask({
-            title: 'Did you update the Covenant Path Report in Tools?',
-            body: 'Update sacrament attendance, temple attendance and anything else that changed for the people in this section.',
-            primary: 'Yes, mark done', onPrimary: finish,
-            link: 'Open the Covenant Path Report',
-            secondary: 'Not yet', onSecondary: function () { toast('Update it in Tools, then tap Mark section done.', 5000); }
-          });
-        } else finish();
+        finish();
         break;
       }
       case 'step-undone': delete state.stepsDone[view]; saveDraft(); renderStepFoot(); toast('Marked as not done.'); break;
@@ -1234,7 +1311,7 @@
         var doRemoveCP = function () {
           state.cp[cpList].splice(cpIdx, 1); delete state.openOne[cpList];
           if (!state.cp[cpList].length) { state.cp[cpList].push(blankAction()); showBlank[cpList] = false; }
-          renderCP(); saveDraft();
+          renderCP(); renderWC(); saveDraft();
         };
         if (cItem && (cItem.sac || cItem.temple || cItem.committed || hasText(cItem, CARD_KEYS))) {
           confirmRemove(str(cItem.name).trim() ? 'Remove ' + cItem.name.trim() + '?' : 'Remove this card?', doRemoveCP);
@@ -1268,7 +1345,7 @@
         if (!orec) break;
         var doOpen = function () {
           state = normalizeState(orec.data); state.loaded = null;
-          view = 'home'; renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
+          resetView(); renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
           toast('Opened the ' + shortDate(orec.date) + ' agenda. Make your changes, then send or save it again.');
         };
         if (!isEmpty(state)) {
@@ -1455,13 +1532,6 @@
     return out;
   }
 
-  // The next huddle is a week after this one (or the next one not already past).
-  function nextMeetingDate(prev) {
-    var today = parseISO(todayISO()), d = parseISO(prev) || parseISO(todayISO());
-    d.setDate(d.getDate() + 7);
-    while (d < today) d.setDate(d.getDate() + 7);
-    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-  }
   function rrFromItem(it, happened) {
     return { prefilled: true, source: it.source, group: it.group, pname: it.pname, ord: it.ord, need: it.need || '', hneed: it.hneed || '', sac: !!it.sac, bap: it.bap || '', temple: !!it.temple, committed: !!it.committed,
       person: it.person, action: it.action, assigned: it.assigned, when: it.when, plan: '', happened: happened || '', notes: '' };
@@ -1477,8 +1547,7 @@
     state = f; showBlank = {};
     state.rr = items.length ? items.map(function (it) { return rrFromItem(it, it.done ? 'Yes' : ''); }) : [blankRR(), blankRR()];
     carryNames(data);
-    view = 'home';
-    try { history.replaceState({ hv: 'home' }, ''); } catch (e) { /* ignore */ }
+    resetView();
     renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
     return items.length;
   }
@@ -1489,22 +1558,20 @@
     var prevLast = readJSON('localStorage', LAST_SENT_KEY);
     var sentDate = state.date;
     writeJSON('localStorage', LAST_SENT_KEY, { date: sentDate, ward: state.ward.trim(), sentAt: new Date().toISOString(), data: makePayload(state) });
-    var next = nextMeetingDate(sentDate);
-    var n = rollForward(next);
+    var n = rollForward(todayISO());
     ask({
       title: downloaded ? 'PDF downloaded' : 'Sent successfully', success: true,
       body: (downloaded ? 'Attach it to an email or text message to send it. ' : '') +
-        'You’re set up for the next huddle, ' + parseISO(next).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + '. ' +
-        (n ? 'The ' + monthDay(sentDate) + ' assignments are in Return and Report: mark them as people report back. ' : '') +
+        'You’re set for your next huddle. ' +
+        (n ? 'This huddle’s assignments are now in Return and Report: mark them as people report back. ' : '') +
         'Names and needs stay for ward council to update. Tip: include yourself when you send it, so you always have a copy of the PDF.',
       primary: 'Done',
       secondary: 'Undo', onSecondary: function () {
         state = normalizeState(snap); showBlank = {};
         if (prevLast) writeJSON('localStorage', LAST_SENT_KEY, prevLast); else removeKey('localStorage', LAST_SENT_KEY);
-        view = 'home';
-        try { history.replaceState({ hv: 'home' }, ''); } catch (e) { /* ignore */ }
+        resetView();
         renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
-        toast('Back to the ' + monthDay(sentDate) + ' agenda. Send it again when it’s ready.', 6000);
+        toast('Your huddle is back. Send it again when it’s ready.', 6000);
       }
     });
   }
@@ -1665,19 +1732,18 @@
     var snap = JSON.parse(JSON.stringify(state));
     state = incoming; showBlank = {}; sweepStale(state);
     if (state.ward.trim()) writeWard(state.ward.trim());
-    if (fromPdf) rollForward(nextMeetingDate(state.date));
-    view = 'home';
-    try { history.replaceState({ hv: 'home' }, ''); } catch (e) { /* ignore */ }
+    if (fromPdf) rollForward(todayISO());
+    resetView();
     renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
-    toast(fromPdf ? 'Set up the ' + monthDay(state.date) + ' huddle from the ' + monthDay(incoming.date) + ' PDF.' : 'Loaded the ' + (monthDay(state.date) || '') + ' agenda.', 8000,
-      { label: 'Undo', run: function () { state = normalizeState(snap); showBlank = {}; view = 'home'; renderAll(); applyView(); saveDraft(); toast('Your agenda is back.'); } });
+    toast(fromPdf ? 'Set up your next huddle from the ' + monthDay(incoming.date) + ' PDF.' : 'Loaded the ' + (monthDay(state.date) || '') + ' agenda.', 8000,
+      { label: 'Undo', run: function () { state = normalizeState(snap); showBlank = {}; resetView(); renderAll(); applyView(); saveDraft(); toast('Your agenda is back.'); } });
   }
 
   function startPractice() { applyLoad(practiceData(), 'Practice week', { practice: true }); }
   function removePractice() {
     var snap = state.practiceSnapshot;
     state = normalizeState(snap || null); state.loaded = null; state.practiceSnapshot = null;
-    view = 'home'; renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
+    resetView(); renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
     toast('Practice week removed. The form is back the way it was.');
   }
   function confirmRemovePractice() {
@@ -2749,6 +2815,7 @@
   // src = a saved agenda to share again; otherwise the form on screen.
   async function startSend(src, checked) {
     resending = !!src;
+    if (!resending && syncDate()) saveDraft();
     if (!resending && !readyToSave('send')) return;
     if (!resending && !checked) {
       var open = openItems();
@@ -2760,7 +2827,8 @@
     }
     var agenda = src || state;
     resetSendSheet();
-    $('#send-title').textContent = (resending ? 'Share the ' : 'Send the ') + (monthDay(agenda.date) || 'huddle') + ' agenda' + (resending ? ' again' : '');
+    $('#send-title').textContent = resending ? 'Share the ' + (monthDay(agenda.date) || 'last') + ' agenda again' : 'Send this huddle’s agenda';
+    $('#send-tools').hidden = resending;
     var name = fileName(agenda);
     $('#send-filename').textContent = name;
     $('#send-status').textContent = 'Making your PDF…';
@@ -2842,6 +2910,7 @@
     }
     fileInput = $('#file-input');
     fileInput.addEventListener('change', onFilePicked);
+    syncDate();
     renderAll();
     checkHandoffLink();
     window.addEventListener('hashchange', checkHandoffLink);
@@ -2854,12 +2923,12 @@
     if (lsOld && !(lsOld.sentAt && (Date.now() - Date.parse(lsOld.sentAt)) < STALE_DROP * 86400000)) { removeKey('localStorage', LAST_SENT_KEY); renderSent(); }
     if (staleRemoved) { saveDraft(); toast('Removed ' + staleRemoved + (staleRemoved === 1 ? ' name' : ' names') + ' not updated in 5 weeks.', 6000); }
     // Four-step view: start on the step list; the phone's Back gesture returns to it from a step.
-    try { history.replaceState({ hv: 'home' }, ''); } catch (e) { /* ignore */ }
+    resetView();
     applyView();
     window.addEventListener('popstate', function (e) {
       var v = e.state && e.state.hv;
       if (!stepsOn) return;
-      view = v && v !== 'home' && STEPS.some(function (st) { return st.id === v; }) ? v : 'home';
+      view = v === 'home' || v === 'wc' || v === 'start' || STEPS.some(function (st) { return st.id === v; }) ? v : START;
       applyView(); window.scrollTo(0, 0);
     });
 
@@ -2870,7 +2939,7 @@
       var val = t.type === 'checkbox' ? t.checked : t.value;
       setPath(path, val);
       if (path === 'ward') writeWard(String(val).trim());
-      if (path === 'date') renderDateHint();
+      if (path === 'date') { state.dateManual = true; renderDateHint(); }
       if (path === 'conductingOther') writeConducting(state);
       if (/\.name$/.test(path)) {
         var pt = document.querySelector('[data-name-for="' + path + '"]');

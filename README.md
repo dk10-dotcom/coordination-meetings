@@ -1,6 +1,6 @@
 # Weekly Coordination Meeting Agenda (web form)
 
-A phone-friendly agenda form for ward huddles. The date at the top is always the **next huddle**: ward council updates names and needs before it, the huddle fills in the plans, and **Send** makes a PDF, shares it, and closes the huddle. The app then sets up the next huddle a week later, with this huddle's action items in Return and Report.
+A phone-friendly agenda form for ward huddles. It opens to three things: **Ward council** (every name with its next ordinance and need), **Huddle** (attendance, Return and Report, and this huddle's assignments) and **Send** (update Tools, then share the PDF). Sending finishes the huddle: its action items move into Return and Report for next time, and names and needs stay. There is no date to set; the PDF is dated the day it's sent.
 
 ## Privacy and security
 
@@ -49,7 +49,7 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 
 **In ward council:** check the names against the Covenant Path Report (in Tools) and update each person's next ordinance and need, right in the next huddle's agenda. **During huddle:** take attendance, confirm Return and Report, and check sacrament attendance. Then plan one action item per person: who will do it, and when. **After huddle:** Send it to the bishop-approved list, the stake presidency and the full-time missionaries. **During the week:** mark Return and Report as people report back, and keep the Covenant Path Report in Tools updated.
 
-1. Open the app from the Home Screen icon. **Next huddle** and its date sit at the top; tap the date to change it (it only changes the date). Choose who is **Conducting** in Huddle Details; it's remembered on the phone and printed on the PDF.
+1. Open the app from the Home Screen icon. Before the huddle, tap **Ward council** and update the names, next ordinances and needs. A name that had an assignment from the last huddle shows it there, with Yes / Partly / No. At the meeting, tap **Huddle**; choose who is **Conducting** in Huddle Details (remembered on the phone and printed on the PDF). A link ending in `#huddle` opens straight to the huddle's list.
 2. Tap everyone who attended. **Return and Report** is labeled with the huddle its items came from ("From the November 8 huddle"), and the home screen shows how many are marked ("From Nov 8 · 3 of 8 marked"). Mark each item Yes / Partly / No. For Partly or No, **Carry forward to this week** copies it into this week's plan.
 3. Fill in the Covenant Path Report actions and the 3 Names Next Ordinance (Ward Council Focus Names). **Text this assignment** texts each one before everyone leaves.
 4. **Send → Share PDF.** The huddle closes: the app sets up the next huddle a week later, moves the action items into Return and Report, and keeps names and needs. **Undo** in the Sent successfully message puts the huddle back. Under the date, **✓ Nov 8 huddle sent · Share again** resends the last PDF.
