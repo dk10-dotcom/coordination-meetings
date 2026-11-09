@@ -141,17 +141,17 @@
 
 
   <section class="steps-home" id="steps-home" aria-label="Agenda sections" hidden>
-    <p class="steps-band">Last week’s results</p>
+    <p class="steps-band" id="band-rr">From the last huddle</p>
     <ul class="steps-list" id="steps-last"></ul>
-    <p class="steps-band">This week’s plan</p>
+    <p class="steps-band" id="band-plan">Plan for the next huddle</p>
     <ul class="steps-list" id="steps-this"></ul>
   </section>
 
-  <div class="week-band" role="presentation"><span class="week-label">Last week’s results</span><span class="week-sub">Did it happen?</span></div>
+  <div class="week-band" role="presentation"><span class="week-label" id="week-rr">From the last huddle</span><span class="week-sub">Did it happen?</span></div>
   <section class="section" aria-labelledby="h-rr" data-step="rr">
     <div class="section-head">
       <div class="head-line"><h2 id="h-rr">Return and Report</h2></div>
-      <p class="muted">Mark each assignment from the last huddle as people report back. If one didn’t happen, tap <strong class="ink">Carry forward</strong> to try again this week.</p>
+      <p class="muted">Mark each assignment from the last huddle as people report back. If one didn’t happen, tap <strong class="ink">Carry forward</strong> to add it to the next huddle’s plan.</p>
       <p class="rr-from" id="rr-from" hidden></p>
     </div>
 
@@ -168,7 +168,7 @@
     </div>
   </section>
 
-  <div class="week-band" role="presentation"><span class="week-label">This week’s plan</span><span class="week-sub">Ward council: who &amp; what · Huddle: how &amp; when</span></div>
+  <div class="week-band" role="presentation"><span class="week-label" id="week-plan">Plan for the next huddle</span><span class="week-sub">Ward council: who &amp; what · Huddle: how &amp; when</span></div>
   <section class="section plan" aria-labelledby="h-plan" data-step="cp">
     <div class="section-head">
       <h2 id="h-plan">Covenant Path Report Review</h2>
@@ -399,14 +399,14 @@
     <p class="help-warning"><span class="help-warning-icon" aria-hidden="true">!</span><span><strong>Never add confidential information to this agenda.</strong></span></p>
 
     <div class="help-rhythm">
-      <p><strong>The date at the top is always your next huddle.</strong> Everything you fill in goes toward it, and Send closes it.</p>
+      <p><strong>The date at the top is always your next huddle.</strong> Everything you fill in goes toward it, and Send closes it. The home screen has two groups, each named by date: <strong>From the Nov 8 huddle</strong> is Return and Report (did the last huddle’s assignments happen?), and <strong>Plan for the Nov 15 huddle</strong> is the other three sections (names, needs and action items for the next huddle). Your own dates show in place of these.</p>
       <p><strong>In ward council:</strong> Check the names against the Covenant Path Report (in Tools), and update each person’s next ordinance and need, right in the next huddle’s agenda.</p>
       <p><strong>During huddle:</strong> Take attendance, confirm Return and Report, and check sacrament attendance. Then plan one action item per person (who will do it, and when) and text each assignment before everyone leaves. Make plans in <strong>Plans to Find New People to Teach</strong>.</p>
       <p><strong>After huddle:</strong> Tap <strong>Send</strong> and share it with the bishop-approved list, the stake presidency and the full-time missionaries, and include yourself so you have a copy. The app then sets up your next huddle, a week later: this huddle’s assignments move into Return and Report.</p>
       <p><strong>During the week:</strong> As people report back, open <strong>Return and Report</strong> and mark each assignment. Keep the Covenant Path Report in Tools updated, including sacrament attendance.</p>
     </div>
 
-    <p class="help-steps-note"><strong>The agenda has four sections:</strong> Return and Report, Covenant Path Report Review, Name Next Ordinance, and Find New People to Teach. Open them in any order. Tap <strong>Mark section done</strong> to give a section a green check, and tap <strong>Back</strong> to return to the list. Checked one by mistake? Tap <strong>Undo</strong> right away, or open the section and tap <strong>Mark as not done</strong>. If something is still missing, like an action item, the section’s status stays orange. Marking <strong>Covenant Path Report Review</strong> done asks whether you’ve updated the report in Tools.</p>
+    <p class="help-steps-note"><strong>The agenda has four sections:</strong> Return and Report, Covenant Path Report Review, Name Next Ordinance, and Find New People to Teach. Open them in any order. <strong>During the huddle,</strong> tap <strong>Mark section done</strong> as you finish each one, so you can see what’s left; it’s optional and doesn’t stop you from sending. The checks clear when you send. Tap <strong>Back</strong> to return to the list. Checked one by mistake? Tap <strong>Undo</strong> right away, or open the section and tap <strong>Mark as not done</strong>. If something is still missing, like an action item, the section’s status stays orange. Marking <strong>Covenant Path Report Review</strong> done asks whether you’ve updated the report in Tools.</p>
 
     <ol class="help-steps">
       <li>
@@ -420,7 +420,7 @@
         <ul>
           <li><strong>Wrong date?</strong> Tap it and pick the right one. It only changes the date.</li>
           <li><strong>First time?</strong> Just start filling it in with the names from the Covenant Path Report. To try it with sample names first, tap <strong>Try a practice week</strong> at the top of How to use.</li>
-          <li><strong>In ward council,</strong> names kept from the last huddle are marked <strong>From last week</strong>. Compare them to this week’s Covenant Path Report in Tools: add anyone new, remove anyone no longer listed, and update each person’s next ordinance and need.</li>
+          <li><strong>In ward council,</strong> names kept from the last huddle are marked with its date, like <strong>From the Nov 8 huddle</strong>. Compare them to this week’s Covenant Path Report in Tools: add anyone new, remove anyone no longer listed, and update each person’s next ordinance and need.</li>
           <li><strong>New members:</strong> enter the baptism date. The red <strong>Temple attendance</strong> box counts down the 30 days to baptisms for the dead and stays red, week after week, until you check it.</li>
           <li><strong>Those being taught:</strong> check <strong>Committed to baptism</strong> and enter the scheduled baptismal date once it’s set. Once they’re baptized, tap <strong>Convert to new member</strong> to move them to New members.</li>
           <li><strong>No one in a list this week?</strong> Tap <strong>Confirm none this week</strong> on that list. The PDF then shows it was reviewed and empty; a list left blank prints <strong>Not reviewed</strong>.</li>
@@ -433,7 +433,7 @@
         <p><strong>At the meeting, take attendance.</strong> Tap <strong>Huddle Details</strong>, check who’s conducting, then tap everyone who attended. Until you do, Huddle Details shows <strong>Attendance not taken yet</strong> in orange.</p>
         <ul>
           <li>Under <strong>Return and Report</strong>, labeled with the huddle it came from, confirm each item <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>; the card turns green, amber or red.</li>
-          <li>Marked <strong>Partly</strong> or <strong>No</strong>? Tap <strong>Carry forward to this week</strong> to add it to this week’s plan without retyping. It’s marked <strong>Carried over from last week</strong> on the card and on the PDF. Changed your mind? Tap <strong>Undo</strong> to take it back off this week’s plan.</li>
+          <li>Marked <strong>Partly</strong> or <strong>No</strong>? Tap <strong>Carry forward</strong> (it names the next huddle’s date, like <strong>Carry forward to Nov 15</strong>) to add it to that huddle’s plan without retyping. It’s marked <strong>Carried over from Nov 8</strong> on the card and on the PDF. Changed your mind? Tap <strong>Undo</strong> to take it back off the plan.</li>
           <li>Update the <strong>Covenant Path Report</strong> with any needs that have been fulfilled, including sacrament attendance. Tap <strong>Open the Covenant Path Report</strong> at the top of Covenant Path Report Review to jump to Member Tools.</li>
         </ul>
       </li>

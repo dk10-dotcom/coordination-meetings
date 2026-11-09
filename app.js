@@ -387,7 +387,7 @@
           meta ? h('p', { class: 'prefill-meta', text: meta }) : null
         ]);
       } else {
-        body = field('Last week’s plan', 'rr.' + i + '.plan', { placeholder: 'What did we plan to do?' });
+        body = field('What was planned', 'rr.' + i + '.plan', { placeholder: 'What did we plan to do?' });
       }
       var seg = h('div', {}, [
         h('p', { class: 'seg-label', text: 'Happened?' }),
@@ -398,12 +398,12 @@
       var carry = null;
       if (r.prefilled && r.carriedFwd) {
         carry = h('div', { class: 'carried-row' }, [
-          h('p', { class: 'carried-note', text: '✓ Added to this week’s plan' }),
+          h('p', { class: 'carried-note', text: '✓ Added to ' + nextPlan() }),
           h('button', { type: 'button', class: 'btn-undo', 'data-action': 'undo-carry', 'data-a': i, 'aria-label': 'Undo carry forward' }, ['Undo'])
         ]);
       } else if (r.prefilled && (r.happened === 'Partly' || r.happened === 'No') && groupOf(r)) {
         {
-          carry = h('button', { type: 'button', class: 'btn-outline full btn-carry', 'data-action': 'carry-fwd', 'data-a': i, text: 'Carry forward to this week' });
+          carry = h('button', { type: 'button', class: 'btn-outline full btn-carry', 'data-action': 'carry-fwd', 'data-a': i, text: 'Carry forward to ' + (monthDay(state.date) || 'the next huddle') });
         }
       }
       return h('div', { class: 'card rr-card' + (gid ? ' g-' + gid : ''), 'data-status': statusOf(r.happened) }, [head, body,
@@ -424,8 +424,13 @@
     var v = str(getPath(path)).trim();
     return h('p', { class: 'card-person' + (v ? '' : ' empty'), 'data-name-for': path, 'data-ph': ph, text: v || ph });
   }
-  var CARRIED_TEXT = 'Carried over from last week';
-  function carriedTag() { return h('span', { class: 'source carried-tag', text: CARRIED_TEXT }); }
+  // Labels name the huddle (by date) instead of "last week" / "this week".
+  function prevHuddle(s) { s = s || state; return s.rolledFrom || (s.loaded && s.loaded.date) || ''; }
+  function fromLabel(s) { var d = monthDay(prevHuddle(s)); return d ? 'From the ' + d + ' huddle' : 'From the last huddle'; }
+  function planLabel(s) { var d = monthDay((s || state).date); return d ? 'Plan for the ' + d + ' huddle' : 'Plan for the next huddle'; }
+  function nextPlan() { var d = monthDay(state.date); return d ? 'the ' + d + ' plan' : 'the next huddle’s plan'; }
+  function carriedText(s) { var d = monthDay(prevHuddle(s)); return d ? 'Carried over from ' + d : 'Carried over from the last huddle'; }
+  function carriedTag() { return h('span', { class: 'source carried-tag', text: carriedText() }); }
   // The person's name, typed right in the bold title at the top of the card.
   function nameInput(path, ph) {
     return h('input', { type: 'text', class: 'card-name-input', 'data-bind': path, value: str(getPath(path)), placeholder: ph,
@@ -497,7 +502,7 @@
       h('div', { class: 'card-zone zone-hd-wrap' }, [
         zoneLabel('hd', 'Huddle · How & When'),
         h('div', { class: 'card-grid' }, [
-          field('Action item for this week', base + 'action', { full: true, multi: true, rows: '3', placeholder: 'What might you do to assist them in being worthy and prepared for their next ordinance?',
+          field('Action item', base + 'action', { full: true, multi: true, rows: '3', placeholder: 'What might you do to assist them in being worthy and prepared for their next ordinance?',
             tag: getPath(base + 'actionCarried') && str(getPath(base + 'action')).trim() ? carriedTag() : null }),
           // Assigned to gets the wider share of its row; When is usually a day or two words.
           h('div', { class: 'assign-row' }, [
@@ -573,7 +578,7 @@
       return row;
     });
     var head = h('button', { type: 'button', class: 'list-head fold-head', 'data-action': 'list-open', 'data-a': 'rr', 'aria-expanded': 'false', 'aria-label': 'Return and Report is done. Tap to open and edit.' }, [
-      h('span', { class: 'list-title' }, [h('span', { class: 'fold-check', 'aria-hidden': 'true' }, [icon('check')]), ' Last week’s items']),
+      h('span', { class: 'list-title' }, [h('span', { class: 'fold-check', 'aria-hidden': 'true' }, [icon('check')]), ' ' + fromLabel()]),
       h('span', { class: 'list-count', text: rows.length + (rows.length === 1 ? ' item' : ' items') })
     ]);
     return h('section', { class: 'list-panel rr-folded is-folded', 'aria-label': 'Return and Report' }, [
@@ -647,7 +652,7 @@
               many ? removeButton('remove-cp', g.id, i, 'Remove action ' + (i + 1) + ' for ' + g.title) : null]),
             h('div', { class: 'card-head-right' }, [sacToggle(base + 'sac', it.sac)])
           ]),
-          cardFields(base, 'Name', 'From the Covenant Path Report', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: 'From last week' }) : null, g.id === 'nm' ? 'Baptism date' : g.id === 'bt' ? 'Scheduled baptismal date' : '', 'Identify a need from the Covenant Path Report', '',
+          cardFields(base, 'Name', 'From the Covenant Path Report', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: fromLabel() }) : null, g.id === 'nm' ? 'Baptism date' : g.id === 'bt' ? 'Scheduled baptismal date' : '', 'Identify a need from the Covenant Path Report', '',
             g.id === 'nm' ? templeBox(base, i, it) : g.id === 'bt' ? committedBox(base, it) : null, FIXED_ORD[g.id]),
           g.id === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': i }, ['Convert to new member']) : null
         ]);
@@ -734,7 +739,7 @@
         h('div', { class: 'card-title' }, [avatar(), nameInput(base + 'name', 'Focus name ' + (i + 1))]),
         h('div', { class: 'card-head-right' }, [sacToggle(base + 'sac', n.sac)])
       ]),
-      cardFields(base, 'Focus name', 'Focus name', 'e.g. Sun', n.carried ? h('span', { class: 'source', text: 'From last week' }) : null, '', 'e.g. A ride to the temple', 'e.g. Sacrament')
+      cardFields(base, 'Focus name', 'Focus name', 'e.g. Sun', n.carried ? h('span', { class: 'source', text: fromLabel() }) : null, '', 'e.g. A ride to the temple', 'e.g. Sacrament')
     ]);
   }
   function renderFN() {
@@ -1035,7 +1040,7 @@
 
   // Removing a card that has anything on it always asks first. Swiping the question away keeps the card.
   function confirmRemove(title, onYes) {
-    ask({ title: title, body: 'This card and everything typed on it will be removed from this week’s agenda.', primary: 'Remove', onPrimary: onYes, secondary: 'Keep it' });
+    ask({ title: title, body: 'This card and everything typed on it will be removed from this agenda.', primary: 'Remove', onPrimary: onYes, secondary: 'Keep it' });
   }
   var askSecondary = null;
   function ask(opts) {
@@ -1130,7 +1135,7 @@
         r.happened = r.happened === b ? '' : b;
         if (r.carriedFwd && r.happened === 'Yes') {
           var ri = +a;
-          setTimeout(function () { confirmUndoCarry(ri, 'Take it off this week’s plan too?'); }, 0);
+          setTimeout(function () { confirmUndoCarry(ri, 'Take it off ' + nextPlan() + ' too?'); }, 0);
         }
         Array.prototype.forEach.call(btn.parentNode.children, function (x) {
           x.setAttribute('aria-pressed', x.getAttribute('data-b') === r.happened ? 'true' : 'false');
@@ -1415,6 +1420,8 @@
     return ls && ls.data && parseISO(str(ls.date)) ? ls : null;
   }
   function renderSent() {
+    var bands = { 'band-rr': fromLabel(), 'week-rr': fromLabel(), 'band-plan': planLabel(), 'week-plan': planLabel() };
+    Object.keys(bands).forEach(function (id) { var el = document.getElementById(id); if (el) el.textContent = bands[id]; });
     var md = $('#meeting-date .md-text');
     if (md) { var d = parseISO(state.date); md.textContent = d ? d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : 'Set the date'; }
     var sl = $('#sent-line');
@@ -1815,7 +1822,7 @@
     } else return;
     r.carriedFwd = true; r.carryUndo = undo;
     renderRR(); saveDraft();
-    toast('Added to this week’s plan. Update who and when as needed.');
+    toast('Added to ' + nextPlan() + '. Update who and when as needed.');
   }
 
   // Takes a carried item back out of this week's plan: removes the card or assignment it added,
@@ -1854,14 +1861,14 @@
     }
     r.carriedFwd = false; delete r.carryUndo;
     renderRR(); saveDraft();
-    toast('Carry forward undone. It’s off this week’s plan.');
+    toast('Carry forward undone. It’s off ' + nextPlan() + '.');
   }
   function confirmUndoCarry(i, title) {
     var r = state.rr[i]; if (!r) return;
     var who = rrPerson(r);
     ask({
       title: title || 'Undo carry forward?',
-      body: 'This takes “' + (str(r.action).trim() || 'this item') + '”' + (who && groupOf(r) !== 'fn' ? ' for ' + who : '') + ' back off this week’s plan.',
+      body: 'This takes “' + (str(r.action).trim() || 'this item') + '”' + (who && groupOf(r) !== 'fn' ? ' for ' + who : '') + ' back off ' + nextPlan() + '.',
       primary: 'Undo carry forward', onPrimary: function () { undoCarry(i); },
       secondary: 'Keep it'
     });
@@ -2116,7 +2123,7 @@
     // Name card tables: Name | Attended sacrament | Next ordinance | Need | Action | Assigned to | When
     // Name | Next ordinance | Need  (Ward Council)  ·  Attended sacrament | Action | Assigned to | When  (Huddle)
     var CARD_COLS = [48, 132, 194, 270, 332, 450, 516];
-    var CARD_HEADS = ['NEXT\nORDINANCE', 'NEEDS', 'ATTENDED\nSACRAMENT', 'ACTION ITEM\nFOR THIS WEEK', 'ASSIGNED\nTO', 'WHEN'];
+    var CARD_HEADS = ['NEXT\nORDINANCE', 'NEEDS', 'ATTENDED\nSACRAMENT', 'ACTION\nITEM', 'ASSIGNED\nTO', 'WHEN'];
     var CARD_GROUPS = [{ text: 'WARD COUNCIL · WHO & WHAT', from: 0, to: 3, kind: 'wc' }, { text: 'HUDDLE · HOW & WHEN', from: 3, to: 7, kind: 'hd' }];
     var TEMPLE_RED = rgb(0.70, 0.16, 0.16);
     function cardRow(a, gid) {
@@ -2131,7 +2138,7 @@
       }
       var act = str(a.action).trim();
       return { boldFirst: true, sub: sub, note: str(a.hneed).trim(), cells: [str(a.name).trim(), ordOf(a, gid), str(a.need).trim(), { check: !!a.sac, mark: true },
-        a.actionCarried && act ? { text: act, meta: CARRIED_TEXT, metaItal: true } : act, str(a.assigned).trim(), str(a.when).trim()] };
+        a.actionCarried && act ? { text: act, meta: carriedText(s), metaItal: true } : act, str(a.assigned).trim(), str(a.when).trim()] };
     }
     var STATUS_PDF = { Yes: rgb(0.122, 0.42, 0.227), Partly: rgb(0.62, 0.42, 0.02), No: rgb(0.70, 0.16, 0.16) };
     var W = 612, H = 792, L = 48, R = 564, TOP = 40, BOTTOM = 46;
@@ -2210,7 +2217,7 @@
       }
     }
     function ensure(need) { if (y + need > H - BOTTOM) newPage(true); }
-    // A slim band that groups sections: LAST WEEK (looking back) and THIS WEEK'S PLAN (looking ahead).
+    // A slim band that groups sections: from the last huddle (looking back) and this huddle's plan (looking ahead).
     function band(label, sub) {
       ensure(70);
       box(L, y, R - L, 17, { color: C.navy });
@@ -2476,7 +2483,7 @@
 
     /* ----- Return and Report ----- */
     y += 12;
-    band('LAST WEEK', 'Did it happen?');
+    band(fromLabel(s).toUpperCase(), 'Did it happen?');
     heading('Return and Report');
     y += 7;
     var rrRows = s.rr.filter(function (r) { return r.prefilled || rrHasInput(r); }).map(function (r) {
@@ -2489,15 +2496,15 @@
         gid: gid, boldFirst: true, status: r.happened || '', statusCol: 2,
         sub: gid && gid !== 'fn' ? { text: SOURCE[gid], color: GROUP_PDF[gid].ink } : null,
         note: str(r.hneed).trim(),
-        cells: [name, { text: action, meta: who }, r.happened || '—', { text: notes, meta: r.carriedFwd ? 'Carried forward to this week' : '', metaItal: true }]
+        cells: [name, { text: action, meta: who }, r.happened || '—', { text: notes, meta: r.carriedFwd ? 'Carried forward to ' + (monthDay(s.date) ? 'the ' + monthDay(s.date) + ' plan' : 'this plan') : '', metaItal: true }]
       };
     });
-    if (!rrRows.length) rrRows = [{ empty: 'Nothing carried from last week.' }];
-    table([48, 140, 352, 418], ['PERSON', 'LAST WEEK’S ACTION', 'HAPPENED?', 'NOTES'], rrRows);
+    if (!rrRows.length) rrRows = [{ empty: 'Nothing to report from the last huddle.' }];
+    table([48, 140, 352, 418], ['PERSON', 'ACTION', 'HAPPENED?', 'NOTES'], rrRows);
 
     /* ----- Covenant Path Report Review ----- */
     y += 18;
-    band('THIS WEEK’S PLAN', 'Who and what from ward council; how and when from the huddle');
+    band(monthDay(s.date) ? 'PLAN FROM THE ' + monthDay(s.date).toUpperCase() + ' HUDDLE' : 'THIS HUDDLE’S PLAN', 'Who and what from ward council; how and when from the huddle');
     heading('Covenant Path Report Review');
     // The PDF keeps only the table; the how-to lines live on the form.
     y += 7;
@@ -2529,7 +2536,7 @@
     var fPlan = str(s.find.plan).trim();
     var fRows = s.find.items.filter(assignHasText).map(function (x) {
       var t = str(x.task).trim();
-      return { gid: 'fn', cells: [x.carried && t ? { text: t, meta: CARRIED_TEXT, metaItal: true } : t, str(x.when).trim()] };
+      return { gid: 'fn', cells: [x.carried && t ? { text: t, meta: carriedText(s), metaItal: true } : t, str(x.when).trim()] };
     });
     if (fPlan) { table([48], ['PLAN'], [{ gid: 'fn', cells: [fPlan] }]); y += 8; }
     if (fRows.length || !fPlan) table([48, 470], ['ASSIGNMENT', 'WHEN'], fRows.length ? fRows : [{ empty: fPlan ? 'No assignments yet' : 'None this week' }]);
@@ -2561,7 +2568,7 @@
   // The form data saved inside the PDF and in this phone's saved agendas.
   function makePayload(s) {
     return JSON.parse(JSON.stringify({
-      app: APP_ID, v: DATA_VERSION, ward: s.ward.trim(), date: s.date, createdAt: new Date().toISOString(),
+      app: APP_ID, v: DATA_VERSION, ward: s.ward.trim(), date: s.date, rolledFrom: s.rolledFrom || '', createdAt: new Date().toISOString(),
       conducting: s.conducting || '', conductingOther: str(s.conductingOther).trim(),
       attendees: s.attendees.slice(),
       rr: s.rr.map(function (r) {
@@ -2705,7 +2712,7 @@
   var SHARE_HINT = 'Only share via email or text message. Do not share through any other app.';
   function resetSendSheet() {
     sendFile = null; sendPayload = null;
-    $('#send-title').textContent = resending ? 'Share this agenda again' : 'Send this week’s agenda';
+    $('#send-title').textContent = resending ? 'Share this agenda again' : 'Send this agenda';
     $('#share-btn').disabled = true; $('#share-btn').textContent = 'Share PDF';
     $('#share-hint').textContent = resending ? 'Only share via email or text message. Do not share through any other app. The form on your screen isn’t changed.' : SHARE_HINT;
     $('#send-recipients').hidden = false;

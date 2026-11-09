@@ -16,9 +16,9 @@
     { target: 'header .grid-2', details: true, title: 'Your ward', text: 'Tap **Huddle Details** to open these. Add your ward; it’s remembered on this phone.' },
     { target: '#conduct-seg', details: true, title: 'Who’s conducting', text: 'Select who’s conducting. This will typically be the ward mission leader. **The person conducting the huddle is responsible for filling out this entire agenda and sharing it with the bishop-approved list, the stake presidency and the full-time missionaries.**' },
     { target: '.attendees-field', details: true, title: 'Take attendance', text: 'At the meeting, tap everyone who came. The youth are listed first: make an extra effort to involve them. Until attendance is taken, Huddle Details shows it in orange.' },
-    { target: '#steps-home', stepsOnly: true, title: 'Four sections', text: 'Tap any of the **four sections** to open it, in any order. **Mark section done** gives it a green check here. Orange means something is still missing.' },
+    { target: '#steps-home', stepsOnly: true, title: 'Four sections', text: 'Each group is named by date. **From the last huddle** is Return and Report. **Plan for the next huddle** is the other three. Open them in any order. During the huddle, **Mark section done** checks each one off as you finish it; the checks clear when you send. Orange means something is still missing.' },
     { target: ['#rr-list .card .rr-answer', '#rr-list .card', '#rr-list'], view: 'rr', title: 'Return and Report', text: 'The assignments from the last huddle show up here, labeled with the huddle they came from. **During the week, as people report back, tap Yes, Partly or No.** It’s the one place to mark them; the huddle confirms the rest. Use **Notes for ward council** to say how it went.',
-      demo: '<p class="tour-demo-cap">Tap Partly or No and this button appears:</p><span class="tour-demo-btn">Carry forward to this week</span><p class="tour-demo-cap">It adds the item to this week’s plan without retyping.</p>' },
+      demo: function () { var d = carryDate(); return '<p class="tour-demo-cap">Tap Partly or No and this button appears:</p><span class="tour-demo-btn">Carry forward to ' + d + '</span><p class="tour-demo-cap">It adds the item to the next huddle’s plan without retyping.</p>'; } },
     { target: '.btn-tools', view: 'cp', title: 'Jump to the Covenant Path Report', text: 'Tap **Open the Covenant Path Report** to go straight to the Member Tools app, then tap **Reports → Covenant Path Progress**. On a computer it opens the report in Leader and Clerk Resources.' },
     { target: ['[data-group="nm"] .card .zone-wc-wrap', '#cp-groups'], view: 'cp', title: 'Name cards: ward council’s half', text: 'Each card has two halves. The top is ward council’s: next ordinance and needs. **The person conducting fills it in from ward council before the huddle.**',
       demoClass: 'important', demo: '<p class="tour-callout"><span class="tour-callout-icon" aria-hidden="true">!</span><span><strong>Never add confidential information to this agenda.</strong></span></p>' },
@@ -38,6 +38,11 @@
   ];
 
   var el = {}, idx = 0, active = false, targetEl = null, ACTIVE = STEPS;
+  // The next huddle's date, as the Carry forward button shows it.
+  function carryDate() {
+    var v = (document.getElementById('date') || {}).value || '', m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+    return m ? new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'the next huddle';
+  }
   // The four-step view adds a stop about the steps and drops the one about folding lists.
   function activeSteps() {
     var on = window.HuddleView && window.HuddleView.enabled();
@@ -129,7 +134,8 @@
     el.count.textContent = (idx + 1) + ' of ' + ACTIVE.length;
     el.title.textContent = step.title;
     el.text.innerHTML = fmt(step.text);
-    el.demo.innerHTML = step.demo || '';
+    var demo = typeof step.demo === 'function' ? step.demo() : step.demo;
+    el.demo.innerHTML = demo || '';
     el.demo.className = 'tour-demo' + (step.demoClass ? ' ' + step.demoClass : '');
     el.demo.hidden = !step.demo;
     el.back.hidden = idx === 0;
