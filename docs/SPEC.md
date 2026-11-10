@@ -57,7 +57,8 @@ Ward council and the Huddle show names the same way.
   cursor in Name. A new name left empty is dropped when you leave it.
 - The three focus-name spots always show; an empty one reads "Focus name 2 · Tap to add".
 - **Tapping a name opens that person's screen.** Their name is the screen's title. Ward council's
-  screen has only ward council's fields; the Huddle's has the full card.
+  screen has only ward council's fields. The Huddle's shows ward council's half as a short summary
+  and the huddle's half, highlighted, as the part to fill in (see Covenant Path).
 - **Done** at the bottom, **Back** at the top and the phone's own Back all return to the list.
 - **Remove from the list** (or **Clear this focus name**) is at the bottom of the person's screen.
   Removing someone who has details asks first, then returns to the list.
@@ -158,23 +159,31 @@ that person's card, tagged as carried, and can be undone. It is offered only whi
 still listed. If they have been removed, a note says so. Someone converted from Those being
 taught to New members is followed to the new list.
 
-### Covenant Path Report Review
+### Covenant Path
 
-The reminder and **Open the Covenant Path Report**, then the three lists as rows. Tapping a name
-opens that person's card, which has two halves:
+The Huddle's second section. On screen it is called **Covenant Path**; the PDF's heading for it
+stays "Covenant Path Report Review".
 
-- **Ward Council · Who & What:** next ordinance and needs (already filled in from Ward council).
-- **Huddle · How & When:** attended sacrament, action item, assigned to, when.
+**Open the Covenant Path Report** is at the top (there is no reminder box), then the three lists as
+rows. Tapping a name opens that person's screen, which has two halves:
 
-Also on the card:
+- **Ward Council · Who & What** is condensed to a short summary: next ordinance, needs, and a new
+  member's baptism date. **Edit** opens the name, baptism date, next ordinance and needs;
+  **Hide** condenses them again. It opens with the fields showing only when there is nothing to
+  summarize yet: a new name, or a new member with no baptism date.
+- **Huddle · How & When** is a highlighted block, the part the huddle fills in: attended
+  sacrament, action item, assigned to, when.
 
-- **Text this assignment** opens Messages with the name, action and when. Needs and notes are
-  never included. The card then shows Texted.
-- **+ Add a note for ward council** adds huddle notes, which carry forward and print on the PDF.
+Also in the huddle's half:
+
 - **New members:** a red **Temple attendance** box counts down the 30 days from the baptism date
   and stays red until checked. The goal is stated once, under the New members list.
-- **Those being taught:** **Committed to baptism** and a scheduled date. **Convert to new member**
-  moves the person to New members and keeps their screen open.
+- **Those being taught:** **Committed to baptism** and the scheduled baptismal date.
+  **Convert to new member** (under the card) moves the person to New members and keeps their
+  screen open.
+- **Text this assignment** opens Messages with the name, action and when. Needs and notes are
+  never included. It then shows Texted.
+- **+ Add a note for ward council** adds huddle notes, which carry forward and print on the PDF.
 
 On the lists:
 
@@ -184,7 +193,7 @@ On the lists:
 
 ### Name Next Ordinance
 
-The three focus names as rows; each opens the same two-half card.
+The three focus names as rows; each opens the same two-half screen.
 
 ### Find New People to Teach
 

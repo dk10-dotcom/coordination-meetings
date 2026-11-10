@@ -488,37 +488,86 @@
     openMessages(assignmentText(base));
     setPath(base + 'texted', true); refreshTextButton(base); saveDraft();
   }
-  function cardFields(base, nameLabel, namePh, whenPh, tag, withBap, needPh, ordPh, wcExtra, fixedOrd) {
+  // Ward council's half of a card: next ordinance and needs (and a new member's baptism date).
+  function wcZone(base, tag, withBap, needPh, ordPh, fixedOrd) {
+    return h('div', { class: 'card-zone zone-wc-wrap' }, [
+      tag ? h('div', { class: 'zone-label-row' }, [zoneLabel('wc', 'Ward Council · Who & What'), tag]) : zoneLabel('wc', 'Ward Council · Who & What'),
+      h('div', { class: 'card-grid' }, [
+        withBap ? field(withBap, base + 'bap', { type: 'date', full: true }) : null,
+        fixedOrd ? h('div', { class: 'field full' }, ['Next ordinance', h('p', { class: 'fixed-value', text: fixedOrd })])
+          : field('Next ordinance', base + 'ordinance', { placeholder: ordPh || 'e.g. Baptism', full: true }),
+        field('Needs', base + 'need', { full: true, multi: true, placeholder: needPh || 'e.g. A ride to church' })
+      ])
+    ]);
+  }
+  // The huddle's half: one action item, who and when. `top` (optional) sits under the label.
+  function hdZone(base, whenPh, top) {
     var hneedVal = str(getPath(base + 'hneed')).trim();
     var hneedField = field('Huddle notes', base + 'hneed', { full: true, multi: true, placeholder: 'Anything to relay back to ward council' });
     if (!hneedVal) hneedField.hidden = true;
     var hneedLink = h('button', { type: 'button', class: 'link-add', 'data-action': 'add-hneed', hidden: !!hneedVal }, ['+ Add a note for ward council']);
-    return h('div', { class: 'card-zones' }, [
-      wcExtra || null,
-      h('div', { class: 'card-zone zone-wc-wrap' }, [
-        tag ? h('div', { class: 'zone-label-row' }, [zoneLabel('wc', 'Ward Council · Who & What'), tag]) : zoneLabel('wc', 'Ward Council · Who & What'),
-        h('div', { class: 'card-grid' }, [
-          withBap ? field(withBap, base + 'bap', { type: 'date', full: true }) : null,
-          fixedOrd ? h('div', { class: 'field full' }, ['Next ordinance', h('p', { class: 'fixed-value', text: fixedOrd })])
-            : field('Next ordinance', base + 'ordinance', { placeholder: ordPh || 'e.g. Baptism', full: true }),
-          field('Needs', base + 'need', { full: true, multi: true, placeholder: needPh || 'e.g. A ride to church' })
-        ])
-      ]),
-      h('div', { class: 'card-zone zone-hd-wrap' }, [
-        zoneLabel('hd', 'Huddle · How & When'),
-        h('div', { class: 'card-grid' }, [
-          field('Action item', base + 'action', { full: true, multi: true, rows: '3', placeholder: 'What might you do to assist them in being worthy and prepared for their next ordinance?',
-            tag: getPath(base + 'actionCarried') && str(getPath(base + 'action')).trim() ? carriedTag() : null }),
-          // Assigned to gets the wider share of its row; When is usually a day or two words.
-          h('div', { class: 'assign-row' }, [
-            field('Assigned to', base + 'assigned', { placeholder: 'Who will do it', cap: 'words' }),
-            field('When', base + 'when', { placeholder: whenPh })
-          ]),
-          h('div', { class: 'assign-actions' }, [textAssignButton(base)]),
-          hneedField
+    return h('div', { class: 'card-zone zone-hd-wrap' }, [
+      zoneLabel('hd', 'Huddle · How & When'),
+      top || null,
+      h('div', { class: 'card-grid' }, [
+        field('Action item', base + 'action', { full: true, multi: true, rows: '3', placeholder: 'What might you do to assist them in being worthy and prepared for their next ordinance?',
+          tag: getPath(base + 'actionCarried') && str(getPath(base + 'action')).trim() ? carriedTag() : null }),
+        // Assigned to gets the wider share of its row; When is usually a day or two words.
+        h('div', { class: 'assign-row' }, [
+          field('Assigned to', base + 'assigned', { placeholder: 'Who will do it', cap: 'words' }),
+          field('When', base + 'when', { placeholder: whenPh })
         ]),
-        hneedLink
-      ])
+        h('div', { class: 'assign-actions' }, [textAssignButton(base)]),
+        hneedField
+      ]),
+      hneedLink
+    ]);
+  }
+  function cardFields(base, nameLabel, namePh, whenPh, tag, withBap, needPh, ordPh, wcExtra, fixedOrd) {
+    return h('div', { class: 'card-zones' }, [wcExtra || null, wcZone(base, tag, withBap, needPh, ordPh, fixedOrd), hdZone(base, whenPh)]);
+  }
+  /* ---------- The Huddle's screen for one person ----------
+   * What the huddle does is what shows: sacrament (and temple) attendance, the action item, who and when.
+   * Ward council's half is already filled in, so it sits above as a short summary; Edit opens its fields. */
+  var personWcOpen = false;
+  // Open from the start when there's nothing to summarize yet: a new name, or a new member with no baptism date.
+  function wcOpenDefault(r) {
+    var a = r && personCard(r);
+    return !a || !str(a.name).trim() || (r.g === 'nm' && !parseISO(str(a.bap)));
+  }
+  function wcSummary(r, a) {
+    var ord = ordOf(a, r.g), need = str(a.need).trim(), bap = monthDay(a.bap);
+    var facts = [['Next ordinance', ord || 'Not set yet', !ord], ['Needs', need || 'None listed yet', !need]];
+    if (r.g === 'nm') facts.push(['Baptized', bap || 'No date yet', !bap]);
+    return h('div', { class: 'wc-summary' }, [
+      h('div', { class: 'zone-label-row' }, [zoneLabel('wc', 'Ward Council · Who & What'),
+        h('button', { type: 'button', class: 'zone-toggle', 'data-action': 'wc-edit-toggle', 'aria-label': 'Edit the name, next ordinance and needs', 'aria-expanded': 'false', text: 'Edit' })])
+    ].concat(facts.map(function (f) {
+      return h('p', { class: 'after-fact' + (f[2] ? ' unset' : '') }, [h('span', { class: 'after-k', text: f[0] }), f[1]]);
+    })));
+  }
+  function hdPersonCard(r, a) {
+    var g = r.g, isTn = g === 'tn', base = isTn ? 'tn.' + r.i + '.' : 'cp.' + g + '.' + r.i + '.';
+    var named = !!str(a.name).trim(), top;
+    if (personWcOpen) {
+      var tools = named ? h('button', { type: 'button', class: 'zone-toggle', 'data-action': 'wc-edit-toggle', 'aria-label': 'Hide the name, next ordinance and needs', 'aria-expanded': 'true', text: 'Hide' }) : null;
+      top = h('div', { class: 'wc-edit' }, [
+        h('div', { class: 'card-head name-head' }, [h('div', { class: 'card-title' }, [avatar(), nameInput(base + 'name', isTn ? 'Focus name ' + (r.i + 1) : 'Name')])]),
+        // A new member's baptism date is ward council's; a scheduled baptism sits with Committed to baptism, below.
+        wcZone(base, tools, g === 'nm' ? 'Baptism date' : '', isTn ? 'e.g. A ride to the temple' : 'Tap their name in the Covenant Path Report to identify needs', isTn ? 'e.g. Sacrament' : '', FIXED_ORD[g])
+      ]);
+    } else top = wcSummary(r, a);
+    var checks = h('div', { class: 'hd-checks' }, [
+      sacToggle(base + 'sac', a.sac),
+      g === 'nm' ? templeBox(base, r.i, a) : null,
+      g === 'bt' ? committedBox(base, a) : null,
+      g === 'bt' ? field('Scheduled baptismal date', base + 'bap', { type: 'date', full: true }) : null
+    ]);
+    return h('div', { class: 'card person-hd' }, [
+      staleNote(base, a, isTn),
+      top,
+      hdZone(base, isTn ? 'e.g. Sun' : 'e.g. Tue', checks),
+      g === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': r.i }, ['Convert to new member']) : null
     ]);
   }
   // "Attended sacrament" checkbox in the top right of each name card.
@@ -685,8 +734,7 @@
     var r = personRef, a = rowsOn && isPerson(view) && r ? personCard(r) : null;
     if (!a) { wrap.replaceChildren(); return; }
     var base = r.g === 'tn' ? 'tn.' + r.i + '.' : 'cp.' + r.g + '.' + r.i + '.';
-    var g = GROUPS.filter(function (x) { return x.id === r.g; })[0];
-    var card = r.kind === 'wc' ? wcCard(r.g, base, a, r.i, false) : r.g === 'tn' ? tnCard(a, r.i) : cpCard(g, a, r.i, false);
+    var card = r.kind === 'wc' ? wcCard(r.g, base, a, r.i, false) : hdPersonCard(r, a);
     var remove = h('button', { type: 'button', class: 'btn-link danger person-remove', 'data-action': r.g === 'tn' ? 'quick-remove-tn' : 'remove-cp', 'data-a': r.g === 'tn' ? r.i : r.g, 'data-b': r.g === 'tn' ? '' : r.i,
       hidden: cardBlank(a) }, [r.g === 'tn' ? 'Clear this focus name' : 'Remove from the list']);
     var attrs = { class: 'list-panel person-panel list-' + r.g, 'aria-label': personTitle(r) };
@@ -777,7 +825,7 @@
         if (nm.length === 1 && !nm[0].sac && !hasText(nm[0], CARD_KEYS)) nm.pop();
         nm.push(c);
         if (isPerson(view)) { // their screen follows them to New members
-          personRef = { kind: 'hd', g: 'nm', i: nm.length - 1 };
+          personRef = { kind: 'hd', g: 'nm', i: nm.length - 1 }; personWcOpen = wcOpenDefault(personRef);
           try { history.replaceState({ hv: view, pushed: true, ref: personRef }, ''); } catch (e) { /* ignore */ }
           $('#step-title').textContent = personTitle(personRef);
         }
@@ -975,11 +1023,12 @@
   }
 
   /* ---------- Four steps: the agenda opens as a short checklist ---------- */
-  // Return and Report, Covenant Path Report Review, Name Next Ordinance, Find New People to Teach.
+  // Return and Report, Covenant Path, Name Next Ordinance, Find New People to Teach.
+  // (The PDF's heading for the second one stays "Covenant Path Report Review".)
   // Tap a section to open just that part; "Mark section done" gives it a green check.
   var STEPS = [
     { id: 'rr', title: 'Return and Report', band: 'last' },
-    { id: 'cp', title: 'Covenant Path Report Review', band: 'this' },
+    { id: 'cp', title: 'Covenant Path', band: 'this' },
     { id: 'tn', title: 'Name Next Ordinance', band: 'this' },
     { id: 'fn', title: 'Find New People to Teach', band: 'this' }
   ];
@@ -1007,7 +1056,7 @@
   }
   function cardBlank(a) { return !a.sac && !a.temple && !a.committed && !hasText(a, CARD_KEYS); }
   function openPerson(kind, g, i, focusName) {
-    personRef = { kind: kind, g: g, i: +i };
+    personRef = { kind: kind, g: g, i: +i }; personWcOpen = wcOpenDefault(personRef);
     showView(kind === 'wc' ? 'p-wc' : 'p-hd', 'push');
     if (focusName) setTimeout(function () { var f = document.querySelector('#person-card input[data-bind$=".name"]'); if (f) f.focus(); }, 60);
   }
@@ -1367,7 +1416,7 @@
     person: function (kind, g) {
       var list = g === 'tn' ? state.tn : state.cp[g], i = list.findIndex(function (a) { return str(a.name).trim(); });
       if (!rowsOn || i < 0) return false;
-      personRef = { kind: kind, g: g, i: i }; detailsOpen = false; showView(kind === 'wc' ? 'p-wc' : 'p-hd', 'replace');
+      personRef = { kind: kind, g: g, i: i }; personWcOpen = wcOpenDefault(personRef); detailsOpen = false; showView(kind === 'wc' ? 'p-wc' : 'p-hd', 'replace');
       return true;
     },
     enabled: function () { return stepsOn; }
@@ -1561,6 +1610,12 @@
       case 'after-done': closeOverlay('#after-sheet'); setVerified('after', true); toast('Covenant Path Report updated. You can send.'); break;
       case 'before-undo': closeOverlay('#before-sheet'); setVerified('before', false); toast('Before ward council: marked as not done.'); break;
       case 'after-undo': closeOverlay('#after-sheet'); setVerified('after', false); toast('Marked as not done. Send waits until it’s done.'); break;
+      case 'wc-edit-toggle': {
+        personWcOpen = !personWcOpen; renderPerson();
+        var wt = document.querySelector('#person-card ' + (personWcOpen ? '.card-name-input' : '.zone-toggle'));
+        if (wt) wt.focus({ preventScroll: true });
+        break;
+      }
       case 'open-person': openPerson(btn.getAttribute('data-kind') || 'hd', a, +b, a !== 'tn' ? false : !str(state.tn[+b].name).trim()); break;
       case 'add-person': {
         var ak = btn.getAttribute('data-kind') || 'hd', al = state.cp[a];
@@ -1844,7 +1899,7 @@
     if (rr.length && unmarked) out.push({ text: 'Return and Report: ' + unmarked + ' not marked', go: go('rr') });
     var needs = function (list) { return list.filter(function (a) { return str(a.name).trim() && !str(a.action).trim(); }).length; };
     var cpN = GROUPS.reduce(function (n, g) { return n + needs(state.cp[g.id]); }, 0);
-    if (cpN) out.push({ text: 'Covenant Path Report Review: ' + cpN + (cpN === 1 ? ' person needs' : ' people need') + ' an action', go: go('cp') });
+    if (cpN) out.push({ text: 'Covenant Path: ' + cpN + (cpN === 1 ? ' person needs' : ' people need') + ' an action', go: go('cp') });
     GROUPS.forEach(function (g) { if (listEmpty(g.id) && !noneConfirmed(g.id)) out.push({ text: g.title + ': not reviewed', go: go('cp') }); });
     var tnN = needs(state.tn);
     if (tnN) out.push({ text: 'Name Next Ordinance: ' + tnN + (tnN === 1 ? ' person needs' : ' people need') + ' an action', go: go('tn') });
@@ -3283,7 +3338,7 @@
     window.addEventListener('popstate', function (e) {
       var v = e.state && e.state.hv;
       if (!stepsOn) return;
-      if (isPerson(v)) personRef = (e.state && e.state.ref) || null;
+      if (isPerson(v)) { personRef = (e.state && e.state.ref) || null; personWcOpen = wcOpenDefault(personRef); }
       view = v === 'home' || v === 'wc' || isWcList(v) || isPerson(v) || v === 'start' || STEPS.some(function (st) { return st.id === v; }) ? v : START;
       applyView(); window.scrollTo(0, 0);
     });

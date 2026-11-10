@@ -729,6 +729,20 @@ body.touring .actionbar { z-index: 10; }
 .list-panel.rows .temple-goal { margin: 0; padding: 0 16px; border: 0; background: none; font-size: 13px; line-height: 1.35; color: var(--muted); }
 .person-rows .list-empty { border: 0; border-radius: 0; background: none; min-height: 52px; padding: 8px 12px 8px 16px; }
 .person-rows .list-empty-undo { color: var(--accent); }
+/* The Huddle's screen for one person: ward council's half is a short, quiet summary; the huddle's half is the part to do */
+.card.person-hd { display: flex; flex-direction: column; gap: 14px; }
+.wc-summary { display: flex; flex-direction: column; gap: 4px; padding: 8px 8px 12px 14px; border-radius: 12px; background: #F4F6FA; border: 1px solid var(--card-line); }
+.wc-summary .zone-label-row, .wc-edit .zone-label-row { flex-wrap: nowrap; min-height: 36px; }
+.wc-summary .after-fact { font-size: 15px; color: var(--ink); padding-right: 6px; }
+.wc-summary .after-fact.unset { color: var(--muted); }
+.zone-toggle { flex: none; min-height: 36px; padding: 0 8px; border: 0; border-radius: 8px; background: none; color: var(--accent); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.zone-toggle:active { opacity: .45; }
+.wc-edit { display: flex; flex-direction: column; gap: 14px; }
+.person-hd .zone-hd-wrap { border: 1.5px solid var(--orange-line); border-radius: 14px; background: var(--orange-soft); padding: 14px 12px; }
+.person-hd .zone-hd-wrap .zone-label { font-size: 12px; }
+.hd-checks { display: flex; flex-direction: column; gap: 10px; }
+.hd-checks .sac-toggle { align-self: flex-start; background: var(--card); }
+.hd-checks .sac-toggle:has(input:checked) { background: var(--green-soft); }
 /* One person's screen */
 .person-view[hidden] { display: none; }
 .person-view .stack { gap: 16px; }
@@ -770,8 +784,6 @@ body.steps-on .details-head { display: flex; align-items: center; justify-conten
   background: transparent; color: #FFFFFF; font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; }
 
 /* Four steps: a compact home so the steps show without scrolling */
-.cp-reminder { display: none; font-size: 14px; color: var(--text); }
-body.steps-on .cp-reminder { display: block; padding: 10px 12px; border-radius: 12px; background: var(--amber-soft); border: 1px solid var(--amber-line); }
 body.steps-on[data-view="home"] .top { gap: 12px; }
 body.steps-on[data-view="home"] .title-row { flex-direction: column; align-items: stretch; gap: 10px; }
 body.steps-on[data-view="home"] .title-row h1 { font-size: 23px; line-height: 1.15; }

@@ -1,4 +1,5 @@
 // Names as rows and one screen per person, in the Huddle and in Ward council: the parts twodoor.js doesn't reach.
+// In the Huddle, ward council's half of a person is a condensed summary (Edit opens it) and the huddle's half is highlighted.
 // Removing a name, converting to a new member, names not updated in 4 weeks, the same-person question,
 // what a row says about a person, the slide between screens, and a reload.
 const { chromium, devices } = require('playwright');
@@ -67,8 +68,21 @@ const seed = () => ({
     ok(await noOverflow(), tag + ': the lists fit the phone');
     await p.screenshot({ path: `${OUT}/${tag}-huddle-list.png`, fullPage: true });
 
-    // ---- A person's screen: sacrament and temple show on the row afterward
+    // ---- A person's screen in the Huddle: ward council's half is condensed; the huddle's half is what's open
     await openPerson('#cp-groups', 'nm', 0);
+    const sum = async () => (await p.textContent('#person-card .wc-summary')).replace(/\s+/g, ' ');
+    ok(await vis('#person-card .wc-summary') && await p.locator('#person-card .wc-edit, #person-card .card-name-input, #person-card [data-bind$=".need"], #person-card [data-bind$=".ordinance"]').count() === 0, tag + ': ward council’s half is condensed by default');
+    ok((await sum()).includes('Next ordinanceTemple baptisms') && (await sum()).includes('NeedsA ride') && (await sum()).includes('Baptized') && (await p.textContent('#person-card .wc-summary .zone-toggle')) === 'Edit', tag + ': the summary shows next ordinance, needs and the baptism date, with Edit: ' + await sum());
+    ok(await p.evaluate(() => { const c = document.querySelector('#person-card .card'), s = c.querySelector('.wc-summary'), z = c.querySelector('.zone-hd-wrap'); return s.compareDocumentPosition(z) & Node.DOCUMENT_POSITION_FOLLOWING && ['.sac-toggle', '.temple-box', '[data-bind$=".action"]', '[data-bind$=".assigned"]', '[data-bind$=".when"]'].every(q => z.querySelector(q)); }), tag + ': the huddle’s half holds sacrament, temple, action, assigned to and when, right under the summary');
+    ok(await noOverflow(), tag + ': the condensed screen fits the phone');
+    await p.screenshot({ path: `${OUT}/${tag}-person-condensed.png`, fullPage: true });
+    await p.click('#person-card .wc-summary [data-action="wc-edit-toggle"]'); await p.waitForTimeout(150);
+    ok(await p.inputValue('[data-bind="cp.nm.0.name"]') === 'Daniel Rivera' && await p.inputValue('[data-bind="cp.nm.0.need"]') === 'A ride' && await p.inputValue('[data-bind="cp.nm.0.ordinance"]') === 'Temple baptisms' && await p.locator('#person-card .wc-summary').count() === 0 && (await p.textContent('#person-card .wc-edit .zone-toggle')) === 'Hide', tag + ': Edit opens the name, baptism date, next ordinance and needs');
+    await fill('cp.nm.0.need', 'A ride to the temple');
+    ok(await noOverflow(), tag + ': the open screen fits the phone');
+    await p.click('#person-card .wc-edit [data-action="wc-edit-toggle"]'); await p.waitForTimeout(150);
+    ok((await sum()).includes('NeedsA ride to the temple') && await p.locator('#person-card .card-name-input').count() === 0, tag + ': Hide condenses it again, with the change showing');
+    // sacrament and temple show on the row afterward
     await p.click('#person-card .sac-toggle'); await p.waitForTimeout(150);
     await p.click('#person-card .temple-box'); await p.waitForTimeout(150);
     await back();
@@ -79,7 +93,7 @@ const seed = () => ({
     await openPerson('#cp-groups', 'nm', 1);
     ok(await vis('#person-card .stale-note') && (await p.textContent('#person-card .stale-note')).includes('Still on the Covenant Path Report?'), tag + ': opening that name asks if it’s still on the Covenant Path Report');
     await p.click('#person-card [data-action="stale-keep"]'); await p.waitForTimeout(250);
-    ok(await p.locator('#person-card .stale-note').count() === 0 && await vis('#person-view') && await p.inputValue('[data-bind="cp.nm.1.name"]') === 'Emma Walsh', tag + ': Keep clears the question and stays on the person');
+    ok(await p.locator('#person-card .stale-note').count() === 0 && await vis('#person-view') && (await p.textContent('#step-title')) === 'Emma Walsh', tag + ': Keep clears the question and stays on the person');
     await back();
     ok(!(await rowTags('#cp-groups', 'nm', 1)).includes('Not updated in 4 weeks'), tag + ': and the row no longer says so');
 
@@ -91,15 +105,16 @@ const seed = () => ({
     await p.click('#confirm-secondary'); await p.waitForTimeout(250);
     ok(await vis('#person-view') && (await saved()).cp.nm.length === 2, tag + ': Cancel keeps the person');
     await p.click('#person-card .person-remove'); await p.waitForSelector('#confirm-sheet:not([hidden])'); await p.click('#confirm-primary'); await p.waitForTimeout(450);
-    ok(!(await vis('#person-view')) && await vis('#cp-groups') && (await rowNames('#cp-groups', 'nm')).join('|') === 'Daniel Rivera' && (await p.textContent('#step-title')) === 'Covenant Path Report Review', tag + ': Remove takes them off and returns to the list');
+    ok(!(await vis('#person-view')) && await vis('#cp-groups') && (await rowNames('#cp-groups', 'nm')).join('|') === 'Daniel Rivera' && (await p.textContent('#step-title')) === 'Covenant Path', tag + ': Remove takes them off and returns to the list');
     await p.goBack(); await p.waitForTimeout(300);
     ok(await vis('#steps-home') && !(await vis('#person-view')), tag + ': the phone’s Back then goes to the huddle’s sections, not back to the removed person');
     await p.click('[data-action="open-step"][data-a="cp"]'); await p.waitForTimeout(300);
 
     // ---- Convert to new member, from the person's screen
     await openPerson('#cp-groups', 'bt', 0);
+    ok(await p.locator('#person-card .zone-hd-wrap .commit-box').count() === 1 && await p.inputValue('#person-card .zone-hd-wrap [data-bind="cp.bt.0.bap"]') !== '' && (await p.textContent('#person-card .wc-summary')).includes('Baptism') && !(await p.textContent('#person-card .wc-summary')).includes('Baptized'), tag + ': someone being taught has Committed to baptism and the scheduled date in the huddle’s half');
     await p.click('#person-card [data-action="convert-nm"]'); await p.waitForSelector('#confirm-sheet:not([hidden])'); await p.click('#confirm-primary'); await p.waitForTimeout(400);
-    ok(await vis('#person-view') && (await p.textContent('#step-title')) === 'Marcus Hill' && await p.locator('#person-card [data-bind="cp.nm.1.name"]').count() === 1 && await vis('#person-card .temple-box'), tag + ': Convert to new member keeps the person on screen, now as a new member with the temple box');
+    ok(await vis('#person-view') && (await p.textContent('#step-title')) === 'Marcus Hill' && await p.locator('#person-card [data-group="nm"] [data-bind="cp.nm.1.action"]').count() === 1 && await vis('#person-card .temple-box') && (await p.textContent('#person-card .wc-summary')).includes('Baptized'), tag + ': Convert to new member keeps the person on screen, now as a new member with the temple box');
     await back();
     ok((await rowNames('#cp-groups', 'nm')).join('|') === 'Daniel Rivera|Marcus Hill' && (await rowNames('#cp-groups', 'bt')).length === 0 && await p.locator('#cp-groups [data-group="bt"] [data-action="cp-none"]').count() === 1, tag + ': Back shows them under New members, and Those being taught is empty');
     await back(); await p.click('[data-action="open-step"][data-a="rr"]'); await p.waitForTimeout(250);
@@ -113,7 +128,7 @@ const seed = () => ({
     // ---- Name Next Ordinance in the huddle: action on the row; a blank spot opens ready to type
     await p.click('[data-action="open-step"][data-a="tn"]'); await p.waitForTimeout(300);
     await openPerson('#tn-list', 'tn', 1);
-    ok((await p.textContent('#step-title')) === 'Focus name 2' && await p.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-bind')) === 'tn.1.name', tag + ': an empty focus spot opens with the cursor in the name');
+    ok((await p.textContent('#step-title')) === 'Focus name 2' && await p.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-bind')) === 'tn.1.name' && await vis('#person-card .wc-edit') && await p.locator('#person-card .zone-toggle').count() === 0, tag + ': an empty focus spot opens with its fields showing and the cursor in the name (nothing to condense yet)');
     await fill('tn.1.name', 'Samuel Ortiz'); await fill('tn.1.action', 'Visit with the bishop'); await back();
     ok((await rowNames('#tn-list', 'tn')).join('|') === 'Grace Thompson|Samuel Ortiz|Focus name 3' && await rowSub('#tn-list', 'tn', 1) === 'Visit with the bishop' && (await p.textContent('#tn-list .list-count')) === '2 of 3 names', tag + ': the new focus name is on the list with its action');
     await back(); await p.click('#mode-bar [data-action="go-start"]'); await p.waitForTimeout(300);
