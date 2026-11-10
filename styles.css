@@ -934,3 +934,7 @@ body.steps-on [data-step] .section-head h2, body.steps-on [data-step] .head-line
 .carry-none { margin: 0; padding: 10px 12px; border-radius: 10px; background: #F4F6FA; border: 1px solid var(--card-line); font-size: 14px; color: var(--muted); line-height: 1.35; }
 .huddle-tips { align-self: flex-start; }
 .wc-details { gap: 3px; }
+/* Ward council's two lists, rolled up like the huddle's sections */
+.wc-row { grid-template-columns: 1fr auto; }
+.wc-row-sub { font-size: 13.5px; color: var(--muted); line-height: 1.3; }
+#wc-rows[hidden] { display: none; }

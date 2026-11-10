@@ -900,7 +900,8 @@
   ];
   var VIEW_ALL_KEY = 'huddle-view-all';
   var stepsOn = !readFlag(VIEW_ALL_KEY);
-  // Screens: 'start' (Ward council / Huddle / Send), 'wc' (ward council's names and needs),
+  // Screens: 'start' (the four steps and Send), 'wc' (ward council's two lists, rolled up) with
+  // 'wc-cp' and 'wc-tn' (the names in each),
   // 'home' (the huddle's list: details and the four sections) and one screen per section.
   // A link ending in #huddle opens straight to the huddle's list.
   var START = /(^|[#&])huddle($|&)/.test((location.hash || '').replace(/^#/, '')) ? 'home' : 'start';
@@ -973,19 +974,20 @@
     var all = !stepsOn;
     document.body.classList.toggle('steps-on', !all);
     document.body.setAttribute('data-view', all ? 'all' : view);
-    var home = all || view === 'home', start = !all && view === 'start', wc = !all && view === 'wc';
+    var home = all || view === 'home', start = !all && view === 'start', wc = !all && view === 'wc', wcSub = !all && isWcList(view);
     $('header.top').hidden = !home && !start; $('.start-here').hidden = !home && !start; $('.fine-notes').hidden = !home && !start;
-    $('#start-home').hidden = !start; $('#wc-view').hidden = !wc; $('#mode-bar').hidden = all || !(view === 'home' || wc);
+    $('#start-home').hidden = !start; $('#wc-view').hidden = !wc && !wcSub; $('#mode-bar').hidden = all || !(view === 'home' || wc);
     $('#mode-title').textContent = wc ? 'Ward council' : 'Huddle';
-    var stp = STEPS.filter(function (x) { return x.id === view; })[0]; $('#step-title').textContent = stp ? stp.title : '';
+    var stp = STEPS.filter(function (x) { return x.id === view; })[0] || WC_LISTS.filter(function (x) { return 'wc-' + x.id === view; })[0];
+    $('#step-title').textContent = stp ? stp.title : '';
     // Names edited in ward council show up on the huddle's cards.
-    if (shownView === 'wc' && view !== 'wc') { renderCP(); renderTN(); }
+    if (isWcList(shownView) && !isWcList(view)) { renderCP(); renderTN(); }
     if (!all && view === 'rr' && shownView !== 'rr') renderRR(); // names may have changed since it was drawn
     shownView = view;
     renderWC(); renderChecks();
     if (start) renderDoors();
     $('#steps-home').hidden = all || view !== 'home';
-    $('#step-bar').hidden = all || home || start || wc; $('#step-foot').hidden = all || home || start || wc;
+    $('#step-bar').hidden = all || home || start || wc; $('#step-foot').hidden = all || home || start || wc || wcSub;
     // Hand off and Send live on the opening screen and the huddle's list; inside a section they're hidden.
     var bar = $('.actionbar'); if (bar) bar.hidden = !all && !start;
     Array.prototype.forEach.call(document.querySelectorAll('[data-step]'), function (el) { el.hidden = !all && el.getAttribute('data-step') !== view; });
@@ -1040,14 +1042,39 @@
         removable ? removeButton('remove-cp', gid, idx, 'Remove ' + (str(a.name).trim() || 'this name')) : null
       ]),
       gid === 'nm' ? field('Baptism date', base + 'bap', { type: 'date' }) : null,
-      field('Next ordinance', base + 'ordinance', { placeholder: gid === 'bt' ? 'Baptism' : 'e.g. Temple baptisms' }),
+      FIXED_ORD[gid] ? h('div', { class: 'field' }, ['Next ordinance', h('p', { class: 'fixed-value', text: FIXED_ORD[gid] })])
+        : field('Next ordinance', base + 'ordinance', { placeholder: 'e.g. Temple baptisms' }),
       field('Needs', base + 'need', { multi: true, rows: gid === 'tn' ? '2' : '3', placeholder: gid === 'tn' ? 'What do they need to get there?' : 'Tap their name in the Covenant Path Report to identify needs' })
     ].concat(extras));
   }
+  // Ward council opens to its two lists, rolled up like the huddle's sections; tap one for its names.
+  var WC_LISTS = [{ id: 'cp', title: 'Covenant Path Report lists' }, { id: 'tn', title: 'Name Next Ordinance' }];
+  function isWcList(v) { return v === 'wc-cp' || v === 'wc-tn'; }
+  function wcStatus(id) {
+    var named = [];
+    if (id === 'tn') named = state.tn.filter(function (a) { return str(a.name).trim(); }).map(function (a) { return { a: a, g: 'tn' }; });
+    else GROUPS.forEach(function (g) { state.cp[g.id].forEach(function (a) { if (str(a.name).trim()) named.push({ a: a, g: g.id }); }); });
+    if (!named.length) return { text: id === 'tn' ? 'No focus names yet' : 'No names yet' };
+    var missing = named.filter(function (x) { return !ordOf(x.a, x.g); }).length;
+    var lead = id === 'tn' ? named.length + ' of 3 focus names' : plural(named.length, 'person', 'people');
+    return { text: lead + ' · ' + (missing ? missing + (missing === 1 ? ' needs' : ' need') + ' a next ordinance' : 'everyone has a next ordinance'), warn: missing > 0 };
+  }
   function renderWC() {
-    var wrap = $('#wc-list'); if (!wrap) return;
-    // Only built while it's on screen, so each field exists once on the page.
-    if (!stepsOn || view !== 'wc') { wrap.replaceChildren(); return; }
+    var wrap = $('#wc-list'), rows = $('#wc-rows'); if (!wrap || !rows) return;
+    rows.hidden = !(stepsOn && view === 'wc');
+    if (!rows.hidden) rows.replaceChildren.apply(rows, WC_LISTS.map(function (l) {
+      var st = wcStatus(l.id);
+      return h('li', {}, [h('button', { type: 'button', class: 'step-row wc-row', 'data-action': 'open-wc-list', 'data-a': l.id, 'aria-label': l.title + '. ' + st.text }, [
+        h('span', { class: 'step-text' }, [
+          h('span', { class: 'step-title', text: l.title }),
+          l.id === 'cp' ? h('span', { class: 'wc-row-sub', text: 'New members · Returning members · Those being taught' }) : h('span', { class: 'wc-row-sub', text: 'The focus names ward council chooses' }),
+          h('span', { class: 'step-status' + (st.warn ? ' warn' : ''), text: st.text })
+        ]),
+        h('span', { class: 'step-chev', 'aria-hidden': 'true', text: '›' })
+      ])]);
+    }));
+    // The names are only built while their list is on screen, so each field exists once on the page.
+    if (!stepsOn || !isWcList(view)) { wrap.replaceChildren(); return; }
     var panel = function (gid, title, list, baseOf) {
       return h('section', { class: 'list-panel wc-panel list-' + gid, 'data-wc': gid, 'aria-label': title }, [
         h('h3', { class: 'wc-title', text: title }),
@@ -1055,8 +1082,8 @@
         gid === 'tn' ? null : h('button', { type: 'button', class: 'btn-outline full wc-add', 'data-action': 'wc-add', 'data-a': gid, text: '+ Add a name' })
       ]);
     };
-    wrap.replaceChildren.apply(wrap, [panel('tn', 'Name Next Ordinance (focus names)', state.tn, function (i) { return 'tn.' + i + '.'; })]
-      .concat(GROUPS.map(function (g) { return panel(g.id, g.title, state.cp[g.id], function (i) { return 'cp.' + g.id + '.' + i + '.'; }); })));
+    wrap.replaceChildren.apply(wrap, view === 'wc-tn' ? [panel('tn', 'Focus names', state.tn, function (i) { return 'tn.' + i + '.'; })]
+      : GROUPS.map(function (g) { return panel(g.id, g.title, state.cp[g.id], function (i) { return 'cp.' + g.id + '.' + i + '.'; }); }));
   }
   /* ---------- The two Covenant Path Report checks on the opening screen ---------- */
   function allNames() {
@@ -1361,6 +1388,7 @@
       case 'list-open': listOpen(a); break;
       case 'open-step': showView(a, 'push'); break;
       case 'open-wc': showView('wc', 'push'); break;
+      case 'open-wc-list': showView('wc-' + a, 'push'); break;
       case 'open-huddle': syncDate(); showView('home', 'push'); break;
       case 'go-start': goStart(); break;
       case 'open-before': renderBefore(); openOverlay('#before-sheet', '#before-title'); $('#before-sheet .sheet').scrollTop = 0; break;
@@ -1377,7 +1405,13 @@
       }
       case 'wc-add': state.cp[a].push(blankAction()); state.cpNone[a] = false; showBlank[a] = true;
         renderCP(); renderWC(); saveDraft(); focusLast('#wc-list [data-wc="' + a + '"] input[data-bind$=".name"]'); break;
-      case 'steps-home': goHome(); break;
+      case 'steps-home':
+        if (isWcList(view)) { // back from a ward council list to ward council
+          var hs = null; try { hs = history.state; } catch (e) { /* ignore */ }
+          if (hs && isWcList(hs.hv) && hs.pushed) { try { history.back(); break; } catch (e) { /* fall through */ } }
+          showView('wc', 'replace');
+        } else goHome();
+        break;
       case 'step-done': {
         var doneView = view;
         var finish = function () {
@@ -3071,7 +3105,7 @@
     window.addEventListener('popstate', function (e) {
       var v = e.state && e.state.hv;
       if (!stepsOn) return;
-      view = v === 'home' || v === 'wc' || v === 'start' || STEPS.some(function (st) { return st.id === v; }) ? v : START;
+      view = v === 'home' || v === 'wc' || isWcList(v) || v === 'start' || STEPS.some(function (st) { return st.id === v; }) ? v : START;
       applyView(); window.scrollTo(0, 0);
     });
 
@@ -3098,14 +3132,14 @@
             primary: 'Same person, fix the name', onPrimary: function () {
               pend.forEach(function (r) { r.pname = now; });
               renderRR(); saveDraft();
-              if (rcard && view === 'wc') { Array.prototype.forEach.call(rcard.querySelectorAll('.wc-last'), function (x) { x.remove(); }); wcExtras(rg, getPath(path.replace(/\.name$/, '')) || {}).forEach(function (x) { rcard.appendChild(x); }); }
+              if (rcard && isWcList(view)) { Array.prototype.forEach.call(rcard.querySelectorAll('.wc-last'), function (x) { x.remove(); }); wcExtras(rg, getPath(path.replace(/\.name$/, '')) || {}).forEach(function (x) { rcard.appendChild(x); }); }
               toast('Name fixed. The last assignment stays with ' + now + '.');
             },
             secondary: 'Different person'
           });
         }
       }
-      var wcc = e.type === 'change' && view === 'wc' && /\.name$/.test(path) ? t.closest('.wc-card') : null;
+      var wcc = e.type === 'change' && isWcList(view) && /\.name$/.test(path) ? t.closest('.wc-card') : null;
       if (wcc) {
         Array.prototype.forEach.call(wcc.querySelectorAll('.wc-last'), function (x) { x.remove(); });
         var wp = path.split('.'), wg = wp[0] === 'tn' ? 'tn' : wp[1], wa = getPath(path.replace(/name$/, '').replace(/\.$/, ''));

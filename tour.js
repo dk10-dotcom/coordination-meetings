@@ -9,13 +9,11 @@
   // Each stop: what to highlight (first visible match) and what to say. No target = a centered message.
   var STEPS = [
     { view: 'start', title: 'Welcome!', text: 'This quick tour shows how the weekly process works. It takes about a minute. Tap **Start** to begin.' },
-    { target: '#start-home', view: 'start', title: 'Three things, in order', text: '**Ward council** decides **who** to focus on and **what** each person’s next ordinance is. The **Huddle** decides **how** and **when** to help. Then you tap **Send**. The two amber boxes are your Covenant Path Report checks: one before ward council, one before you send. Tap a box to see the names; check it off and it turns green.' },
+    { target: '#start-home', view: 'start', title: 'Four steps, in order', text: '**1. Before ward council:** match the names to the Covenant Path Report.\n**2. Ward council:** who to focus on, and what each person’s next ordinance is.\n**3. Huddle:** how and when to help.\n**4. After the huddle:** update the Covenant Path Report.\nThen tap **Send**. Steps 1 and 4 turn green when you check them off.' },
     { target: '.top-buttons', view: 'start', title: 'Help is always here', text: '**How to use** has the step-by-step instructions, and this tour. **Tips for an effective meeting**, the principles for a great huddle, is at the top of the Huddle screen.' },
-    { target: ['#wc-list .wc-card', '#wc-list'], view: 'wc', title: 'Ward council', text: 'Tap **Ward council** before the huddle. Every name is in one list with only what ward council decides: the name, the next ordinance and the need. **To find a need, tap their name in the Covenant Path Report.** A name with an assignment from the last huddle shows it and how it went, to plan from.',
-      demoClass: 'important', demo: '<p class="tour-callout"><span class="tour-callout-icon" aria-hidden="true">!</span><span><strong>Important:</strong> Before ward council, tap the first amber box on the opening screen and match the names to the Covenant Path Report in Tools. Add anyone new and remove anyone no longer listed.</span></p>' },
-    { target: 'header .grid-2', details: true, title: 'Huddle: your ward', text: 'At the meeting, tap **Huddle**, then **Huddle Details**. Add your ward; it’s remembered on this phone. There’s no date to set: the huddle is dated the day you send it.' },
-    { target: '#conduct-seg', details: true, title: 'Who’s conducting', text: 'Select who’s conducting. This will typically be the ward mission leader. **The person conducting the huddle is responsible for filling out this entire agenda and sharing it with the bishop-approved list, the stake presidency and the full-time missionaries.**' },
-    { target: '.attendees-field', details: true, title: 'Take attendance', text: 'At the meeting, tap everyone who came. The youth are listed first: make an extra effort to involve them. Until attendance is taken, Huddle Details shows it in orange.' },
+    { target: '#wc-rows', view: 'wc', title: 'Ward council', text: 'Tap **Ward council** before the huddle. It has two lists, each with a count: **Covenant Path Report lists** and **Name Next Ordinance** (the focus names ward council chooses). A list turns orange if someone needs a next ordinance. Tap one to open it.' },
+    { target: ['#wc-list .wc-card', '#wc-list'], view: 'wc-cp', title: 'Names and needs', text: 'Each name has only what ward council decides: the name, the next ordinance and the need. **For the Covenant Path Report lists, tap the person’s name in the report to find a need.** Focus names aren’t on the report; their needs come from ward council. Details and the last huddle’s assignment show under a name, to plan from.' },
+    { target: '#details-full', details: true, title: 'Huddle Details', text: 'At the meeting, tap **Huddle**, then **Huddle Details**. Add your ward (it’s remembered), select who’s conducting, and tap everyone who came. The youth are listed first: make an extra effort to involve them. **The person conducting fills out this entire agenda and sends it to the bishop-approved list, the stake presidency and the full-time missionaries.**' },
     { target: '#steps-home', stepsOnly: true, title: 'Four sections', text: 'The huddle has four sections. Go down the list, or open them in any order. **Mark section done** checks each one off as you finish it; the checks clear when you send. Orange means something is still missing.' },
     { target: ['#rr-list .card .rr-answer', '#rr-list .card', '#rr-list'], view: 'rr', title: 'Return and Report', text: 'The assignments from your last huddle show up here. Tap **Yes**, **Partly** or **No** for each. If someone reports back during the week, mark it then; the huddle confirms the rest. Use **Notes for ward council** to say how it went.',
       demo: '<p class="tour-demo-cap">Tap Partly or No and this button appears:</p><span class="tour-demo-btn">Carry forward to this huddle</span><p class="tour-demo-cap">It adds the item to this huddle’s plan without retyping.</p>' },
@@ -34,7 +32,7 @@
     { target: '#after-box', view: 'start', title: 'Update the Covenant Path Report', text: '**After the huddle, update the Covenant Path Report in Tools.** Tap this box to see each person’s sacrament attendance, temple attendance, needs and assignment, with a button that opens the report. Check it off when it’s done. A current report is what makes next week’s huddle work.' },
     { target: '.actionbar', view: 'start', title: 'Send', text: 'Then tap **Send**. It works once **After the huddle, before you send** is checked off. Then share the PDF with the bishop-approved list, the stake presidency and the full-time missionaries. **Sending finishes the huddle:** its assignments move into Return and Report for next time.',
       demoClass: 'tip', demo: '<p class="tour-callout"><span class="tour-callout-icon" aria-hidden="true">✓</span><span><strong>Tip:</strong> Include yourself when you send it, so you always have a copy of the PDF.</span></p>' },
-    { view: 'start', title: 'You’re all set', text: 'Ward council, Huddle, Send. Everything stays on your phone, and nothing is saved online. How to use has the training video, this tour, a sample agenda and a practice week whenever you need them. Sent something and need it again? **Share again** is on this screen.' }
+    { view: 'start', title: 'You’re all set', text: 'Four steps, then Send. Everything stays on your phone, and nothing is saved online. How to use has the training video, this tour, a sample agenda and a practice week whenever you need them. Sent something and need it again? **Share again** is on this screen.' }
   ];
 
   var el = {}, idx = 0, active = false, targetEl = null, ACTIVE = STEPS;
@@ -52,10 +50,10 @@
     hv.show(step.view || 'home', !!step.details);
   }
 
-  // **words** in a step become bold; everything else is plain text.
+  // **words** in a step become bold and a line break starts a new line; everything else is plain text.
   function fmt(t) {
     return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; })
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
   }
   function store() { try { return window.localStorage; } catch (e) { return null; } }
   function markSeen() { try { var s = store(); if (s) s.setItem(SEEN_KEY, '1'); } catch (e) { /* ignore */ } }
@@ -141,9 +139,11 @@
       var r = targetEl.getBoundingClientRect();
       el.bubble.style.width = Math.min(360, window.innerWidth - 32) + 'px';
       var offset = (64 + r.height + 20 + el.bubble.offsetHeight + 8 > window.innerHeight) ? 16 : 64;
-      // Never tuck the target under the sticky "All sections" bar.
-      var bar = document.getElementById('step-bar');
-      if (bar && !bar.hidden) offset = Math.max(offset, bar.getBoundingClientRect().height + 8);
+      // Never tuck the target under the sticky Back bar.
+      ['step-bar', 'mode-bar'].forEach(function (id) {
+        var bar = document.getElementById(id);
+        if (bar && !bar.hidden) offset = Math.max(offset, bar.getBoundingClientRect().height + 8);
+      });
       window.scrollTo(0, Math.max(0, window.scrollY + r.top - offset));
     }
     place();
