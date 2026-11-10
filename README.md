@@ -55,7 +55,7 @@ The opening screen is titled **Ward Mission Leader Process** and shows four step
 
 **Send → Share PDF** finishes the huddle: its action items move into Return and Report for next time, names and needs stay, and everything else clears. **Undo** in the Sent successfully message puts it back. **Share again** on the opening screen resends the last PDF. There is no date to set; the PDF is dated the day it's sent, and **Change date** on the Send screen overrides that.
 
-Someone else conducting? **Hand off** texts them a link that loads the huddle on their phone. After they send it, **Load a handoff or PDF → Load from a PDF** sets up the next huddle from their PDF.
+Someone else conducting? **Hand off** texts them a link that loads the huddle on their phone. On iPhone, links open in Safari and never in the Home Screen app, so the link opens a page with three steps: copy the handoff, open Huddle, and paste it. After they send it, **Load a handoff or PDF → Load from a PDF** sets up the next huddle from their PDF.
 
 New members (blue), Returning members (green), Those being taught (purple) and Name Next Ordinance (amber) each have their own color in the app (a dot beside the list's name, and on the person's card) and on the PDF. Return and Report cards fill green, amber or red once marked Yes, Partly or No.
 

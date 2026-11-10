@@ -1,4 +1,5 @@
 // Handoff link: the ward mission leader texts the agenda; another leader opens the link (iPhone Safari, iPhone app via paste, Android) and it loads.
+// On iPhone the link opens in Safari, never in the app, so it gets a page of its own: Copy handoff, then paste it in the app.
 // These checks fill many cards in a row, so they keep every card open in its list ('huddle-cards-open').
 // The lists of names and each person's own screen are covered by rows.js and twodoor.js.
 const { chromium, devices } = require('playwright');
@@ -36,18 +37,41 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   const url = (body.match(/https?:\/\/\S+/) || [''])[0];
   console.log('message:', body.slice(0, 120) + '…', '| link length', url.length);
   ok(/^sms:/.test(href) && body.includes('Sample Ward') && /#handoff=z/.test(url), 'Messages opens with the handoff link (compressed)');
+  ok(body.includes('Tap the link and follow the steps') && body.includes('Huddle app'), 'the text says to tap the link and follow the steps');
   ok(url.length < 4000, 'link is a reasonable length: ' + url.length);
   ok(!/Daniel|Rivera|temple/i.test(url), 'names aren’t readable in the link itself');
 
-  // iPhone Safari (not the Home Screen app): offers Copy handoff, or load here
-  const B = await mk('iPhone 13'); const q = B.p;
-  await q.goto(url); await q.waitForSelector('#confirm-sheet:not([hidden])');
-  ok((await q.textContent('#confirm-title')).includes('Open this handoff in the app'), 'iPhone Safari explains how to get it into the app');
+  // iPhone Safari (not the Home Screen app): a page of its own with three steps
+  const B = await mk('iPhone 13', { permissions: ['clipboard-read', 'clipboard-write'] }); const q = B.p;
+  const fits = pg => pg.evaluate(() => document.documentElement.scrollWidth <= innerWidth);
+  await q.goto(url); await q.waitForSelector('#handoff-page:not([hidden])');
+  ok((await q.textContent('#hp-title')).includes('handed a huddle') && (await q.textContent('#hp-what')).includes('Sample Ward') && (await q.textContent('#hp-what')).includes('November 15'), 'iPhone Safari opens the handoff page, naming the ward and the huddle: ' + await q.textContent('#hp-what'));
+  ok(!(await q.isVisible('#form')) && !(await q.isVisible('.actionbar')) && !(await q.isVisible('#confirm-sheet')) && !(await q.isVisible('#install-banner')), 'nothing of the app shows behind it, and no sheet is over it');
   ok(!/handoff=/.test(await q.evaluate(() => location.href)), 'the link is cleared from the address bar');
-  await q.screenshot({ path: `${OUT}/safari.png` });
-  await q.click('#confirm-secondary'); await q.waitForSelector('#confirm-sheet:not([hidden])');
-  ok((await q.textContent('#confirm-title')).includes('Load this handoff?') && (await q.textContent('#confirm-compare')).includes('Sample Ward'), 'Load it here shows what’s coming');
+  ok(await q.locator('.hp-step').count() === 3 && await q.locator('#handoff-page .btn-primary:visible').count() === 1 && (await q.textContent('#hp-copy')).trim() === 'Copy handoff' && await q.locator('#hp-step-1.now').count() === 1, 'three steps, with one main button: Copy handoff');
+  ok((await q.textContent('#hp-step-2')).includes('Open Huddle from your Home Screen') && (await q.textContent('#hp-step-3')).includes('Load a handoff or PDF') && (await q.textContent('#hp-step-3')).includes('Paste a handoff'), 'steps 2 and 3 say where to go in the app');
+  ok(await fits(q), 'the handoff page fits the phone');
+  await q.screenshot({ path: `${OUT}/safari.png`, fullPage: true });
+  await q.click('#hp-copy'); await q.waitForTimeout(250);
+  ok(await q.isVisible('#hp-copied') && /#handoff=z/.test(await q.evaluate(() => navigator.clipboard.readText())) && (await q.textContent('#hp-copy')).trim() === 'Copy again', 'Copy handoff copies the link and says Copied');
+  ok(await q.locator('#hp-step-1.done').count() === 1 && await q.locator('#hp-step-2.now').count() === 1 && await q.isVisible('#hp-step-3') && await q.isVisible('#handoff-page'), 'the steps stay on screen, with step 1 done and the next ones lit');
+  await q.screenshot({ path: `${OUT}/safari-copied.png`, fullPage: true });
+  // No app yet: how to add it, or use it in Safari this once
+  ok(!(await q.isVisible('[data-action="hp-safari"]')), 'Use it in Safari is tucked away');
+  await q.click('#hp-noapp summary'); await q.waitForTimeout(150);
+  ok(await q.isVisible('[data-action="hp-install"]') && await q.isVisible('[data-action="hp-safari"]') && (await q.textContent('.hp-warn')).includes('Home Screen app won’t have it'), '“Don’t have Huddle on your Home Screen?” shows how to add it, and the Safari last resort with its warning');
+  ok(await fits(q), 'it still fits the phone when opened');
+  await q.screenshot({ path: `${OUT}/safari-noapp.png`, fullPage: true });
+  await q.click('[data-action="hp-install"]'); await q.waitForSelector('#install-sheet:not([hidden])');
+  ok((await q.textContent('#install-steps')).includes('Add to Home Screen'), 'Show me how opens the Add to Home Screen steps');
+  await q.click('[data-action="close-install"]'); await q.waitForTimeout(200);
+  await q.click('[data-action="hp-safari"]'); await q.waitForSelector('#confirm-sheet:not([hidden])');
+  ok((await q.textContent('#confirm-title')).includes('Load this handoff?') && (await q.textContent('#confirm-compare')).includes('Sample Ward'), 'Use it in Safari shows what’s coming');
+  await q.click('#confirm-secondary'); await q.waitForTimeout(250);
+  ok(await q.isVisible('#handoff-page') && !(await q.isVisible('#form')), 'Cancel stays on the handoff page');
+  await q.click('[data-action="hp-safari"]'); await q.waitForSelector('#confirm-sheet:not([hidden])');
   await q.click('#confirm-primary'); await q.waitForTimeout(300);
+  ok(!(await q.isVisible('#handoff-page')) && await q.isVisible('#form'), 'loading it closes the handoff page');
   ok(await q.isVisible('#start-home'), 'after loading, the opening screen shows');
   await q.click('[data-action="open-huddle"]'); await q.waitForTimeout(200);
   ok((await q.textContent('#meeting-date .md-text')).includes('November 15') && (await q.textContent('#details-line')).includes('Sample Ward'), 'date and ward came over');
@@ -77,17 +101,31 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   await r.fill('#confirm-text', 'not a link'); await r.click('#confirm-primary'); await r.waitForSelector('#confirm-sheet:not([hidden])');
   ok((await r.textContent('#confirm-title')).includes('isn’t a handoff link'), 'explains when it isn’t a handoff link');
 
+  // Not now: the page closes and nothing is loaded
+  const N = await mk('iPhone 13'); const n = N.p;
+  await n.goto(url); await n.waitForSelector('#handoff-page:not([hidden])');
+  await n.click('[data-action="hp-close"]'); await n.waitForTimeout(250);
+  ok(!(await n.isVisible('#handoff-page')) && await n.isVisible('#start-home') && !(await n.evaluate(() => (localStorage.getItem('huddle-agenda-v1') || '').includes('Daniel Rivera'))), 'Not now closes the page and loads nothing');
+  // A first visit with a handoff link: the handoff comes first, not How to use or the tour
+  const F = await b.newContext({ ...devices['iPhone 13'] });
+  await F.addInitScript(() => Object.defineProperty(Navigator.prototype, 'webdriver', { get: () => false }));
+  const f = await F.newPage(); f.errs = []; f.on('pageerror', e => f.errs.push(e.message));
+  await f.goto(url); await f.waitForSelector('#handoff-page:not([hidden])'); await f.waitForTimeout(600);
+  ok(await f.isHidden('#help-sheet') && !(await f.isVisible('.tour')), 'on a first visit, the handoff page shows without How to use or the tour over it');
+  await f.goto('http://127.0.0.1:8765/'); await f.waitForSelector('#help-sheet:not([hidden])');
+  ok(await f.isVisible('#help-sheet'), 'How to use still opens on the next visit');
+
   // Android: opens straight to Load this handoff
   const D = await mk('Pixel 7'); const s = D.p;
   await s.goto(url); await s.waitForSelector('#confirm-sheet:not([hidden])');
-  ok((await s.textContent('#confirm-title')).includes('Load this handoff?'), 'Android goes straight to loading');
+  ok((await s.textContent('#confirm-title')).includes('Load this handoff?') && await s.isHidden('#handoff-page'), 'Android goes straight to loading');
 
   // A broken link
   const E = await mk('Pixel 7'); const s2 = E.p;
   await s2.goto('http://127.0.0.1:8765/#handoff=zBROKEN'); await s2.waitForSelector('#confirm-sheet:not([hidden])');
   ok((await s2.textContent('#confirm-title')).includes('didn’t work'), 'a broken link says so');
 
-  const errs = [p, q, r, s].flatMap(x => x.errs);
+  const errs = [p, q, r, s, n, f].flatMap(x => x.errs);
   ok(!errs.length, 'no page errors ' + errs.join('; '));
   console.log(`${pass}/${pass + fail} checks passed`);
   await b.close(); process.exit(fail ? 1 : 0);

@@ -270,6 +270,52 @@
   </div>
 </main>
 
+<!-- A handoff link opened in an iPhone's browser: a page of its own, with nothing of the app behind it.
+     iPhone opens links in Safari, never in the Home Screen app, so the handoff is carried across by copy and paste. -->
+<section class="handoff-page" id="handoff-page" aria-labelledby="hp-title" hidden>
+  <div class="hp-wrap">
+    <div class="title-text"><p class="app-name">Huddle</p><h1 id="hp-title" tabindex="-1">You’ve been handed a huddle</h1></div>
+    <p class="hp-what" id="hp-what"></p>
+    <p class="hp-why">Links open in Safari, not in the Huddle app. These three steps carry the handoff into the app.</p>
+    <ol class="hp-steps">
+      <li class="hp-step now" id="hp-step-1">
+        <span class="hp-num" aria-hidden="true">1</span>
+        <div class="hp-step-body">
+          <p class="hp-step-title">Copy the handoff</p>
+          <button type="button" class="btn-primary full" data-action="hp-copy" id="hp-copy">Copy handoff</button>
+          <p class="hp-copied" id="hp-copied" role="status" hidden>✓ Copied. Now go to step 2.</p>
+          <p class="hp-copy-failed" id="hp-copy-failed" role="status" hidden>Couldn’t copy from here. Go back to the text message, press and hold it, and tap <strong>Copy</strong>. Then go to step 2.</p>
+        </div>
+      </li>
+      <li class="hp-step" id="hp-step-2">
+        <span class="hp-num" aria-hidden="true">2</span>
+        <div class="hp-step-body">
+          <p class="hp-step-title">Open Huddle from your Home Screen</p>
+          <p class="hp-icon-row"><img src="icons/icon-192.png" width="44" height="44" alt=""><span>Look for this icon.</span></p>
+        </div>
+      </li>
+      <li class="hp-step" id="hp-step-3">
+        <span class="hp-num" aria-hidden="true">3</span>
+        <div class="hp-step-body">
+          <p class="hp-step-title">Tap Load a handoff or PDF, then Paste a handoff</p>
+          <p class="hp-step-sub">It’s under the four steps on the opening screen. If your phone asks, tap <strong>Paste</strong>.</p>
+        </div>
+      </li>
+    </ol>
+    <details class="hp-noapp" id="hp-noapp">
+      <summary>Don’t have Huddle on your Home Screen?</summary>
+      <div class="hp-noapp-body">
+        <p>Add it first, then do the three steps above. It takes about a minute.</p>
+        <button type="button" class="btn-outline full" data-action="hp-install">Show me how to add it</button>
+        <p class="hp-or">No time before the meeting?</p>
+        <button type="button" class="btn-secondary full" data-action="hp-safari">Use it in Safari this once</button>
+        <p class="hp-warn">It works for this huddle. But it stays in Safari: the Home Screen app won’t have it, and the phone can erase it after about a week without a visit.</p>
+      </div>
+    </details>
+    <button type="button" class="btn-link hp-close" data-action="hp-close">Not now</button>
+  </div>
+</section>
+
 <input type="file" id="file-input" accept="application/pdf,.pdf" hidden>
 
 <!-- Send sheet -->
@@ -502,7 +548,7 @@
           <li><strong>No one in a list this week?</strong> In the huddle’s <strong>Covenant Path</strong> section, tap <strong>Confirm none this week</strong> on that list. The PDF then shows it was reviewed and empty; a list left blank prints <strong>Not reviewed</strong>.</li>
           <li><strong>Name Next Ordinance</strong> holds the three focus names from ward council, with each person’s next ordinance and need.</li>
           <li><strong>Names nobody has updated in 4 weeks</strong> show <strong>Not updated in 4 weeks</strong> in the list. Open the name; it asks “Still on the Covenant Path Report?” Tap <strong>Keep</strong> or <strong>Remove</strong>. After 5 weeks with no changes, a name is removed automatically.</li>
-          <li><strong>Someone else running the meeting?</strong> Tap <strong>Hand off</strong> (next to Send on the opening screen) and text them the link. On Android it loads right away. On iPhone the link opens in Safari: they tap <strong>Copy handoff</strong>, open the app from the Home Screen, then tap <strong>Load a handoff or PDF</strong> (on the opening screen) <strong>→ Paste a handoff</strong>. They can hand it back the same way. After they send it, open the PDF they sent you and tap <strong>Load a handoff or PDF → Load from a PDF</strong>; your app sets up the next huddle from it.</li>
+          <li><strong>Someone else running the meeting?</strong> Tap <strong>Hand off</strong> (next to Send on the opening screen) and text them the link. On Android it loads right away. On iPhone, links open in Safari, never in the app, so the link opens a page with three steps: tap <strong>Copy handoff</strong>, open Huddle from the Home Screen, then tap <strong>Load a handoff or PDF</strong> (on the opening screen) <strong>→ Paste a handoff</strong>. If they don’t have the app yet, that page shows how to add it. They can hand it back the same way. After they send it, open the PDF they sent you and tap <strong>Load a handoff or PDF → Load from a PDF</strong>; your app sets up the next huddle from it.</li>
         </ul>
       </li>
       <li>

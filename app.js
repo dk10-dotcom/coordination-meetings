@@ -1772,6 +1772,13 @@
       case 'tips': openOverlay('#tips-sheet', '#tips-title'); $('#tips-sheet .sheet').scrollTop = 0; break;
       case 'close-tips': closeOverlay('#tips-sheet'); break;
       case 'install': addToHomeScreen(); break;
+      case 'hp-copy':
+        if (handoffHere) copyText(handoffUrl(handoffHere.code)).then(function () { setHandoffCopied('ok'); }, function () { setHandoffCopied('failed'); });
+        break;
+      case 'hp-install': openInstallSteps(); break;
+      // Loading it here keeps it in the browser's storage, apart from the Home Screen app. The page stays until it's confirmed.
+      case 'hp-safari': if (handoffHere) confirmApplyAgenda(handoffHere.s, 'handoff', closeHandoffPage); break;
+      case 'hp-close': closeHandoffPage(); break;
       case 'close-install': closeOverlay('#install-sheet'); break;
       case 'dismiss-install':
         $('#install-banner').hidden = true;
@@ -2041,7 +2048,7 @@
     packHandoff(state).then(function (code) {
       var d = parseISO(state.date);
       var msg = 'Handoff: the ' + (state.ward.trim() ? state.ward.trim() + ' ' : '') + 'coordination agenda' + (d ? ' for ' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : '') +
-        '. Tap the link to load it into the Huddle app:\n' + handoffUrl(code);
+        '. Tap the link and follow the steps to load it into the Huddle app:\n' + handoffUrl(code);
       ask({
         title: 'Hand off this agenda?',
         body: 'For when someone else conducts. This texts them a link that loads this agenda on their phone. Send it only to the leader filling in.',
@@ -2049,26 +2056,47 @@
       });
     }, function () { toast('Couldn’t make the handoff. Try again.'); });
   }
+  /* A handoff link opened in an iPhone's browser. iPhone opens links in Safari, never in the Home Screen app,
+   * and the two keep their data apart, so the handoff can't land in the app. It gets a page of its own
+   * (nothing of the app shows behind it) with one job: copy it, then paste it in the app. */
+  var handoffHere = null;   // { code, s } while that page is showing
+  var handoffPending = false; // a handoff link is being opened: the first-visit instructions wait
+  function showHandoffPage(code, s) {
+    var inc = normalizeState(s), day = parseISO(inc.date);
+    handoffHere = { code: code, s: s };
+    $('#hp-what').textContent = [inc.ward.trim(), day ? 'Huddle for ' + day.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : ''].filter(Boolean).join(' · ') || 'A huddle agenda';
+    setHandoffCopied('');
+    $('#hp-noapp').open = false;
+    document.body.classList.add('handoff-open'); $('#handoff-page').hidden = false;
+    window.scrollTo(0, 0);
+    try { $('#hp-title').focus({ preventScroll: true }); } catch (e) { /* ignore */ }
+  }
+  // how: '' (not copied yet), 'ok' or 'failed'. The steps stay on screen either way.
+  function setHandoffCopied(how) {
+    var moved = how !== '';
+    $('#hp-copied').hidden = how !== 'ok'; $('#hp-copy-failed').hidden = how !== 'failed';
+    $('#hp-copy').textContent = how === 'ok' ? 'Copy again' : 'Copy handoff';
+    $('#hp-copy').className = (how === 'ok' ? 'btn-secondary' : 'btn-primary') + ' full';
+    $('#hp-step-1').className = 'hp-step' + (how === 'ok' ? ' done' : moved ? '' : ' now');
+    $('#hp-step-1 .hp-num').textContent = how === 'ok' ? '✓' : '1';
+    $('#hp-step-2').className = 'hp-step' + (moved ? ' now' : '');
+    $('#hp-step-3').className = 'hp-step' + (moved ? ' now' : '');
+  }
+  function closeHandoffPage() {
+    handoffHere = null;
+    $('#handoff-page').hidden = true; document.body.classList.remove('handoff-open');
+    window.scrollTo(0, 0);
+  }
   // A handoff link was opened.
   function checkHandoffLink() {
     var m = /[#&]handoff=([A-Za-z0-9_-]+)/.exec(location.hash || '');
     if (!m) return;
     var code = m[1];
+    handoffPending = true;
     try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) { /* ignore */ }
     unpackHandoff(code).then(function (s) {
-      var ua = navigator.userAgent || '';
-      var ios = /iPhone|iPad|iPod/.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua));
-      var standalone = navigator.standalone === true || !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-      if (ios && !standalone) {
-        ask({
-          title: 'Open this handoff in the app',
-          body: 'On iPhone, links open in Safari instead of your Home Screen app. Tap Copy handoff, open the app from your Home Screen, then tap Load a handoff or PDF → Paste a handoff.',
-          primary: 'Copy handoff', onPrimary: function () {
-            copyText(handoffUrl(code)).then(function () { toast('Copied. Now open the app from your Home Screen.', 8000); }, function () { toast('Couldn’t copy. Press and hold the link in Messages to copy it.', 8000); });
-          },
-          secondary: 'Load it here in Safari', onSecondary: function () { confirmApplyAgenda(s, 'handoff'); }
-        });
-      } else confirmApplyAgenda(s, 'handoff');
+      if (isIOS && !isStandalone()) showHandoffPage(code, s);
+      else confirmApplyAgenda(s, 'handoff');
     }, function () {
       ask({ title: 'This handoff link didn’t work', body: 'Ask for the link again, or load the agenda from its PDF.', primary: 'OK' });
     });
@@ -2090,7 +2118,7 @@
   // A handoff is a huddle still being planned: it loads as it was.
   // A PDF is a huddle that was sent: loading it sets up the next huddle from it, the same as sending does.
   // Either way, Undo puts this phone's agenda back.
-  function confirmApplyAgenda(data, how) {
+  function confirmApplyAgenda(data, how, after) {
     var incoming = normalizeState(data);
     incoming.loaded = null; incoming.practiceSnapshot = null; incoming.sentAt = ''; incoming.sentSig = '';
     var pdf = how === 'pdf';
@@ -2100,7 +2128,7 @@
     ask({
       title: pdf ? 'Set up the next huddle from this PDF?' : 'Load this handoff?', compare: rows,
       body: pdf ? 'Its assignments go into Return and Report, and its names and needs stay.' + replaces : (isEmpty(state) ? 'It becomes the agenda on this phone.' : replaces.trim()),
-      primary: pdf ? 'Set up the next huddle' : 'Load it', onPrimary: function () { applyAgenda(incoming, pdf); }, secondary: 'Cancel'
+      primary: pdf ? 'Set up the next huddle' : 'Load it', onPrimary: function () { if (after) after(); applyAgenda(incoming, pdf); }, secondary: 'Cancel'
     });
   }
   function applyAgenda(incoming, fromPdf) {
@@ -3462,7 +3490,7 @@
     // Everywhere else, including the Home Screen app, the guided tour starts once.
     if (location.hash === '#help') openHelp();
     else if (location.hash === '#tour' && window.HuddleTour) window.HuddleTour.start();
-    else if (!navigator.webdriver) {
+    else if (!navigator.webdriver && !handoffPending) { // a handoff link comes first; the instructions wait for the next visit
       var phoneBrowser = (isIOS || isAndroid) && !isStandalone();
       if (phoneBrowser) { if (!readFlag(HELP_KEY)) openHelp(); }
       else if (window.HuddleTour && !window.HuddleTour.seen()) window.HuddleTour.start();
