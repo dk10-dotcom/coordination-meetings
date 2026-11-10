@@ -24,7 +24,8 @@ in from the right and back out to the left (no slide when the phone asks for red
 
 The app opens to four steps, in order, and then Send:
 
-1. **Before ward council:** match the names to the Covenant Path Report (in Member Tools).
+1. **Before ward council:** update each person from the Covenant Path Report (in Member Tools):
+   names, next ordinance, needs, temple attendance and sacrament attendance.
 2. **Ward council:** who to focus on, each person's next ordinance and needs.
 3. **Huddle:** attendance, report back on the last huddle's assignments, plan this huddle's assignments.
 4. **After the huddle, before you send:** update the Covenant Path Report.
@@ -50,7 +51,8 @@ Ward council and the Huddle show names the same way.
 
 - **A list is rows, one per name.** No fields are open in a list. Under the name is one line:
   in Ward council the next ordinance ("Next: Endowment"), in the Huddle the action item, who and
-  when. A missing one shows in orange ("Needs a next ordinance", "Needs an action item").
+  when, and in Before ward council the next ordinance and needs. A missing one shows in orange
+  ("Needs a next ordinance", "Needs an action item").
   Small tags under that line show what matters at a glance: the 30-day temple count for a new
   member, "Committed to baptism", "✓ Sacrament", "Carried over" and "Not updated in 4 weeks".
 - **Add a name** is the last row of each Covenant Path Report list. It opens a new person with the
@@ -58,14 +60,16 @@ Ward council and the Huddle show names the same way.
 - The three focus-name spots always show; an empty one reads "Focus name 2 · Tap to add".
 - **Tapping a name opens that person's screen.** Their name is the screen's title. Each meeting
   shows its own half open and highlighted, and the other meeting's half closed as a short summary
-  with **Edit** (see Ward council and Covenant Path).
+  with **Edit** (see Ward council and Covenant Path). Before ward council shows one card with only
+  what the Covenant Path Report tells you (see Before ward council).
 - **Missionary referrals** are listed and opened the same way (see Missionary Referrals).
 - **Done** at the bottom, **Back** at the top and the phone's own Back all return to the list.
 - **Remove from the list** (or **Clear this focus name**) is at the bottom of the person's screen.
-  Removing someone who has details asks first, then returns to the list.
+  Removing someone who has details asks first, then returns to the list. While there is nothing
+  to remove the link is invisible but keeps its place, so the screen does not shift under a tap.
 
-The same row is used for the Huddle's four sections and Ward council's two lists, so every list in
-the app looks alike. A section marked done shows a green check before its chevron.
+The same row is used for the Huddle's sections, Ward council's lists and Before ward council, so
+every list in the app looks alike. A section marked done shows a green check before its chevron.
 
 ## Opening screen
 
@@ -83,20 +87,37 @@ From top to bottom:
 - **Erase everything and start over**, then the footer. Both appear on this screen only.
 - Fixed at the bottom: **Hand off** and **Send**. These appear on this screen only.
 
-The two boxes have no check box to tap. Each is one button that opens its sheet, and the only way
-to mark it done is the **Mark done** button at the bottom of that sheet. Opening a box that is
-already done shows **✓ Marked done**, **Close** and **Mark as not done**. Both clear after a send.
+The two boxes have no check box to tap. Each is one button: the first opens the Before ward
+council screen and the second opens the After the huddle sheet. The only way to mark one done is
+the **Mark done** button at the bottom of what it opens. Opening one that is already done shows
+**✓ Marked done** with a way to take the mark back off. Both clear after a send.
 
-### Before ward council (sheet)
+### Before ward council (screen)
 
-Opens from the first box. Shows the three Covenant Path Report lists, one line per name, with:
+Opens from the first box, as a screen of its own with **Back** at the top. The box reads
+"Update each person from the Covenant Path Report" with "Names, next ordinance, needs and
+attendance" under it. The screen has:
 
+- One line saying what to update for each person: next ordinance, needs, temple attendance and
+  sacrament attendance.
 - **Open the Covenant Path Report** (opens Member Tools; see Links).
-- **Add a name** per list. A name already on that list is refused.
-- An **×** on each name. Removing a name that has details asks first.
-- **The names match · Mark done**, which marks the box done.
+- The three Covenant Path Report lists, as the same rows every other list uses. A row shows the
+  name; one status line ("Next: Temple baptisms · Needs: A ride to the temple", with "Needs a next
+  ordinance" in orange and "No needs listed" when those are missing); and tags for attendance: a
+  new member's temple status ("Temple: 18 days left" in red, or "✓ Temple") and "✓ Sacrament".
+  Each list ends in **Add a name**. Focus names are not shown here.
+- **All up to date · Mark done**, which marks the box done and returns to the opening
+  screen. Once done it reads **Done · Back**, with **Marked by mistake? Mark as not done** under it.
 
-Focus names are not shown here.
+**Tapping a name opens that person on their own screen**, one amber card labeled Covenant Path
+Report: Name, Baptism date (new members), Next ordinance (fixed to Baptism for those being
+taught), Needs, **Temple attendance** (new members) and **Attended sacrament**. Nothing else is on
+it. These are the same fields ward council and the huddle show, so nothing is entered twice.
+Checking attendance here does not show the "remember to update the Covenant Path Report" reminder,
+because here it is being copied from the report. **Done**, **Back** and the phone's Back return to
+the list. **Remove from the list** is at the bottom and asks first when the person has details. A
+name already on that list is refused ("… is already on this list."). A name added and left empty
+does not stay.
 
 ### After the huddle, before you send (sheet)
 

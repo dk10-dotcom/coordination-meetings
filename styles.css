@@ -744,6 +744,9 @@ body.touring .actionbar { z-index: 10; }
 .person-view[hidden] { display: none; }
 .person-view .stack { gap: 16px; }
 .person-remove { align-self: center; min-height: 44px; }
+/* Hidden while there is nothing to remove, but it keeps its place: if it came and went as a name is typed or
+   cleared, the screen would shift under a tap on Done. */
+.person-remove[hidden] { display: block !important; visibility: hidden; }
 
 .step-bar { position: sticky; top: 0; z-index: 5; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 6px;
   margin: calc(-1 * max(24px, env(safe-area-inset-top, 0px))) -16px 0; padding: max(10px, env(safe-area-inset-top, 0px)) 16px 8px; background: rgba(243,245,249,.96);
@@ -879,7 +882,7 @@ body.touring { padding-bottom: 75vh; }
 /* Opening screen: two doors and Send */
 body[data-view="start"] #meeting-date, body[data-view="start"] #details-summary, body[data-view="start"] #details-full { display: none !important; }
 .start-home { display: flex; flex-direction: column; gap: 14px; }
-.start-home[hidden], .wc-view[hidden] { display: none; }
+.start-home[hidden], .wc-view[hidden], .bw-view[hidden] { display: none; }
 .door { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 104px; padding: 18px 18px; border-radius: 18px;
   border: 1.5px solid var(--accent-line); background: var(--accent-soft); font: inherit; text-align: left; color: inherit; cursor: pointer;
   box-shadow: 0 1px 2px rgba(27,43,75,.06), 0 3px 10px rgba(27,43,75,.07); }
@@ -895,6 +898,17 @@ body[data-view="start"] #meeting-date, body[data-view="start"] #details-summary,
 #mode-bar[hidden], #step-bar[hidden] { display: none; }
 /* Ward council */
 .wc-view { display: flex; flex-direction: column; gap: 16px; }
+/* Before ward council: a short line on what to update, the report button, then the same rows as every other list */
+.bw-view { display: flex; flex-direction: column; gap: 16px; }
+.bw-intro { margin: 0; padding: 0 4px; font-size: 15px; line-height: 1.4; color: var(--text); }
+.bw-note { margin: -4px 0 0; padding: 0 16px; font-size: 13px; line-height: 1.4; color: var(--muted); }
+.bw-undo { align-self: center; min-height: 44px; font-weight: 700; color: var(--accent); }
+.bw-undo[hidden] { display: none; }
+/* One person, from Before ward council: one card in the same amber as its box on the opening screen */
+.person-bw .zone-bw-wrap { border: 1.5px solid var(--amber-line); border-radius: 14px; background: var(--amber-soft); padding: 14px 12px; }
+.person-bw .zone-label { font-size: 12px; }
+.zone-bw { color: var(--orange-ink); }
+.zone-bw .zone-dot { background: var(--orange-ink); }
 .wc-panel { display: flex; flex-direction: column; gap: 12px; padding: 14px; }
 .wc-title { margin: 0; font-size: 16px; font-weight: 800; color: var(--ink); }
 .wc-card { display: flex; flex-direction: column; gap: 10px; }
@@ -946,15 +960,7 @@ body[data-view="home"] .title-row { display: none; }
 .check-state { margin: 0; text-align: center; font-size: 15px; font-weight: 700; color: #1F6B3A; }
 .check-state[hidden] { display: none; }
 /* Quick name lists and the after-huddle review */
-.quick-panel { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; }
-.quick-panel .wc-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 15px; }
-.quick-names { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-.quick-names li { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; border-top: 1px solid rgba(27,43,75,.1); }
-.quick-name { font-size: 16px; font-weight: 700; color: var(--ink); overflow-wrap: anywhere; }
 .quick-none { margin: 0; font-size: 14px; color: var(--muted); }
-.quick-add { display: flex; gap: 8px; }
-.quick-input { flex: 1; min-width: 0; min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1.5px solid var(--field-line); background: #FFFFFF; font: inherit; font-size: 16px; color: var(--ink); }
-.quick-add-btn { flex: none; min-height: 44px; padding: 0 16px; }
 .after-card { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; }
 .after-name { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 0 0 2px; font-size: 16px; font-weight: 800; color: var(--ink); }
 .after-fact { margin: 0; font-size: 14.5px; color: var(--text); line-height: 1.35; overflow-wrap: anywhere; }

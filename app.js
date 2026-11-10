@@ -642,6 +642,25 @@
       wcLast(g, a)
     ]);
   }
+  /* ---------- Before ward council's screen for one person ----------
+   * Only what the Covenant Path Report tells you: the name, the next ordinance, needs, and temple and
+   * sacrament attendance. They are the same fields ward council and the huddle show, so nothing is typed twice. */
+  function bwPersonCard(r, a) {
+    var g = r.g, base = 'cp.' + g + '.' + r.i + '.';
+    return h('div', { class: 'card person-bw g-' + g }, [
+      h('div', { class: 'card-zone zone-bw-wrap' }, [
+        zoneLabel('bw', 'Covenant Path Report'),
+        h('div', { class: 'card-grid' }, [
+          field('Name', base + 'name', { full: true, placeholder: 'From the Covenant Path Report', cap: 'words' }),
+          g === 'nm' ? field('Baptism date', base + 'bap', { type: 'date', full: true }) : null,
+          FIXED_ORD[g] ? h('div', { class: 'field full' }, ['Next ordinance', h('p', { class: 'fixed-value', text: FIXED_ORD[g] })])
+            : field('Next ordinance', base + 'ordinance', { full: true, placeholder: 'e.g. Temple baptisms' }),
+          field('Needs', base + 'need', { full: true, multi: true, rows: '3', placeholder: 'Tap their name in the Covenant Path Report to identify needs' })
+        ]),
+        h('div', { class: 'hd-checks' }, [g === 'nm' ? templeBox(base, r.i, a) : null, sacToggle(base + 'sac', a.sac)])
+      ])
+    ]);
+  }
   // "Attended sacrament" checkbox in the top right of each name card.
   function sacToggle(path, on) {
     return h('label', { class: 'sac-toggle' }, [
@@ -758,6 +777,12 @@
       if (a.actionCarried && str(a.action).trim()) tags.push(rowTag('Carried over', 'carried'));
       sub = [str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim()].filter(Boolean).join(' · ');
       if (!sub && name) { sub = 'Needs an action item'; warn = true; }
+    } else if (kind === 'bw') {
+      // Before ward council: what the Covenant Path Report says about them, at a glance.
+      var bord = ordOf(a, gid), bneed = str(a.need).trim();
+      if (gid === 'nm' && name) { var bts = templeStatus(a, state.date); tags.push(bts.done ? rowTag('✓ Temple', 'ok') : rowTag('Temple: ' + bts.short, 'due')); }
+      if (a.sac) tags.push(rowTag('✓ Sacrament', 'ok'));
+      if (name) { sub = (bord ? 'Next: ' + bord : 'Needs a next ordinance') + ' · ' + (bneed ? 'Needs: ' + bneed : 'No needs listed'); warn = !bord; }
     } else {
       var ord = ordOf(a, gid);
       sub = ord ? 'Next: ' + ord : '';
@@ -776,7 +801,8 @@
     ])]);
   }
   // A list as rows, grouped the way an iPhone groups a list: the names, then "Add a name" as the last row.
-  // kind 'hd' = the huddle's list (an empty one can be confirmed as "none this week"), 'wc' = ward council's.
+  // kind 'hd' = the huddle's list (an empty one can be confirmed as "none this week"), 'wc' = ward council's,
+  // 'bw' = Before ward council's (the same names, with what the Covenant Path Report says about each).
   function referralRow(kind, i, x) {
     var name = str(x.name).trim(), by = str(x.by).trim(), notes = str(x.notes).trim();
     var sub = [by ? 'Referred by ' + by : '', notes].filter(Boolean).join(' · ') || (name ? 'No details yet' : 'Tap to add');
@@ -820,7 +846,7 @@
     ]), h('ul', { class: 'steps-list person-rows' }, rows)];
     if (kind === 'hd' && gid === 'nm' && named) kids.push(h('p', { class: 'temple-goal', text: 'Goal: every new member attends the temple for baptisms for the dead within 30 days of their baptism.' }));
     var attrs = { class: 'list-panel rows list-' + gid + (named ? '' : ' is-empty'), 'aria-label': title };
-    attrs[kind === 'wc' ? 'data-wc' : 'data-group'] = gid;
+    attrs[kind === 'wc' ? 'data-wc' : kind === 'bw' ? 'data-bw' : 'data-group'] = gid;
     return h('section', attrs, kids);
   }
   // A referral's fields: the same in the Huddle and in ward council.
@@ -835,19 +861,19 @@
   // One person's own screen: the huddle's card or ward council's, with a way to take them off the list.
   function renderPerson() {
     var wrap = $('#person-card'); if (!wrap) return;
-    var r = personRef, a = rowsOn && isPerson(view) && r ? personCard(r) : null;
+    var r = personRef, a = isPerson(view) && personOk(r) ? personCard(r) : null;
     if (!a) { wrap.replaceChildren(); return; }
     var isRef = r.g === 'mr';
     var base = r.g === 'tn' ? 'tn.' + r.i + '.' : 'cp.' + r.g + '.' + r.i + '.';
-    var card = isRef ? h('div', { class: 'card ref-card' }, [referralFields(r.i)]) : r.kind === 'wc' ? wcPersonCard(r, a) : hdPersonCard(r, a);
+    var card = isRef ? h('div', { class: 'card ref-card' }, [referralFields(r.i)]) : r.kind === 'wc' ? wcPersonCard(r, a) : r.kind === 'bw' ? bwPersonCard(r, a) : hdPersonCard(r, a);
     var remove = h('button', { type: 'button', class: 'btn-link danger person-remove', 'data-action': r.g === 'tn' ? 'quick-remove-tn' : isRef ? 'remove-mr' : 'remove-cp',
       'data-a': r.g === 'tn' || isRef ? r.i : r.g, 'data-b': r.g === 'tn' || isRef ? '' : r.i,
       hidden: rowBlank(r.g, a) }, [r.g === 'tn' ? 'Clear this focus name' : 'Remove from the list']);
     var attrs = { class: 'list-panel person-panel list-' + r.g, 'aria-label': personTitle(r) };
-    attrs[r.kind === 'wc' ? 'data-wc' : 'data-group'] = r.g;
+    attrs[r.kind === 'wc' ? 'data-wc' : r.kind === 'bw' ? 'data-bw' : 'data-group'] = r.g;
     var done = h('button', { type: 'button', class: 'btn-primary full person-done', 'data-action': 'steps-home' }, ['Done']);
     // Ward council's screen asks the 4-week question too (the huddle's card carries its own).
-    var note = r.kind === 'wc' && !isRef ? staleNote(base, a, r.g === 'tn') : null;
+    var note = (r.kind === 'wc' || r.kind === 'bw') && !isRef ? staleNote(base, a, r.g === 'tn') : null;
     wrap.replaceChildren(h('section', attrs, [note, card]), done, remove);
     if (r.g === 'nm') updateTemple();
   }
@@ -972,7 +998,7 @@
   function updateTemple() {
     state.cp.nm.forEach(function (it, i) {
       var st = templeStatus(it, state.date);
-      var box = document.querySelector('[data-group="nm"] [data-temple="' + i + '"], #person-card [data-wc="nm"] [data-temple="' + i + '"]');
+      var box = document.querySelector('[data-group="nm"] [data-temple="' + i + '"], #person-card [data-wc="nm"] [data-temple="' + i + '"], #person-card [data-bw="nm"] [data-temple="' + i + '"]');
       if (box) {
         box.classList.toggle('is-done', st.done);
         box.querySelector('.temple-sub').textContent = st.done ? '✓ Baptisms for the dead done' : st.text;
@@ -1166,11 +1192,14 @@
   // 'p-wc' in ward council). The 'huddle-cards-open' flag keeps every card open in its list instead;
   // it exists for the tests that fill many cards in a row.
   var rowsOn = stepsOn && !readFlag('huddle-cards-open');
-  var personRef = null; // { kind: 'hd' | 'wc', g: 'nm' | 'rm' | 'bt' | 'tn', i: index }
-  function isPerson(v) { return v === 'p-hd' || v === 'p-wc'; }
+  var personRef = null; // { kind: 'hd' | 'wc' | 'bw', g: 'nm' | 'rm' | 'bt' | 'tn', i: index }
+  function isPerson(v) { return v === 'p-hd' || v === 'p-wc' || v === 'p-bw'; }
+  // Before ward council ('bw') always lists names as rows, so its person screen works in every layout.
+  function personOk(r) { return !!(r && (rowsOn || r.kind === 'bw') && personCard(r)); }
   function personList(r) { return r.g === 'tn' ? state.tn : r.g === 'mr' ? state.referrals : state.cp[r.g]; }
   function personCard(r) { var l = r && personList(r); return l ? l[r.i] : null; }
   function personListView(r) {
+    if (r.kind === 'bw') return 'bw';
     var sec = r.g === 'tn' ? 'tn' : r.g === 'mr' ? 'mr' : 'cp';
     return r.kind === 'wc' ? 'wc-' + sec : sec;
   }
@@ -1182,7 +1211,7 @@
   function rowBlank(g, a) { return g === 'mr' ? refBlank(a) : cardBlank(a); }
   function openPerson(kind, g, i, focusName) {
     personRef = { kind: kind, g: g, i: +i }; personWcOpen = wcOpenDefault(personRef); personHdOpen = false;
-    showView(kind === 'wc' ? 'p-wc' : 'p-hd', 'push');
+    showView(kind === 'wc' ? 'p-wc' : kind === 'bw' ? 'p-bw' : 'p-hd', 'push');
     if (focusName) setTimeout(function () { var f = document.querySelector('#person-card input[data-bind$=".name"]'); if (f) f.focus(); }, 60);
   }
   // Back from a person to the list they're on.
@@ -1266,7 +1295,7 @@
   }
   // Which parts of the page show: the step list (home), one step, or everything (view-all).
   // Screens slide in the way they do in an iPhone app: deeper from the right, back from the left.
-  function viewDepth(v) { return v === 'start' ? 0 : v === 'home' || v === 'wc' ? 1 : isPerson(v) ? 3 : 2; }
+  function viewDepth(v) { return v === 'start' ? 0 : v === 'home' || v === 'wc' || v === 'bw' ? 1 : isPerson(v) ? 3 : 2; }
   var navTimer = null;
   function navFeel(d) {
     var b = document.body; b.classList.remove('nav-fwd', 'nav-back'); clearTimeout(navTimer);
@@ -1279,17 +1308,18 @@
     var all = !stepsOn;
     document.body.classList.toggle('steps-on', !all);
     document.body.setAttribute('data-view', all ? 'all' : view);
-    var home = all || view === 'home', start = !all && view === 'start', wc = !all && view === 'wc', wcSub = !all && isWcList(view);
+    var home = all || view === 'home', start = !all && view === 'start', wc = !all && view === 'wc', wcSub = !all && isWcList(view), bw = !all && view === 'bw';
     // A person's screen needs a person; anything else (a stale Back, a removed name) falls back to their list.
-    if (!all && isPerson(view) && !(rowsOn && personRef && personCard(personRef))) { view = personRef ? personListView(personRef) : 'home'; personRef = null; return applyView(); }
+    if (!all && isPerson(view) && !personOk(personRef)) { view = personRef ? personListView(personRef) : 'home'; personRef = null; return applyView(); }
     var person = !all && isPerson(view);
     // Erase everything and the footer sit on the opening screen only.
     $('header.top').hidden = !home && !start; $('.start-here').hidden = !home && !start; $('.fine-notes').hidden = !all && !start;
     $('#person-view').hidden = !person;
     // Find New People to Teach and Missionary Referrals are one section each, shown in the Huddle and in ward council.
     var stepShown = view === 'wc-fn' ? 'fn' : view === 'wc-mr' ? 'mr' : view;
-    $('#start-home').hidden = !start; $('#wc-view').hidden = !wc && !(!all && isWcNames(view)); $('#mode-bar').hidden = all || !(view === 'home' || wc);
-    $('#mode-title').textContent = wc ? 'Ward council' : 'Huddle';
+    $('#start-home').hidden = !start; $('#wc-view').hidden = !wc && !(!all && isWcNames(view)); $('#mode-bar').hidden = all || !(view === 'home' || wc || bw);
+    $('#bw-view').hidden = !bw;
+    $('#mode-title').textContent = wc ? 'Ward council' : bw ? 'Before ward council' : 'Huddle';
     var stp = STEPS.filter(function (x) { return x.id === view; })[0] || WC_LISTS.filter(function (x) { return 'wc-' + x.id === view; })[0];
     $('#step-title').textContent = person ? personTitle(personRef) : stp ? stp.title : '';
     // Leaving a person's screen: drop a name left empty, then redraw the lists it appears on.
@@ -1299,10 +1329,10 @@
     if (!all && view === 'rr' && shownView !== 'rr') renderRR(); // names may have changed since it was drawn
     if (!all && shownView && shownView !== view) navFeel(viewDepth(view) - viewDepth(shownView));
     shownView = view;
-    renderWC(); renderMR(); renderPerson(); renderChecks();
+    renderWC(); renderMR(); renderPerson(); renderChecks(); renderBefore();
     if (start) renderDoors();
     $('#steps-home').hidden = all || view !== 'home';
-    $('#step-bar').hidden = all || home || start || wc; $('#step-foot').hidden = all || home || start || wc || wcSub || person;
+    $('#step-bar').hidden = all || home || start || wc || bw; $('#step-foot').hidden = all || home || start || wc || wcSub || person || bw;
     // Hand off and Send live on the opening screen and the huddle's list; inside a section they're hidden.
     var bar = $('.actionbar'); if (bar) bar.hidden = !all && !start;
     Array.prototype.forEach.call(document.querySelectorAll('[data-step]'), function (el) { el.hidden = !all && el.getAttribute('data-step') !== stepShown; });
@@ -1417,7 +1447,7 @@
     return out;
   }
   function renderChecks() {
-    [['before', 'Tap to see and fix the names, then mark it done', 'Done. Tap to look again.'], ['after', 'Tap to see what to update, then mark it done to send', 'Done. You can send.']].forEach(function (c) {
+    [['before', 'Names, next ordinance, needs and attendance', 'Done. Tap to look again.'], ['after', 'Tap to see what to update, then mark it done to send', 'Done. You can send.']].forEach(function (c) {
       var on = !!state.verified[c[0]], box = $('#' + c[0] + '-box'); if (!box) return;
       box.classList.toggle('done', on); $('#' + c[0] + '-sub').textContent = on ? c[2] : c[1];
       box.setAttribute('aria-label', $('#' + c[0] + '-box .cpr-step-k').textContent + ': ' + $('#' + c[0] + '-box .check-line').textContent + (on ? '. Done.' : '. Not done yet.'));
@@ -1425,46 +1455,22 @@
       var doneBtn = $('#' + c[0] + '-done-btn'), otherBtn = $('#' + c[0] + '-other-btn');
       // Once it's done, the main button just closes the list; taking the mark off is the quieter choice under it.
       if (!doneBtn.getAttribute('data-label')) doneBtn.setAttribute('data-label', doneBtn.textContent);
-      doneBtn.textContent = on ? 'Close' : doneBtn.getAttribute('data-label');
+      var screen = c[0] === 'before'; // Before ward council is a screen with Back at the top; After the huddle is a sheet
+      doneBtn.textContent = on ? (screen ? 'Done · Back' : 'Close') : doneBtn.getAttribute('data-label');
       doneBtn.setAttribute('data-action', on ? 'close-' + c[0] : c[0] + '-done');
-      otherBtn.textContent = on ? 'Mark as not done' : 'Not yet';
+      otherBtn.textContent = on ? (screen ? 'Marked by mistake? Mark as not done' : 'Mark as not done') : 'Not yet';
       otherBtn.setAttribute('data-action', on ? c[0] + '-undo' : 'close-' + c[0]);
+      if (screen) otherBtn.hidden = !on; // "Not yet" is the Back button at the top
       $('#' + c[0] + '-state').hidden = !on;
     });
   }
   function setVerified(which, on) { state.verified[which] = !!on; renderChecks(); saveDraft(); }
-  // Before ward council: one line per name, with add and remove.
+  // Before ward council: the three Covenant Path Report lists, one row per person. Tap a name to bring it
+  // up to date from the report. (Focus names aren't here: ward council chooses those, not the report.)
   function renderBefore() {
     var wrap = $('#before-list'); if (!wrap) return;
-    // Covenant Path Report lists only; focus names come from ward council, not the report.
-    var groups = GROUPS.map(function (g) { return { id: g.id, title: g.title }; });
-    wrap.replaceChildren.apply(wrap, groups.map(function (g) {
-      var list = g.id === 'tn' ? state.tn : state.cp[g.id];
-      var rows = list.map(function (a, i) { return { a: a, i: i }; }).filter(function (x) { return str(x.a.name).trim(); });
-      var full = g.id === 'tn' && rows.length >= state.tn.length;
-      return h('section', { class: 'list-panel quick-panel list-' + g.id, 'data-quick': g.id, 'aria-label': g.title }, [
-        h('h3', { class: 'wc-title' }, [g.title, h('span', { class: 'list-count', text: String(rows.length) })]),
-        rows.length ? h('ul', { class: 'quick-names' }, rows.map(function (x) {
-          return h('li', {}, [h('span', { class: 'quick-name', text: x.a.name.trim() }),
-            removeButton(g.id === 'tn' ? 'quick-remove-tn' : 'remove-cp', g.id === 'tn' ? x.i : g.id, g.id === 'tn' ? '' : x.i, 'Remove ' + x.a.name.trim())]);
-        })) : h('p', { class: 'quick-none', text: 'No one listed' }),
-        full ? null : h('div', { class: 'quick-add' }, [
-          h('input', { type: 'text', class: 'quick-input', placeholder: 'Add a name', 'aria-label': 'Add a name to ' + g.title, autocomplete: 'off', autocapitalize: 'words', enterkeyhint: 'done', maxlength: '300' }),
-          h('button', { type: 'button', class: 'btn-outline quick-add-btn', 'data-action': 'quick-add', 'data-a': g.id, text: 'Add' })
-        ])
-      ]);
-    }));
-  }
-  function quickAdd(gid, name) {
-    name = str(name).trim(); if (!name) return false;
-    var list = gid === 'tn' ? state.tn : state.cp[gid];
-    if (list.some(function (a) { return norm(a.name) === norm(name); })) { toast(name + ' is already on this list.'); return false; }
-    var slot = list.filter(function (a) { return !str(a.name).trim() && !hasText(a, CARD_KEYS); })[0];
-    if (!slot) { if (gid === 'tn') { toast('There are three focus names. Remove one first.'); return false; } slot = blankAction(); list.push(slot); }
-    slot.name = name; slot.touched = todayISO();
-    if (gid !== 'tn') { state.cpNone[gid] = false; showBlank[gid] = true; }
-    renderCP(); renderTN(); renderBefore(); renderDoors(); saveDraft();
-    return true;
+    if (!stepsOn || view !== 'bw') { wrap.replaceChildren(); return; } // built only while it shows, so each row exists once
+    wrap.replaceChildren.apply(wrap, GROUPS.map(function (g) { return rowsPanel('bw', g.id, g.title); }));
   }
   // After the huddle: what to carry over to the Covenant Path Report, person by person.
   function renderAfter() {
@@ -1515,7 +1521,7 @@
   function goStart() {
     if (view === 'start') return;
     var st = null; try { st = history.state; } catch (e) { /* ignore */ }
-    if (st && (st.hv === 'home' || st.hv === 'wc') && st.pushed) { try { history.back(); return; } catch (e) { /* fall through */ } }
+    if (st && (st.hv === 'home' || st.hv === 'wc' || st.hv === 'bw') && st.pushed) { try { history.back(); return; } catch (e) { /* fall through */ } }
     showView('start', 'replace');
   }
   function goHome() {
@@ -1735,13 +1741,13 @@
       case 'open-wc-list': showView('wc-' + a, 'push'); break;
       case 'open-huddle': syncDate(); showView('home', 'push'); break;
       case 'go-start': goStart(); break;
-      case 'open-before': renderBefore(); openOverlay('#before-sheet', '#before-title'); $('#before-sheet .sheet').scrollTop = 0; break;
-      case 'close-before': closeOverlay('#before-sheet'); break;
-      case 'before-done': closeOverlay('#before-sheet'); setVerified('before', true); toast('Before ward council: done.'); break;
+      case 'open-before': showView('bw', 'push'); break;
+      case 'close-before': goStart(); break;
+      case 'before-done': setVerified('before', true); goStart(); toast('Before ward council: done.'); break;
       case 'open-after': renderAfter(); openOverlay('#after-sheet', '#after-title'); $('#after-sheet .sheet').scrollTop = 0; break;
       case 'close-after': closeOverlay('#after-sheet'); break;
       case 'after-done': closeOverlay('#after-sheet'); setVerified('after', true); toast('Covenant Path Report updated. You can send.'); break;
-      case 'before-undo': closeOverlay('#before-sheet'); setVerified('before', false); toast('Before ward council: marked as not done.'); break;
+      case 'before-undo': setVerified('before', false); toast('Before ward council: marked as not done.'); break;
       case 'after-undo': closeOverlay('#after-sheet'); setVerified('after', false); toast('Marked as not done. Send waits until it’s done.'); break;
       case 'wc-edit-toggle': {
         personWcOpen = !personWcOpen; renderPerson();
@@ -1774,7 +1780,6 @@
         if (mx && !refBlank(mx)) confirmRemove(str(mx.name).trim() ? 'Remove ' + mx.name.trim() + '?' : 'Remove this referral?', doRemoveMR); else doRemoveMR();
         break;
       }
-      case 'quick-add': { var qi = btn.parentNode.querySelector('.quick-input'); if (quickAdd(a, qi && qi.value)) { var nq = document.querySelector('#before-list [data-quick="' + a + '"] .quick-input'); if (nq) nq.focus(); } break; }
       case 'quick-remove-tn': {
         var qn = state.tn[+a], qdo = function () { state.tn[+a] = blankName(); renderTN(); renderBefore(); renderDoors(); saveDraft(); if (isPerson(view)) { toast('Focus name cleared.'); leavePerson(); } };
         if (qn && hasText(qn, CARD_KEYS.filter(function (k) { return k !== 'name'; }))) confirmRemove('Remove ' + qn.name.trim() + '?', qdo); else qdo();
@@ -3390,7 +3395,6 @@
       state.date = v; state.dateManual = true; $('#date').value = v; saveDraft();
       startSend(null, true);
     });
-    $('#before-list').addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.classList.contains('quick-input')) { e.preventDefault(); var b2 = e.target.parentNode.querySelector('[data-action="quick-add"]'); if (b2) b2.click(); } });
     renderAll();
     checkHandoffLink();
     window.addEventListener('hashchange', checkHandoffLink);
@@ -3409,7 +3413,7 @@
       var v = e.state && e.state.hv;
       if (!stepsOn) return;
       if (isPerson(v)) { personRef = (e.state && e.state.ref) || null; personWcOpen = wcOpenDefault(personRef); }
-      view = v === 'home' || v === 'wc' || isWcList(v) || isPerson(v) || v === 'start' || STEPS.some(function (st) { return st.id === v; }) ? v : START;
+      view = v === 'home' || v === 'wc' || v === 'bw' || isWcList(v) || isPerson(v) || v === 'start' || STEPS.some(function (st) { return st.id === v; }) ? v : START;
       applyView(); window.scrollTo(0, 0);
     });
 
@@ -3418,6 +3422,13 @@
       var path = t && t.getAttribute && t.getAttribute('data-bind');
       if (!path) return;
       var val = t.type === 'checkbox' ? t.checked : t.value;
+      // Before ward council: a name that is already on that list is refused, so no one is listed twice.
+      var dup = e.type === 'change' && view === 'p-bw' ? /^cp\.(\w+)\.(\d+)\.name$/.exec(path) : null;
+      if (dup && String(val).trim() && state.cp[dup[1]].some(function (x, k) { return k !== +dup[2] && norm(x.name) === norm(val); })) {
+        // (The message waits a moment: leaving the field is often a tap on Done, and a message must not land under that tap.)
+        var dupName = String(val).trim(); setTimeout(function () { toast(dupName + ' is already on this list.'); }, 350);
+        val = str(t._nameWas); t.value = val;
+      }
       setPath(path, val);
       if (path === 'ward') writeWard(String(val).trim());
       if (path === 'date') { state.dateManual = true; renderDateHint(); }
@@ -3470,8 +3481,9 @@
         var tagEl = t.closest('.field, .fn-assign'); tagEl = tagEl && tagEl.querySelector('.carried-tag'); if (tagEl) tagEl.remove();
       }
       // Covenant Path Report reminders: sacrament attendance on Covenant Path cards, and a new member's temple attendance.
-      if (/^cp\.\w+\.\d+\.sac$/.test(path) && val === true) toast('Remember to update sacrament attendance in the Covenant Path Report too.', 7000);
-      if (/^cp\.nm\.\d+\.temple$/.test(path) && val === true) toast('Remember to update temple attendance in the Covenant Path Report too.', 7000);
+      // (Not in Before ward council: there the attendance is being copied from the report.)
+      if (view !== 'p-bw' && /^cp\.\w+\.\d+\.sac$/.test(path) && val === true) toast('Remember to update sacrament attendance in the Covenant Path Report too.', 7000);
+      if (view !== 'p-bw' && /^cp\.nm\.\d+\.temple$/.test(path) && val === true) toast('Remember to update temple attendance in the Covenant Path Report too.', 7000);
       if (/^cp\.\w+\.\d+\.name$/.test(path)) updateListCount(path.split('.')[1]);
       if (/^cp\.nm\.\d+\.(name|bap|temple)$/.test(path) || path === 'date') { updateTemple(); if (path === 'date') renderRR(); }
       if (/^tn\.\d+\.name$/.test(path)) { var tc = document.querySelector('.list-tn .list-count'); if (tc) tc.textContent = tnCountText(); }
@@ -3499,7 +3511,7 @@
     });
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;
-      var top = ['#confirm-sheet', '#sample-sheet', '#handoff-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#find-tips-sheet', '#before-sheet', '#after-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
+      var top = ['#confirm-sheet', '#sample-sheet', '#handoff-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#find-tips-sheet', '#after-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
       if (top) dismissSheet(top);
     });
     enableSwipeDown();

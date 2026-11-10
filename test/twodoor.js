@@ -40,30 +40,73 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     ok(await p.isHidden('#handoff-sheet') && (await p.textContent('[data-action="load-other"]')).trim() === 'Load from a PDF', tag + ': Cancel closes it; the quiet link reads Load from a PDF');
     const [chooser] = await Promise.all([p.waitForEvent('filechooser'), p.click('[data-action="load-other"]')]);
     ok(!!chooser && await p.locator('.overlay:not([hidden])').count() === 0, tag + ': Load from a PDF goes straight to choosing the file');
-    // Before ward council: quick list with add, remove, the report link and a check-off
-    await p.click('[data-action="open-before"]'); await p.waitForSelector('#before-sheet:not([hidden])');
-    ok(await vis('#before-sheet [data-tools-link]') && await p.locator('#before-list .quick-panel').count() === 3 && !(await p.textContent('#before-list')).includes('Grace Thompson'), tag + ': Before ward council opens the three Covenant Path lists (no focus names) and the report link');
-    await p.fill('#before-list [data-quick="rm"] .quick-input', 'Marcus Bell'); await p.click('[data-action="quick-add"][data-a="rm"]'); await p.waitForTimeout(150);
-    await p.fill('#before-list [data-quick="rm"] .quick-input', 'Extra Person'); await p.keyboard.press('Enter'); await p.waitForTimeout(150);
-    ok((await p.$$eval('#before-list [data-quick="rm"] .quick-name', e => e.map(x => x.textContent))).join('|') === 'Marcus Bell|Extra Person', tag + ': names can be added (button or Enter)');
-    await p.click('#before-list [data-quick="rm"] li >> nth=1 >> .btn-remove'); await p.waitForTimeout(250);
-    if (await vis('#confirm-sheet')) await p.click('#confirm-primary'); await p.waitForTimeout(200);
-    ok((await p.$$eval('#before-list [data-quick="rm"] .quick-name', e => e.map(x => x.textContent))).join('|') === 'Marcus Bell', tag + ': a name can be removed');
-    ok(await noOverflow(), tag + ': the quick list fits the phone');
-    await p.screenshot({ path: `${OUT}/${tag}-before.png` });
-    await p.click('[data-action="before-done"]'); await p.waitForTimeout(200);
-    ok(await isDone('before') && await vis('#before-box .check-tick') && !(await isDone('after')) && (await p.textContent('#before-sub')).includes('Done'), tag + ': Mark done (inside the list) turns the box green with a check');
+    // Before ward council: its own screen. The three Covenant Path Report lists as rows; a name opens on its own
+    // screen with what the report tells you: next ordinance, needs, temple attendance and sacrament attendance.
+    const bwNames = g => p.$$eval(`#before-list [data-bw="${g}"] .person-row .person-name`, e => e.map(x => x.textContent));
+    const bwRow = async (g, i) => (await p.textContent(`#before-list [data-action="open-person"][data-a="${g}"][data-b="${i}"]`)).replace(/\s+/g, ' ').trim();
+    const bwOpen = async (g, i) => { await p.click(`#before-list [data-action="open-person"][data-a="${g}"][data-b="${i}"]`); await p.waitForSelector('#person-view:not([hidden])'); await p.waitForTimeout(250); };
+    const bwDone = async () => { await p.click('#person-card .person-done'); await p.waitForSelector('#bw-view:not([hidden])'); await p.waitForTimeout(300); };
+    const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+    ok((await p.textContent('#before-box .check-line')).trim() === 'Update each person from the Covenant Path Report' && (await p.textContent('#before-sub')).trim() === 'Names, next ordinance, needs and attendance', tag + ': the Before ward council box says what it covers');
+    await p.click('[data-action="open-before"]'); await p.waitForSelector('#bw-view:not([hidden])'); await p.waitForTimeout(300);
+    ok(await vis('#mode-bar') && (await p.textContent('#mode-title')) === 'Before ward council' && !(await vis('.actionbar')) && !(await vis('#start-home')) && await p.locator('.overlay:not([hidden])').count() === 0, tag + ': Before ward council opens as its own screen with Back, not a sheet');
+    ok(await vis('#bw-view [data-tools-link]') && await p.locator('#before-list .list-panel.rows').count() === 3 && await p.locator('#before-list [data-action="add-person"]').count() === 3 && !(await p.textContent('#bw-view')).includes('Focus name 1'), tag + ': it shows the report link and the three Covenant Path lists, each ending in Add a name (no focus names)');
+    const bwIntro = await p.textContent('.bw-intro');
+    ok(['next ordinance', 'needs', 'temple attendance', 'sacrament attendance'].every(w => bwIntro.includes(w)), tag + ': it says what to update for each person');
+    ok(await p.locator('#bw-view input, #bw-view textarea').count() === 0 && await p.evaluate(() => document.querySelector('#before-list .steps-list').className === document.querySelector('#steps-this').className + ' person-rows'), tag + ': no fields in the list; its rows are the same rows as every other list');
+    // A new member from the report: the four things, on the person's own screen
+    await p.click('#before-list [data-action="add-person"][data-a="nm"]'); await p.waitForSelector('#person-view:not([hidden])'); await p.waitForTimeout(250);
+    ok((await p.textContent('#step-title')) === 'New name' && await p.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-bind')) === 'cp.nm.0.name' && await p.locator('#person-card .person-bw').count() === 1 && !(await vis('#bw-view')), tag + ': Add a name opens a new person on their own screen, with the cursor in Name');
+    ok((await p.$$eval('#person-card [data-bind]', e => e.map(x => x.getAttribute('data-bind').split('.').pop()).join('|'))) === 'name|bap|ordinance|need|temple|sac' && (await p.textContent('#person-card .zone-label')).trim() === 'Covenant Path Report', tag + ': a new member has name, baptism date, next ordinance, needs, temple attendance and sacrament attendance, and nothing else');
+    await fill('cp.nm.0.name', 'Daniel Rivera'); await fill('cp.nm.0.bap', daysAgo(12)); await fill('cp.nm.0.ordinance', 'Temple baptisms'); await fill('cp.nm.0.need', 'A ride to the temple');
+    ok((await p.textContent('#step-title')) === 'Daniel Rivera' && (await p.textContent('#person-card .temple-sub')).trim() === '18 days left of 30' && await noOverflow(), tag + ': the screen takes the name, and the baptism date starts the 30-day temple count');
+    await p.screenshot({ path: `${OUT}/${tag}-before-person.png`, fullPage: true });
+    await bwDone();
+    ok((await bwNames('nm')).join('|') === 'Daniel Rivera' && (await bwRow('nm', 0)).includes('Next: Temple baptisms · Needs: A ride to the temple') && (await bwRow('nm', 0)).includes('Temple: 18 days left') && !(await bwRow('nm', 0)).includes('Sacrament'), tag + ': Done returns to the list, whose row shows the next ordinance, needs and the temple count: ' + await bwRow('nm', 0));
+    await bwOpen('nm', 0);
+    await p.click('#person-card .temple-box'); await p.click('#person-card .sac-toggle'); await p.waitForTimeout(250);
+    ok(await p.isChecked('[data-bind="cp.nm.0.temple"]') && await p.isChecked('[data-bind="cp.nm.0.sac"]') && !(await vis('#toast')), tag + ': temple and sacrament attendance are checked from the report, with no reminder to update the report');
+    await p.goBack(); await p.waitForSelector('#bw-view:not([hidden])'); await p.waitForTimeout(300);
+    ok((await bwRow('nm', 0)).includes('✓ Temple') && (await bwRow('nm', 0)).includes('✓ Sacrament') && !(await bwRow('nm', 0)).includes('days left'), tag + ': the phone’s Back returns to the list too, and the row shows both as attended');
+    ok(await noOverflow(), tag + ': the Before ward council list fits the phone');
+    await p.screenshot({ path: `${OUT}/${tag}-before.png`, fullPage: true });
+    // The same person, as ward council and the huddle see them: nothing is entered twice
+    ok(await p.evaluate(() => new Promise(r => setTimeout(() => { const a = JSON.parse(localStorage.getItem('huddle-agenda-v1')).cp.nm[0]; r(a.name === 'Daniel Rivera' && a.ordinance === 'Temple baptisms' && a.need === 'A ride to the temple' && a.temple === true && a.sac === true); }, 700))), tag + ': what is entered here is the same next ordinance, needs and attendance ward council and the huddle show');
+    // Someone no longer on the report: open them and remove them
+    await bwOpen('nm', 0);
+    await p.click('#person-card .person-remove'); await p.waitForSelector('#confirm-sheet:not([hidden])');
+    ok((await p.textContent('#confirm-title')) === 'Remove Daniel Rivera?', tag + ': removing someone with details asks first');
+    await p.click('#confirm-primary'); await p.waitForSelector('#bw-view:not([hidden])'); await p.waitForTimeout(300);
+    ok((await bwNames('nm')).length === 0 && await vis('#bw-view') && !(await vis('#person-view')), tag + ': Remove from the list takes them off and returns to the list');
+    // A name with nothing else yet says what is missing
+    await p.click('#before-list [data-action="add-person"][data-a="rm"]'); await p.waitForSelector('#person-view:not([hidden])'); await p.waitForTimeout(250);
+    ok((await p.$$eval('#person-card [data-bind]', e => e.map(x => x.getAttribute('data-bind').split('.').pop()).join('|'))) === 'name|ordinance|need|sac', tag + ': a returning member has no baptism date or temple box');
+    await fill('cp.rm.0.name', 'Marcus Bell'); await bwDone();
+    ok((await bwNames('rm')).join('|') === 'Marcus Bell' && (await bwRow('rm', 0)).includes('Needs a next ordinance · No needs listed') && await p.locator('#before-list [data-bw="rm"] .person-row .step-status.warn').count() === 1, tag + ': a name with no next ordinance says so in orange: ' + await bwRow('rm', 0));
+    await p.click('#before-list [data-action="add-person"][data-a="rm"]'); await p.waitForSelector('#person-view:not([hidden])'); await p.waitForTimeout(250);
+    await fill('cp.rm.1.name', 'marcus bell'); await p.keyboard.press('Tab'); await p.waitForTimeout(600);
+    ok(await vis('#toast') && (await p.textContent('#toast')).includes('marcus bell is already on this list.') && (await p.inputValue('[data-bind="cp.rm.1.name"]')) === '' && (await p.textContent('#step-title')) === 'New name', tag + ': a name already on that list is refused');
+    await bwDone();
+    ok((await bwNames('rm')).join('|') === 'Marcus Bell', tag + ': so no one is listed twice');
+    await p.click('#before-list [data-action="add-person"][data-a="bt"]'); await p.waitForSelector('#person-view:not([hidden])'); await p.waitForTimeout(250);
+    ok((await p.$$eval('#person-card [data-bind]', e => e.map(x => x.getAttribute('data-bind').split('.').pop()).join('|'))) === 'name|need|sac' && (await p.textContent('#person-card .fixed-value')).trim() === 'Baptism', tag + ': someone being taught has Baptism as the next ordinance, needs and sacrament attendance');
+    await bwDone();
+    ok((await bwNames('bt')).length === 0, tag + ': a name added and left empty does not stay on the list');
+    // Mark done sits at the bottom of the screen
+    await p.click('[data-action="before-done"]'); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(300);
+    ok(await isDone('before') && await vis('#before-box .check-tick') && !(await isDone('after')) && (await p.textContent('#before-sub')).includes('Done'), tag + ': Mark done returns to the opening screen and turns the box green with a check');
     // Opening it again offers to take the mark back off
-    await p.click('#before-box'); await p.waitForSelector('#before-sheet:not([hidden])');
-    ok(await vis('#before-state') && (await p.textContent('#before-done-btn')).trim() === 'Close' && (await p.textContent('#before-other-btn')).trim() === 'Mark as not done', tag + ': a box that is done shows Marked done, with Close and Mark as not done');
-    await p.click('#before-done-btn'); await p.waitForTimeout(200);
-    ok(await isDone('before') && !(await vis('#before-sheet')), tag + ': Close leaves it done');
-    await p.click('#before-box'); await p.waitForSelector('#before-sheet:not([hidden])');
-    await p.click('#before-other-btn'); await p.waitForTimeout(200);
-    ok(!(await isDone('before')) && !(await vis('#before-sheet')), tag + ': Mark as not done takes the mark back off');
-    await p.click('#before-box'); await p.waitForSelector('#before-sheet:not([hidden])');
-    ok((await p.textContent('#before-done-btn')).trim() === 'The names match · Mark done' && (await p.textContent('#before-other-btn')).trim() === 'Not yet', tag + ': then it offers Mark done again');
-    await p.click('[data-action="before-done"]'); await p.waitForTimeout(200);
+    await p.click('#before-box'); await p.waitForSelector('#bw-view:not([hidden])'); await p.waitForTimeout(300);
+    ok(await vis('#before-state') && (await p.textContent('#before-done-btn')).trim() === 'Done · Back' && (await p.textContent('#before-other-btn')).trim() === 'Marked by mistake? Mark as not done', tag + ': a box that is done shows Marked done, with Done · Back and Mark as not done');
+    await p.click('#before-done-btn'); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(300);
+    ok(await isDone('before') && !(await vis('#bw-view')), tag + ': Done · Back leaves it done');
+    await p.click('#before-box'); await p.waitForSelector('#bw-view:not([hidden])'); await p.waitForTimeout(300);
+    await p.click('#before-other-btn'); await p.waitForTimeout(250);
+    ok(await vis('#bw-view') && !(await vis('#before-state')) && !(await vis('#before-other-btn')) && (await p.textContent('#before-done-btn')).trim() === 'All up to date · Mark done', tag + ': Mark as not done takes the mark off and offers Mark done again');
+    await p.click('#mode-bar [data-action="go-start"]'); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(300);
+    ok(!(await isDone('before')), tag + ': Back leaves it not done');
+    await p.click('#before-box'); await p.waitForSelector('#bw-view:not([hidden])'); await p.waitForTimeout(300);
+    await p.click('[data-action="before-done"]'); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(300);
     await p.screenshot({ path: `${OUT}/${tag}-start.png` });
     // Ward council: two lists rolled up, like the huddle's sections
     await p.click('.door-wc');
