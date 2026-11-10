@@ -486,130 +486,42 @@
    * Only the name on the card, the action and when go in it: no needs, notes, list or ordinance. Nothing is stored or sent by the app. */
   function assignmentText(base) {
     var who = str(getPath(base + 'name')).trim(), act = str(getPath(base + 'action')).trim(), when = str(getPath(base + 'when')).trim();
-    var ward = state.ward.trim(), day = parseWhen(when);
-    // The action comes first: it is what a phone offers as the title when the person taps the day to make an event.
+    var ward = state.ward.trim();
+    // The action comes first, then who it is for and when, with the date written out.
     return [act,
       who ? 'For: ' + who : null,
-      when ? 'When: ' + whenLine(when, day) : null,
-      day ? 'Add to calendar: ' + calUrl({ a: act, n: who, d: day.date, t: day.time, w: ward }) : null,
+      when ? 'When: ' + whenLine(when, parseWhen(when)) : null,
       'From the ' + (ward ? ward + ' ' : '') + 'huddle. Please report back. Thank you!'].filter(Boolean).join('\n');
   }
-  /* ---------- Add to calendar ----------
-   * With a day in When, the assignment text carries a link that adds the assignment to the person's calendar.
-   * The details ride in the part of the link after #, which browsers never send to the website, and the page that
-   * opens makes a small calendar file on that person's own phone. Only what the text already says goes in the
-   * link: the action, the name, the day and time, and the ward. Nothing is stored anywhere. */
+  /* ---------- The When line of the text ----------
+   * The person reading the text should not have to work out which Saturday is meant, so a weekday gets its date:
+   * "Sat 9 am" is sent as "Saturday 9 am (Nov 14)". Nothing changes in the app; only the text spells it out. */
   var DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   var DAY_RE = /\b(sun(?:day)?|mon(?:day)?|tue(?:s|sday)?|wed(?:s|nesday)?|thu(?:r|rs|rsday)?|fri(?:day)?|sat(?:urday)?)\b(\.?)/i;
   var MONTH_RE = /\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t|tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b\.?\s+(\d{1,2})(?:st|nd|rd|th)?\b/i;
-  var MONTHS3 = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
   function isoOfDate(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
-  // The day (and the time, when one is given) in what was typed under When: "Sat 9 am", "Tuesday", "Nov 14 at 7 pm",
-  // "11/14", "tomorrow". A weekday means the next one after today. Returns null when there is no day to go on.
+  // The day in what was typed under When. A weekday ("Sat", "Thursday"), "today", "tonight" or "tomorrow" gives a
+  // date: a weekday means the next one after today. A date that was typed out ("Nov 14", "11/14") is left as it is.
+  // Returns null when there is no day to go on ("this week", "ASAP").
   function parseWhen(text, base) {
-    var t = str(text).toLowerCase(), now = base || new Date(), m, d = null, explicit = false, rest = t;
-    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    var plus = function (n) { return new Date(today.getFullYear(), today.getMonth(), today.getDate() + n); };
-    if ((m = MONTH_RE.exec(t)) || (m = /\b(\d{1,2})\/(\d{1,2})(?:\/\d{2,4})?\b/.exec(t))) {
-      var mi = isNaN(+m[1]) ? MONTHS3.indexOf(m[1].slice(0, 3)) : +m[1] - 1, dn = +m[2];
-      if (mi < 0 || mi > 11 || dn < 1 || dn > 31) return null;
-      d = new Date(today.getFullYear(), mi, dn);
-      if (d.getMonth() !== mi) return null; // no such day (Feb 31)
-      if ((today - d) / 86400000 > 60) d = new Date(today.getFullYear() + 1, mi, dn); // "Jan 5" written in December
-      explicit = true; rest = t.replace(m[0], ' ');
-    } else if (/\b(today|tonight)\b/.test(t)) d = today;
+    var t = str(text).toLowerCase(), now = base || new Date(), m, d = null;
+    var plus = function (n) { return new Date(now.getFullYear(), now.getMonth(), now.getDate() + n); };
+    if (MONTH_RE.test(t) || /\b\d{1,2}\/\d{1,2}\b/.test(t)) return { date: '', explicit: true };
+    if (/\b(today|tonight)\b/.test(t)) d = plus(0);
     else if (/\btomorrow\b/.test(t)) d = plus(1);
     else if ((m = DAY_RE.exec(t))) {
       var target = DAY_NAMES.map(function (x) { return x.slice(0, 3).toLowerCase(); }).indexOf(m[1].slice(0, 3));
-      d = plus(((target - today.getDay() + 7) % 7) || 7);
+      d = plus(((target - now.getDay() + 7) % 7) || 7);
     }
-    if (!d) return null;
-    // The time: "9 am", "6:30 pm", "noon", or a bare "at 7" or "6:30" (taken as 8 to 11 in the morning, otherwise afternoon).
-    var hh = null, mm = 0, guess = function (n) { return n === 12 || n >= 8 ? n : n + 12; };
-    if ((m = /\b(\d{1,2})(?::(\d{2}))?\s*([ap])\.?\s*m\b/.exec(rest))) { hh = (+m[1] % 12) + (m[3] === 'p' ? 12 : 0); mm = +(m[2] || 0); if (+m[1] < 1 || +m[1] > 12) hh = null; }
-    else if (/\bnoon\b/.test(rest)) hh = 12;
-    else if ((m = /\b(\d{1,2}):(\d{2})\b/.exec(rest)) || (m = /(?:\bat|@)\s*(\d{1,2})\b/.exec(rest))) { hh = +m[1] > 12 ? +m[1] : guess(+m[1]); mm = +(m[2] || 0); if (+m[1] < 1) hh = null; }
-    if (hh !== null && (hh > 23 || mm > 59)) hh = null;
-    return { date: isoOfDate(d), time: hh === null ? '' : pad(hh) + ':' + pad(mm), explicit: explicit };
+    return d ? { date: isoOfDate(d), explicit: false } : null;
   }
-  // The When line of the text: day names are spelled out ("Sat" becomes "Saturday") so a phone recognizes them,
-  // and a weekday gets its date, so whoever sends the text can see which Saturday it will be.
+  // Day names are spelled out ("Sat" becomes "Saturday"), and a weekday gets its date.
   function whenLine(when, day) {
-    var w = str(when).trim().replace(new RegExp(DAY_RE.source, 'gi'), function (all, word, dot) {
+    var w = str(when).trim().replace(new RegExp(DAY_RE.source, 'gi'), function (all, word) {
       var full = DAY_NAMES.filter(function (x) { return x.slice(0, 3).toLowerCase() === word.slice(0, 3).toLowerCase(); })[0];
       return word.length === full.length ? all : full;
     });
     return w + (day && !day.explicit ? ' (' + monthDay(day.date) + ')' : '');
-  }
-  function calUrl(c) {
-    return location.origin + location.pathname.replace(/index\.html$/, '') + '#cal=' + b64url(new TextEncoder().encode(JSON.stringify(c)));
-  }
-  function calWhenText(c) {
-    var d = parseISO(c.d), out = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-    if (c.t) { var hm = c.t.split(':'); out += ' at ' + new Date(2000, 0, 1, +hm[0], +hm[1]).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); }
-    return out;
-  }
-  // An Add to calendar link was opened: a page of its own, like a handoff's, with nothing of the app behind it.
-  var calHere = null;
-  function checkCalLink() {
-    var m = /[#&]cal=([A-Za-z0-9_-]+)/.exec(location.hash || '');
-    if (!m) return;
-    handoffPending = true; // the first-visit instructions wait: whoever opens this may never have used the app
-    var c = null;
-    try { c = JSON.parse(new TextDecoder().decode(unb64url(m[1]))); } catch (e) { c = null; }
-    var ok = c && typeof c === 'object' && str(c.a).trim() && parseISO(str(c.d)) && (!c.t || /^([01]\d|2[0-3]):[0-5]\d$/.test(str(c.t)));
-    if (!ok) { ask({ title: 'This calendar link didn’t work', body: 'Ask for the text again, or add the assignment to your calendar yourself.', primary: 'OK' }); return; }
-    calHere = { a: str(c.a).trim().slice(0, 300), n: str(c.n).trim().slice(0, 300), d: str(c.d), t: str(c.t || ''), w: str(c.w).trim().slice(0, 300) };
-    $('#cal-what').textContent = calHere.a;
-    $('#cal-for').textContent = calHere.n; $('#cal-for-row').hidden = !calHere.n;
-    $('#cal-when').textContent = calWhenText(calHere);
-    $('#cal-from').textContent = 'From the ' + (calHere.w ? calHere.w + ' ' : '') + 'huddle. Please report back when it’s done.';
-    $('#cal-next').hidden = true;
-    $('#cal-close').hidden = !isStandalone(); // in the Home Screen app, Done goes back to the app
-    document.body.classList.add('handoff-open'); $('#cal-page').hidden = false;
-    window.scrollTo(0, 0);
-    try { $('#cal-title').focus({ preventScroll: true }); } catch (e) { /* ignore */ }
-  }
-  function closeCalPage() {
-    calHere = null;
-    $('#cal-page').hidden = true; document.body.classList.remove('handoff-open');
-    try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) { /* ignore */ }
-    window.scrollTo(0, 0);
-  }
-  // The calendar file (iCalendar): one event with the action as its title, and an alert so it works as a reminder.
-  // A time means a one-hour event with an alert an hour before; a day alone means an all-day event with an alert at 9 am.
-  function icsText(v) { return str(v).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); }
-  function icsFold(line) { // a line longer than 75 bytes continues on the next one, which starts with a space
-    var enc = new TextEncoder(), out = [], cur = '', bytes = 0;
-    Array.from(line).forEach(function (ch) { var n = enc.encode(ch).length; if (bytes + n > 73) { out.push(cur); cur = ' '; bytes = 1; } cur += ch; bytes += n; });
-    out.push(cur); return out.join('\r\n');
-  }
-  function buildIcs(c) {
-    var d = parseISO(c.d), ymd = function (x) { return x.getFullYear() + pad(x.getMonth() + 1) + pad(x.getDate()); };
-    var stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
-    var lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Huddle//Assignment//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
-      'UID:' + stamp + '-' + Math.random().toString(36).slice(2, 10) + '@huddle', 'DTSTAMP:' + stamp];
-    if (c.t) { // the time as typed, on the clock of whoever adds it
-      var hm = c.t.split(':'), st = new Date(d.getFullYear(), d.getMonth(), d.getDate(), +hm[0], +hm[1]), en = new Date(st.getTime() + 3600000);
-      var hms = function (x) { return ymd(x) + 'T' + pad(x.getHours()) + pad(x.getMinutes()) + '00'; };
-      lines.push('DTSTART:' + hms(st), 'DTEND:' + hms(en));
-    } else lines.push('DTSTART;VALUE=DATE:' + ymd(d), 'DTEND;VALUE=DATE:' + ymd(new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)));
-    var notes = [c.n ? 'For: ' + c.n : '', 'From the ' + (c.w ? c.w + ' ' : '') + 'huddle. Please report back when it’s done.'].filter(Boolean).join('\n');
-    lines.push('SUMMARY:' + icsText(c.a), 'DESCRIPTION:' + icsText(notes),
-      'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsText(c.a), 'TRIGGER:' + (c.t ? '-PT1H' : 'PT9H'), 'END:VALARM',
-      'END:VEVENT', 'END:VCALENDAR');
-    return lines.map(icsFold).join('\r\n') + '\r\n';
-  }
-  // Opens the phone's own Add event sheet (iPhone) or downloads the calendar file (Android, computers).
-  function addToCalendar() {
-    if (!calHere) return;
-    var link = h('a', { href: 'data:text/calendar;charset=utf-8,' + encodeURIComponent(buildIcs(calHere)), download: 'Assignment.ics', target: '_self', rel: 'noopener' });
-    document.body.appendChild(link); link.click(); link.remove();
-    var next = $('#cal-next');
-    next.replaceChildren.apply(next, isIOS
-      ? ['Your phone shows the event. Tap ', h('strong', { text: 'Add to Calendar' }), '; you can change the time there. Nothing opened? Add it yourself from the details above.']
-      : ['A calendar file downloads. Open it to add the event; you can change the time there.']);
-    next.hidden = false;
   }
   function textReady(base) { return !!(str(getPath(base + 'action')).trim() && str(getPath(base + 'assigned')).trim()); }
   function textAssignLabel(base) { return getPath(base + 'texted') ? 'Texted · Send again' : 'Text this assignment'; }
@@ -2073,8 +1985,6 @@
       // Loading it here keeps it in the browser's storage, apart from the Home Screen app. The page stays until it's confirmed.
       case 'hp-safari': if (handoffHere) confirmApplyAgenda(handoffHere.s, 'handoff', closeHandoffPage); break;
       case 'hp-close': closeHandoffPage(); break;
-      case 'cal-add': addToCalendar(); break;
-      case 'cal-close': closeCalPage(); break;
       case 'close-install': closeOverlay('#install-sheet'); break;
       case 'dismiss-install':
         $('#install-banner').hidden = true;
@@ -3540,8 +3450,6 @@
     renderAll();
     checkHandoffLink();
     window.addEventListener('hashchange', checkHandoffLink);
-    checkCalLink();
-    window.addEventListener('hashchange', checkCalLink);
     // Tapping the date opens the phone's date picker right there.
     var dateIn = $('#date');
     if (dateIn) dateIn.addEventListener('click', function () { try { if (dateIn.showPicker) dateIn.showPicker(); } catch (e) { /* the input still works */ } });

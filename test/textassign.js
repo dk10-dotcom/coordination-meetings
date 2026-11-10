@@ -1,4 +1,4 @@
-// Text this assignment: appears when ready, opens Messages with only name/action/when (and a calendar link), marks Texted, resets on edit.
+// Text this assignment: appears when ready, opens Messages with only the action, the name and when (a weekday gets its date), marks Texted, resets on edit.
 // These checks fill many cards in a row, so they keep every card open in its list ('huddle-cards-open').
 // The lists of names and each person's own screen are covered by rows.js and twodoor.js.
 const { chromium, devices } = require('playwright');
@@ -12,6 +12,7 @@ const { chromium, devices } = require('playwright');
     HTMLAnchorElement.prototype.click = function () { if (/^sms:/.test(this.href)) { window.__sms = this.href; return; } return orig.call(this); };
   });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
+  await p.clock.setFixedTime(new Date('2026-11-08T10:00:00')); // Sunday, Nov 8, 2026
   await p.goto('http://127.0.0.1:8765/#huddle'); await p.waitForSelector('.chip', { state: 'attached' }); await p.click('[data-action="dismiss-install"]').catch(() => {});
   await p.click('#details-summary'); await p.fill('#ward', 'Sample Ward'); await p.click('[data-action="close-details"]');
   await p.click('[data-action="open-step"][data-a="cp"]'); await p.click('[data-action="cp-add-first"][data-a="nm"]');
@@ -25,8 +26,22 @@ const { chromium, devices } = require('playwright');
   await p.evaluate(() => document.activeElement && document.activeElement.blur()); await p.waitForTimeout(150); await p.click(btn); await p.waitForTimeout(200);
   const href = await p.evaluate(() => window.__sms || ''); const body = decodeURIComponent(href.replace(/^sms:\?&body=/, ''));
   console.log(body);
-  ok(href.startsWith('sms:') && body.split('\n')[0] === 'Drive him to the temple' && body.includes('For: Daniel Rivera') && body.includes('When: Saturday 9 am (') && body.includes('From the Sample Ward huddle. Please report back. Thank you!'), 'Messages opens with the action first, then the name and when (the day spelled out, with its date)');
-  ok(/\nAdd to calendar: http:\/\/127\.0\.0\.1:8765\/#cal=[A-Za-z0-9_-]+\n/.test(body), 'with a day in When, the text has an Add to calendar link (covered in calendar.js)');
+  ok(href.startsWith('sms:') && body === 'Drive him to the temple\nFor: Daniel Rivera\nWhen: Saturday 9 am (Nov 14)\nFrom the Sample Ward huddle. Please report back. Thank you!', 'Messages opens with the action, who it is for, when (the day spelled out, with its date) and where it came from');
+  ok(!/https?:|calendar/i.test(body), 'the text has no link in it');
+  ok((await p.getAttribute('[data-bind="cp.nm.0.when"]', 'placeholder')) === 'e.g. Sat 9 am', 'the When box suggests a day and a time');
+  // What the When line says for different things typed under When (today is Sunday, Nov 8)
+  const whenLine = async when => {
+    await p.fill('[data-bind="cp.nm.0.when"]', when); await p.evaluate(() => { window.__sms = ''; document.activeElement && document.activeElement.blur(); });
+    await p.waitForTimeout(120); await p.click(btn); await p.waitForTimeout(150);
+    const t = decodeURIComponent((await p.evaluate(() => window.__sms || '')).replace(/^sms:\?&body=/, ''));
+    return (t.split('\n').filter(l => l.startsWith('When: '))[0] || '(no When line)');
+  };
+  for (const [when, line] of [
+    ['Sat', 'When: Saturday (Nov 14)'], ['Sun', 'When: Sunday (Nov 15)'], ['Thurs 6:30 pm', 'When: Thursday 6:30 pm (Nov 12)'], ['Wed. night', 'When: Wednesday night (Nov 11)'],
+    ['tonight at 7', 'When: tonight at 7 (Nov 8)'], ['tomorrow', 'When: tomorrow (Nov 9)'], ['by Friday', 'When: by Friday (Nov 13)'],
+    ['Nov 14 at 7 pm', 'When: Nov 14 at 7 pm'], ['11/20 noon', 'When: 11/20 noon'], ['this week', 'When: this week'], ['ASAP', 'When: ASAP'], ['', '(no When line)']
+  ]) { const got = await whenLine(when); ok(got === line, `"${when}" is sent as "${line}"` + (got === line ? '' : '  got "' + got + '"')); }
+  await p.fill('[data-bind="cp.nm.0.when"]', 'Sat 9 am'); await p.evaluate(() => document.activeElement && document.activeElement.blur()); await p.waitForTimeout(150); await p.click(btn); await p.waitForTimeout(200);
   ok(!/ride to the temple|Temple baptisms|New members/i.test(body), 'no needs, ordinance or list in the text');
   ok((await p.textContent(btn)).includes('Texted'), 'card shows Texted');
   await p.fill('[data-bind="cp.nm.0.when"]', 'Sun');
