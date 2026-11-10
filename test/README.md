@@ -46,6 +46,7 @@ names as rows and one screen per person.
 | `practice.js` | Practice week: loading, limits, removing |
 | `fields.js`, `zones.js`, `committed.js`, `temple.js`, `convert.js`, `remove.js`, `tncarry.js` | What's on each card and what carries to the next huddle |
 | `textassign.js` | Text this assignment |
+| `calendar.js` | The Add to calendar link in an assignment text: what When is read as, what the link holds, the page it opens, and the calendar file |
 | `tour.js`, `help.js`, `tips.js`, `sample-view.js`, `swipe.js` | Tour, How to use, Tips, the sample agenda, closing sheets |
 | `empty.js`, `fixed.js`, `remind.js` | Empty lists, fixed wording, reminders |
 

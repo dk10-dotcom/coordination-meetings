@@ -232,8 +232,21 @@ Also in the huddle's half:
 - **Those being taught:** **Committed to baptism** and **Scheduled baptism date**.
   **Move to New members** (under the card) moves the person to New members and keeps their
   screen open.
-- **Text this assignment** opens Messages with the name, action and when. Needs and notes are
-  never included. It then shows Texted.
+- **Text this assignment** opens Messages with the action, the name and when. Needs and notes are
+  never included. It then shows Texted. The text reads, for example:
+
+  ```
+  Drive him to the temple
+  For: Daniel Rivera
+  When: Saturday 9 am (Nov 14)
+  Add to calendar: https://…/#cal=…
+  From the Sample Ward huddle. Please report back. Thank you!
+  ```
+
+  The action is the first line. Day names are spelled out ("Sat" becomes "Saturday"), and a weekday
+  gets its date, so a phone recognizes the day and whoever sends the text can see which Saturday it
+  will be. The **Add to calendar** line appears only when When has a day (see Add to calendar).
+- **When** suggests "e.g. Sat 9 am". On a phone it has a row of its own under **Assigned to**.
 - **+ Add a note for ward council** adds huddle notes, which carry forward and print on the PDF.
 
 On the lists:
@@ -335,10 +348,34 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
   data, and it is the fallback if a leader who filled in did not hand the huddle back.
 - Both ask first and can be undone right after.
 
+## Add to calendar
+
+The **Add to calendar** link in an assignment text adds the assignment to the calendar of whoever
+received it.
+
+- **The day comes from When.** "Sat", "Saturday 9 am", "Thurs 6:30", "tonight at 7", "tomorrow",
+  "Nov 14 at 7 pm" and "11/20 noon" are all understood. A weekday means the next one after today
+  (on a Sunday, "Sun" is next Sunday). A time with no am or pm is taken as 8 to 11 in the morning,
+  otherwise afternoon. With no day ("this week", "ASAP", "9 am") there is no link.
+- **The link holds only what the text already says:** the action, the name, the day and time, and
+  the ward. It rides in the part of the link after `#`, which browsers never send to the website.
+  Nothing is stored anywhere.
+- **Opening the link shows a page of its own,** with nothing of the app behind it (most people who
+  get one have never used the app): "Your assignment", the action, who it is for, the day and time,
+  and one button, **Add to calendar**. First-visit instructions, the tour and the Add to Home
+  Screen banner do not appear. In the Home Screen app the page also has **Done**, which returns to
+  the app.
+- **Add to calendar makes a calendar file on that phone** (`Assignment.ics`, one event) and hands
+  it to the phone: an iPhone shows its Add event sheet; Android and computers download the file.
+  The event is titled with the action, with "For: {name}" and the ward in its notes. A time makes
+  a one-hour event with an alert an hour before; a day alone makes an all-day event with an alert
+  at 9 that morning.
+- A link that cannot be read says "This calendar link didn't work".
+
 ## Help built into the app
 
 - **How to use** is a short list, not a page of text. It has an intro line, the warning "Never add
-  confidential information to this agenda." (always showing), and four groups of rows:
+  confidential information to this agenda." (always showing), and five groups of rows:
   - **First time only:** Add Huddle to your Home Screen. It is set apart and has no step number,
     because it is done once and is not part of the week. Its one-line summary reads "Do this once,
     before you start", or "Already done on this phone" when the app is running from the Home Screen.
@@ -347,6 +384,11 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
     opening screen, under the same names.
   - **How do I…:** Hand off to someone else, Fix a mistake, Share the PDF again, Get my names
     back, Add or remove a name, New members and those being taught.
+  - **About this app:** Privacy and security ("Everything stays on this phone"). It says that what
+    is entered stays on the phone and nothing is saved online; that only what is sent leaves (the
+    PDF, an assignment text or a handoff); to protect the PDF (the sharing rule word for word, and
+    delete old copies); and never to enter confidential or sensitive information, because everyone
+    who gets the PDF can read it.
   - **Watch or try:** Take the tour, See a sample agenda, Try a practice week, and Watch the
     training video (the video opens inside its row; closing the row stops it).
 
@@ -377,6 +419,7 @@ Erases every name, need and assignment and the last sent huddle. The ward name i
 | `#help` | Opens How to use |
 | `#tour` | Starts the tour |
 | `#handoff=…` | Offers to load a handed-off huddle |
+| `#cal=…` | Shows an assignment with **Add to calendar** (see Add to calendar) |
 
 **Open the Covenant Path Report** opens `membertools://` on iPhone, the Member Tools app by its ID
 on Android (falling back to the web report), and the Leader and Clerk Resources report elsewhere.

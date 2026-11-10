@@ -1,4 +1,4 @@
-// Text this assignment: appears when ready, opens Messages with only name/action/when, marks Texted, resets on edit.
+// Text this assignment: appears when ready, opens Messages with only name/action/when (and a calendar link), marks Texted, resets on edit.
 // These checks fill many cards in a row, so they keep every card open in its list ('huddle-cards-open').
 // The lists of names and each person's own screen are covered by rows.js and twodoor.js.
 const { chromium, devices } = require('playwright');
@@ -25,7 +25,8 @@ const { chromium, devices } = require('playwright');
   await p.evaluate(() => document.activeElement && document.activeElement.blur()); await p.waitForTimeout(150); await p.click(btn); await p.waitForTimeout(200);
   const href = await p.evaluate(() => window.__sms || ''); const body = decodeURIComponent(href.replace(/^sms:\?&body=/, ''));
   console.log(body);
-  ok(href.startsWith('sms:') && body.includes('For: Daniel Rivera') && body.includes('What: Drive him to the temple') && body.includes('When: Sat 9 am') && body.includes('Sample Ward'), 'Messages opens with name, action and when');
+  ok(href.startsWith('sms:') && body.split('\n')[0] === 'Drive him to the temple' && body.includes('For: Daniel Rivera') && body.includes('When: Saturday 9 am (') && body.includes('From the Sample Ward huddle. Please report back. Thank you!'), 'Messages opens with the action first, then the name and when (the day spelled out, with its date)');
+  ok(/\nAdd to calendar: http:\/\/127\.0\.0\.1:8765\/#cal=[A-Za-z0-9_-]+\n/.test(body), 'with a day in When, the text has an Add to calendar link (covered in calendar.js)');
   ok(!/ride to the temple|Temple baptisms|New members/i.test(body), 'no needs, ordinance or list in the text');
   ok((await p.textContent(btn)).includes('Texted'), 'card shows Texted');
   await p.fill('[data-bind="cp.nm.0.when"]', 'Sun');

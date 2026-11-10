@@ -339,6 +339,24 @@
   </div>
 </section>
 
+<!-- An Add to calendar link from an assignment text: a page of its own, with nothing of the app behind it.
+     The assignment rides in the link; the calendar file is made here, on this phone. -->
+<section class="handoff-page" id="cal-page" aria-labelledby="cal-title" hidden>
+  <div class="hp-wrap">
+    <div class="title-text"><p class="app-name">Huddle</p><h1 id="cal-title" tabindex="-1">Your assignment</h1></div>
+    <div class="cal-card">
+      <p class="cal-what" id="cal-what"></p>
+      <p class="after-fact" id="cal-for-row"><span class="after-k">For</span><span id="cal-for"></span></p>
+      <p class="after-fact"><span class="after-k">When</span><span id="cal-when"></span></p>
+    </div>
+    <button type="button" class="btn-primary full" data-action="cal-add" id="cal-add">Add to calendar</button>
+    <p class="hp-why" id="cal-next" role="status" hidden></p>
+    <p class="hp-why" id="cal-from"></p>
+    <p class="hp-warn">Nothing on this page is saved online. The details came inside the link in your text.</p>
+    <button type="button" class="btn-link hp-close" data-action="cal-close" id="cal-close" hidden>Done</button>
+  </div>
+</section>
+
 <input type="file" id="file-input" accept="application/pdf,.pdf" hidden>
 
 <!-- Send sheet -->
@@ -516,7 +534,7 @@
           <li>On the opening screen, tap <strong>Before ward council</strong>, then <strong>Open the Covenant Path Report</strong>.</li>
           <li>Tap each name and update the next ordinance, needs, temple attendance and sacrament attendance.</li>
           <li>Tap <strong>Add a name</strong> for anyone new. To remove someone no longer listed, open them and tap <strong>Remove from the list</strong>.</li>
-          <li>Tap <strong>All up to date · Mark done</strong>. The box turns green.</li>
+          <li>Tap <strong>All up to date · Mark done</strong>.</li>
         </ul>
       </details></li>
       <li><details class="help-item">
@@ -534,7 +552,7 @@
           <li><strong>Return and Report:</strong> mark each assignment <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>. To keep an unfinished one on the plan, tap <strong>Carry forward to this huddle</strong>.</li>
           <li><strong>Covenant Path Report</strong> and <strong>Focus names:</strong> tap a name. Check <strong>Attended sacrament</strong> if they came. Add one action item, who will do it and when.</li>
           <li><strong>Find New People to Teach:</strong> write the plan and any assignments. <strong>Missionary Referrals:</strong> tap <strong>Add a referral</strong>.</li>
-          <li>Before everyone leaves, tap <strong>Text this assignment</strong> on each person’s screen.</li>
+          <li>Before everyone leaves, tap <strong>Text this assignment</strong>. With a day in <strong>When</strong>, the text includes an add-to-calendar link.</li>
         </ul>
       </details></li>
       <li><details class="help-item">
@@ -603,6 +621,19 @@
         <ul class="help-body">
           <li><strong>New member:</strong> enter the baptism date. The red <strong>Temple attendance</strong> box counts down 30 days to baptisms for the dead. Check it once they’ve gone.</li>
           <li><strong>Being taught:</strong> check <strong>Committed to baptism</strong> and enter the date. After the baptism, tap <strong>Move to New members</strong>.</li>
+        </ul>
+      </details></li>
+    </ul>
+
+    <h3 class="help-band">About this app</h3>
+    <ul class="steps-list help-list">
+      <li><details class="help-item" id="help-privacy">
+        <summary class="nav-row"><span class="step-text"><span class="step-title">Privacy and security</span><span class="step-status">Everything stays on this phone</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <ul class="help-body">
+          <li>What you enter stays on this phone. Nothing is saved online.</li>
+          <li>Only what you send leaves it: the PDF, an assignment text or a handoff.</li>
+          <li><strong>Protect the PDF.</strong> Only share via email or text message. Do not share through any other app. Delete old copies.</li>
+          <li><strong>Never enter confidential or sensitive information.</strong> Everyone who gets the PDF can read it.</li>
         </ul>
       </details></li>
     </ul>
