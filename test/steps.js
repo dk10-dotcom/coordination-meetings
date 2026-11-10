@@ -66,7 +66,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     // Next step link
     await p.click('[data-action="open-step"][data-a="tn"]');
     ok((await p.textContent('#step-next')).includes('Find New People to Teach'), 'next step link');
-    ok((await p.textContent('#step-prev')).includes('Covenant Path') && !(await p.textContent('#step-prev')).includes('Report Review'), 'back link names the previous step (Covenant Path)');
+    ok((await p.textContent('#step-prev')).includes('Covenant Path') && !(await p.textContent('#step-prev')).includes('Report Review'), 'back link names the previous step (Covenant Path Report)');
     await p.click('#step-next');
     ok(await vis('[data-step="fn"]') && (await p.textContent('#step-next')).includes('Missionary Referrals'), 'went to Find New People to Teach; next is Missionary Referrals');
     await p.click('#step-next');

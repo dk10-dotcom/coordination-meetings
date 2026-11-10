@@ -19,7 +19,8 @@ One word for each thing, on every screen, in How to use and in the tour:
 | Opening screen | The first screen: the four steps and Send |
 | Covenant Path Report | The report in Member Tools (always "Member Tools", never "Tools") |
 | Assignment | An action item with who will do it and when. **Action item** is only the name of that field |
-| Focus names | The three names in Name Next Ordinance |
+| Focus names | The three names ward council chooses. The PDF heads them "Name Next Ordinance" |
+| Covenant Path Report (the section) | The three lists from the report: New members, Returning members, Those being taught. The PDF heads them "Covenant Path Report Review" |
 | Carry forward | Moving an unfinished assignment onto this huddle's plan. A carried one is tagged "Carried forward" |
 | The last huddle | Where Return and Report comes from (not "last week") |
 
@@ -43,7 +44,7 @@ The app opens to four steps, in order, and then Send:
    names, next ordinance, needs, temple attendance and sacrament attendance.
 2. **Ward council:** who to focus on, each person's next ordinance and needs.
 3. **Huddle:** attendance, report back on the last huddle's assignments, plan this huddle's assignments.
-4. **After the huddle, before you send:** update the Covenant Path Report.
+4. **After the huddle:** update the Covenant Path Report.
 
 **Send** makes the PDF, shares it and finishes the huddle. The app is then ready for the next one.
 There is no date to set. The huddle is dated the day it is sent.
@@ -55,7 +56,7 @@ There is no date to set. The huddle is dated the day it is sent.
 | New members | Covenant Path Report | Has a baptism date and a 30-day temple goal |
 | Returning members | Covenant Path Report | |
 | Those being taught | Covenant Path Report | Next ordinance is always "Baptism"; can be marked committed, with a scheduled date |
-| Name Next Ordinance (focus names) | Chosen by ward council | Exactly three spots. Not part of the Covenant Path Report |
+| Focus names ("Name Next Ordinance" on the PDF) | Chosen by ward council | Exactly three spots. Not part of the Covenant Path Report |
 
 Every person holds: name, next ordinance, needs, huddle notes, attended sacrament, and one
 assignment (action item, assigned to, when).
@@ -75,7 +76,7 @@ Ward council and the Huddle show names the same way.
 - The three focus-name spots always show; an empty one reads "Focus name 2 · Tap to add".
 - **Tapping a name opens that person's screen.** Their name is the screen's title. Each meeting
   shows its own half open and highlighted, and the other meeting's half closed as a short summary
-  with **Edit** (see Ward council and Covenant Path). Before ward council shows one card with only
+  with **Edit** (see Ward council and Covenant Path Report). Before ward council shows one card with only
   what the Covenant Path Report tells you (see Before ward council).
 - **Missionary referrals** are listed and opened the same way (see Missionary Referrals).
 - **Done** at the bottom, **Back** at the top and the phone's own Back all return to the list.
@@ -94,10 +95,13 @@ Title: "Ward Mission Leader Process" with the app's name, Huddle, in small lette
 From top to bottom:
 
 - **✓ {date} huddle sent · Share again** (only after a send).
-- **Before ward council** box. Amber; green with a check once it is marked done.
-- **Ward council** button.
-- **Huddle** button. Shows how many assignments have been reported back.
-- **After the huddle, before you send** box. Amber; green with a check once it is marked done.
+- **Step 1 · Before ward council** box. Amber; green with a check once it is marked done.
+- **Step 2 · Who & What · Ward council** button.
+- **Step 3 · How & When · Huddle** button. Shows how many assignments have been reported back.
+- **Step 4 · After the huddle** box. Amber; green with a check once it is marked done.
+
+  All four read the same way: "Step N" in small letters, the step's name, then one line saying
+  what to do (or where it stands).
 - **Load from a PDF** (a quiet link that goes straight to choosing the file).
 - **Erase everything and start over**, then the footer. Both appear on this screen only.
 - Fixed at the bottom: **Hand off** and **Send**. These appear on this screen only.
@@ -110,8 +114,8 @@ the **Mark done** button at the bottom of what it opens. Opening one that is alr
 ### Before ward council (screen)
 
 Opens from the first box, as a screen of its own with **Back** at the top. The box reads
-"Update each person from the Covenant Path Report" with "Names, next ordinance, needs and
-attendance" under it. The screen has:
+"Step 1", "Before ward council", then "Update each person from the Covenant Path Report".
+The screen has:
 
 - One line saying what to update for each person: next ordinance, needs, temple attendance and
   sacrament attendance.
@@ -134,9 +138,10 @@ the list. **Remove from the list** is at the bottom and asks first when the pers
 name already on that list is refused ("… is already on this list."). A name added and left empty
 does not stay.
 
-### After the huddle, before you send (sheet)
+### After the huddle (sheet)
 
-Opens from the second box. Read-only. For each person on the three Covenant Path Report lists it
+Opens from the second box, which reads "Step 4", "After the huddle", then "Update the Covenant
+Path Report, then send". Read-only. For each person on the three Covenant Path Report lists it
 shows what to carry into the report: sacrament attendance, temple attendance (new members),
 baptism commitment (those being taught), next ordinance, needs, how the last assignment went
 (with any note), the new assignment, and huddle notes. It has the same report button and
@@ -149,8 +154,8 @@ open this sheet.
 
 Opens to four rows:
 
-- **Covenant Path Report lists** opens New members, Returning members and Those being taught.
-- **Name Next Ordinance** opens the three focus names.
+- **Covenant Path Report** opens New members, Returning members and Those being taught.
+- **Focus names** opens the three focus names.
 - **Find New People to Teach** and **Missionary Referrals** open the same sections the Huddle has.
   They hold the same data, so what is entered in one meeting shows in the other.
 
@@ -162,7 +167,7 @@ Each list of names shows rows (see Lists of names and a person's screen). **A pe
 the mirror of the Huddle's:**
 
 - **Ward Council · Who & What** is on top, open and highlighted: name, baptism date (new
-  members), next ordinance and needs. The empty Needs box on Covenant Path names reads "Tap their
+  members), next ordinance and needs. The empty Needs box on Covenant Path Report names reads "Tap their
   name in the Covenant Path Report to identify needs"; focus names read "What do they need to get
   there?".
 - **Huddle · How & When** is under it, closed, as a short summary: sacrament attendance (marked
@@ -194,15 +199,21 @@ The assignments from the last huddle. Only real assignments appear: a name with 
 creates no entry. Each is marked **Yes**, **Partly** or **No**, with optional **Notes for ward
 council**. They can be marked any time during the week.
 
+With nothing to report the section is one line, not blank forms: "Nothing to report yet. After
+your first huddle, its assignments show up here." before the first huddle, and "Nothing to report
+from the last huddle." after a huddle that made no assignments. **Add an item** then shows one
+blank item, for reporting on something that was not in the app. Every item has a remove button;
+an item left blank is gone the next time the section opens.
+
 **Carry forward to this huddle** appears on a Partly or No item. It puts the assignment back on
 that person's card, tagged as carried, and can be undone. It is offered only while the person is
 still listed. If they have been removed, a note says so. Someone converted from Those being
 taught to New members is followed to the new list.
 
-### Covenant Path
+### Covenant Path Report
 
-The Huddle's second section. On screen it is called **Covenant Path**; the PDF's heading for it
-stays "Covenant Path Report Review".
+The Huddle's second section. On screen it is called **Covenant Path Report**, the same name Ward
+council uses for these lists; the PDF's heading for it stays "Covenant Path Report Review".
 
 **Open the Covenant Path Report** is at the top (there is no reminder box), then the three lists as
 rows. Tapping a name opens that person's screen, which has two halves:
@@ -219,7 +230,7 @@ Also in the huddle's half:
 - **New members:** a red **Temple attendance** box counts down the 30 days from the baptism date
   and stays red until checked. The goal is stated once, under the New members list.
 - **Those being taught:** **Committed to baptism** and **Scheduled baptism date**.
-  **Convert to new member** (under the card) moves the person to New members and keeps their
+  **Move to New members** (under the card) moves the person to New members and keeps their
   screen open.
 - **Text this assignment** opens Messages with the name, action and when. Needs and notes are
   never included. It then shows Texted.
@@ -231,9 +242,11 @@ On the lists:
   **Undo** takes it back. A list left blank prints "Not reviewed".
 - **Add a name** adds a person to a list.
 
-### Name Next Ordinance
+### Focus names
 
-The three focus names as rows; each opens the same two-half screen.
+The three focus names as rows; each opens the same two-half screen. On screen the section is
+called **Focus names** in both meetings; the PDF's heading for it stays "Name Next Ordinance"
+(with "Ward council focus names" beside it).
 
 ### Find New People to Teach
 
@@ -302,7 +315,7 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
 - **A leader who filled in hands the huddle back.** After sending the PDF (which finishes that
   huddle and sets up the next one), they tap **Hand off**, then **Send a handoff**, and text it to
   whoever conducts next week. That leader then has the next huddle, with the last assignments in
-  Return and Report. The Hand off sheet, How to use and the tour all say this.
+  Return and Report. The Hand off sheet and How to use both say this.
 - The data rides in the part of the link after `#`, which browsers never send to the website.
   On Android (and on a computer) opening the link asks "Load this handoff?" right away.
 - **On iPhone the link opens in Safari, never in the Home Screen app,** and the two keep their data
@@ -330,21 +343,24 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
     because it is done once and is not part of the week. Its one-line summary reads "Do this once,
     before you start", or "Already done on this phone" when the app is running from the Home Screen.
   - **Every week:** five numbered steps, each with a one-line summary: Before ward council, Ward
-    council, Huddle, Send, During the week.
+    council, Huddle, After the huddle, During the week. The first four are the four steps on the
+    opening screen, under the same names.
   - **How do I…:** Hand off to someone else, Fix a mistake, Share the PDF again, Get my names
     back, Add or remove a name, New members and those being taught.
   - **Watch or try:** Take the tour, See a sample agenda, Try a practice week, and Watch the
     training video (the video opens inside its row; closing the row stops it).
 
   Tapping a step or question opens it in place, and tapping it again closes it. A step is at most
-  five short lines that say what to tap; what a screen already explains is left out. The Send step
-  carries the sharing rule word for word. Every time How to use opens it is the short list again,
+  five short lines that say what to tap; what a screen already explains is left out. The After the
+  huddle step carries the sharing rule word for word. Every time How to use opens it is the short list again,
   scrolled to the top. In a phone's browser the first-time step (Add Huddle to your Home Screen) starts
   open, and How to use opens by itself on the first visit; from the Home Screen app every step
   starts closed.
-- **Tour:** 21 stops, about 4 minutes. The stops about one person open a person's screen; when New members is
-  empty the tour shows a sample name, which is never saved. Starts once on its own the first time the app is opened from the Home
-  Screen (or on a computer).
+- **Tour:** 10 stops, about 2 minutes: Welcome, the four steps, Before ward council, Ward council
+  (with the warning "Never add confidential information to this agenda."), Huddle Details, Return
+  and Report, a person's screen in the huddle, the 30-day temple goal, After the huddle, and Send.
+  The stops about names show a sample name when New members is empty, which is never saved.
+  Starts once on its own the first time the app is opened from the Home Screen (or on a computer).
 - **Practice week:** loads sample names, sample report-backs and one sample referral. Send and Hand off are blocked
   while it is on. Removing it restores what was there before.
 - **Add to Home Screen** banner whenever the app is open in a phone's browser.

@@ -867,6 +867,8 @@ body.touring { padding-bottom: 75vh; }
 /* Tour: show Start a new agenda on its stop */
 
 /* Return and Report: which huddle it came from */
+[data-step="rr"].rr-empty .section-head { display: none; }
+.rr-none { margin: 0; padding: 14px 16px; border-radius: 14px; background: var(--card); border: 1px solid var(--card-line); font-size: 15px; line-height: 1.4; color: var(--text); }
 .rr-from { margin: 2px 0 0; font-size: 13px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); }
 /* Date and paste fields inside a question */
 .compare.fieldwrap { padding: 4px 0; background: none; border: 0; }

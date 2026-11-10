@@ -108,10 +108,10 @@ const OUT = 'test/out-scen'; fs.mkdirSync(OUT, { recursive: true });
     await step(p, 'cp'); const cv = p.locator('[data-action="convert-nm"]').first();
     if (await cv.count()) { await cv.click(); await p.waitForTimeout(200); if (await p.isVisible('#confirm-sheet')) await p.click('#confirm-primary'); await p.waitForTimeout(200); }
     let s = await st(p); const moved = s.cp.nm.some(a => a.name === 'Marcus Hill') && !s.cp.bt.some(a => a.name === 'Marcus Hill');
-    ok(moved, 'F: Convert to new member moves him to New members');
+    ok(moved, 'F: Move to New members moves him to New members');
     const i = await mark(p, 'Marcus Hill', 'Partly');
     const carry = await p.locator(`[data-action="carry-fwd"][data-a="${i}"]`).count();
-    if (!carry) note('F: after Convert to new member, his unfinished assignment from Those being taught can’t be carried forward (the app looks for him only on his old list).');
+    if (!carry) note('F: after Move to New members, his unfinished assignment from Those being taught can’t be carried forward (the app looks for him only on his old list).');
     else { await p.click(`[data-action="carry-fwd"][data-a="${i}"]`); await p.waitForTimeout(200); s = await st(p); ok(s.cp.nm.find(a => a.name === 'Marcus Hill').action === 'Invite to the ward dinner' && !s.cp.bt.some(a => a.name === 'Marcus Hill'), 'F: carry forward follows him to New members'); }
     await send(p, 'F2'); await done(p, 'F'); }
 

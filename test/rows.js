@@ -106,16 +106,16 @@ const seed = () => ({
     await p.click('#confirm-secondary'); await p.waitForTimeout(250);
     ok(await vis('#person-view') && (await saved()).cp.nm.length === 2, tag + ': Cancel keeps the person');
     await p.click('#person-card .person-remove'); await p.waitForSelector('#confirm-sheet:not([hidden])'); await p.click('#confirm-primary'); await p.waitForTimeout(450);
-    ok(!(await vis('#person-view')) && await vis('#cp-groups') && (await rowNames('#cp-groups', 'nm')).join('|') === 'Daniel Rivera' && (await p.textContent('#step-title')) === 'Covenant Path', tag + ': Remove takes them off and returns to the list');
+    ok(!(await vis('#person-view')) && await vis('#cp-groups') && (await rowNames('#cp-groups', 'nm')).join('|') === 'Daniel Rivera' && (await p.textContent('#step-title')) === 'Covenant Path Report', tag + ': Remove takes them off and returns to the list');
     await p.goBack(); await p.waitForTimeout(300);
     ok(await vis('#steps-home') && !(await vis('#person-view')), tag + ': the phone’s Back then goes to the huddle’s sections, not back to the removed person');
     await p.click('[data-action="open-step"][data-a="cp"]'); await p.waitForTimeout(300);
 
-    // ---- Convert to new member, from the person's screen
+    // ---- Move to New members, from the person's screen
     await openPerson('#cp-groups', 'bt', 0);
     ok(await p.locator('#person-card .zone-hd-wrap .commit-box').count() === 1 && await p.inputValue('#person-card .zone-hd-wrap [data-bind="cp.bt.0.bap"]') !== '' && (await p.textContent('#person-card .wc-summary')).includes('Baptism') && !(await p.textContent('#person-card .wc-summary')).includes('Baptized'), tag + ': someone being taught has Committed to baptism and the scheduled date in the huddle’s half');
     await p.click('#person-card [data-action="convert-nm"]'); await p.waitForSelector('#confirm-sheet:not([hidden])'); await p.click('#confirm-primary'); await p.waitForTimeout(400);
-    ok(await vis('#person-view') && (await p.textContent('#step-title')) === 'Marcus Hill' && await p.locator('#person-card [data-group="nm"] [data-bind="cp.nm.1.action"]').count() === 1 && await vis('#person-card .temple-box') && (await p.textContent('#person-card .wc-summary')).includes('Baptized'), tag + ': Convert to new member keeps the person on screen, now as a new member with the temple box');
+    ok(await vis('#person-view') && (await p.textContent('#step-title')) === 'Marcus Hill' && await p.locator('#person-card [data-group="nm"] [data-bind="cp.nm.1.action"]').count() === 1 && await vis('#person-card .temple-box') && (await p.textContent('#person-card .wc-summary')).includes('Baptized'), tag + ': Move to New members keeps the person on screen, now as a new member with the temple box');
     await back();
     ok((await rowNames('#cp-groups', 'nm')).join('|') === 'Daniel Rivera|Marcus Hill' && (await rowNames('#cp-groups', 'bt')).length === 0 && await p.locator('#cp-groups [data-group="bt"] [data-action="cp-none"]').count() === 1, tag + ': Back shows them under New members, and Those being taught is empty');
     await back(); await p.click('[data-action="open-step"][data-a="rr"]'); await p.waitForTimeout(250);

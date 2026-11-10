@@ -38,6 +38,8 @@
     { id: 'bt', title: 'Those being taught' }
   ];
   var SOURCE = { nm: 'New members', rm: 'Returning members', bt: 'Those being taught', tn: 'Name Next Ordinance', fn: 'Finding new people' };
+  // On screen the three focus names are always called Focus names; SOURCE is what is saved and what the PDF prints.
+  function listName(gid) { return gid === 'tn' ? 'Focus names' : SOURCE[gid]; }
 
   /* ---------- small utilities ---------- */
   function $(sel) { return document.querySelector(sel); }
@@ -344,12 +346,24 @@
     return bits.join(' · ');
   }
 
+  // With nothing to report (a first huddle, or a huddle that made no assignments) the section is one line,
+  // not blank forms. "Add an item" then shows one blank item; rrAdding keeps it up while it's being typed.
+  var rrAdding = false;
+  function rrNothing() { return rowsOn && !rrAdding && !state.rr.some(rrShown); }
   function renderRR() {
     reconcileCarries();
     var list = $('#rr-list');
     $('#rr-foot').hidden = folded('rr');
     if (folded('rr')) { list.replaceChildren(foldedRR()); renderLoadState(); return; }
-    var many = state.rr.length > 1;
+    var none = rrNothing(), sec = document.querySelector('[data-step="rr"]');
+    if (sec) sec.classList.toggle('rr-empty', none); // the intro above the list steps aside too
+    if (none) {
+      var after = !!(state.rolledFrom || (state.loaded && state.loaded.date));
+      list.replaceChildren(h('p', { class: 'rr-none', text: after ? 'Nothing to report from the last huddle.' : 'Nothing to report yet. After your first huddle, its assignments show up here.' }));
+      renderLoadState(); return;
+    }
+    // One item can be removed too when names are rows (taking the last one off brings the line back).
+    var many = rowsOn || state.rr.length > 1;
     list.replaceChildren.apply(list, state.rr.map(function (r, i) { return rrCard(r, i, many); }));
     renderLoadState();
   }
@@ -391,7 +405,7 @@
           })() : null
         ].filter(Boolean);
         body = h('div', { class: 'prefill' }, [
-          gid && gid !== 'fn' ? h('span', { class: 'group-tag', text: SOURCE[gid] }) : null, // (a finding assignment's title already says so)
+          gid && gid !== 'fn' ? h('span', { class: 'group-tag', text: listName(gid) }) : null, // (a finding assignment's title already says so)
           // Name and next ordinance share a line; a long name pushes the tag to the next line.
           ordTag ? h('div', { class: 'person-line' }, [ordTag]) : null,
           facts.length ? h('div', { class: 'facts' }, facts) : null,
@@ -415,7 +429,7 @@
         ]);
       } else if (r.prefilled && (r.happened === 'Partly' || r.happened === 'No') && groupOf(r) && !stillListed(r)) {
         // The person is no longer on that list, so there's no card to carry the assignment to.
-        carry = h('p', { class: 'carry-none', text: (rrPerson(r) || 'This name') + ' is no longer on the ' + (groupOf(r) === 'tn' ? 'Name Next Ordinance' : 'Covenant Path Report') + ' list, so there’s nothing to carry forward.' });
+        carry = h('p', { class: 'carry-none', text: (rrPerson(r) || 'This name') + (groupOf(r) === 'tn' ? ' is no longer a focus name' : ' is no longer on the Covenant Path Report list') + ', so there’s nothing to carry forward.' });
       } else if (r.prefilled && (r.happened === 'Partly' || r.happened === 'No') && groupOf(r)) {
         {
           carry = h('button', { type: 'button', class: 'btn-outline full btn-carry', 'data-action': 'carry-fwd', 'data-a': i, text: 'Carry forward to this huddle' });
@@ -571,7 +585,7 @@
       staleNote(base, a, isTn),
       top,
       hdZone(base, isTn ? 'e.g. Sun' : 'e.g. Tue', hdChecks(g, base, r.i, a)),
-      g === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': r.i }, ['Convert to new member']) : null
+      g === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': r.i }, ['Move to New members']) : null
     ]);
   }
   // What the huddle checks off for a person: sacrament, a new member's temple attendance, a commitment to baptism.
@@ -638,7 +652,7 @@
       : hdSummary(r, a);
     return h('div', { class: 'card wc-card person-wc g-' + g }, [
       wc, hd,
-      g === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': r.i }, ['Convert to new member']) : null,
+      g === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': r.i }, ['Move to New members']) : null,
       wcLast(g, a)
     ]);
   }
@@ -933,7 +947,7 @@
           ]),
           cardFields(base, 'Name', 'From the Covenant Path Report', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: fromLabel() }) : null, g.id === 'nm' ? 'Baptism date' : g.id === 'bt' ? 'Scheduled baptism date' : '', 'Tap their name in the Covenant Path Report to identify needs', '',
             g.id === 'nm' ? templeBox(base, i, it) : g.id === 'bt' ? committedBox(base, it) : null, FIXED_ORD[g.id]),
-          g.id === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': i }, ['Convert to new member']) : null
+          g.id === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': i }, ['Move to New members']) : null
         ]);
   }
 
@@ -1174,8 +1188,8 @@
   // Tap a section to open just that part; "Mark section done" gives it a green check.
   var STEPS = [
     { id: 'rr', title: 'Return and Report', band: 'last' },
-    { id: 'cp', title: 'Covenant Path', band: 'this' },
-    { id: 'tn', title: 'Name Next Ordinance', band: 'this' },
+    { id: 'cp', title: 'Covenant Path Report', band: 'this' },
+    { id: 'tn', title: 'Focus names', band: 'this' },
     { id: 'fn', title: 'Find New People to Teach', band: 'this' },
     { id: 'mr', title: 'Missionary Referrals', band: 'this' }
   ];
@@ -1251,8 +1265,8 @@
       var list = id === 'tn' ? state.tn : GROUPS.reduce(function (a, g) { return a.concat(state.cp[g.id]); }, []);
       var named = list.filter(function (a) { return str(a.name).trim(); });
       var missing = named.filter(function (a) { return !str(a.action).trim(); }).length;
-      if (!named.length) return { text: id === 'cp' && GROUPS.every(function (g) { return noneConfirmed(g.id); }) ? 'No one on the report this week' : id === 'tn' ? 'No focus names yet' : 'No names yet' };
-      var lead = id === 'tn' ? named.length + ' of 3 focus names' : plural(named.length, 'person', 'people');
+      if (!named.length) return { text: id === 'cp' && GROUPS.every(function (g) { return noneConfirmed(g.id); }) ? 'No one on the report this week' : id === 'tn' ? 'None chosen yet' : 'No names yet' };
+      var lead = id === 'tn' ? named.length + ' of 3 names' : plural(named.length, 'person', 'people');
       return { text: lead + ' · ' + (missing ? missing + (missing === 1 ? ' needs' : ' need') + ' an action item' : 'everyone has an action item'), warn: missing > 0 };
     }
     if (id === 'mr') { var nr = cleanReferrals(state.referrals).length; return { text: nr ? plural(nr, 'referral', 'referrals') : 'None listed' }; }
@@ -1326,7 +1340,7 @@
     if (isPerson(shownView) && !person) { cleanupPerson(); renderCP(); renderTN(); }
     // Names edited in ward council show up on the huddle's cards.
     if (isWcList(shownView) && !isWcList(view) && !person) { renderCP(); renderTN(); }
-    if (!all && view === 'rr' && shownView !== 'rr') renderRR(); // names may have changed since it was drawn
+    if (!all && view === 'rr' && shownView !== 'rr') { rrAdding = false; renderRR(); } // names may have changed since it was drawn
     if (!all && shownView && shownView !== view) navFeel(viewDepth(view) - viewDepth(shownView));
     shownView = view;
     renderWC(); renderMR(); renderPerson(); renderChecks(); renderBefore();
@@ -1394,7 +1408,7 @@
   }
   // Ward council opens to its two lists, rolled up like the huddle's sections; tap one for its names.
   // Ward council's lists. The last two are the same sections the Huddle has (the same data, entered once).
-  var WC_LISTS = [{ id: 'cp', title: 'Covenant Path Report lists' }, { id: 'tn', title: 'Name Next Ordinance' },
+  var WC_LISTS = [{ id: 'cp', title: 'Covenant Path Report' }, { id: 'tn', title: 'Focus names' },
     { id: 'fn', title: 'Find New People to Teach' }, { id: 'mr', title: 'Missionary Referrals' }];
   function isWcList(v) { return v === 'wc-cp' || v === 'wc-tn' || v === 'wc-fn' || v === 'wc-mr'; }
   function isWcNames(v) { return v === 'wc-cp' || v === 'wc-tn'; }
@@ -1403,9 +1417,9 @@
     var named = [];
     if (id === 'tn') named = state.tn.filter(function (a) { return str(a.name).trim(); }).map(function (a) { return { a: a, g: 'tn' }; });
     else GROUPS.forEach(function (g) { state.cp[g.id].forEach(function (a) { if (str(a.name).trim()) named.push({ a: a, g: g.id }); }); });
-    if (!named.length) return { text: id === 'tn' ? 'No focus names yet' : 'No names yet' };
+    if (!named.length) return { text: id === 'tn' ? 'None chosen yet' : 'No names yet' };
     var missing = named.filter(function (x) { return !ordOf(x.a, x.g); }).length;
-    var lead = id === 'tn' ? named.length + ' of 3 focus names' : plural(named.length, 'person', 'people');
+    var lead = id === 'tn' ? named.length + ' of 3 names' : plural(named.length, 'person', 'people');
     return { text: lead + ' · ' + (missing ? missing + (missing === 1 ? ' needs' : ' need') + ' a next ordinance' : 'everyone has a next ordinance'), warn: missing > 0 };
   }
   function renderWC() {
@@ -1447,7 +1461,7 @@
     return out;
   }
   function renderChecks() {
-    [['before', 'Names, next ordinance, needs and attendance', 'Done. Tap to look again.'], ['after', 'Tap to see what to update, then mark it done to send', 'Done. You can send.']].forEach(function (c) {
+    [['before', 'Update each person from the Covenant Path Report', 'Done. Tap to look again.'], ['after', 'Update the Covenant Path Report, then send', 'Done. You can send.']].forEach(function (c) {
       var on = !!state.verified[c[0]], box = $('#' + c[0] + '-box'); if (!box) return;
       box.classList.toggle('done', on); $('#' + c[0] + '-sub').textContent = on ? c[2] : c[1];
       box.setAttribute('aria-label', $('#' + c[0] + '-box .cpr-step-k').textContent + ': ' + $('#' + c[0] + '-box .check-line').textContent + (on ? '. Done.' : '. Not done yet.'));
@@ -1698,13 +1712,15 @@
         saveDraft(); break;
       }
       case 'add-rr':
-        state.rr.push(blankRR()); renderRR(); saveDraft();
+        // With nothing listed, the first tap shows one blank item in place of the "nothing to report" line.
+        if (rrNothing()) { state.rr = [blankRR()]; rrAdding = true; } else state.rr.push(blankRR());
+        renderRR(); saveDraft();
         focusLast('#rr-list input[data-bind$=".plan"]'); break;
       case 'remove-rr': {
         var rrIdx = +a, rItem = state.rr[rrIdx];
         var doRemoveRR = function () {
           state.rr.splice(rrIdx, 1); delete state.openOne.rr;
-          if (!state.rr.length) state.rr.push(blankRR());
+          if (!state.rr.length) { state.rr.push(blankRR()); rrAdding = false; }
           if (state.loaded && !state.rr.some(function (x) { return x.prefilled; })) state.loaded = null;
           renderRR(); saveDraft();
         };
@@ -2065,10 +2081,10 @@
     if (rr.length && unmarked) out.push({ text: 'Return and Report: ' + unmarked + ' not marked', go: go('rr') });
     var needs = function (list) { return list.filter(function (a) { return str(a.name).trim() && !str(a.action).trim(); }).length; };
     var cpN = GROUPS.reduce(function (n, g) { return n + needs(state.cp[g.id]); }, 0);
-    if (cpN) out.push({ text: 'Covenant Path: ' + cpN + (cpN === 1 ? ' person needs' : ' people need') + ' an action item', go: go('cp') });
+    if (cpN) out.push({ text: 'Covenant Path Report: ' + cpN + (cpN === 1 ? ' person needs' : ' people need') + ' an action item', go: go('cp') });
     GROUPS.forEach(function (g) { if (listEmpty(g.id) && !noneConfirmed(g.id)) out.push({ text: g.title + ': not reviewed', go: go('cp') }); });
     var tnN = needs(state.tn);
-    if (tnN) out.push({ text: 'Name Next Ordinance: ' + tnN + (tnN === 1 ? ' person needs' : ' people need') + ' an action item', go: go('tn') });
+    if (tnN) out.push({ text: 'Focus names: ' + tnN + (tnN === 1 ? ' person needs' : ' people need') + ' an action item', go: go('tn') });
     if (!str(state.find.plan).trim()) out.push({ text: 'Find New People to Teach: no plan yet', go: go('fn') });
     return out;
   }
@@ -2462,7 +2478,7 @@
     } else if (g === 'tn') {
       var slot = state.tn.findIndex(function (n) { return name && norm(n.name) === norm(name); });
       if (slot < 0) slot = state.tn.findIndex(function (n) { return !n.sac && !hasText(n, CARD_KEYS); });
-      if (slot < 0) { toast('All three Name Next Ordinance spots are already filled.'); return; }
+      if (slot < 0) { toast('All three focus names are already filled.'); return; }
       var mt = mergeAction(state.tn[slot], item, ['name', 'ordinance', 'need', 'hneed', 'action', 'assigned']);
       undo = { g: 'tn', kind: 'fill', name: name, filled: mt.filled, appended: mt.appended };
       renderTN();
@@ -3290,7 +3306,7 @@
     if (!resending && syncDate()) saveDraft();
     if (!resending) reconcileCarries();
     if (!resending && !state.verified.after && readyToSave('send')) {
-      ask({ title: 'Update the Covenant Path Report first', body: 'Before you send, open “After the huddle, before you send” on the opening screen and mark it done. It shows what to update for each person.',
+      ask({ title: 'Update the Covenant Path Report first', body: 'Before you send, open step 4, “After the huddle”, on the opening screen and mark it done. It shows what to update for each person.',
         primary: 'Show me what to update', onPrimary: function () { if (stepsOn && view !== 'start') showView('start', 'replace'); renderAfter(); openOverlay('#after-sheet', '#after-title'); }, secondary: 'Cancel' });
       return;
     }
