@@ -16,11 +16,11 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
     await p.goto('http://127.0.0.1:8765/#huddle'); await p.waitForSelector('.chip', { state: 'attached' }); await p.click('[data-action="dismiss-install"]').catch(() => {});
     const vis = s => p.isVisible(s);
-    // Home: details open on a fresh form, four steps listed, sections hidden
+    // Home: details open on a fresh form, five sections listed, sections hidden
     ok(!(await vis('#details-full')) && await vis('#details-summary') && (await p.textContent('#details-summary')).includes('Huddle Details'), 'details closed on a fresh form');
     ok((await p.textContent('#details-sub .warn')).includes('Attendance not taken yet') && await p.evaluate(() => getComputedStyle(document.querySelector('#details-sub .warn')).color) === 'rgb(154, 68, 22)', 'missing attendance shows in dark orange');
     ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'no sideways overflow');
-    ok(await p.locator('.step-row').count() === 4, 'four steps');
+    ok(await p.locator('.step-row').count() === 5 && (await p.textContent('.step-row[data-a="mr"]')).includes('Missionary Referrals') && (await p.textContent('.step-row[data-a="mr"] .step-status')).trim() === 'None listed', 'five sections, ending with Missionary Referrals');
     ok(!(await vis('[data-step="rr"]')) && !(await vis('[data-step="cp"]')), 'sections hidden on home');
     ok(await p.locator('.step-row.next, .step-tag, #steps-count, .steps-bar').count() === 0 && await p.locator('.step-num').count() === 0, 'no up next, numbers, empty circles or progress bar');
     await p.click('#details-summary');
@@ -68,7 +68,10 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     ok((await p.textContent('#step-next')).includes('Find New People to Teach'), 'next step link');
     ok((await p.textContent('#step-prev')).includes('Covenant Path') && !(await p.textContent('#step-prev')).includes('Report Review'), 'back link names the previous step (Covenant Path)');
     await p.click('#step-next');
-    ok(await vis('[data-step="fn"]') && !(await p.isVisible('#step-next')), 'went to the last step; no next link');
+    ok(await vis('[data-step="fn"]') && (await p.textContent('#step-next')).includes('Missionary Referrals'), 'went to Find New People to Teach; next is Missionary Referrals');
+    await p.click('#step-next');
+    ok(await vis('[data-step="mr"]') && !(await p.isVisible('#step-next')) && (await p.textContent('#step-title')) === 'Missionary Referrals', 'went to the last section; no next link');
+    await p.click('#step-prev');
     await p.locator('#step-foot').screenshot({ path: `${OUT}/${tag}-foot.png` });
     await p.click('#step-prev');
     ok(await vis('[data-step="tn"]'), 'Back goes to the previous step');

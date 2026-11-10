@@ -69,9 +69,18 @@ and `huddle-cards-open` (every card open in its list, for tests that fill many c
 3. Commit and push to `main`. The site updates in a minute or two.
 4. Tell the user to close and reopen the app to load it.
 
+## Things that have gone wrong before
+
+- `app.js` reads the saved huddle while the file is still loading (`var state = normalizeState(…)`,
+  near the top). Anything `normalizeState` uses must be set up above that line. A list of field
+  names declared lower down once made the app fail to open whenever referrals were saved.
+- Test a change by reopening the app with data already saved, not only by typing into a fresh one.
+
 ## Open items
 
 - The training video (`media/training-video.mp4`) and its deck show an older design.
+- The sample agenda images (`sample/page-1.png`, `page-2.png`) show an older PDF: old band names, no
+  Missionary Referrals section, and names outside the approved fake-name list.
 - First run: a phone browser opens How to use (with Add to Home Screen first); the Home Screen app
   then starts the tour once. These could be combined into one short welcome.
 - `test/obsolete/` holds tests for removed features (saved agendas, Send & Clear). Do not revive them.

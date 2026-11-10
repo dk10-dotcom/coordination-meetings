@@ -56,9 +56,10 @@ Ward council and the Huddle show names the same way.
 - **Add a name** is the last row of each Covenant Path Report list. It opens a new person with the
   cursor in Name. A new name left empty is dropped when you leave it.
 - The three focus-name spots always show; an empty one reads "Focus name 2 · Tap to add".
-- **Tapping a name opens that person's screen.** Their name is the screen's title. Ward council's
-  screen has only ward council's fields. The Huddle's shows ward council's half as a short summary
-  and the huddle's half, highlighted, as the part to fill in (see Covenant Path).
+- **Tapping a name opens that person's screen.** Their name is the screen's title. Each meeting
+  shows its own half open and highlighted, and the other meeting's half closed as a short summary
+  with **Edit** (see Ward council and Covenant Path).
+- **Missionary referrals** are listed and opened the same way (see Missionary Referrals).
 - **Done** at the bottom, **Back** at the top and the phone's own Back all return to the list.
 - **Remove from the list** (or **Clear this focus name**) is at the bottom of the person's screen.
   Removing someone who has details asks first, then returns to the list.
@@ -110,31 +111,34 @@ open this sheet.
 
 ## Ward council
 
-Opens to two rows, each with a count that turns orange when someone is missing a next ordinance:
+Opens to four rows:
 
 - **Covenant Path Report lists** opens New members, Returning members and Those being taught.
 - **Name Next Ordinance** opens the three focus names.
+- **Find New People to Teach** and **Missionary Referrals** open the same sections the Huddle has.
+  They hold the same data, so what is entered in one meeting shows in the other.
 
-Under the two rows, once, is "Never add confidential information to this agenda." It is not
+The first two show a count that turns orange when someone is missing a next ordinance.
+Under the rows, once, is "Never add confidential information to this agenda." It is not
 repeated on the lists or on a person's screen.
 
-Each list shows its names as rows (see Lists of names and a person's screen). A person's screen
-shows only what ward council decides: name, baptism date (new members), next ordinance and needs.
-The empty Needs box on Covenant Path names reads "Tap their name in the Covenant Path Report to
-identify needs"; focus names read "What do they need to get there?".
+Each list of names shows rows (see Lists of names and a person's screen). **A person's screen is
+the mirror of the Huddle's:**
 
-Under those, two read-only boxes appear when there is something to show:
-
-- **Details:** baptism date and temple status (new members), baptism commitment (those being
-  taught), sacrament attendance as of the last huddle, huddle notes.
-- **Last huddle's assignment:** the action, who had it, and a status of Done, Partly done,
-  Not done or Pending. It cannot be changed here.
-
-What is entered here is the same data the Huddle shows.
+- **Ward Council · Who & What** is on top, open and highlighted: name, baptism date (new
+  members), next ordinance and needs. The empty Needs box on Covenant Path names reads "Tap their
+  name in the Covenant Path Report to identify needs"; focus names read "What do they need to get
+  there?".
+- **Huddle · How & When** is under it, closed, as a short summary: sacrament attendance (marked
+  this huddle, or as of the last one), temple status (new members), baptism commitment (those
+  being taught), this huddle's action item, and huddle notes. **Edit** opens the same fields the
+  Huddle has, so they can be changed from Ward council; **Hide** closes them again.
+- **Last huddle's assignment** (when there was one) shows the action, who had it, and a status of
+  Done, Partly done, Not done or Pending. It is read-only: the huddle marks it.
 
 ## Huddle
 
-Top to bottom: **Huddle Details**, **Tips for an effective meeting**, then four sections as rows.
+Top to bottom: **Huddle Details**, **Tips for an effective meeting**, then five sections as rows.
 There is no Erase everything, footer, Send or Hand off on this screen.
 A section's name sits beside **Back** when it is open. **Mark section done** gives a section a
 green check; it is optional, never blocks Send, and clears when the huddle is sent. A section whose
@@ -198,7 +202,20 @@ The three focus names as rows; each opens the same two-half screen.
 ### Find New People to Teach
 
 A plan for the week and any number of assignments (who will do what, and when), plus
-**Tips for finding new people to teach**.
+**Tips for finding new people to teach**. The same section opens from Ward council.
+
+### Missionary Referrals
+
+People referred to the full-time missionaries. The same list opens from Ward council.
+
+- Each referral holds a **name**, who it was **referred by**, and **notes**.
+- The list shows one row per referral (the name, then "Referred by … · notes"). **Add a referral**
+  is the last row and opens a new one with the cursor in Name; one left empty is dropped.
+- Tapping a referral opens its three fields. **Remove from the list** is at the bottom and asks first.
+- **A referral stays on the list from huddle to huddle until it is removed.** It has no
+  assignment, so it never appears in Return and Report, and it is not part of the two Covenant
+  Path Report sheets.
+- The row on the Huddle and Ward council screens reads "None listed" or the number of referrals.
 
 ## Send
 
@@ -218,6 +235,7 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
   send, removed after 5 weeks, and removed by Erase everything.
 - Every action item moves into Return and Report for the next huddle.
 - Names, next ordinances, needs and huddle notes stay. Baptism dates, temple and commitment stay.
+- Missionary referrals stay.
 - Attendance, attended-sacrament marks, assignments, section checks and both boxes clear.
   Each card remembers whether sacrament was marked at the huddle just sent.
 - The next huddle is dated the day it is sent, unless **Change date** is used.
@@ -268,10 +286,10 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
 
 - **How to use:** training video, Take the tour, See a sample agenda, Try a practice week, and
   the written instructions. Opens by itself the first time in a phone's browser.
-- **Tour:** 20 stops. The stops about one person open a person's screen; when New members is
+- **Tour:** 21 stops. The stops about one person open a person's screen; when New members is
   empty the tour shows a sample name, which is never saved. Starts once on its own the first time the app is opened from the Home
   Screen (or on a computer).
-- **Practice week:** loads sample names and sample report-backs. Send and Hand off are blocked
+- **Practice week:** loads sample names, sample report-backs and one sample referral. Send and Hand off are blocked
   while it is on. Removing it restores what was there before.
 - **Add to Home Screen** banner whenever the app is open in a phone's browser.
 
@@ -318,7 +336,10 @@ US Letter, built in the browser with pdf-lib, with no fillable fields. File name
   columns (name, next ordinance, needs) and Huddle columns (attended sacrament, action item,
   assigned to, when). Temple status and baptism commitments print under the name.
 - Plans to Find New People to Teach.
+- **Missionary Referrals:** name, referred by, notes. With no referrals it prints "None listed",
+  but only where there is room: an empty referral section never starts a page by itself.
 
 A copy of the huddle's data is stored inside the PDF (the `HuddleData` entry of its information
 dictionary; app id `huddle-agenda`, version 1). **Load from a PDF** reads it back. Keep this
-format readable by future versions.
+format readable by future versions. `referrals` was added later as an optional list; a PDF or
+handoff link without it loads with no referrals.

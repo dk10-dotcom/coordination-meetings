@@ -22,7 +22,8 @@ const seed = () => ({
     bt: [card({ name: 'Marcus Hill', bap: ago(-10), committed: true, need: 'Friends at church' })]
   },
   cpNone: {}, tn: [card({ name: 'Grace Thompson', ordinance: 'Endowment', need: 'Temple prep class' }), card({ touched: '' }), card({ touched: '' })],
-  find: { plan: '', items: [{ task: '', when: '' }] }, verified: { before: false, after: false }
+  find: { plan: '', items: [{ task: '', when: '' }] }, verified: { before: false, after: false },
+  referrals: [{ name: 'Marcus Bell', by: 'Olivia Chen', notes: 'Friend from work' }, { name: 'Samuel Ortiz', by: '', notes: '' }]
 });
 
 (async () => {
@@ -131,6 +132,21 @@ const seed = () => ({
     ok((await p.textContent('#step-title')) === 'Focus name 2' && await p.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-bind')) === 'tn.1.name' && await vis('#person-card .wc-edit') && await p.locator('#person-card .zone-toggle').count() === 0, tag + ': an empty focus spot opens with its fields showing and the cursor in the name (nothing to condense yet)');
     await fill('tn.1.name', 'Samuel Ortiz'); await fill('tn.1.action', 'Visit with the bishop'); await back();
     ok((await rowNames('#tn-list', 'tn')).join('|') === 'Grace Thompson|Samuel Ortiz|Focus name 3' && await rowSub('#tn-list', 'tn', 1) === 'Visit with the bishop' && (await p.textContent('#tn-list .list-count')) === '2 of 3 names', tag + ': the new focus name is on the list with its action');
+    await back();
+
+    // ---- Missionary referrals: saved with the huddle (the app reopened with them above), rows, and Remove on a referral's screen
+    ok((await p.textContent('.step-row[data-a="mr"] .step-status')).trim() === '2 referrals', tag + ': the Huddle’s Missionary Referrals row counts the saved referrals');
+    await p.click('[data-action="open-step"][data-a="mr"]'); await p.waitForTimeout(300);
+    const refNames = () => p.$$eval('#mr-list .person-row .person-name', e => e.map(x => x.textContent));
+    const refSubs = () => p.$$eval('#mr-list .person-row .step-status', e => e.map(x => x.textContent.trim()));
+    ok((await refNames()).join('|') === 'Marcus Bell|Samuel Ortiz' && (await refSubs()).join('|') === 'Referred by Olivia Chen · Friend from work|No details yet' && (await p.textContent('#mr-list .list-count')) === '2 referrals', tag + ': referrals saved with the huddle are listed after the app is reopened: ' + (await refSubs()).join('|'));
+    ok(await p.locator('#mr-list input, #mr-list textarea').count() === 0 && await noOverflow(), tag + ': no fields are open in the referral list, and it fits the phone');
+    await p.click(row('#mr-list', 'mr', 1)); await p.waitForSelector('#person-view:not([hidden])'); await p.waitForTimeout(250);
+    ok((await p.textContent('#step-title')) === 'Samuel Ortiz' && await p.locator('#person-card .ref-card [data-bind="referrals.1.name"]').count() === 1, tag + ': a referral opens on its own screen');
+    await p.click('#person-card .person-remove'); await p.waitForSelector('#confirm-sheet:not([hidden])');
+    ok((await p.textContent('#confirm-title')).includes('Remove Samuel Ortiz?'), tag + ': removing a referral asks first');
+    await p.click('#confirm-primary'); await p.waitForTimeout(450);
+    ok(!(await vis('#person-view')) && (await refNames()).join('|') === 'Marcus Bell' && (await p.textContent('#mr-list .list-count')) === '1 referral', tag + ': Remove takes the referral off and returns to the list');
     await back(); await p.click('#mode-bar [data-action="go-start"]'); await p.waitForTimeout(300);
 
     // ---- Ward council: the 4-week question, the same-person question and Remove live on the person's screen
@@ -138,7 +154,12 @@ const seed = () => ({
     await p.evaluate(d => { const s = JSON.parse(localStorage.getItem('huddle-agenda-v1')); s.cp.rm[0].touched = d; localStorage.setItem('__seed', JSON.stringify(s)); }, ago(30));
     await p.reload(); await p.waitForSelector('.chip', { state: 'attached' });
     ok(await vis('#start-home') && !(await vis('#person-view')), tag + ': a reload opens at the start');
-    await p.click('.door-wc'); await p.click('[data-action="open-wc-list"][data-a="cp"]'); await p.waitForTimeout(300);
+    await p.click('.door-wc'); await p.waitForTimeout(250);
+    ok((await p.textContent('[data-action="open-wc-list"][data-a="mr"] .step-status')).trim() === '1 referral', tag + ': ward council shows the same referral list (1 left), still there after another reopen');
+    await p.click('[data-action="open-wc-list"][data-a="mr"]'); await p.waitForTimeout(300);
+    ok((await p.$$eval('#mr-list [data-wc="mr"] .person-row .person-name', e => e.map(x => x.textContent))).join('|') === 'Marcus Bell', tag + ': and lists it by name');
+    await back();
+    await p.click('[data-action="open-wc-list"][data-a="cp"]'); await p.waitForTimeout(300);
     ok((await rowTags('#wc-list', 'rm', 0)).includes('Not updated in 4 weeks') && await rowSub('#wc-list', 'rm', 0) === 'Next: Endowment', tag + ': ward council’s row shows the next ordinance and the 4-week flag');
     await openPerson('#wc-list', 'rm', 0);
     ok(await vis('#person-card .stale-note'), tag + ': ward council’s screen asks the 4-week question too');

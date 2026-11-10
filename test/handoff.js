@@ -27,6 +27,8 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   await p.fill('[data-bind="cp.nm.0.name"]', 'Daniel Rivera'); await p.fill('[data-bind="cp.nm.0.ordinance"]', 'Temple baptisms'); await p.fill('[data-bind="cp.nm.0.action"]', 'Drive him to the temple'); await p.fill('[data-bind="cp.nm.0.assigned"]', 'Bro. Patel');
   await p.click('[data-action="steps-home"]'); await p.click('[data-action="open-step"][data-a="tn"]');
   await p.fill('[data-bind="tn.0.name"]', 'Grace Thompson'); await p.fill('[data-bind="tn.0.action"]', 'Invite to temple prep');
+  await p.click('[data-action="steps-home"]'); await p.click('[data-action="open-step"][data-a="mr"]'); await p.click('[data-action="add-mr"]');
+  await p.fill('[data-bind="referrals.0.name"]', 'Marcus Bell'); await p.fill('[data-bind="referrals.0.by"]', 'Olivia Chen');
   await p.click('[data-action="steps-home"]'); await p.waitForTimeout(400);
   ok(await p.locator('.actionbar [data-action="handoff"]').count() === 1 && !(await p.isVisible('[data-action="save-only"]')), 'Hand off sits beside Send; Save without sending is gone');
   await p.evaluate(() => document.querySelector('.actionbar [data-action="handoff"]').click()); await p.waitForSelector('#handoff-sheet:not([hidden])');
@@ -81,6 +83,10 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   await q.click('[data-action="open-step"][data-a="cp"]');
   ok(await q.inputValue('[data-bind="cp.nm.0.name"]') === 'Daniel Rivera' && await q.inputValue('[data-bind="cp.nm.0.action"]') === 'Drive him to the temple', 'names and actions came over');
   await q.click('[data-action="steps-home"]'); ok((await q.textContent('#details-sub')).includes('1 attended'), 'attendance came over');
+  ok((await q.textContent('.step-row[data-a="mr"] .step-status')).trim() === '1 referral', 'the missionary referral came over');
+  await q.click('[data-action="open-step"][data-a="mr"]');
+  ok(await q.inputValue('[data-bind="referrals.0.name"]') === 'Marcus Bell' && await q.inputValue('[data-bind="referrals.0.by"]') === 'Olivia Chen', 'with its name and who referred them');
+  await q.click('[data-action="steps-home"]');
 
   // iPhone app: Paste a handoff from the clipboard
   const C = await mk('iPhone 13', { permissions: ['clipboard-read', 'clipboard-write'] }); const r = C.p;

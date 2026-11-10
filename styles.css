@@ -419,6 +419,7 @@ body.typing .actionbar { position: static; }
 .g-rm { --list-ink: #1F6B3A; --list-soft: #EDF6F0; --list-line: #B5D9C1; }
 .g-bt { --list-ink: #7A3F9E; --list-soft: #F4EEF9; --list-line: #D9C4E8; }
 .g-tn, .list-tn { --list-ink: #8A5A00; --list-soft: #FFF6E0; --list-line: #EBCB7A; }
+.list-mr { --list-ink: #A83355; --list-soft: #FAEEF1; --list-line: #EBC3CD; }
 
 /* Cards: lift off the page, with a numbered circle */
 .card { box-shadow: 0 1px 2px rgba(27, 43, 75, 0.06), 0 3px 10px rgba(27, 43, 75, 0.07); }
@@ -1023,3 +1024,13 @@ body.handoff-open main.wrap { display: none; }
 /* A row that can't be used yet (Send a handoff with nothing entered): still tappable, so it can say why */
 .nav-row[aria-disabled="true"] .step-title { color: var(--muted); }
 .nav-row[aria-disabled="true"] .step-chev { visibility: hidden; }
+
+/* Ward council's screen for one person, the mirror of the Huddle's: ward council's half is the highlighted part,
+   and the huddle's half is the short summary under it */
+.card.person-wc { gap: 14px; }
+.person-wc .zone-wc-wrap { border: 1.5px solid var(--accent-line); border-radius: 14px; background: var(--accent-soft); padding: 14px 12px; }
+.person-wc .zone-wc-wrap .zone-label { font-size: 12px; }
+.person-wc .zone-hd-wrap { border-top: 0; padding-top: 0; }
+.hd-summary .after-fact.yes { color: #1F6B3A; font-weight: 600; }
+.hd-summary .after-fact.no { color: #9B2C2C; }
+.ref-card { display: flex; flex-direction: column; gap: 10px; }

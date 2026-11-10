@@ -33,6 +33,9 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
   await p.click('[data-action="steps-home"]'); await p.click('[data-action="open-step"][data-a="tn"]');
   const tn = await p.$$eval('#tn-list .person-row .person-name', e => e.map(x => x.textContent));
   ok(tn.join('|') === 'Grace Thompson|Samuel Ortiz|Emma Walsh', 'three sample focus names');
+  await p.click('[data-action="steps-home"]'); await p.click('[data-action="open-step"][data-a="mr"]');
+  ok((await p.$$eval('#mr-list .person-row .person-name', e => e.map(x => x.textContent))).join('|') === 'Marcus Bell', 'one sample missionary referral');
+  await p.click('[data-action="steps-home"]'); await p.click('[data-action="open-step"][data-a="tn"]');
   // Mark Name Next Ordinance done even though actions are missing -> stays orange
   await p.click('[data-action="step-done"]'); await p.waitForTimeout(200);
   ok(await p.locator('[data-a="tn"].step-row.done .step-status.warn').count() === 1, 'a done section with missing actions stays dark orange');
@@ -48,6 +51,9 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
   ok((await p.textContent('#details-sub')).includes('1 attended') && (await p.textContent('#details-line')).includes('Real Ward'), 'real details kept');
   await p.click('[data-action="open-step"][data-a="tn"]');
   ok(await p.locator('#tn-list .person-row.is-blank').count() === 3, 'sample focus names gone');
+  await p.click('[data-action="steps-home"]');
+  ok((await p.textContent('.step-row[data-a="mr"] .step-status')).trim() === 'None listed', 'the sample referral is gone too');
+  await p.click('[data-action="open-step"][data-a="tn"]');
   // How to use button starts it too
   await p.click('[data-action="steps-home"]'); await p.evaluate(() => document.querySelector('[data-action="help"]').click()); await p.waitForTimeout(200);
   await p.click('#help-sheet [data-action="practice"]'); await p.waitForTimeout(300);

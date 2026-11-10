@@ -63,7 +63,7 @@ const OUT = 'test/out-empty'; fs.mkdirSync(OUT, { recursive: true });
   await p.keyboard.press('Escape'); await p.waitForTimeout(300);
   if (await p.isVisible('[data-action="steps-home"]')) await p.click('[data-action="steps-home"]');
   await p.evaluate(() => document.querySelector('.clear-link').click()); await p.click('#confirm-primary'); await p.waitForTimeout(300);
-  ok(await p.locator('.step-row').count() === 4, 'back on the home list after Send & Clear');
+  ok(await p.locator('.step-row').count() === 5, 'back on the home list after Send & Clear');
   {
     await p.click('[data-action="open-step"][data-a="cp"]');
     for (const g of ['nm', 'rm', 'bt']) await p.click(`[data-action="cp-none"][data-a="${g}"]`);

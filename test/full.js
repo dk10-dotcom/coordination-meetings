@@ -28,6 +28,8 @@ function scenario(heavy) {
   for (let i = 0; i < (heavy ? 5 : 2); i++) s.rr.push({ plan: `Plan item R${i + 1}: visit O'Brien & Sons family${long}`, happened: ['Yes', 'Partly', 'No'][i % 3], notes: `Note R${i + 1} — José said “thanks”` });
   for (const g of ['nm', 'rm', 'bt']) for (let i = 0; i < n; i++) s.cp[g].push({ name: `Person ${g.toUpperCase()}${i + 1} Müller`, action: `Action ${g}${i + 1}: invite to dinner${long}`, assigned: `Bro. Assignee ${g}${i + 1}`, when: `Day ${g}${i + 1}` });
   for (let i = 0; i < 3; i++) s.tn.push({ name: `Focus Name ${i + 1}`, ordinance: ['Baptism', 'Endowment', 'Sealing'][i], action: `TN action ${i + 1}${long}`, assigned: `Sister TN${i + 1}`, when: `TN when ${i + 1}` });
+  s.referrals = [];
+  for (let i = 0; i < (heavy ? 3 : 1); i++) s.referrals.push({ name: `Referral ${i + 1} Núñez`, by: `Sister Referrer ${i + 1}`, notes: `Referral note ${i + 1}: asked about church${long}` });
   return s;
 }
 
@@ -45,6 +47,10 @@ async function fill(p, s) {
     for (const k of ['name', 'action', 'assigned', 'when']) await p.fill(`[data-bind="cp.${g}.${i}.${k}"]`, s.cp[g][i][k]);
   }
   for (let i = 0; i < 3; i++) for (const k of ['name', 'ordinance', 'action', 'assigned', 'when']) await p.fill(`[data-bind="tn.${i}.${k}"]`, s.tn[i][k]);
+  for (let i = 0; i < s.referrals.length; i++) {
+    await p.click('[data-action="add-mr"]');
+    for (const k of ['name', 'by', 'notes']) await p.fill(`[data-bind="referrals.${i}.${k}"]`, s.referrals[i][k]);
+  }
 }
 
 function pdfText(file) { return execFileSync('pdftotext', ['-raw', file, '-']).toString().replace(/\s+/g, ' '); }
@@ -79,6 +85,7 @@ function words(v) { return v.replace(/[“”]/g, '').split(/\s+/).filter(Boolea
     s.rr.forEach(r => need.push(r.plan, r.happened, r.notes));
     for (const g of ['nm', 'rm', 'bt']) s.cp[g].forEach(a => need.push(a.name, a.action, a.assigned, a.when));
     s.tn.forEach(t => need.push(t.name, t.ordinance, t.action, t.assigned, t.when));
+    s.referrals.forEach(r => need.push(r.name, r.by, r.notes));
     need.forEach(v => { const w = words(v); const joined = w.join(' '); if (!text.includes(joined)) { if (!w.every(x => text.includes(x))) missing.push(v); } });
     ok('every typed value is in the PDF', missing.length === 0, missing.length ? 'missing: ' + missing.join(' | ') : `${need.length} values checked`);
 
@@ -86,7 +93,7 @@ function words(v) { return v.replace(/[“”]/g, '').split(/\s+/).filter(Boolea
     ok('all attendee labels printed', ATT.every(a => text.includes(a)));
     // Fixed agenda text
     const fixed = ['Weekly Coordination', 'Meeting Agenda', 'Ward Council', 'Weekly Coordination Meeting', 'Return and Report', 'FROM THE LAST HUDDLE', 'Did it happen?', 'NOV 1 HUDDLE PLAN',
-      'Covenant Path Report Review', 'Name Next Ordinance (Ward Council Focus Names)',
+      'Covenant Path Report Review', 'Name Next Ordinance (Ward Council Focus Names)', 'Missionary Referrals', 'REFERRED BY',
       'NEW MEMBERS', 'RETURNING MEMBERS', 'THOSE BEING TAUGHT'];
     const fixedMissing = fixed.filter(f => !text.includes(f));
     ok('all section headings printed', fixedMissing.length === 0, fixedMissing.join(' | '));
@@ -119,6 +126,9 @@ function words(v) { return v.replace(/[“”]/g, '').split(/\s+/).filter(Boolea
     for (const g of ['nm', 'rm', 'bt']) s.cp[g].forEach(a => { [a.name].forEach(v => { if (!vals.includes(v)) lost.push(v); }); [a.action, a.assigned, a.when].forEach(v => { if (v && !rrText.includes(v)) lost.push(v); }); });
     s.tn.forEach(t => { [t.name, t.ordinance].forEach(v => { if (!vals.includes(v)) lost.push(v); }); [t.action, t.assigned, t.when].forEach(v => { if (v && !rrText.includes(v)) lost.push(v); }); });
     ok('Load from a PDF: names stay, and actions, assignees and whens are in Return and Report', lost.length === 0, lost.join(' | '));
+    const refVals = await p.$$eval('#mr-list input, #mr-list textarea', els => els.map(e => e.value).join(' | '));
+    const refLost = s.referrals.flatMap(r => [r.name, r.by, r.notes]).filter(v => !refVals.includes(v));
+    ok('Load from a PDF: missionary referrals come back and stay on the list', refLost.length === 0 && s.referrals.length > 0, refLost.join(' | '));
     const td = new Date(); const todayISO = td.getFullYear() + '-' + String(td.getMonth() + 1).padStart(2, '0') + '-' + String(td.getDate()).padStart(2, '0');
     ok('Load from a PDF: set up for the next huddle, dated today', await p.inputValue('#date') === todayISO && (await p.textContent('#rr-from')).includes('last huddle'), await p.inputValue('#date'));
     ok('no page errors', errs.length === 0, errs.join(' | '));

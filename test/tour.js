@@ -37,7 +37,7 @@ const res = []; const ok = (l, c, x) => { res.push(c); console.log((c ? 'PASS ' 
       await p.click('.tour-next');
     }
     ok(n + ': every bubble fully on screen', bad.length === 0, bad.join(', '));
-    ok(n + ': the tour has 20 stops', total === 20, String(total));
+    ok(n + ': the tour has 21 stops', total === 21, String(total));
     ok(n + ': the stops about one person open that person’s screen (ward council once, the huddle four times)', views.filter(v => v === 'p-wc').length === 1 && views.filter(v => v === 'p-hd').length === 4, views.join(','));
     ok(n + ': the tour keeps the confidentiality warning', demos.some(d => d.includes('Never add confidential information to this agenda.')));
     await p.waitForTimeout(500);

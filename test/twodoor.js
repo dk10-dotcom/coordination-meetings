@@ -1,6 +1,7 @@
 // Opening screen: the four steps and Send. Ward council and the Huddle list their names as rows; a name opens
 // on its own screen (ward council's fields, or the huddle's card), and Done or Back returns to the list.
-// Nothing is entered twice between the two views.
+// Nothing is entered twice between the two views. Ward council also has Find New People to Teach and
+// Missionary Referrals (the same sections the Huddle has), and its person screen mirrors the Huddle's.
 const { chromium, devices } = require('playwright');
 const fs = require('fs');
 const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
@@ -68,7 +69,7 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     await p.click('.door-wc');
     ok(await vis('#wc-view') && await vis('#mode-bar') && !(await vis('.actionbar')) && (await p.textContent('#mode-title')) === 'Ward council', tag + ': Ward council opens with Back, no Send bar');
     const rowText = async id => (await p.textContent(`[data-action="open-wc-list"][data-a="${id}"]`)).replace(/\s+/g, ' ');
-    ok(await p.locator('#wc-rows .wc-row').count() === 2 && (await rowText('cp')).includes('Covenant Path Report lists') && (await rowText('tn')).includes('Name Next Ordinance') && await p.locator('#wc-list .person-row, #wc-list .wc-card').count() === 0, tag + ': it shows two roll-ups, not the names');
+    ok(await p.locator('#wc-rows .wc-row').count() === 4 && (await rowText('cp')).includes('Covenant Path Report lists') && (await rowText('tn')).includes('Name Next Ordinance') && (await rowText('fn')).includes('Find New People to Teach') && (await rowText('mr')).includes('Missionary Referrals') && await p.locator('#wc-list .person-row, #wc-list .wc-card').count() === 0, tag + ': it shows two roll-ups, not the names');
     ok(await vis('#wc-note') && (await p.textContent('#wc-note strong')) === 'Never add confidential information to this agenda.' && await p.locator('#wc-view .help-warning').count() === 0, tag + ': the confidentiality reminder sits once under the two lists');
     ok(await p.evaluate(() => { const a = getComputedStyle(document.querySelector('#wc-rows .nav-row')), b2 = document.querySelector('#steps-this'); return !!a && !!b2 && document.querySelector('#wc-rows').className === b2.className; }), tag + ': ward council’s rows and the huddle’s rows are the same kind of list');
     ok((await rowText('cp')).includes('1 person · 1 needs a next ordinance') && (await rowText('tn')).includes('No focus names yet'), tag + ': each roll-up has a status: ' + await rowText('cp'));
@@ -113,12 +114,32 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     await p.screenshot({ path: `${OUT}/${tag}-wc-list.png`, fullPage: true });
     await back();
     ok((await rowText('cp')).includes('3 people · 2 need a next ordinance') && await p.locator('[data-action="open-wc-list"][data-a="cp"] .step-status.warn').count() === 1, tag + ': the roll-up counts people and turns orange when a next ordinance is missing');
+    // Find New People to Teach and Missionary Referrals: the same sections the Huddle has
+    ok((await rowText('fn')).includes('Not started') && (await rowText('mr')).includes('None listed'), tag + ': the two shared sections show their status in ward council');
+    await p.click('[data-action="open-wc-list"][data-a="fn"]'); await p.waitForTimeout(300);
+    ok((await p.textContent('#step-title')) === 'Find New People to Teach' && await vis('#fn-list [data-bind="find.plan"]') && !(await vis('#step-foot')) && !(await vis('#wc-rows')) && !(await vis('#wc-note')) && await noOverflow(), tag + ': Find New People to Teach opens in ward council with the plan and assignments (no Mark section done)');
+    await fill('find.plan', 'Invite friends to the ward party'); await back();
+    ok(await vis('#wc-rows') && (await rowText('fn')).includes('Plan written'), tag + ': Back returns to ward council, and the row shows the plan is written');
+    await p.click('[data-action="open-wc-list"][data-a="mr"]'); await p.waitForTimeout(300);
+    ok((await p.textContent('#step-title')) === 'Missionary Referrals' && await p.locator('#mr-list .person-row').count() === 0 && await vis('#mr-list [data-action="add-person"]') && (await p.textContent('#mr-list .list-count')) === '0 referrals' && !(await vis('#step-foot')), tag + ': Missionary Referrals opens with Add a referral');
+    await p.click('#mr-list [data-action="add-person"]'); await p.waitForSelector('#person-view:not([hidden])'); await p.waitForTimeout(250);
+    const rlabels = await p.$$eval('#person-card .ref-card label', ls => ls.map(l => l.childNodes[0].textContent.trim()));
+    ok((await p.textContent('#step-title')) === 'New referral' && await p.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-bind')) === 'referrals.0.name' && rlabels.join('|') === 'Name|Referred by|Notes', tag + ': Add a referral opens a new referral: name, referred by, notes');
+    await fill('referrals.0.name', 'Marcus Hill'); await fill('referrals.0.by', 'Emma Walsh'); await fill('referrals.0.notes', 'Neighbor; asked about church');
+    ok((await p.textContent('#step-title')) === 'Marcus Hill' && await vis('#person-card .person-remove') && await noOverflow(), tag + ': the referral’s screen takes the name and fits the phone');
+    await p.click('#person-card .person-done'); await p.waitForTimeout(300);
+    ok((await p.$$eval('#mr-list .person-row .person-name', e => e.map(x => x.textContent))).join('|') === 'Marcus Hill' && (await p.textContent('#mr-list .person-row .step-status')).trim() === 'Referred by Emma Walsh · Neighbor; asked about church' && (await p.textContent('#mr-list .list-count')) === '1 referral', tag + ': Done returns to the list, which shows the name, who referred them and the note');
+    await p.click('#mr-list [data-action="add-person"]'); await p.waitForSelector('#person-view:not([hidden])'); await p.waitForTimeout(250); await back();
+    ok(await p.locator('#mr-list .person-row').count() === 1, tag + ': a new referral left empty doesn’t stay on the list');
+    await p.screenshot({ path: `${OUT}/${tag}-wc-referrals.png`, fullPage: true });
+    await back();
+    ok((await rowText('mr')).includes('1 referral') && await noOverflow(), tag + ': ward council’s row counts the referrals');
     await p.screenshot({ path: `${OUT}/${tag}-wc-filled.png` });
     await p.click('#mode-bar [data-action="go-start"]'); await p.waitForTimeout(200);
     ok(await vis('.door-wc') && (await p.textContent('#door-wc-sub')).startsWith('4 names'), tag + ': Back returns to the start; the door counts the names: ' + await p.textContent('#door-wc-sub'));
     // Huddle: the same names are already on the cards
     await p.click('.door-hd'); await p.waitForTimeout(200);
-    ok(await vis('#steps-home') && await vis('#details-summary') && (await p.textContent('#mode-title')) === 'Huddle', tag + ': Huddle opens the details and four sections');
+    ok(await vis('#steps-home') && await vis('#details-summary') && (await p.textContent('#mode-title')) === 'Huddle', tag + ': Huddle opens the details and its sections');
     ok(await p.evaluate(() => { const r = document.querySelector('#meeting-date').getBoundingClientRect(); return r.height <= 1 && getComputedStyle(document.querySelector('#meeting-date')).pointerEvents === 'none'; }) && await p.inputValue('#date') === await p.evaluate(() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }), tag + ': no date on screen; the huddle is dated today on its own');
     await p.click('#details-summary'); await p.fill('#ward', 'Sample Ward'); await p.click('[data-action="conducting"][data-a="wml"]'); await p.click('[data-action="toggle-att"][data-a="wml"]'); await p.click('#details-full .btn-collapse');
     await p.click('[data-action="open-step"][data-a="cp"]'); await p.waitForTimeout(250);
@@ -154,10 +175,18 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     await p.click('#person-card [data-action="wc-edit-toggle"]'); await p.waitForTimeout(150);
     ok(await vis('#person-card .wc-summary') && await p.locator('#person-card .card-name-input').count() === 0, tag + ': Hide condenses it again');
     await fill('tn.0.action', 'Invite to temple prep'); await back(); await back();
+    // The two shared sections hold what ward council entered
+    await p.click('[data-action="open-step"][data-a="fn"]'); await p.waitForTimeout(250);
+    ok(await p.inputValue('[data-bind="find.plan"]') === 'Invite friends to the ward party' && await vis('#step-foot'), tag + ': the plan typed in ward council is in the Huddle’s Find New People to Teach');
+    await back(); await p.click('[data-action="open-step"][data-a="mr"]'); await p.waitForTimeout(250);
+    ok((await p.$$eval('#mr-list .person-row .person-name', e => e.map(x => x.textContent))).join('|') === 'Marcus Hill' && await p.locator('#mr-list [data-group="mr"]').count() === 1 && await vis('#step-foot'), tag + ': the referral added in ward council is in the Huddle’s Missionary Referrals');
+    await p.click('#mr-list .person-row'); await p.waitForSelector('#person-view:not([hidden])'); await p.waitForTimeout(250);
+    ok(await p.inputValue('[data-bind="referrals.0.by"]') === 'Emma Walsh' && await p.inputValue('[data-bind="referrals.0.notes"]') === 'Neighbor; asked about church', tag + ': and it opens with the same details');
+    await back(); await back();
     await p.screenshot({ path: `${OUT}/${tag}-huddle.png` });
     ok(!(await vis('.actionbar')) && !(await vis('[data-action="help"]')) && await vis('#steps-home [data-action="tips"]'), tag + ': Huddle screen has Tips at the top; no Send, Hand off or How to use');
     ok(!(await vis('.clear-link')) && !(await vis('.fine-notes')), tag + ': no Erase everything or footer on the Huddle screen');
-    ok(await p.locator('#steps-home .step-row').count() === 4 && await p.locator('#steps-home .step-row .step-num').count() === 0 && await p.locator('#steps-home .nav-row .step-chev').count() === 4, tag + ': the four sections are plain rows with a chevron (a check only once done)');
+    ok(await p.locator('#steps-home .step-row').count() === 5 && await p.locator('#steps-home .step-row .step-num').count() === 0 && await p.locator('#steps-home .nav-row .step-chev').count() === 5, tag + ': the five sections are plain rows with a chevron (a check only once done)');
     // Send lives on the opening screen and waits for the after-huddle check
     await p.evaluate(() => { navigator.canShare = () => true; navigator.share = () => Promise.resolve(); });
     await p.click('#mode-bar [data-action="go-start"]'); await p.waitForTimeout(200);
@@ -185,13 +214,22 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     ok(await vis('.door-wc') && await vis('#sent-line') && (await p.textContent('#door-hd-sub')).startsWith('0 of 2 reported back') && !(await isDone('before')) && !(await isDone('after')), tag + ': after sending, back at the start with both boxes cleared for the next huddle');
     await p.screenshot({ path: `${OUT}/${tag}-after.png` });
     // Ward council shows last huddle's assignment and its status, read-only
-    await p.click('.door-wc'); await p.click('[data-action="open-wc-list"][data-a="cp"]'); await p.waitForTimeout(250);
+    await p.click('.door-wc'); await p.waitForTimeout(250);
+    ok((await rowText('mr')).includes('1 referral') && (await rowText('fn')).includes('Not started'), tag + ': after sending, the referral is still listed and the finding plan has cleared for the next huddle');
+    await p.click('[data-action="open-wc-list"][data-a="cp"]'); await p.waitForTimeout(250);
     await openPerson('#wc-list', 'nm', 0);
     const last = p.locator('#person-card .wc-card .wc-last:not(.wc-details)');
     ok((await last.textContent()).includes('Drive him to the temple') && (await last.textContent()).includes('Bro. Patel') && (await last.locator('.wc-status').textContent()) === 'Pending', tag + ': the name shows last huddle’s assignment, Pending');
     ok(await p.locator('#person-card [data-action="happened"], #person-card .wc-last button, #person-card .wc-last input').count() === 0, tag + ': the status can’t be changed in Ward council');
-    const det = (await p.locator('#person-card .wc-card .wc-details').textContent()).replace(/\s+/g, ' ');
-    ok(det.includes('Details') && det.includes('Temple') && det.includes('Sacrament') && det.includes('Not marked at the last huddle'), tag + ': Details under a new member show temple and sacrament: ' + det);
+    // The mirror of the Huddle's screen: ward council's half on top and highlighted, the huddle's half closed with Edit
+    const hsum = async () => (await p.locator('#person-card .hd-summary').textContent()).replace(/\s+/g, ' ');
+    ok((await hsum()).includes('Sacrament') && (await hsum()).includes('Not marked at the last huddle') && (await hsum()).includes('Temple') && (await hsum()).includes('Action item') && (await hsum()).includes('None yet') && (await p.textContent('#person-card .hd-summary .zone-toggle')) === 'Edit', tag + ': the huddle’s half shows closed, as a summary with Edit: ' + await hsum());
+    ok(await p.evaluate(() => { const c = document.querySelector('#person-card .card'), w = c.querySelector('.zone-wc-wrap'), s = c.querySelector('.hd-summary'); return !!(w.compareDocumentPosition(s) & Node.DOCUMENT_POSITION_FOLLOWING) && getComputedStyle(w).backgroundColor !== 'rgba(0, 0, 0, 0)'; }) && await p.locator('#person-card [data-bind$=".action"], #person-card [data-bind$=".sac"]').count() === 0, tag + ': ward council’s half is on top and highlighted; the huddle’s fields stay closed');
+    await p.click('#person-card [data-action="hd-edit-toggle"]'); await p.waitForTimeout(200);
+    ok(await vis('#person-card .zone-hd-wrap [data-bind="cp.nm.0.action"]') && await vis('#person-card .sac-toggle') && await vis('#person-card .temple-box') && (await p.textContent('#person-card .zone-hd-wrap .zone-toggle')) === 'Hide' && await noOverflow(), tag + ': Edit opens the huddle’s fields in ward council: sacrament, temple, action item, who and when');
+    await fill('cp.nm.0.action', 'Invite to the temple trip'); await fill('cp.nm.0.assigned', 'Sis. Lee');
+    await p.click('#person-card [data-action="hd-edit-toggle"]'); await p.waitForTimeout(200);
+    ok((await hsum()).includes('Invite to the temple trip · Sis. Lee') && await p.locator('#person-card [data-bind$=".action"]').count() === 0, tag + ': Hide condenses it again, with the action item showing');
     await p.screenshot({ path: `${OUT}/${tag}-wc-last.png`, fullPage: true });
     await back(); await openPerson('#wc-list', 'nm', 1);
     ok(await p.locator('#person-card .wc-last:not(.wc-details)').count() === 0, tag + ': a name with no assignment shows no assignment line');

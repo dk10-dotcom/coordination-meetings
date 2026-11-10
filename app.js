@@ -87,6 +87,7 @@
   function blankRR() { return { plan: '', happened: '', notes: '' }; }
   // Every name card (Covenant Path lists and Name Next Ordinance) has the same fields.
   var CARD_KEYS = ['name', 'bap', 'ordinance', 'need', 'hneed', 'action', 'assigned', 'when'];
+  var REF_KEYS = ['name', 'by', 'notes']; // a missionary referral (set up here, before the saved huddle is read)
   function blankAction() { return { name: '', sac: false, bap: '', temple: false, committed: false, ordinance: '', need: '', hneed: '', action: '', assigned: '', when: '' }; }
   function shortDay(iso) { var d = parseISO(iso); return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''; }
   // Those being taught: "Committed to baptism" and the baptism date, in a few words.
@@ -136,7 +137,7 @@
       cpNone: { nm: false, rm: false, bt: false },
       collapsed: {}, openOne: {}, stepsDone: {},
       tnDone: false, tn: [blankName(), blankName(), blankName()],
-      find: blankFind(),
+      find: blankFind(), referrals: [],
       practiceSnapshot: null,
       sentAt: '', sentSig: '', rolledFrom: '', dateManual: false, verified: { before: false, after: false },
       ftDone: false
@@ -191,7 +192,7 @@
     f.dateManual = !!s.dateManual; f.verified = { before: !!(s.verified && s.verified.before), after: !!(s.verified && s.verified.after) }; f.sentAt = str(s.sentAt); f.sentSig = str(s.sentSig); f.rolledFrom = parseISO(str(s.rolledFrom)) ? str(s.rolledFrom) : '';
     // Lists marked Done stay folded only within the draft; a saved agenda always opens fully.
     var sd = s.stepsDone && typeof s.stepsDone === 'object' ? s.stepsDone : {};
-    ['rr', 'cp', 'tn', 'fn'].forEach(function (k) { if (sd[k] === true) f.stepsDone[k] = true; });
+    ['rr', 'cp', 'tn', 'fn', 'mr'].forEach(function (k) { if (sd[k] === true) f.stepsDone[k] = true; });
     var col = s.collapsed && typeof s.collapsed === 'object' ? s.collapsed : {};
     ['rr', 'nm', 'rm', 'bt', 'tn'].forEach(function (k) { if (col[k]) f.collapsed[k] = true; });
     var cn = s.cpNone && typeof s.cpNone === 'object' ? s.cpNone : {};
@@ -210,6 +211,7 @@
     f.find.plan = str(fd.plan);
     var fi = Array.isArray(fd.items) ? fd.items.filter(function (x) { return x && typeof x === 'object'; }).map(function (x) { return { task: str(x.task), when: str(x.when), carried: !!x.carried, doneMid: !!x.doneMid }; }) : [];
     f.find.items = fi.length ? fi : [blankAssign()];
+    f.referrals = cleanReferrals(s.referrals); // older PDFs and handoff links have none
     return f;
   }
 
@@ -248,6 +250,13 @@
     if (obj != null) obj[last] = val;
   }
   function hasText(o, keys) { return keys.some(function (k) { return str(o[k]).trim() !== ''; }); }
+  // Missionary referrals: who is referred, who referred them, and a note. They stay from huddle to huddle until removed.
+  function blankReferral() { return { name: '', by: '', notes: '' }; }
+  function refBlank(x) { return !x || !hasText(x, REF_KEYS); }
+  function cleanReferrals(list) {
+    return (Array.isArray(list) ? list : []).filter(function (x) { return x && typeof x === 'object' && !refBlank(x); })
+      .map(function (x) { return { name: str(x.name), by: str(x.by), notes: str(x.notes) }; });
+  }
   function rrHasInput(r) { return !!r.happened || hasText(r, ['plan', 'notes']); }
   function isEmpty(s) {
     if (s.attendees.length || s.cpDone || s.tnDone || s.ftDone || s.loaded) return false;
@@ -256,6 +265,7 @@
     if (GROUPS.some(function (g) { return s.cp[g.id].some(function (a) { return a.sac || hasText(a, CARD_KEYS); }); })) return false;
     if (s.tn.some(function (n) { return n.sac || hasText(n, CARD_KEYS); })) return false;
     if (str(s.find.plan).trim() || s.find.items.some(assignHasText)) return false;
+    if (cleanReferrals(s.referrals).length) return false;
     return true;
   }
 
@@ -500,14 +510,14 @@
       ])
     ]);
   }
-  // The huddle's half: one action item, who and when. `top` (optional) sits under the label.
-  function hdZone(base, whenPh, top) {
+  // The huddle's half: one action item, who and when. `top` (optional) sits under the label; `tools` beside it.
+  function hdZone(base, whenPh, top, tools) {
     var hneedVal = str(getPath(base + 'hneed')).trim();
     var hneedField = field('Huddle notes', base + 'hneed', { full: true, multi: true, placeholder: 'Anything to relay back to ward council' });
     if (!hneedVal) hneedField.hidden = true;
     var hneedLink = h('button', { type: 'button', class: 'link-add', 'data-action': 'add-hneed', hidden: !!hneedVal }, ['+ Add a note for ward council']);
     return h('div', { class: 'card-zone zone-hd-wrap' }, [
-      zoneLabel('hd', 'Huddle · How & When'),
+      tools ? h('div', { class: 'zone-label-row' }, [zoneLabel('hd', 'Huddle · How & When'), tools]) : zoneLabel('hd', 'Huddle · How & When'),
       top || null,
       h('div', { class: 'card-grid' }, [
         field('Action item', base + 'action', { full: true, multi: true, rows: '3', placeholder: 'What might you do to assist them in being worthy and prepared for their next ordinance?',
@@ -557,17 +567,79 @@
         wcZone(base, tools, g === 'nm' ? 'Baptism date' : '', isTn ? 'e.g. A ride to the temple' : 'Tap their name in the Covenant Path Report to identify needs', isTn ? 'e.g. Sacrament' : '', FIXED_ORD[g])
       ]);
     } else top = wcSummary(r, a);
-    var checks = h('div', { class: 'hd-checks' }, [
-      sacToggle(base + 'sac', a.sac),
-      g === 'nm' ? templeBox(base, r.i, a) : null,
-      g === 'bt' ? committedBox(base, a) : null,
-      g === 'bt' ? field('Scheduled baptismal date', base + 'bap', { type: 'date', full: true }) : null
-    ]);
     return h('div', { class: 'card person-hd' }, [
       staleNote(base, a, isTn),
       top,
-      hdZone(base, isTn ? 'e.g. Sun' : 'e.g. Tue', checks),
+      hdZone(base, isTn ? 'e.g. Sun' : 'e.g. Tue', hdChecks(g, base, r.i, a)),
       g === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': r.i }, ['Convert to new member']) : null
+    ]);
+  }
+  // What the huddle checks off for a person: sacrament, a new member's temple attendance, a commitment to baptism.
+  function hdChecks(g, base, i, a) {
+    return h('div', { class: 'hd-checks' }, [
+      sacToggle(base + 'sac', a.sac),
+      g === 'nm' ? templeBox(base, i, a) : null,
+      g === 'bt' ? committedBox(base, a) : null,
+      g === 'bt' ? field('Scheduled baptismal date', base + 'bap', { type: 'date', full: true }) : null
+    ]);
+  }
+  /* ---------- Ward council's screen for one person: the mirror of the Huddle's ----------
+   * Ward council's half is what shows, highlighted. The huddle's half sits under it as a short summary;
+   * Edit opens the same fields the Huddle has. Last huddle's assignment stays read-only. */
+  var personHdOpen = false;
+  function hdSummary(r, a) {
+    var g = r.g, facts = [];
+    facts.push(['Sacrament', a.sac ? 'Attended (marked this huddle)' : a.lastSac === true ? 'Attended, as of the last huddle' : a.lastSac === false ? 'Not marked at the last huddle' : 'Not marked yet', a.sac || a.lastSac === true ? 'yes' : 'unset']);
+    if (g === 'nm') {
+      var ts = templeStatus(a, state.date);
+      facts.push(['Temple', a.temple ? 'Attended' : parseISO(str(a.bap)) ? 'Not yet · ' + ts.text : 'Not yet', a.temple ? 'yes' : (ts.left !== undefined && ts.left <= 0 ? 'no' : '')]);
+    }
+    if (g === 'bt') facts.push(['Baptism', a.committed ? 'Committed' + (monthDay(a.bap) ? ' · scheduled ' + monthDay(a.bap) : ', no date yet') : monthDay(a.bap) ? 'Scheduled ' + monthDay(a.bap) : 'Not committed yet', a.committed ? 'yes' : '']);
+    var act = [str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim()].filter(Boolean).join(' · ');
+    facts.push(['Action item', act || 'None yet', act ? '' : 'unset']);
+    if (str(a.hneed).trim()) facts.push(['Huddle notes', a.hneed.trim()]);
+    return h('div', { class: 'wc-summary hd-summary' }, [
+      h('div', { class: 'zone-label-row' }, [zoneLabel('hd', 'Huddle · How & When'),
+        h('button', { type: 'button', class: 'zone-toggle', 'data-action': 'hd-edit-toggle', 'aria-label': 'Edit sacrament attendance and the action item', 'aria-expanded': 'false', text: 'Edit' })])
+    ].concat(facts.map(function (f) {
+      return h('p', { class: 'after-fact' + (f[2] ? ' ' + f[2] : '') }, [h('span', { class: 'after-k', text: f[0] }), f[1]]);
+    })));
+  }
+  // Last huddle's assignment for this name and how it went. Read-only: the huddle marks it.
+  function wcLast(gid, a) {
+    var rr = lastAction(gid, a.name); if (!rr) return null;
+    var who = [str(rr.assigned).trim(), str(rr.when).trim()].filter(Boolean).join(' · ');
+    var st = { Yes: 'Done', Partly: 'Partly done', No: 'Not done' }[rr.happened] || 'Pending';
+    return h('div', { class: 'wc-last' }, [
+      h('p', { class: 'wc-last-k' }, ['Last huddle’s assignment', h('span', { class: 'wc-status', 'data-status': statusOf(rr.happened) || 'pending', text: st })]),
+      h('p', { class: 'wc-last-action', text: str(rr.action).trim() + (who ? ' (' + who + ')' : '') })
+    ]);
+  }
+  // After a name changes in ward council, the boxes that depend on the name follow it.
+  function refreshWcBoxes(card, gid, a) {
+    Array.prototype.forEach.call(card.querySelectorAll('.wc-last'), function (x) { x.remove(); });
+    (card.classList.contains('person-wc') ? [wcLast(gid, a)].filter(Boolean) : wcExtras(gid, a)).forEach(function (x) { card.appendChild(x); });
+  }
+  function wcPersonCard(r, a) {
+    var g = r.g, isTn = g === 'tn', base = isTn ? 'tn.' + r.i + '.' : 'cp.' + g + '.' + r.i + '.';
+    var wc = h('div', { class: 'card-zone zone-wc-wrap' }, [
+      zoneLabel('wc', 'Ward Council · Who & What'),
+      h('div', { class: 'card-grid' }, [
+        field(isTn ? 'Focus name' : 'Name', base + 'name', { full: true, placeholder: isTn ? 'Focus name' : 'From the Covenant Path Report', cap: 'words' }),
+        g === 'nm' ? field('Baptism date', base + 'bap', { type: 'date', full: true }) : null,
+        FIXED_ORD[g] ? h('div', { class: 'field full' }, ['Next ordinance', h('p', { class: 'fixed-value', text: FIXED_ORD[g] })])
+          : field('Next ordinance', base + 'ordinance', { full: true, placeholder: 'e.g. Temple baptisms' }),
+        field('Needs', base + 'need', { full: true, multi: true, rows: isTn ? '2' : '3', placeholder: isTn ? 'What do they need to get there?' : 'Tap their name in the Covenant Path Report to identify needs' })
+      ])
+    ]);
+    var hd = personHdOpen
+      ? hdZone(base, isTn ? 'e.g. Sun' : 'e.g. Tue', hdChecks(g, base, r.i, a),
+          h('button', { type: 'button', class: 'zone-toggle', 'data-action': 'hd-edit-toggle', 'aria-label': 'Hide sacrament attendance and the action item', 'aria-expanded': 'true', text: 'Hide' }))
+      : hdSummary(r, a);
+    return h('div', { class: 'card wc-card person-wc g-' + g }, [
+      wc, hd,
+      g === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': r.i }, ['Convert to new member']) : null,
+      wcLast(g, a)
     ]);
   }
   // "Attended sacrament" checkbox in the top right of each name card.
@@ -705,7 +777,30 @@
   }
   // A list as rows, grouped the way an iPhone groups a list: the names, then "Add a name" as the last row.
   // kind 'hd' = the huddle's list (an empty one can be confirmed as "none this week"), 'wc' = ward council's.
+  function referralRow(kind, i, x) {
+    var name = str(x.name).trim(), by = str(x.by).trim(), notes = str(x.notes).trim();
+    var sub = [by ? 'Referred by ' + by : '', notes].filter(Boolean).join(' · ') || (name ? 'No details yet' : 'Tap to add');
+    return h('li', {}, [h('button', { type: 'button', class: 'nav-row person-row' + (name ? '' : ' is-blank'), 'data-action': 'open-person', 'data-a': 'mr', 'data-b': i, 'data-kind': kind,
+      'aria-label': (name || 'No name yet') + '. ' + sub }, [
+      h('span', { class: 'step-text' }, [
+        h('span', { class: 'step-title person-name', text: name || 'No name yet' }),
+        h('span', { class: 'step-status', text: sub })
+      ]),
+      h('span', { class: 'step-chev', 'aria-hidden': 'true', text: '›' })
+    ])]);
+  }
   function rowsPanel(kind, gid, title) {
+    if (gid === 'mr') {
+      var refs = state.referrals.map(function (x, i) { return { x: x, i: i }; }).filter(function (o) { return !refBlank(o.x); });
+      var rrows = refs.map(function (o) { return referralRow(kind, o.i, o.x); });
+      rrows.push(h('li', {}, [h('button', { type: 'button', class: 'nav-row add-row', 'data-action': 'add-person', 'data-a': 'mr', 'data-kind': kind, 'aria-label': 'Add a referral' }, [icon('plus'), h('span', { text: 'Add a referral' })])]));
+      var mattrs = { class: 'list-panel rows list-mr' + (refs.length ? '' : ' is-empty'), 'aria-label': title };
+      mattrs[kind === 'wc' ? 'data-wc' : 'data-group'] = 'mr';
+      return h('section', mattrs, [h('div', { class: 'list-head' }, [
+        h('h3', { class: 'list-title', text: title }),
+        h('span', { class: 'list-count', text: plural(refs.length, 'referral', 'referrals') })
+      ]), h('ul', { class: 'steps-list person-rows' }, rrows)]);
+    }
     var isTn = gid === 'tn', list = isTn ? state.tn : state.cp[gid];
     var rows = list.map(function (a, i) { return { a: a, i: i }; }).filter(function (x) { return isTn || !cardBlank(x.a); })
       .map(function (x) { return personRow(kind, gid, x.i, x.a); });
@@ -728,22 +823,47 @@
     attrs[kind === 'wc' ? 'data-wc' : 'data-group'] = gid;
     return h('section', attrs, kids);
   }
+  // A referral's fields: the same in the Huddle and in ward council.
+  function referralFields(i) {
+    var base = 'referrals.' + i + '.';
+    return h('div', { class: 'card-grid' }, [
+      field('Name', base + 'name', { full: true, placeholder: 'Who is being referred', cap: 'words' }),
+      field('Referred by', base + 'by', { full: true, placeholder: 'Who gave the referral', cap: 'words' }),
+      field('Notes', base + 'notes', { full: true, multi: true, placeholder: 'Anything that helps the missionaries' })
+    ]);
+  }
   // One person's own screen: the huddle's card or ward council's, with a way to take them off the list.
   function renderPerson() {
     var wrap = $('#person-card'); if (!wrap) return;
     var r = personRef, a = rowsOn && isPerson(view) && r ? personCard(r) : null;
     if (!a) { wrap.replaceChildren(); return; }
+    var isRef = r.g === 'mr';
     var base = r.g === 'tn' ? 'tn.' + r.i + '.' : 'cp.' + r.g + '.' + r.i + '.';
-    var card = r.kind === 'wc' ? wcCard(r.g, base, a, r.i, false) : hdPersonCard(r, a);
-    var remove = h('button', { type: 'button', class: 'btn-link danger person-remove', 'data-action': r.g === 'tn' ? 'quick-remove-tn' : 'remove-cp', 'data-a': r.g === 'tn' ? r.i : r.g, 'data-b': r.g === 'tn' ? '' : r.i,
-      hidden: cardBlank(a) }, [r.g === 'tn' ? 'Clear this focus name' : 'Remove from the list']);
+    var card = isRef ? h('div', { class: 'card ref-card' }, [referralFields(r.i)]) : r.kind === 'wc' ? wcPersonCard(r, a) : hdPersonCard(r, a);
+    var remove = h('button', { type: 'button', class: 'btn-link danger person-remove', 'data-action': r.g === 'tn' ? 'quick-remove-tn' : isRef ? 'remove-mr' : 'remove-cp',
+      'data-a': r.g === 'tn' || isRef ? r.i : r.g, 'data-b': r.g === 'tn' || isRef ? '' : r.i,
+      hidden: rowBlank(r.g, a) }, [r.g === 'tn' ? 'Clear this focus name' : 'Remove from the list']);
     var attrs = { class: 'list-panel person-panel list-' + r.g, 'aria-label': personTitle(r) };
     attrs[r.kind === 'wc' ? 'data-wc' : 'data-group'] = r.g;
     var done = h('button', { type: 'button', class: 'btn-primary full person-done', 'data-action': 'steps-home' }, ['Done']);
     // Ward council's screen asks the 4-week question too (the huddle's card carries its own).
-    var note = r.kind === 'wc' ? staleNote(base, a, r.g === 'tn') : null;
+    var note = r.kind === 'wc' && !isRef ? staleNote(base, a, r.g === 'tn') : null;
     wrap.replaceChildren(h('section', attrs, [note, card]), done, remove);
-    if (r.kind === 'hd' && r.g === 'nm') updateTemple();
+    if (r.g === 'nm') updateTemple();
+  }
+  // Missionary Referrals: one section, shown in the Huddle and in ward council.
+  function renderMR() {
+    var wrap = $('#mr-list'); if (!wrap) return;
+    if (rowsOn) { wrap.replaceChildren(rowsPanel(view === 'wc-mr' ? 'wc' : 'hd', 'mr', 'Referrals')); return; }
+    // (Cards-open and one-page layouts: every referral's fields in the list.)
+    var cards = state.referrals.map(function (x, i) {
+      return h('div', { class: 'card ref-card' }, [
+        h('div', { class: 'card-head' }, [h('p', { class: 'fn-assign-label', text: 'Referral ' + (i + 1) }), removeButton('remove-mr', i, '', 'Remove referral ' + (i + 1))]),
+        referralFields(i)
+      ]);
+    });
+    wrap.replaceChildren(h('section', { class: 'list-panel list-mr', 'data-group': 'mr', 'aria-label': 'Missionary referrals' },
+      cards.concat([h('div', { class: 'list-foot' }, [addButton('add-mr', '', 'Add referral')])])));
   }
 
   function renderCP() {
@@ -825,12 +945,12 @@
         if (nm.length === 1 && !nm[0].sac && !hasText(nm[0], CARD_KEYS)) nm.pop();
         nm.push(c);
         if (isPerson(view)) { // their screen follows them to New members
-          personRef = { kind: 'hd', g: 'nm', i: nm.length - 1 }; personWcOpen = wcOpenDefault(personRef);
+          personRef = { kind: personRef ? personRef.kind : 'hd', g: 'nm', i: nm.length - 1 }; personWcOpen = wcOpenDefault(personRef);
           try { history.replaceState({ hv: view, pushed: true, ref: personRef }, ''); } catch (e) { /* ignore */ }
           $('#step-title').textContent = personTitle(personRef);
         }
         renderCP(); saveDraft();
-        var cards = document.querySelectorAll('[data-group="nm"] .card');
+        var cards = document.querySelectorAll('[data-group="nm"] .card, #person-card [data-wc="nm"] .card');
         var card = cards[cards.length - 1];
         if (card) {
           card.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -852,7 +972,7 @@
   function updateTemple() {
     state.cp.nm.forEach(function (it, i) {
       var st = templeStatus(it, state.date);
-      var box = document.querySelector('[data-group="nm"] [data-temple="' + i + '"]');
+      var box = document.querySelector('[data-group="nm"] [data-temple="' + i + '"], #person-card [data-wc="nm"] [data-temple="' + i + '"]');
       if (box) {
         box.classList.toggle('is-done', st.done);
         box.querySelector('.temple-sub').textContent = st.done ? '✓ Baptisms for the dead done' : st.text;
@@ -1017,20 +1137,21 @@
     $('#date').value = state.date;
     renderConducting();
     renderDateHint();
-    renderAttendees(); renderRR(); renderCP(); renderTN(); renderFN();
+    renderAttendees(); renderRR(); renderCP(); renderTN(); renderFN(); renderMR();
     detailsOpen = false; // Huddle Details start closed; tap the box to open them.
     renderDetails(); renderSteps(); renderSent();
   }
 
   /* ---------- Four steps: the agenda opens as a short checklist ---------- */
-  // Return and Report, Covenant Path, Name Next Ordinance, Find New People to Teach.
+  // Return and Report, Covenant Path, Name Next Ordinance, Find New People to Teach, Missionary Referrals.
   // (The PDF's heading for the second one stays "Covenant Path Report Review".)
   // Tap a section to open just that part; "Mark section done" gives it a green check.
   var STEPS = [
     { id: 'rr', title: 'Return and Report', band: 'last' },
     { id: 'cp', title: 'Covenant Path', band: 'this' },
     { id: 'tn', title: 'Name Next Ordinance', band: 'this' },
-    { id: 'fn', title: 'Find New People to Teach', band: 'this' }
+    { id: 'fn', title: 'Find New People to Teach', band: 'this' },
+    { id: 'mr', title: 'Missionary Referrals', band: 'this' }
   ];
   var VIEW_ALL_KEY = 'huddle-view-all';
   var stepsOn = !readFlag(VIEW_ALL_KEY);
@@ -1047,16 +1168,20 @@
   var rowsOn = stepsOn && !readFlag('huddle-cards-open');
   var personRef = null; // { kind: 'hd' | 'wc', g: 'nm' | 'rm' | 'bt' | 'tn', i: index }
   function isPerson(v) { return v === 'p-hd' || v === 'p-wc'; }
-  function personList(r) { return r.g === 'tn' ? state.tn : state.cp[r.g]; }
+  function personList(r) { return r.g === 'tn' ? state.tn : r.g === 'mr' ? state.referrals : state.cp[r.g]; }
   function personCard(r) { var l = r && personList(r); return l ? l[r.i] : null; }
-  function personListView(r) { return r.kind === 'wc' ? (r.g === 'tn' ? 'wc-tn' : 'wc-cp') : (r.g === 'tn' ? 'tn' : 'cp'); }
+  function personListView(r) {
+    var sec = r.g === 'tn' ? 'tn' : r.g === 'mr' ? 'mr' : 'cp';
+    return r.kind === 'wc' ? 'wc-' + sec : sec;
+  }
   function personTitle(r) {
     var a = personCard(r), n = a ? str(a.name).trim() : '';
-    return n || (r.g === 'tn' ? 'Focus name ' + (r.i + 1) : 'New name');
+    return n || (r.g === 'tn' ? 'Focus name ' + (r.i + 1) : r.g === 'mr' ? 'New referral' : 'New name');
   }
   function cardBlank(a) { return !a.sac && !a.temple && !a.committed && !hasText(a, CARD_KEYS); }
+  function rowBlank(g, a) { return g === 'mr' ? refBlank(a) : cardBlank(a); }
   function openPerson(kind, g, i, focusName) {
-    personRef = { kind: kind, g: g, i: +i }; personWcOpen = wcOpenDefault(personRef);
+    personRef = { kind: kind, g: g, i: +i }; personWcOpen = wcOpenDefault(personRef); personHdOpen = false;
     showView(kind === 'wc' ? 'p-wc' : 'p-hd', 'push');
     if (focusName) setTimeout(function () { var f = document.querySelector('#person-card input[data-bind$=".name"]'); if (f) f.focus(); }, 60);
   }
@@ -1072,8 +1197,9 @@
   function cleanupPerson() {
     var r = personRef; personRef = null;
     if (!r || r.g === 'tn') return;
-    var list = state.cp[r.g], a = list[r.i];
-    if (a && cardBlank(a) && list.length > 1) { list.splice(r.i, 1); saveDraft(); }
+    var list = personList(r), a = list[r.i];
+    // (A Covenant Path list keeps one blank card as its placeholder; the referral list can be empty.)
+    if (a && rowBlank(r.g, a) && list.length > (r.g === 'mr' ? 0 : 1)) { list.splice(r.i, 1); saveDraft(); }
   }
   function resetView() { view = stepsOn ? START : 'home'; try { history.replaceState({ hv: view }, ''); } catch (e) { /* ignore */ } }
   // The huddle date is today unless someone picked one for this huddle.
@@ -1100,6 +1226,7 @@
       var lead = id === 'tn' ? named.length + ' of 3 focus names' : plural(named.length, 'person', 'people');
       return { text: lead + ' · ' + (missing ? missing + (missing === 1 ? ' needs' : ' need') + ' an action' : 'everyone has a plan'), warn: missing > 0 };
     }
+    if (id === 'mr') { var nr = cleanReferrals(state.referrals).length; return { text: nr ? plural(nr, 'referral', 'referrals') : 'None listed' }; }
     var plan = str(state.find.plan).trim(), k = state.find.items.filter(function (x) { return str(x.task).trim(); }).length;
     if (!plan && !k) return { text: 'Not started' };
     return { text: (plan ? 'Plan written' : 'No plan yet') + ' · ' + plural(k, 'assignment', 'assignments'), warn: !plan || !k };
@@ -1159,7 +1286,9 @@
     // Erase everything and the footer sit on the opening screen only.
     $('header.top').hidden = !home && !start; $('.start-here').hidden = !home && !start; $('.fine-notes').hidden = !all && !start;
     $('#person-view').hidden = !person;
-    $('#start-home').hidden = !start; $('#wc-view').hidden = !wc && !wcSub; $('#mode-bar').hidden = all || !(view === 'home' || wc);
+    // Find New People to Teach and Missionary Referrals are one section each, shown in the Huddle and in ward council.
+    var stepShown = view === 'wc-fn' ? 'fn' : view === 'wc-mr' ? 'mr' : view;
+    $('#start-home').hidden = !start; $('#wc-view').hidden = !wc && !(!all && isWcNames(view)); $('#mode-bar').hidden = all || !(view === 'home' || wc);
     $('#mode-title').textContent = wc ? 'Ward council' : 'Huddle';
     var stp = STEPS.filter(function (x) { return x.id === view; })[0] || WC_LISTS.filter(function (x) { return 'wc-' + x.id === view; })[0];
     $('#step-title').textContent = person ? personTitle(personRef) : stp ? stp.title : '';
@@ -1170,13 +1299,13 @@
     if (!all && view === 'rr' && shownView !== 'rr') renderRR(); // names may have changed since it was drawn
     if (!all && shownView && shownView !== view) navFeel(viewDepth(view) - viewDepth(shownView));
     shownView = view;
-    renderWC(); renderPerson(); renderChecks();
+    renderWC(); renderMR(); renderPerson(); renderChecks();
     if (start) renderDoors();
     $('#steps-home').hidden = all || view !== 'home';
     $('#step-bar').hidden = all || home || start || wc; $('#step-foot').hidden = all || home || start || wc || wcSub || person;
     // Hand off and Send live on the opening screen and the huddle's list; inside a section they're hidden.
     var bar = $('.actionbar'); if (bar) bar.hidden = !all && !start;
-    Array.prototype.forEach.call(document.querySelectorAll('[data-step]'), function (el) { el.hidden = !all && el.getAttribute('data-step') !== view; });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-step]'), function (el) { el.hidden = !all && el.getAttribute('data-step') !== stepShown; });
     Array.prototype.forEach.call(document.querySelectorAll('.week-band'), function (el) { el.hidden = !all; });
     renderDetails(); renderSteps();
   }
@@ -1234,9 +1363,13 @@
     ].concat(extras));
   }
   // Ward council opens to its two lists, rolled up like the huddle's sections; tap one for its names.
-  var WC_LISTS = [{ id: 'cp', title: 'Covenant Path Report lists' }, { id: 'tn', title: 'Name Next Ordinance' }];
-  function isWcList(v) { return v === 'wc-cp' || v === 'wc-tn'; }
+  // Ward council's lists. The last two are the same sections the Huddle has (the same data, entered once).
+  var WC_LISTS = [{ id: 'cp', title: 'Covenant Path Report lists' }, { id: 'tn', title: 'Name Next Ordinance' },
+    { id: 'fn', title: 'Find New People to Teach' }, { id: 'mr', title: 'Missionary Referrals' }];
+  function isWcList(v) { return v === 'wc-cp' || v === 'wc-tn' || v === 'wc-fn' || v === 'wc-mr'; }
+  function isWcNames(v) { return v === 'wc-cp' || v === 'wc-tn'; }
   function wcStatus(id) {
+    if (id === 'fn' || id === 'mr') return stepStatus(id);
     var named = [];
     if (id === 'tn') named = state.tn.filter(function (a) { return str(a.name).trim(); }).map(function (a) { return { a: a, g: 'tn' }; });
     else GROUPS.forEach(function (g) { state.cp[g.id].forEach(function (a) { if (str(a.name).trim()) named.push({ a: a, g: g.id }); }); });
@@ -1261,12 +1394,12 @@
     $('#wc-note').hidden = rows.hidden;
     if (rows.hidden) rows.replaceChildren();
     if (rowsOn) { // one row per name; the fields are on the person's own screen
-      if (!isWcList(view)) { wrap.replaceChildren(); return; }
+      if (!isWcNames(view)) { wrap.replaceChildren(); return; }
       wrap.replaceChildren.apply(wrap, view === 'wc-tn' ? [rowsPanel('wc', 'tn', 'Focus names')] : GROUPS.map(function (g) { return rowsPanel('wc', g.id, g.title); }));
       return;
     }
     // (Cards-open layout.) The names are only built while their list is on screen, so each field exists once on the page.
-    if (!stepsOn || !isWcList(view)) { wrap.replaceChildren(); return; }
+    if (!stepsOn || !isWcNames(view)) { wrap.replaceChildren(); return; }
     var panel = function (gid, title, list, baseOf) {
       return h('section', { class: 'list-panel wc-panel list-' + gid, 'data-wc': gid, 'aria-label': title }, [
         h('h3', { class: 'wc-title', text: title }),
@@ -1616,12 +1749,29 @@
         if (wt) wt.focus({ preventScroll: true });
         break;
       }
+      case 'hd-edit-toggle': {
+        personHdOpen = !personHdOpen; renderPerson();
+        var ht = document.querySelector('#person-card .zone-toggle');
+        if (ht) ht.focus({ preventScroll: true });
+        break;
+      }
       case 'open-person': openPerson(btn.getAttribute('data-kind') || 'hd', a, +b, a !== 'tn' ? false : !str(state.tn[+b].name).trim()); break;
       case 'add-person': {
-        var ak = btn.getAttribute('data-kind') || 'hd', al = state.cp[a];
-        var ai = al.findIndex(cardBlank);
-        if (ai < 0) { al.push(blankAction()); ai = al.length - 1; }
+        var ak = btn.getAttribute('data-kind') || 'hd', al = a === 'mr' ? state.referrals : state.cp[a];
+        var ai = al.findIndex(function (x) { return rowBlank(a, x); });
+        if (ai < 0) { al.push(a === 'mr' ? blankReferral() : blankAction()); ai = al.length - 1; }
         openPerson(ak, a, ai, true);
+        break;
+      }
+      case 'add-mr': state.referrals.push(blankReferral()); renderMR(); saveDraft(); focusLast('#mr-list input[data-bind$=".name"]'); break;
+      case 'remove-mr': {
+        var mi = +a, mx = state.referrals[mi];
+        var doRemoveMR = function () {
+          state.referrals.splice(mi, 1);
+          if (isPerson(view)) { personRef = { kind: personRef.kind, g: 'mr', i: -1 }; leavePerson(); }
+          renderMR(); renderSteps(); saveDraft();
+        };
+        if (mx && !refBlank(mx)) confirmRemove(str(mx.name).trim() ? 'Remove ' + mx.name.trim() + '?' : 'Remove this referral?', doRemoveMR); else doRemoveMR();
         break;
       }
       case 'quick-add': { var qi = btn.parentNode.querySelector('.quick-input'); if (quickAdd(a, qi && qi.value)) { var nq = document.querySelector('#before-list [data-quick="' + a + '"] .quick-input'); if (nq) nq.focus(); } break; }
@@ -1857,7 +2007,8 @@
         card({ name: 'Samuel Ortiz', ordinance: 'Melchizedek Priesthood', need: 'Someone to study with', action: 'Elders quorum president meets with him', assigned: 'Bro. Young', when: 'Tue' }),
         card({ name: 'Emma Walsh', ordinance: 'Endowment', need: 'Temple preparation class', action: 'Invite her to the temple prep class', assigned: 'Sister Lee', when: 'Sun' })
       ],
-      find: { plan: 'Invite friends to the ward Christmas devotional', items: [{ task: 'Each family invites one friend', when: 'Sun', carried: false }] }
+      find: { plan: 'Invite friends to the ward Christmas devotional', items: [{ task: 'Each family invites one friend', when: 'Sun', carried: false }] },
+      referrals: [{ name: 'Marcus Bell', by: 'Sister Diaz', notes: 'A friend from work who asked about the Book of Mormon' }]
     };
   }
   // Tour only: when New members is empty, the tour shows one sample card so the name card stops have fields to point at.
@@ -1932,6 +2083,7 @@
     state = f; showBlank = {};
     state.rr = items.length ? items.map(function (it) { return rrFromItem(it, it.done ? 'Yes' : ''); }) : [blankRR(), blankRR()];
     carryNames(data);
+    state.referrals = cleanReferrals(data.referrals); // referrals stay until they're removed
     resetView();
     renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
     return items.length;
@@ -2392,7 +2544,8 @@
     state.practiceSnapshot = snap;
     if (!opts.practice && !state.ward.trim() && data.ward) { state.ward = str(data.ward); $('#ward').value = state.ward; writeWard(state.ward); }
     var carried = carryNames(data);
-    renderRR(); renderCP(); renderTN(); saveDraft();
+    if (opts.practice) state.referrals = cleanReferrals(data.referrals);
+    renderRR(); renderCP(); renderTN(); renderMR(); saveDraft();
     toast(opts.practice ? 'Practice week loaded: ' + items.length + ' sample action items are in Return and Report, and the names carried over.'
       : 'Loaded ' + items.length + (items.length === 1 ? ' action item' : ' action items') +
       (carried ? ' and ' + carried + (carried === 1 ? ' name' : ' names') : '') + ' from last week.', opts.practice ? 6000 : undefined);
@@ -2622,7 +2775,8 @@
       rm: { fill: rgb(0.929, 0.965, 0.941), ink: rgb(0.122, 0.42, 0.227) },
       bt: { fill: rgb(0.957, 0.933, 0.976), ink: rgb(0.478, 0.247, 0.62) },
       tn: { fill: rgb(1, 0.973, 0.902), ink: rgb(0.62, 0.42, 0.02) },
-      fn: { fill: rgb(0.91, 0.961, 0.961), ink: rgb(0.055, 0.431, 0.451) }
+      fn: { fill: rgb(0.91, 0.961, 0.961), ink: rgb(0.055, 0.431, 0.451) },
+      mr: { fill: rgb(0.98, 0.933, 0.945), ink: rgb(0.659, 0.2, 0.333) }
     };
     // Name card tables: Name | Attended sacrament | Next ordinance | Need | Action | Assigned to | When
     // Name | Next ordinance | Need  (Ward Council)  ·  Attended sacrament | Action | Assigned to | When  (Huddle)
@@ -3045,6 +3199,19 @@
     if (fPlan) { table([48], ['PLAN'], [{ gid: 'fn', cells: [fPlan] }]); y += 8; }
     if (fRows.length || !fPlan) table([48, 470], ['ASSIGNMENT', 'WHEN'], fRows.length ? fRows : [{ empty: fPlan ? 'No assignments yet' : 'None this week' }]);
 
+    /* ----- Missionary referrals ----- */
+    var mRows = cleanReferrals(s.referrals).map(function (x) {
+      return { gid: 'mr', cells: [str(x.name).trim() || '—', str(x.by).trim(), str(x.notes).trim()] };
+    });
+    // With no referrals, the section prints "None listed" only where there's room: it never starts a page by itself.
+    if (mRows.length || y + 13 + 70 <= H - BOTTOM) {
+      y += 13;
+      ensure(70); // keep the heading with its table
+      heading('Missionary Referrals');
+      y += 7;
+      table([48, 190, 320], ['NAME', 'REFERRED BY', 'NOTES'], mRows.length ? mRows : [{ empty: 'None listed' }]);
+    }
+
     y += 12;
 
     // Footers
@@ -3082,7 +3249,8 @@
           : { plan: r.plan, happened: r.happened, notes: r.notes };
       }),
       cpDone: s.cpDone, cp: s.cp, cpNone: s.cpNone, tnDone: s.tnDone, tn: s.tn, ftDone: s.ftDone,
-      find: { plan: str(s.find.plan), items: s.find.items.map(function (x) { return { task: str(x.task), when: str(x.when), carried: !!x.carried }; }) }
+      find: { plan: str(s.find.plan), items: s.find.items.map(function (x) { return { task: str(x.task), when: str(x.when), carried: !!x.carried }; }) },
+      referrals: cleanReferrals(s.referrals)
     }));
   }
 
@@ -3411,7 +3579,7 @@
             primary: 'Same person, fix the name', onPrimary: function () {
               pend.forEach(function (r) { r.pname = now; });
               renderRR(); saveDraft();
-              if (rcard && (isWcList(view) || view === 'p-wc')) { Array.prototype.forEach.call(rcard.querySelectorAll('.wc-last'), function (x) { x.remove(); }); wcExtras(rg, getPath(path.replace(/\.name$/, '')) || {}).forEach(function (x) { rcard.appendChild(x); }); }
+              if (rcard && (isWcList(view) || view === 'p-wc')) refreshWcBoxes(rcard, rg, getPath(path.replace(/\.name$/, '')) || {});
               toast('Name fixed. The last assignment stays with ' + now + '.');
             },
             secondary: 'Different person'
@@ -3422,13 +3590,12 @@
       if (isPerson(view) && personRef && /\.name$/.test(path)) {
         $('#step-title').textContent = personTitle(personRef);
         var prm = $('#person-card .person-remove'), pca = personCard(personRef);
-        if (prm && pca) prm.hidden = cardBlank(pca);
-      } else if (isPerson(view) && personRef) { var prm2 = $('#person-card .person-remove'), pc2 = personCard(personRef); if (prm2 && pc2) prm2.hidden = cardBlank(pc2); }
+        if (prm && pca) prm.hidden = rowBlank(personRef.g, pca);
+      } else if (isPerson(view) && personRef) { var prm2 = $('#person-card .person-remove'), pc2 = personCard(personRef); if (prm2 && pc2) prm2.hidden = rowBlank(personRef.g, pc2); }
       var wcc = e.type === 'change' && (isWcList(view) || view === 'p-wc') && /\.name$/.test(path) ? t.closest('.wc-card') : null;
       if (wcc) {
-        Array.prototype.forEach.call(wcc.querySelectorAll('.wc-last'), function (x) { x.remove(); });
         var wp = path.split('.'), wg = wp[0] === 'tn' ? 'tn' : wp[1], wa = getPath(path.replace(/name$/, '').replace(/\.$/, ''));
-        wcExtras(wg, wa || {}).forEach(function (x) { wcc.appendChild(x); });
+        refreshWcBoxes(wcc, wg, wa || {});
       }
       if (path === 'conductingOther') writeConducting(state);
       if (/\.name$/.test(path)) {
