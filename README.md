@@ -38,7 +38,7 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 
 ## Built-in instructions
 
-- **How to use** (top of the opening screen) is a short list: six numbered steps for the week, six "How do I…" questions, and the tour, a sample agenda, a practice week and the training video. Tap a row to read it; each step is a few short lines. In a phone's browser it opens by itself the first time, with the first step (Add Huddle to your Home Screen) open.
+- **How to use** (top of the opening screen) is a short list: a first-time step (Add Huddle to your Home Screen), five numbered steps for every week, six "How do I…" questions, and the tour, a sample agenda, a practice week and the training video. Tap a row to read it; each step is a few short lines. In a phone's browser it opens by itself the first time, with the first-time step open.
 - **Guided tour:** a 20-stop walk-through that dims the page and explains each part in a bubble (Next / Back / Skip tour). It starts once on its own the first time the app is opened from the Home Screen. Replay it from **Take the tour** in How to use, or send people the site link plus `#tour`. The wording lives in `tour.js`.
 - **Tips for an effective meeting** is at the top of the Huddle screen. It opens the Principles for Effective Coordination and the Prepare ahead tip.
 - Send people straight to the instructions with the site link plus `#help` (for example `https://dk10-dotcom.github.io/coordination-meetings/#help`).
@@ -55,7 +55,7 @@ The opening screen is titled **Ward Mission Leader Process** and shows four step
 
 **Send → Share PDF** finishes the huddle: its action items move into Return and Report for next time, names and needs stay, and everything else clears. **Undo** in the Sent successfully message puts it back. **Share again** on the opening screen resends the last PDF. There is no date to set; the PDF is dated the day it's sent, and **Change date** on the Send screen overrides that.
 
-Someone else conducting? Tap **Hand off**, then **Send a handoff**, to text them a link that loads the huddle on their phone. On iPhone, links open in Safari and never in the Home Screen app, so the link opens a page with three steps: copy the handoff, open Huddle, then tap **Hand off → Receive a handoff**. After they send it, **Load from a PDF** sets up the next huddle from their PDF.
+Someone else conducting? Tap **Hand off**, then **Send a handoff**, to text them a link that loads the huddle on their phone. On iPhone, links open in Safari and never in the Home Screen app, so the link opens a page with three steps: copy the handoff, open Huddle, then tap **Hand off → Receive a handoff**. After they send the PDF, they hand it back the same way, to whoever conducts next week. (**Load from a PDF** is the fallback: it sets up the next huddle from the PDF they sent.)
 
 New members (blue), Returning members (green), Those being taught (purple) and Name Next Ordinance (amber) each have their own color in the app (a dot beside the list's name, and on the person's card) and on the PDF. Return and Report cards fill green, amber or red once marked Yes, Partly or No.
 

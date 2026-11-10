@@ -278,12 +278,16 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
 
 - **Hand off** (beside Send) opens two choices, for when someone else conducts:
   - **Send a handoff** opens Messages with a link that loads the current huddle on another phone.
-    The person picks who to text; send it only to the leader filling in. With nothing entered, the
-    row reads "Nothing to hand off yet".
+    The person picks who to text; send it only to the leader who conducts next. With nothing
+    entered, the row reads "Nothing to hand off yet".
   - **Receive a handoff** reads the copied link from the clipboard (or offers a box to paste it)
     and asks "Load this handoff?".
 
   Hand off is blocked during a practice week.
+- **A leader who filled in hands the huddle back.** After sending the PDF (which finishes that
+  huddle and sets up the next one), they tap **Hand off**, then **Send a handoff**, and text it to
+  whoever conducts next week. That leader then has the next huddle, with the last assignments in
+  Return and Report. The Hand off sheet, How to use and the tour all say this.
 - The data rides in the part of the link after `#`, which browsers never send to the website.
   On Android (and on a computer) opening the link asks "Load this handoff?" right away.
 - **On iPhone the link opens in Safari, never in the Home Screen app,** and the two keep their data
@@ -299,16 +303,19 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
   visit). **Not now** closes the page and loads nothing. On a first visit, How to use and the tour
   wait until the next visit so nothing covers this page.
 - **Load from a PDF** (the quiet link under the four steps) reads the data embedded in a sent PDF
-  and sets up the next huddle from it, the same way sending does. This is how a ward mission leader picks up after someone else
-  conducted, or restores after losing the phone's data.
+  and sets up the next huddle from it, the same way sending does. It restores a phone that lost its
+  data, and it is the fallback if a leader who filled in did not hand the huddle back.
 - Both ask first and can be undone right after.
 
 ## Help built into the app
 
 - **How to use** is a short list, not a page of text. It has an intro line, the warning "Never add
-  confidential information to this agenda." (always showing), and three groups of rows:
-  - **The week, step by step:** six numbered steps, each with a one-line summary: Add Huddle to
-    your Home Screen, Before ward council, Ward council, Huddle, Send, During the week.
+  confidential information to this agenda." (always showing), and four groups of rows:
+  - **First time only:** Add Huddle to your Home Screen. It is set apart and has no step number,
+    because it is done once and is not part of the week. Its one-line summary reads "Do this once,
+    before you start", or "Already done on this phone" when the app is running from the Home Screen.
+  - **Every week:** five numbered steps, each with a one-line summary: Before ward council, Ward
+    council, Huddle, Send, During the week.
   - **How do I…:** Hand off to someone else, Fix a mistake, Share the PDF again, Get my names
     back, Add or remove a name, New members and those being taught.
   - **Watch or try:** Take the tour, See a sample agenda, Try a practice week, and Watch the
@@ -317,7 +324,7 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
   Tapping a step or question opens it in place, and tapping it again closes it. A step is at most
   five short lines that say what to tap; what a screen already explains is left out. The Send step
   carries the sharing rule word for word. Every time How to use opens it is the short list again,
-  scrolled to the top. In a phone's browser the first step (Add Huddle to your Home Screen) starts
+  scrolled to the top. In a phone's browser the first-time step (Add Huddle to your Home Screen) starts
   open, and How to use opens by itself on the first visit; from the Home Screen app every step
   starts closed.
 - **Tour:** 21 stops. The stops about one person open a person's screen; when New members is

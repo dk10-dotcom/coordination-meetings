@@ -386,10 +386,10 @@
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="handoff-title">
     <div class="grab" aria-hidden="true"></div>
     <h2 id="handoff-title" tabindex="-1">Hand off</h2>
-    <p class="step-hint">For when someone else conducts the huddle. Send a handoff only to the leader filling in.</p>
+    <p class="step-hint">Send a handoff only to the leader who conducts next. Filled in for someone? After you send the PDF, hand it back the same way.</p>
     <ul class="steps-list">
       <li><button type="button" class="nav-row" data-action="handoff-send" id="handoff-send">
-        <span class="step-text"><span class="step-title">Send a handoff</span><span class="step-status" id="handoff-send-sub">Text this huddle to the leader filling in</span></span>
+        <span class="step-text"><span class="step-title">Send a handoff</span><span class="step-status" id="handoff-send-sub">Text this huddle to the leader who conducts next</span></span>
         <span class="step-chev" aria-hidden="true">›</span>
       </button></li>
       <li><button type="button" class="nav-row" data-action="handoff-receive" id="handoff-receive">
@@ -495,10 +495,10 @@
 
     <p class="help-warning"><span class="help-warning-icon" aria-hidden="true">!</span><span><strong>Never add confidential information to this agenda.</strong></span></p>
 
-    <h3 class="help-band">The week, step by step</h3>
+    <h3 class="help-band">First time only</h3>
     <ul class="steps-list help-list">
       <li><details class="help-item" id="help-install">
-        <summary class="nav-row"><span class="help-num" aria-hidden="true">1</span><span class="step-text"><span class="step-title">Add Huddle to your Home Screen</span><span class="step-status">Do this first</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <summary class="nav-row"><span class="step-text"><span class="step-title">Add Huddle to your Home Screen</span><span class="step-status" id="help-install-status">Do this once, before you start</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
         <ul class="help-body">
           <li>Do this before you type anything. On iPhone, what you type in Safari doesn’t carry over to the app.</li>
           <li>Tap <strong>Add to Home Screen</strong> at the top of the opening screen. iPhone: use Safari. Android: use Chrome.</li>
@@ -506,8 +506,12 @@
           <li><strong>Don’t delete the icon.</strong> That erases everything on this phone.</li>
         </ul>
       </details></li>
+    </ul>
+
+    <h3 class="help-band">Every week</h3>
+    <ul class="steps-list help-list">
       <li><details class="help-item">
-        <summary class="nav-row"><span class="help-num" aria-hidden="true">2</span><span class="step-text"><span class="step-title">Before ward council</span><span class="step-status">Update each person from the Covenant Path Report</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <summary class="nav-row"><span class="help-num" aria-hidden="true">1</span><span class="step-text"><span class="step-title">Before ward council</span><span class="step-status">Update each person from the Covenant Path Report</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
         <ul class="help-body">
           <li>On the opening screen, tap <strong>Before ward council</strong>, then <strong>Open the Covenant Path Report</strong>.</li>
           <li>Tap each name and update the next ordinance, needs, temple attendance and sacrament attendance.</li>
@@ -516,7 +520,7 @@
         </ul>
       </details></li>
       <li><details class="help-item">
-        <summary class="nav-row"><span class="help-num" aria-hidden="true">3</span><span class="step-text"><span class="step-title">Ward council</span><span class="step-status">Who to focus on, and each next ordinance</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <summary class="nav-row"><span class="help-num" aria-hidden="true">2</span><span class="step-text"><span class="step-title">Ward council</span><span class="step-status">Who to focus on, and each next ordinance</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
         <ul class="help-body">
           <li>Tap <strong>Ward council</strong>, then <strong>Covenant Path Report lists</strong> or <strong>Name Next Ordinance</strong> (the focus names).</li>
           <li>Tap a name, or <strong>Add a name</strong>. Enter the next ordinance and what the person needs.</li>
@@ -524,7 +528,7 @@
         </ul>
       </details></li>
       <li><details class="help-item">
-        <summary class="nav-row"><span class="help-num" aria-hidden="true">4</span><span class="step-text"><span class="step-title">Huddle</span><span class="step-status">How and when to help</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <summary class="nav-row"><span class="help-num" aria-hidden="true">3</span><span class="step-text"><span class="step-title">Huddle</span><span class="step-status">How and when to help</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
         <ul class="help-body">
           <li>Tap <strong>Huddle</strong>, then <strong>Huddle Details</strong>. Choose who’s conducting and tap everyone who attended.</li>
           <li><strong>Return and Report:</strong> mark each item <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>. To keep an unfinished item on the plan, tap <strong>Carry forward to this huddle</strong>.</li>
@@ -534,7 +538,7 @@
         </ul>
       </details></li>
       <li><details class="help-item">
-        <summary class="nav-row"><span class="help-num" aria-hidden="true">5</span><span class="step-text"><span class="step-title">Send</span><span class="step-status">Update the report, then share the PDF</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <summary class="nav-row"><span class="help-num" aria-hidden="true">4</span><span class="step-text"><span class="step-title">Send</span><span class="step-status">Update the report, then share the PDF</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
         <ul class="help-body">
           <li>On the opening screen, tap <strong>After the huddle, before you send</strong>. It lists what to update in the Covenant Path Report.</li>
           <li>Update the report, then tap <strong>It’s all updated · Mark done</strong>. Send works only after this.</li>
@@ -544,7 +548,7 @@
         </ul>
       </details></li>
       <li><details class="help-item">
-        <summary class="nav-row"><span class="help-num" aria-hidden="true">6</span><span class="step-text"><span class="step-title">During the week</span><span class="step-status">Mark assignments as people report back</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <summary class="nav-row"><span class="help-num" aria-hidden="true">5</span><span class="step-text"><span class="step-title">During the week</span><span class="step-status">Mark assignments as people report back</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
         <ul class="help-body">
           <li>As people report back, tap <strong>Huddle</strong>, then <strong>Return and Report</strong>, and mark <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>.</li>
           <li>Keep names, needs and the Covenant Path Report up to date.</li>
@@ -558,9 +562,9 @@
         <summary class="nav-row"><span class="step-text"><span class="step-title">Hand off to someone else</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
         <ul class="help-body">
           <li>The ward mission leader usually conducts. When he’s away, the elders quorum representative does.</li>
-          <li>On the opening screen, tap <strong>Hand off</strong>, then <strong>Send a handoff</strong>. Text the link to the leader filling in.</li>
+          <li>On the opening screen, tap <strong>Hand off</strong>, then <strong>Send a handoff</strong>. Text the link to the leader who will conduct.</li>
           <li>They tap the link and follow the steps it shows.</li>
-          <li>After their huddle, tap <strong>Load from a PDF</strong> on the opening screen and choose the PDF they sent you. Your next huddle is set up from it.</li>
+          <li><strong>Filled in for someone?</strong> After you send the PDF, hand it back the same way, to whoever conducts next week.</li>
         </ul>
       </details></li>
       <li><details class="help-item">

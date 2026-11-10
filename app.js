@@ -2211,7 +2211,7 @@
     // During a practice week nothing is handed off or loaded over the sample names.
     if (state.loaded && state.loaded.practice) { toast(handoffBlocked()); return; }
     var why = handoffBlocked(), sub = $('#handoff-send-sub');
-    sub.textContent = why ? 'Nothing to hand off yet' : 'Text this huddle to the leader filling in';
+    sub.textContent = why ? 'Nothing to hand off yet' : 'Text this huddle to the leader who conducts next';
     sub.classList.toggle('warn', false);
     $('#handoff-send').setAttribute('aria-disabled', why ? 'true' : 'false');
     // Build the link now, so tapping Send a handoff opens Messages right away.
@@ -3122,11 +3122,14 @@
   function readFlag(k) { try { var s = getStore('localStorage'); return !!(s && s.getItem(k)); } catch (e) { return false; } }
   function writeFlag(k) { try { var s = getStore('localStorage'); if (s) s.setItem(k, '1'); } catch (e) { /* ignore */ } }
   function openHelp() {
-    // How to use always opens as the short list of steps. In a phone's browser the first step
-    // (Add Huddle to your Home Screen) starts open, since that is the thing to do next.
+    // How to use always opens as the short list of steps. Adding Huddle to the Home Screen is done once, so it
+    // sits apart from the weekly steps: in a phone's browser it starts open, since that is the thing to do next,
+    // and from the Home Screen app it says it's already done.
     Array.prototype.forEach.call(document.querySelectorAll('#help-sheet details'), function (d) { d.open = false; });
-    var install = $('#help-install');
-    if (install && (isIOS || isAndroid) && !isStandalone()) install.open = true;
+    var install = $('#help-install'), installed = isStandalone();
+    if (install && (isIOS || isAndroid) && !installed) install.open = true;
+    var installNote = $('#help-install-status');
+    if (installNote) installNote.textContent = installed ? 'Already done on this phone' : 'Do this once, before you start';
     openOverlay('#help-sheet', '#help-title');
     var sheet = $('#help-sheet .sheet'); if (sheet) sheet.scrollTop = 0;
   }

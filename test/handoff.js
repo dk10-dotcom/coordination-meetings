@@ -33,7 +33,7 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   ok(await p.locator('.actionbar [data-action="handoff"]').count() === 1 && !(await p.isVisible('[data-action="save-only"]')), 'Hand off sits beside Send; Save without sending is gone');
   await p.evaluate(() => document.querySelector('.actionbar [data-action="handoff"]').click()); await p.waitForSelector('#handoff-sheet:not([hidden])');
   ok((await p.textContent('#handoff-title')) === 'Hand off' && await p.locator('#handoff-sheet .nav-row').count() === 2 && (await p.textContent('#handoff-send')).includes('Send a handoff') && (await p.textContent('#handoff-receive')).includes('Receive a handoff'), 'Hand off offers two choices: Send a handoff and Receive a handoff');
-  ok((await p.textContent('#handoff-send-sub')).includes('Text this huddle') && (await p.textContent('#handoff-sheet .step-hint')).includes('only to the leader filling in') && await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Send says it texts the huddle, and to send it only to the leader filling in');
+  ok((await p.textContent('#handoff-send-sub')).includes('Text this huddle') && (await p.textContent('#handoff-send-sub')).includes('the leader who conducts next') && (await p.textContent('#handoff-sheet .step-hint')).includes('Send a handoff only to the leader who conducts next.') && (await p.textContent('#handoff-sheet .step-hint')).includes('After you send the PDF, hand it back the same way.') && await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Hand off says to send it only to the leader who conducts next, and to hand it back after filling in');
   await p.screenshot({ path: `${OUT}/ask.png` });
   await p.click('#handoff-send'); await p.waitForTimeout(250);
   ok(await p.isHidden('#handoff-sheet') && await p.isHidden('#confirm-sheet'), 'Send a handoff goes straight to Messages, with no second question');
@@ -136,12 +136,30 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   await s.goto(url); await s.waitForSelector('#confirm-sheet:not([hidden])');
   ok((await s.textContent('#confirm-title')).includes('Load this handoff?') && await s.isHidden('#handoff-page'), 'Android goes straight to loading');
 
+  // Handing it back: the leader who filled in sends the PDF, then hands the huddle back the same way
+  await s.click('#confirm-primary'); await s.waitForTimeout(500);
+  await s.evaluate(() => { navigator.canShare = () => true; navigator.share = () => Promise.resolve(); });
+  await s.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); document.querySelector('[data-action="after-done"]').click(); } }).then(() => s.click('.actionbar [data-action="send"]'));
+  await s.waitForTimeout(300); if (await s.isVisible('#confirm-sheet') && /Ready to send/.test(await s.textContent('#confirm-title'))) await s.click('#confirm-primary');
+  await s.waitForSelector('#share-btn:not([disabled])'); await s.click('#share-btn'); await s.waitForSelector('#confirm-sheet:not([hidden])');
+  ok((await s.textContent('#confirm-title')).includes('Sent successfully'), 'the leader who filled in sends the PDF');
+  await s.click('#confirm-primary'); await s.waitForTimeout(400);
+  await s.evaluate(() => { window.__sms = ''; document.querySelector('.actionbar [data-action="handoff"]').click(); }); await s.waitForSelector('#handoff-sheet:not([hidden])');
+  ok((await s.getAttribute('#handoff-send', 'aria-disabled')) === 'false' && (await s.textContent('#handoff-send-sub')).includes('the leader who conducts next'), 'right after sending, Send a handoff is ready for handing it back');
+  await s.click('#handoff-send'); await s.waitForTimeout(300);
+  const backUrl = (decodeURIComponent((await s.evaluate(() => window.__sms || '')).replace(/^sms:\?&body=/, '')).match(/https?:\/\/\S+/) || [''])[0];
+  ok(/#handoff=z/.test(backUrl) && backUrl !== url, 'handing it back texts a new link');
+  const G = await mk('Pixel 7'); const g2 = G.p;
+  await g2.goto(backUrl); await g2.waitForSelector('#confirm-sheet:not([hidden])'); await g2.click('#confirm-primary'); await g2.waitForTimeout(600);
+  const got = await g2.evaluate(() => JSON.parse(localStorage.getItem('huddle-agenda-v1')));
+  ok(got.cp.nm[0].name === 'Daniel Rivera' && got.rr.some(r => r.prefilled && r.pname === 'Daniel Rivera' && r.action === 'Drive him to the temple') && !got.cp.nm[0].action && got.referrals.length === 1, 'the leader conducting next gets the next huddle: names kept, and the last assignments in Return and Report');
+
   // A broken link
   const E = await mk('Pixel 7'); const s2 = E.p;
   await s2.goto('http://127.0.0.1:8765/#handoff=zBROKEN'); await s2.waitForSelector('#confirm-sheet:not([hidden])');
   ok((await s2.textContent('#confirm-title')).includes('didn’t work'), 'a broken link says so');
 
-  const errs = [p, q, r, s, n, f].flatMap(x => x.errs);
+  const errs = [p, q, r, s, n, f, g2].flatMap(x => x.errs);
   ok(!errs.length, 'no page errors ' + errs.join('; '));
   console.log(`${pass}/${pass + fail} checks passed`);
   await b.close(); process.exit(fail ? 1 : 0);
