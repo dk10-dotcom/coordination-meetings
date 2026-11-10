@@ -1020,3 +1020,6 @@ body.handoff-open main.wrap { display: none; }
 .hp-or { margin-top: 6px; font-weight: 600; color: var(--ink); }
 .hp-warn { font-size: 14px; color: var(--muted); line-height: 1.35; }
 .hp-close { align-self: center; min-height: 44px; }
+/* A row that can't be used yet (Send a handoff with nothing entered): still tappable, so it can say why */
+.nav-row[aria-disabled="true"] .step-title { color: var(--muted); }
+.nav-row[aria-disabled="true"] .step-chev { visibility: hidden; }

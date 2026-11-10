@@ -1,5 +1,6 @@
 // Handoff link: the ward mission leader texts the agenda; another leader opens the link (iPhone Safari, iPhone app via paste, Android) and it loads.
 // On iPhone the link opens in Safari, never in the app, so it gets a page of its own: Copy handoff, then paste it in the app.
+// Hand off (beside Send) offers both ends: Send a handoff (text it) and Receive a handoff (paste it).
 // These checks fill many cards in a row, so they keep every card open in its list ('huddle-cards-open').
 // The lists of names and each person's own screen are covered by rows.js and twodoor.js.
 const { chromium, devices } = require('playwright');
@@ -28,10 +29,12 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   await p.fill('[data-bind="tn.0.name"]', 'Grace Thompson'); await p.fill('[data-bind="tn.0.action"]', 'Invite to temple prep');
   await p.click('[data-action="steps-home"]'); await p.waitForTimeout(400);
   ok(await p.locator('.actionbar [data-action="handoff"]').count() === 1 && !(await p.isVisible('[data-action="save-only"]')), 'Hand off sits beside Send; Save without sending is gone');
-  await p.evaluate(() => document.querySelector('.actionbar [data-action="handoff"]').click()); await p.waitForSelector('#confirm-sheet:not([hidden])');
-  ok((await p.textContent('#confirm-title')).includes('Hand off this agenda?'), 'asks before handing off');
+  await p.evaluate(() => document.querySelector('.actionbar [data-action="handoff"]').click()); await p.waitForSelector('#handoff-sheet:not([hidden])');
+  ok((await p.textContent('#handoff-title')) === 'Hand off' && await p.locator('#handoff-sheet .nav-row').count() === 2 && (await p.textContent('#handoff-send')).includes('Send a handoff') && (await p.textContent('#handoff-receive')).includes('Receive a handoff'), 'Hand off offers two choices: Send a handoff and Receive a handoff');
+  ok((await p.textContent('#handoff-send-sub')).includes('Text this huddle') && (await p.textContent('#handoff-sheet .step-hint')).includes('only to the leader filling in') && await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Send says it texts the huddle, and to send it only to the leader filling in');
   await p.screenshot({ path: `${OUT}/ask.png` });
-  await p.click('#confirm-primary'); await p.waitForTimeout(200);
+  await p.click('#handoff-send'); await p.waitForTimeout(250);
+  ok(await p.isHidden('#handoff-sheet') && await p.isHidden('#confirm-sheet'), 'Send a handoff goes straight to Messages, with no second question');
   const href = await p.evaluate(() => window.__sms || '');
   const body = decodeURIComponent(href.replace(/^sms:\?&body=/, ''));
   const url = (body.match(/https?:\/\/\S+/) || [''])[0];
@@ -49,7 +52,7 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   ok(!(await q.isVisible('#form')) && !(await q.isVisible('.actionbar')) && !(await q.isVisible('#confirm-sheet')) && !(await q.isVisible('#install-banner')), 'nothing of the app shows behind it, and no sheet is over it');
   ok(!/handoff=/.test(await q.evaluate(() => location.href)), 'the link is cleared from the address bar');
   ok(await q.locator('.hp-step').count() === 3 && await q.locator('#handoff-page .btn-primary:visible').count() === 1 && (await q.textContent('#hp-copy')).trim() === 'Copy handoff' && await q.locator('#hp-step-1.now').count() === 1, 'three steps, with one main button: Copy handoff');
-  ok((await q.textContent('#hp-step-2')).includes('Open Huddle from your Home Screen') && (await q.textContent('#hp-step-3')).includes('Load a handoff or PDF') && (await q.textContent('#hp-step-3')).includes('Paste a handoff'), 'steps 2 and 3 say where to go in the app');
+  ok((await q.textContent('#hp-step-2')).includes('Open Huddle from your Home Screen') && (await q.textContent('#hp-step-3')).includes('Tap Hand off, then Receive a handoff') && (await q.textContent('#hp-step-3')).includes('beside Send'), 'steps 2 and 3 say where to go in the app');
   ok(await fits(q), 'the handoff page fits the phone');
   await q.screenshot({ path: `${OUT}/safari.png`, fullPage: true });
   await q.click('#hp-copy'); await q.waitForTimeout(250);
@@ -83,9 +86,14 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   const C = await mk('iPhone 13', { permissions: ['clipboard-read', 'clipboard-write'] }); const r = C.p;
   await r.goto('http://127.0.0.1:8765/#huddle'); await r.waitForSelector('.chip', { state: 'attached' }); await r.click('[data-action="dismiss-install"]').catch(() => {});
   await r.evaluate(t => navigator.clipboard.writeText(t), 'Handoff: tap the link ' + url);
-  await r.click('[data-action="go-start"]'); await r.click('[data-action="load-other"]'); await r.waitForSelector('#load-sheet:not([hidden])');
-  await r.screenshot({ path: `${OUT}/load-sheet.png` });
-  await r.click('[data-action="paste-handoff"]'); await r.waitForSelector('#confirm-sheet:not([hidden])');
+  await r.click('[data-action="go-start"]'); await r.click('.actionbar [data-action="handoff"]'); await r.waitForSelector('#handoff-sheet:not([hidden])');
+  ok((await r.textContent('#handoff-send-sub')).includes('Nothing to hand off yet'), 'on a phone with nothing entered, Send says there’s nothing to hand off yet');
+  ok(await r.getAttribute('#handoff-send', 'aria-disabled') === 'true', 'and the row is marked unavailable');
+  await r.evaluate(() => document.querySelector('#handoff-send').click()); await r.waitForTimeout(200);
+  ok(await r.isVisible('#handoff-sheet') && await r.isHidden('#toast') && !(await r.evaluate(() => window.__sms)), 'tapping it sends nothing and leaves the choices open, with nothing covering Receive a handoff');
+  await r.screenshot({ path: `${OUT}/handoff-sheet.png` });
+  await r.click('#handoff-receive'); await r.waitForSelector('#confirm-sheet:not([hidden])');
+  ok(await r.isHidden('#handoff-sheet'), 'Receive a handoff closes the choices');
   ok((await r.textContent('#confirm-title')).includes('Load this handoff?'), 'Paste a handoff reads the link from the clipboard');
   await r.click('#confirm-primary'); await r.waitForTimeout(300);
   // (The Undo message sits over this row for a few seconds; tap the row itself, the way a finger would beside it.)
@@ -96,7 +104,9 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   ok(await r.isVisible('#toast .toast-action'), 'Undo offered after loading');
   // A bad paste
   await r.evaluate(() => navigator.clipboard.writeText('hello'));
-  await r.click('[data-action="go-start"]'); await r.click('[data-action="load-other"]'); await r.click('[data-action="paste-handoff"]'); await r.waitForSelector('#confirm-sheet:not([hidden])');
+  await r.click('[data-action="go-start"]'); await r.waitForTimeout(300); await r.evaluate(() => document.querySelector('.actionbar [data-action="handoff"]').click()); await r.waitForSelector('#handoff-sheet:not([hidden])');
+  ok((await r.textContent('#handoff-send-sub')).includes('Text this huddle'), 'once there is an agenda, Send is ready');
+  await r.click('#handoff-receive'); await r.waitForSelector('#confirm-sheet:not([hidden])');
   ok((await r.textContent('#confirm-title')).includes('Paste a handoff') && await r.isVisible('#confirm-text'), 'no link on the clipboard: a box to paste it');
   await r.fill('#confirm-text', 'not a link'); await r.click('#confirm-primary'); await r.waitForSelector('#confirm-sheet:not([hidden])');
   ok((await r.textContent('#confirm-title')).includes('isn’t a handoff link'), 'explains when it isn’t a handoff link');

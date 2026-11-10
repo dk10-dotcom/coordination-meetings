@@ -78,7 +78,7 @@ From top to bottom:
 - **Ward council** button.
 - **Huddle** button. Shows how many assignments have been reported back.
 - **After the huddle, before you send** box. Amber; green with a check once it is marked done.
-- **Load a handoff or PDF** (a quiet link).
+- **Load from a PDF** (a quiet link that goes straight to choosing the file).
 - **Erase everything and start over**, then the footer. Both appear on this screen only.
 - Fixed at the bottom: **Hand off** and **Send**. These appear on this screen only.
 
@@ -237,23 +237,30 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
 
 ## Hand off and loading
 
-- **Hand off** texts a link that loads the current huddle on another phone, for when someone else
-  conducts. The data rides in the part of the link after `#`, which browsers never send to the
-  website. On Android (and on a computer) opening the link asks "Load this handoff?" right away.
+- **Hand off** (beside Send) opens two choices, for when someone else conducts:
+  - **Send a handoff** opens Messages with a link that loads the current huddle on another phone.
+    The person picks who to text; send it only to the leader filling in. With nothing entered, the
+    row reads "Nothing to hand off yet".
+  - **Receive a handoff** reads the copied link from the clipboard (or offers a box to paste it)
+    and asks "Load this handoff?".
+
+  Hand off is blocked during a practice week.
+- The data rides in the part of the link after `#`, which browsers never send to the website.
+  On Android (and on a computer) opening the link asks "Load this handoff?" right away.
 - **On iPhone the link opens in Safari, never in the Home Screen app,** and the two keep their data
   apart. So the link opens a page of its own, with nothing of the app behind it. It names the ward
   and the huddle, and shows three steps that stay on screen:
   1. **Copy handoff** (the one main button; it then reads "Copy again" with "✓ Copied").
   2. Open Huddle from the Home Screen (the icon is pictured).
-  3. Tap **Load a handoff or PDF**, then **Paste a handoff**.
+  3. Tap **Hand off**, then **Receive a handoff**.
 
   Under the steps, **Don't have Huddle on your Home Screen?** opens to **Show me how to add it**
   and, as a last resort, **Use it in Safari this once** with a warning that it stays in Safari
   (the Home Screen app won't have it, and the phone can erase it after about a week without a
   visit). **Not now** closes the page and loads nothing. On a first visit, How to use and the tour
   wait until the next visit so nothing covers this page.
-- **Load from a PDF** reads the data embedded in a sent PDF and sets up the next huddle from it,
-  the same way sending does. This is how a ward mission leader picks up after someone else
+- **Load from a PDF** (the quiet link under the four steps) reads the data embedded in a sent PDF
+  and sets up the next huddle from it, the same way sending does. This is how a ward mission leader picks up after someone else
   conducted, or restores after losing the phone's data.
 - Both ask first and can be undone right after.
 

@@ -32,6 +32,13 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     ok((await p.textContent('.app-name')).trim() === 'Huddle' && await p.title() === 'Huddle', tag + ': the app is named Huddle, on the page and in the browser');
     ok(await p.locator('#start-home input[type="checkbox"]').count() === 0 && await p.evaluate(() => ['before', 'after'].every(w => document.querySelector('#' + w + '-box').tagName === 'BUTTON')) && !(await vis('#before-box .check-tick')), tag + ': the two boxes have no check box to tap; each is one button');
     ok(await vis('.clear-link') && await vis('.fine-notes .credit-name'), tag + ': Erase everything and the footer are on the opening screen');
+    // Hand off holds both ends of a handoff; the quiet link under the steps is for a PDF only
+    await p.click('.actionbar [data-action="handoff"]'); await p.waitForSelector('#handoff-sheet:not([hidden])');
+    ok(await p.locator('#handoff-sheet .nav-row').count() === 2 && (await p.textContent('#handoff-send')).includes('Send a handoff') && (await p.textContent('#handoff-receive')).includes('Receive a handoff') && await noOverflow(), tag + ': Hand off offers Send a handoff and Receive a handoff');
+    await p.click('[data-action="close-handoff"]'); await p.waitForTimeout(200);
+    ok(await p.isHidden('#handoff-sheet') && (await p.textContent('[data-action="load-other"]')).trim() === 'Load from a PDF', tag + ': Cancel closes it; the quiet link reads Load from a PDF');
+    const [chooser] = await Promise.all([p.waitForEvent('filechooser'), p.click('[data-action="load-other"]')]);
+    ok(!!chooser && await p.locator('.overlay:not([hidden])').count() === 0, tag + ': Load from a PDF goes straight to choosing the file');
     // Before ward council: quick list with add, remove, the report link and a check-off
     await p.click('[data-action="open-before"]'); await p.waitForSelector('#before-sheet:not([hidden])');
     ok(await vis('#before-sheet [data-tools-link]') && await p.locator('#before-list .quick-panel').count() === 3 && !(await p.textContent('#before-list')).includes('Grace Thompson'), tag + ': Before ward council opens the three Covenant Path lists (no focus names) and the report link');

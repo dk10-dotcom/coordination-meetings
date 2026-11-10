@@ -9,7 +9,7 @@ A phone-friendly app for the ward mission leader's weekly process, built around 
 - **The agenda lives on the phone.** The next huddle's agenda is kept in the app's private storage on that phone. Names nobody has updated in 4 weeks ask "Still on the Covenant Path Report?", and after 5 weeks with no changes they're removed. **Erase everything and start over** erases everything except the ward name.
 - **One sent copy.** After a send, the app keeps one copy of that huddle so **Share again** can resend its PDF. It's replaced at the next send, removed after 5 weeks, and erased by **Erase everything and start over**. Nothing is saved online.
 - **Ward name is remembered** on each phone for convenience.
-- **The PDF is the only copy that leaves the phone,** sent through the person's own email or text messages. The PDF also carries a hidden copy of the form data, so **Load a handoff or PDF → Load from a PDF** can set up the next huddle from it on another phone. A **Hand off** link carries the agenda in the part of the link browsers never send to the website. Treat the PDF as confidential.
+- **The PDF is the only copy that leaves the phone,** sent through the person's own email or text messages. The PDF also carries a hidden copy of the form data, so **Load from a PDF** can set up the next huddle from it on another phone. A **Hand off** link carries the agenda in the part of the link browsers never send to the website. Treat the PDF as confidential.
 - **iPhone users must add the app to their Home Screen and always open it from that icon.** In plain Safari, iPhones can erase a website's saved data after about 7 days without a visit, and Safari and the Home Screen app keep separate storage. Whenever the app is opened in a phone's browser instead of from the icon, an **Add to Home Screen** button appears at the top. On Android it opens the phone's install prompt; on iPhone it shows the three steps.
 - Remind users to keep saved PDFs secure and delete old ones when they're no longer needed.
 
@@ -55,7 +55,7 @@ The opening screen is titled **Ward Mission Leader Process** and shows four step
 
 **Send → Share PDF** finishes the huddle: its action items move into Return and Report for next time, names and needs stay, and everything else clears. **Undo** in the Sent successfully message puts it back. **Share again** on the opening screen resends the last PDF. There is no date to set; the PDF is dated the day it's sent, and **Change date** on the Send screen overrides that.
 
-Someone else conducting? **Hand off** texts them a link that loads the huddle on their phone. On iPhone, links open in Safari and never in the Home Screen app, so the link opens a page with three steps: copy the handoff, open Huddle, and paste it. After they send it, **Load a handoff or PDF → Load from a PDF** sets up the next huddle from their PDF.
+Someone else conducting? Tap **Hand off**, then **Send a handoff**, to text them a link that loads the huddle on their phone. On iPhone, links open in Safari and never in the Home Screen app, so the link opens a page with three steps: copy the handoff, open Huddle, then tap **Hand off → Receive a handoff**. After they send it, **Load from a PDF** sets up the next huddle from their PDF.
 
 New members (blue), Returning members (green), Those being taught (purple) and Name Next Ordinance (amber) each have their own color in the app (a dot beside the list's name, and on the person's card) and on the PDF. Return and Report cards fill green, amber or red once marked Yes, Partly or No.
 

@@ -73,9 +73,9 @@
       <div class="load-panel" id="load-panel">
           <button type="button" class="btn-outline" data-action="load">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5h6l3 3v10h-9z"/><path d="M10.5 2.5v3h3"/><path d="M9 8v5M6.8 10.8L9 13l2.2-2.2"/></svg>
-            Load a handoff or PDF
+            Load from a PDF
           </button>
-          <p class="hint center">Got a handoff from another leader, or need to restore from a PDF? Otherwise, just start filling it in.</p>
+          <p class="hint center">Need to set up from a PDF that was sent? Otherwise, just start filling it in.</p>
         </div>
 
         <div class="loaded-banner" id="loaded-banner" hidden>
@@ -150,7 +150,7 @@
       <span class="step-chev" aria-hidden="true">›</span>
     </button>
     <div class="newweek-panel" id="newweek-panel">
-      <button type="button" class="btn-link newweek-load" data-action="load-other">Load a handoff or PDF</button>
+      <button type="button" class="btn-link newweek-load" data-action="load-other">Load from a PDF</button>
     </div>
   </section>
 
@@ -297,8 +297,8 @@
       <li class="hp-step" id="hp-step-3">
         <span class="hp-num" aria-hidden="true">3</span>
         <div class="hp-step-body">
-          <p class="hp-step-title">Tap Load a handoff or PDF, then Paste a handoff</p>
-          <p class="hp-step-sub">It’s under the four steps on the opening screen. If your phone asks, tap <strong>Paste</strong>.</p>
+          <p class="hp-step-title">Tap Hand off, then Receive a handoff</p>
+          <p class="hp-step-sub">Hand off is at the bottom of the opening screen, beside Send. If your phone asks, tap <strong>Paste</strong>.</p>
         </div>
       </li>
     </ol>
@@ -376,16 +376,22 @@
 </div>
 
 <!-- Load last week: agendas saved on this phone -->
-<div class="overlay" id="load-sheet" hidden>
-  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="load-title">
+<div class="overlay" id="handoff-sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="handoff-title">
     <div class="grab" aria-hidden="true"></div>
-    <h2 id="load-title">Load an agenda</h2>
-    <p class="step-hint">Loading replaces the agenda on this phone. You can undo it right after.</p>
-    <button type="button" class="btn-primary full" data-action="paste-handoff">Paste a handoff</button>
-    <p class="hint">Another leader texted you a handoff link? Copy it, then tap Paste a handoff.</p>
-    <button type="button" class="btn-secondary full" data-action="load-file">Load from a PDF</button>
-    <p class="hint">Use the agenda PDF that was sent out, for example if this phone lost its agenda.</p>
-    <button type="button" class="btn-secondary full" data-action="close-load">Cancel</button>
+    <h2 id="handoff-title" tabindex="-1">Hand off</h2>
+    <p class="step-hint">For when someone else conducts the huddle. Send a handoff only to the leader filling in.</p>
+    <ul class="steps-list">
+      <li><button type="button" class="nav-row" data-action="handoff-send" id="handoff-send">
+        <span class="step-text"><span class="step-title">Send a handoff</span><span class="step-status" id="handoff-send-sub">Text this huddle to the leader filling in</span></span>
+        <span class="step-chev" aria-hidden="true">›</span>
+      </button></li>
+      <li><button type="button" class="nav-row" data-action="handoff-receive" id="handoff-receive">
+        <span class="step-text"><span class="step-title">Receive a handoff</span><span class="step-status">Paste the handoff you copied</span></span>
+        <span class="step-chev" aria-hidden="true">›</span>
+      </button></li>
+    </ul>
+    <button type="button" class="btn-secondary full" data-action="close-handoff">Cancel</button>
   </div>
 </div>
 
@@ -534,7 +540,7 @@
       <li>
         <p><strong>Add it to your Home Screen first, before you fill anything in.</strong> Tap <strong>Add to Home Screen</strong> at the top (iPhone: use Safari; Android: use Chrome). From then on, open it from the new icon. On iPhone, anything saved in Safari won’t carry over to the app.</p>
         <ul>
-          <li><strong>Don’t delete the Home Screen icon.</strong> Deleting it erases everything on that phone. PDFs you already sent aren’t affected, and you can bring your names back with <strong>Load a handoff or PDF → Load from a PDF</strong>.</li>
+          <li><strong>Don’t delete the Home Screen icon.</strong> Deleting it erases everything on that phone. PDFs you already sent aren’t affected, and you can bring your names back with <strong>Load from a PDF</strong> (under the four steps on the opening screen).</li>
         </ul>
       </li>
       <li>
@@ -548,7 +554,7 @@
           <li><strong>No one in a list this week?</strong> In the huddle’s <strong>Covenant Path</strong> section, tap <strong>Confirm none this week</strong> on that list. The PDF then shows it was reviewed and empty; a list left blank prints <strong>Not reviewed</strong>.</li>
           <li><strong>Name Next Ordinance</strong> holds the three focus names from ward council, with each person’s next ordinance and need.</li>
           <li><strong>Names nobody has updated in 4 weeks</strong> show <strong>Not updated in 4 weeks</strong> in the list. Open the name; it asks “Still on the Covenant Path Report?” Tap <strong>Keep</strong> or <strong>Remove</strong>. After 5 weeks with no changes, a name is removed automatically.</li>
-          <li><strong>Someone else running the meeting?</strong> Tap <strong>Hand off</strong> (next to Send on the opening screen) and text them the link. On Android it loads right away. On iPhone, links open in Safari, never in the app, so the link opens a page with three steps: tap <strong>Copy handoff</strong>, open Huddle from the Home Screen, then tap <strong>Load a handoff or PDF</strong> (on the opening screen) <strong>→ Paste a handoff</strong>. If they don’t have the app yet, that page shows how to add it. They can hand it back the same way. After they send it, open the PDF they sent you and tap <strong>Load a handoff or PDF → Load from a PDF</strong>; your app sets up the next huddle from it.</li>
+          <li><strong>Someone else running the meeting?</strong> Tap <strong>Hand off</strong> (next to Send on the opening screen), then <strong>Send a handoff</strong>, and text them the link. On Android it loads right away. On iPhone, links open in Safari, never in the app, so the link opens a page with three steps: tap <strong>Copy handoff</strong>, open Huddle from the Home Screen, then tap <strong>Hand off → Receive a handoff</strong>. If they don’t have the app yet, that page shows how to add it. They can hand it back the same way. After they send it, open the PDF they sent you and tap <strong>Load from a PDF</strong> (under the four steps on the opening screen); your app sets up the next huddle from it.</li>
         </ul>
       </li>
       <li>
@@ -575,7 +581,7 @@
           <li><strong>Need to share it again?</strong> On the opening screen, tap <strong>Share again</strong> next to <strong>✓ Nov 8 huddle sent</strong> (with your date). The app keeps only the last huddle you sent, and replaces it the next time you send.</li>
           <li><strong>Send to the bishop-approved list, the stake presidency and the full-time missionaries.</strong> Make sure the elders quorum representative is included, so he can run the next meeting if you’re away.</li>
           <li><strong>Include yourself when you send it,</strong> so you always have a copy of the PDF. The agenda itself lives only on this phone, in this app.</li>
-          <li>If this phone ever loses its agenda, tap <strong>Load a handoff or PDF → Load from a PDF</strong> and choose the last PDF you sent. The app sets up your next huddle from it.</li>
+          <li>If this phone ever loses its agenda, tap <strong>Load from a PDF</strong> and choose the last PDF you sent. The app sets up your next huddle from it.</li>
         </ul>
       </li>
       <li>

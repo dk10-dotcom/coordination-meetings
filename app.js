@@ -588,7 +588,7 @@
   }
   function renderLoadState() {
     renderRRFrom();
-    // Once the agenda has anything in it, Load a handoff or PDF shrinks to a quiet link.
+    // Load from a PDF is a quiet link under the four steps. (Receiving a handoff is under Hand off.)
     var practice = !!(state.loaded && state.loaded.practice);
     var live = !isEmpty(state) && !practice;
     var nw = $('#newweek-panel');
@@ -1688,10 +1688,13 @@
         } else doRemoveCP();
         break;
       }
+      // Load from a PDF goes straight to choosing the file; what it will do is asked once the PDF is read.
       case 'load-other':
-      case 'load': openOverlay('#load-sheet', '#load-title'); break;
-      case 'paste-handoff': closeOverlay('#load-sheet'); pasteHandoff(); break;
+      case 'load': pickFile(); break;
       case 'handoff': startHandoff(); break;
+      case 'handoff-send': sendHandoff(); break;
+      case 'handoff-receive': closeOverlay('#handoff-sheet'); pasteHandoff(); break;
+      case 'close-handoff': closeOverlay('#handoff-sheet'); break;
       case 'carry-fwd': carryForward(+a); break;
       case 'text-assign': textAssignment(a); break;
       case 'stale-keep': setPath(a + 'touched', todayISO()); if (/^tn/.test(a)) renderTN(); else renderCP(); saveDraft(); toast('Kept. It won’t ask again for 4 weeks.'); break;
@@ -1714,9 +1717,10 @@
         renderConducting(); writeConducting(state); saveDraft();
         if (state.conducting === 'other') $('#conducting-other').focus();
         break;
+      // (open-agenda, share-agenda, pick-agenda and delete-all are left from saved agendas, a removed feature; nothing on the page calls them.)
       case 'open-agenda': {
         var orec = savedById[a];
-        closeOverlay('#load-sheet');
+        closeOverlay('#handoff-sheet');
         if (!orec) break;
         var doOpen = function () {
           state = normalizeState(orec.data); state.loaded = null;
@@ -1730,21 +1734,20 @@
       }
       case 'share-agenda': {
         var srec = savedById[a];
-        closeOverlay('#load-sheet');
+        closeOverlay('#handoff-sheet');
         if (srec) startSend(normalizeState(srec.data));
         break;
       }
       case 'pick-agenda': {
         var rec = savedById[a];
-        closeOverlay('#load-sheet');
+        closeOverlay('#handoff-sheet');
         if (rec) checkAndApply(rec.data, 'Saved on this phone · ' + shortDate(rec.date), openLoad);
         break;
       }
-      case 'load-file': closeOverlay('#load-sheet'); pickFile(); break;
-      case 'practice': ['#load-sheet', '#help-sheet'].forEach(function (id) { if (!$(id).hidden) closeOverlay(id); }); startPractice(); break;
-      case 'close-load': closeOverlay('#load-sheet'); break;
+      case 'load-file': pickFile(); break;
+      case 'practice': ['#handoff-sheet', '#help-sheet'].forEach(function (id) { if (!$(id).hidden) closeOverlay(id); }); startPractice(); break;
       case 'delete-all':
-        closeOverlay('#load-sheet');
+        closeOverlay('#handoff-sheet');
         ask({
           title: 'Delete all saved agendas?',
           body: 'Every agenda saved on this phone will be erased. Copies you already shared are not affected.',
@@ -2041,20 +2044,34 @@
     return obj.s;
   }
   function handoffUrl(code) { return location.origin + location.pathname.replace(/index\.html$/, '') + '#handoff=' + code; }
+  // Hand off opens two choices: send this huddle (text it), or receive one (paste it).
+  var handoffMsg = null, handoffBuild = null;
+  function handoffBlocked() {
+    if (state.loaded && state.loaded.practice) return 'Remove the practice week before handing off.';
+    return isEmpty(state) ? 'Nothing to hand off yet.' : '';
+  }
   function startHandoff() {
-    if (state.loaded && state.loaded.practice) { toast('Remove the practice week before handing off.'); return; }
-    if (isEmpty(state)) { toast('Nothing to hand off yet.'); return; }
-    // Build the link first, so tapping the button opens Messages right away.
-    packHandoff(state).then(function (code) {
+    // During a practice week nothing is handed off or loaded over the sample names.
+    if (state.loaded && state.loaded.practice) { toast(handoffBlocked()); return; }
+    var why = handoffBlocked(), sub = $('#handoff-send-sub');
+    sub.textContent = why ? 'Nothing to hand off yet' : 'Text this huddle to the leader filling in';
+    sub.classList.toggle('warn', false);
+    $('#handoff-send').setAttribute('aria-disabled', why ? 'true' : 'false');
+    // Build the link now, so tapping Send a handoff opens Messages right away.
+    handoffMsg = null; handoffBuild = null;
+    if (!why) handoffBuild = packHandoff(state).then(function (code) {
       var d = parseISO(state.date);
-      var msg = 'Handoff: the ' + (state.ward.trim() ? state.ward.trim() + ' ' : '') + 'coordination agenda' + (d ? ' for ' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : '') +
+      handoffMsg = 'Handoff: the ' + (state.ward.trim() ? state.ward.trim() + ' ' : '') + 'coordination agenda' + (d ? ' for ' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : '') +
         '. Tap the link and follow the steps to load it into the Huddle app:\n' + handoffUrl(code);
-      ask({
-        title: 'Hand off this agenda?',
-        body: 'For when someone else conducts. This texts them a link that loads this agenda on their phone. Send it only to the leader filling in.',
-        primary: 'Text the handoff', onPrimary: function () { openMessages(msg); }, secondary: 'Cancel'
-      });
-    }, function () { toast('Couldn’t make the handoff. Try again.'); });
+      return handoffMsg;
+    });
+    openOverlay('#handoff-sheet', '#handoff-title');
+  }
+  function sendHandoff() {
+    if (handoffBlocked()) return; // the row itself says why (a message here would cover Receive a handoff)
+    closeOverlay('#handoff-sheet');
+    if (handoffMsg) { openMessages(handoffMsg); return; }
+    (handoffBuild || Promise.reject()).then(function (msg) { openMessages(msg); }, function () { toast('Couldn’t make the handoff. Try again.'); });
   }
   /* A handoff link opened in an iPhone's browser. iPhone opens links in Safari, never in the Home Screen app,
    * and the two keep their data apart, so the handoff can't land in the app. It gets a page of its own
@@ -2573,7 +2590,7 @@
         ])
       ]);
     }).concat([practiceRow]));
-    openOverlay('#load-sheet', '.agenda-row');
+    openOverlay('#handoff-sheet', '.agenda-row');
   }
 
   /* ---------- PDF ---------- */
@@ -3448,7 +3465,7 @@
       var btn = e.target.closest && e.target.closest('[data-action]');
       if (btn && !btn.disabled) { e.preventDefault(); onAction(btn); return; }
       if (e.target.id === 'send-sheet') closeSend();
-      if (e.target.id === 'load-sheet') closeOverlay('#load-sheet');
+      if (e.target.id === 'handoff-sheet') closeOverlay('#handoff-sheet');
       if (e.target.id === 'install-sheet') closeOverlay('#install-sheet');
       if (e.target.id === 'help-sheet') closeHelp();
       if (e.target.id === 'tips-sheet') closeOverlay('#tips-sheet');
@@ -3458,7 +3475,7 @@
     });
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;
-      var top = ['#confirm-sheet', '#sample-sheet', '#load-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#find-tips-sheet', '#before-sheet', '#after-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
+      var top = ['#confirm-sheet', '#sample-sheet', '#handoff-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#find-tips-sheet', '#before-sheet', '#after-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
       if (top) dismissSheet(top);
     });
     enableSwipeDown();

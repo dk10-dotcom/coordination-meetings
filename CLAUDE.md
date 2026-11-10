@@ -75,3 +75,5 @@ and `huddle-cards-open` (every card open in its list, for tests that fill many c
 - First run: a phone browser opens How to use (with Add to Home Screen first); the Home Screen app
   then starts the tour once. These could be combined into one short welcome.
 - `test/obsolete/` holds tests for removed features (saved agendas, Send & Clear). Do not revive them.
+- `app.js` still carries unused code from saved agendas (`open-agenda`, `share-agenda`, `pick-agenda`,
+  `delete-all`, `openLoad`). Nothing on the page calls it; remove it in a cleanup.
