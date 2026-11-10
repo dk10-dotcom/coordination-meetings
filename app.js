@@ -3117,6 +3117,11 @@
   function readFlag(k) { try { var s = getStore('localStorage'); return !!(s && s.getItem(k)); } catch (e) { return false; } }
   function writeFlag(k) { try { var s = getStore('localStorage'); if (s) s.setItem(k, '1'); } catch (e) { /* ignore */ } }
   function openHelp() {
+    // How to use always opens as the short list of steps. In a phone's browser the first step
+    // (Add Huddle to your Home Screen) starts open, since that is the thing to do next.
+    Array.prototype.forEach.call(document.querySelectorAll('#help-sheet details'), function (d) { d.open = false; });
+    var install = $('#help-install');
+    if (install && (isIOS || isAndroid) && !isStandalone()) install.open = true;
     openOverlay('#help-sheet', '#help-title');
     var sheet = $('#help-sheet .sheet'); if (sheet) sheet.scrollTop = 0;
   }
@@ -3532,6 +3537,9 @@
       else if (window.HuddleTour && !window.HuddleTour.seen()) window.HuddleTour.start();
     }
     window.addEventListener('hashchange', function () { if (location.hash === '#help') openHelp(); });
+    // Closing the training video's row stops the video.
+    var videoRow = $('#help-video-row');
+    if (videoRow) videoRow.addEventListener('toggle', function () { if (!videoRow.open) { try { $('#help-video').pause(); } catch (e) { /* ignore */ } } });
     // Enter moves to the next field instead of doing nothing
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter' || !e.target.matches || !e.target.matches('#form input[type="text"], #form textarea')) return;

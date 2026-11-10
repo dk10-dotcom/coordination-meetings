@@ -38,7 +38,7 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 
 ## Built-in instructions
 
-- **How to use** (top of the opening screen) has the training video, the tour, a sample agenda, a practice week and the written steps. In a phone's browser it opens by itself the first time, since it starts with Add to Home Screen.
+- **How to use** (top of the opening screen) is a short list: six numbered steps for the week, six "How do I…" questions, and the tour, a sample agenda, a practice week and the training video. Tap a row to read it; each step is a few short lines. In a phone's browser it opens by itself the first time, with the first step (Add Huddle to your Home Screen) open.
 - **Guided tour:** a 20-stop walk-through that dims the page and explains each part in a bubble (Next / Back / Skip tour). It starts once on its own the first time the app is opened from the Home Screen. Replay it from **Take the tour** in How to use, or send people the site link plus `#tour`. The wording lives in `tour.js`.
 - **Tips for an effective meeting** is at the top of the Huddle screen. It opens the Principles for Effective Coordination and the Prepare ahead tip.
 - Send people straight to the instructions with the site link plus `#help` (for example `https://dk10-dotcom.github.io/coordination-meetings/#help`).

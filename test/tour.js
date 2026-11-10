@@ -9,7 +9,7 @@ const res = []; const ok = (l, c, x) => { res.push(c); console.log((c ? 'PASS ' 
     await p.goto('http://127.0.0.1:8765/#huddle'); await p.waitForSelector('.chip', { state: 'attached' }); await p.click('[data-action="dismiss-install"]').catch(() => {});
     if (n === 'i13') {
       await p.evaluate(() => document.querySelector('[data-action="help"]').click()); await p.waitForSelector('#help-sheet:not([hidden])');
-      ok('Take the tour button at the top of How to use', await p.isVisible('#help-sheet [data-action="tour"]'));
+      ok('Take the tour is a row in How to use', await p.isVisible('#help-sheet [data-action="tour"]'));
       await p.click('#help-sheet [data-action="tour"]');
     } else {
       await p.evaluate(() => window.HuddleTour.start());

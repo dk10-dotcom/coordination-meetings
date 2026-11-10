@@ -66,15 +66,21 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px 
 }
 .help-link:active { background: var(--accent-soft); }
 .sheet.help { gap: 18px; }
-.help-steps { margin: 0; padding: 0; list-style: none; counter-reset: hs; display: flex; flex-direction: column; gap: 14px; }
-.help-steps > li { position: relative; padding-left: 38px; counter-increment: hs; font-size: 15px; color: var(--text); }
-.help-steps > li::before {
-  content: counter(hs); position: absolute; left: 0; top: -2px; width: 28px; height: 28px; border-radius: 50%;
-  background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 14px;
-  display: inline-flex; align-items: center; justify-content: center;
-}
-.help-steps ul, .help-notes { margin: 6px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; color: var(--text); }
 .sheet.help strong { color: var(--ink); }
+/* How to use: a short list of steps. Tap a step to read it; the rows are the same rows as everywhere else. */
+.help-intro { margin: -6px 0 0; font-size: 15px; line-height: 1.4; color: var(--muted); }
+.help-band { margin: 6px 4px -10px; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+/* The sheet is a column that shrinks what it can; the lists must keep their full height. */
+.help-list { flex: none; }
+.help-item > summary { list-style: none; }
+.help-item > summary::-webkit-details-marker { display: none; }
+.help-item[open] > summary .step-chev { transform: rotate(90deg); }
+.help-item[open] > summary .step-status { display: none; }
+.help-num { flex: none; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  background: var(--accent-soft); color: var(--accent); font-size: 15px; font-weight: 700; }
+.help-item[open] > summary .help-num { background: var(--accent); color: #FFFFFF; }
+.help-body { margin: 0; padding: 0 16px 16px 16px; font-size: 16px; line-height: 1.4; color: var(--text); }
+ul.help-body { list-style: disc; padding-left: 34px; display: flex; flex-direction: column; gap: 9px; }
 .help-h { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
 .help-tip { padding: 12px 14px; border-radius: 12px; background: var(--accent-soft); border: 1px solid var(--accent-line); font-size: 15px; color: var(--text); }
 .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
@@ -93,7 +99,6 @@ h1 { font-size: 30px; line-height: 1.12; font-weight: 700; color: var(--ink); }
 .conduct-note { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; color: var(--text); }
 .conduct-note svg { flex: none; margin-top: 1px; color: var(--accent); }
 .conduct-note strong { color: var(--ink); }
-.help-conduct { padding: 12px 14px; border-radius: 12px; background: var(--amber-soft); border: 1px solid var(--amber-line); font-size: 15px; color: var(--text); }
 
 /* Fields */
 .field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); min-width: 0; }
@@ -367,7 +372,6 @@ body.typing .actionbar { position: static; }
 /* Send sheet and help */
 .send-recipients { padding: 12px 14px; border-radius: 12px; background: var(--amber-soft); border: 1px solid var(--amber-line); font-size: 15px; color: var(--text); }
 .send-recipients strong { color: var(--ink); }
-.help-rhythm { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 12px; background: var(--accent-soft); border: 1px solid var(--accent-line); font-size: 15px; color: var(--text); }
 
 /* Small phones (iPhone SE and similar): keep both bottom buttons on one line */
 .actionbar-row .btn-primary { white-space: nowrap; }
@@ -591,10 +595,6 @@ body.typing .actionbar { position: static; }
 .week-sub { font-size: 13px; color: #C9D6EA; }
 
 /* Guided tour */
-.btn-tour { display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 10px; width: 100%; padding: 12px 14px; border-radius: 12px;
-  border: 1.5px solid var(--accent); background: var(--accent-soft); color: var(--accent); font-size: 16px; font-weight: 700; text-align: left; cursor: pointer; }
-.btn-tour svg { grid-row: span 2; width: 26px; height: 26px; }
-.btn-tour-sub { font-size: 13px; font-weight: 500; color: var(--text); }
 .tour[hidden] { display: none; }
 .tour { position: fixed; inset: 0; z-index: 50; }
 .tour-shield { position: absolute; inset: 0; }
@@ -651,11 +651,7 @@ body.touring .actionbar { z-index: 10; }
 .help-warning { display: flex; align-items: center; gap: 10px; margin: 0; padding: 12px 14px; border-radius: 12px; background: #FBEAEA; border: 1.5px solid #E8B4B4; font-size: 15px; color: #7A1C1C; }
 .help-warning strong { color: #8E1F1F; }
 .help-warning-icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #B22A2A; color: #FFFFFF; font-size: 15px; font-weight: 800; }
-.help-video { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px 14px; border-radius: 12px; background: var(--card); border: 1px solid var(--accent-line); }
-.help-video-title { margin: 0; font-size: 16px; font-weight: 700; color: var(--ink); }
-.help-video-sub { margin: 0; font-size: 13px; color: var(--text); }
-.help-video video { display: block; width: 100%; aspect-ratio: 16 / 9; margin-top: 6px; border-radius: 8px; background: #F3F5F9; border: 1px solid var(--line); }
-.btn-sample { margin-top: -6px; text-decoration: none; background: var(--card); border-color: var(--accent-line); }
+.help-video video { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; background: #F3F5F9; border: 1px solid var(--line); }
 
 /* Sample agenda viewer: a Close button that stays at the top while scrolling */
 .sample-view { gap: 12px; }
@@ -804,7 +800,6 @@ body.steps-on[data-view="home"] .top-buttons .help-link svg { display: none; }
 body.steps-on[data-view="home"] .top-buttons .help-link { padding: 0 12px; }
 body.steps-on .start-here { padding-top: 0; }
 body.steps-on .wrap { gap: 16px; }
-.help-steps-note { margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--card); border: 1px solid var(--card-line); font-size: 15px; color: var(--text); }
 body.steps-on[data-view="home"] .load-panel .hint { display: none; }
 body.steps-on[data-view="home"] .load-panel { padding: 0; border: none; background: none; box-shadow: none; }
 body.steps-on .btn-done { display: none; }
@@ -913,7 +908,6 @@ body[data-view="start"] #meeting-date, body[data-view="start"] #details-summary,
 .send-tools[hidden] { display: none; }
 .send-tools p { margin: 0; }
 .send-tools-link { display: flex; align-items: center; justify-content: center; min-height: 46px; text-decoration: none; }
-.help-info-pair { margin-bottom: 4px; }
 /* The huddle is dated the day it's sent, so the date isn't shown or tappable. (The field stays for PDFs loaded with their own date.) */
 #meeting-date { height: 1px; min-height: 0; margin: 0; padding: 0; overflow: hidden; opacity: 0; pointer-events: none; }
 .tools-check { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 10px; background: var(--card); border: 1.5px solid var(--amber-line); font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.35; cursor: pointer; }

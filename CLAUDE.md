@@ -23,6 +23,9 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
   (Daniel Rivera, Olivia Chen, Grace Thompson, Marcus Bell, Marcus Hill, Emma Walsh, Samuel Ortiz).
 - **Whenever behavior changes, update How to use (`index.html`) and the tour (`tour.js`) in the same change.**
   Update `docs/SPEC.md` and the tests too.
+- **Keep How to use short.** It is a list of steps that open when tapped, at most five short lines
+  each, saying what to tap. Updating it usually means changing a line, not adding one: leave out
+  anything the screen already explains. `test/help.js` fails if it grows past 900 words.
 - Keep the data embedded in the PDF and the handoff link format compatible with earlier versions,
   so an older PDF or link still loads.
 - **The PDF is read on phones.** Its pages are phone-shaped (360 × 780 points) with one short block

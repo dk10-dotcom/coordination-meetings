@@ -33,6 +33,47 @@ const ok = (l, c) => console.log((c ? 'PASS ' : 'FAIL ') + l);
   ok('#help link opens it', await p.isVisible('#help-sheet'));
   await p.click('#help-done');
 
+  // How to use is a short list: tap a step to read it. Three groups of rows, the same rows as the rest of the app.
+  const openHelp = async pg => { await pg.evaluate(() => document.querySelector('[data-action="help"]').click()); await pg.waitForSelector('#help-sheet:not([hidden])'); await pg.waitForTimeout(200); };
+  const openIds = pg => pg.$$eval('#help-sheet details[open]', d => d.map(x => x.id || x.querySelector('.step-title').textContent).join('|'));
+  await openHelp(p);
+  ok('three short lists: 6 steps, 6 questions, 4 ways to watch or try', (await p.$$eval('#help-sheet .help-list', ls => ls.map(l => l.children.length).join())) === '6,6,4');
+  ok('the steps are numbered 1 to 6', (await p.$$eval('#help-sheet .help-num', n => n.map(x => x.textContent).join(''))) === '123456');
+  ok('step names, in order', (await p.$$eval('#help-sheet .help-list >> nth=0 >> .step-title', t => t.map(x => x.textContent).join('|'))) === 'Add Huddle to your Home Screen|Before ward council|Ward council|Huddle|Send|During the week');
+  ok('in a phone browser only the first step (Add to Home Screen) starts open', (await openIds(p)) === 'help-install');
+  ok('the confidentiality warning shows without opening anything', await p.isVisible('#help-sheet .help-warning') && (await p.textContent('#help-sheet .help-warning strong')) === 'Never add confidential information to this agenda.');
+  ok('a closed step shows its one-line summary, not its text', await p.isVisible('#help-sheet .step-status:has-text("Update the report, then share the PDF")') && await p.isHidden('#help-sheet :text("Send works only after this.")'));
+  await p.click('#help-sheet details:has-text("Update the report, then share the PDF") summary');
+  ok('tapping a step opens it in place', await p.isVisible('#help-sheet :text("Send works only after this.")'));
+  ok('the Send step keeps the sharing rule word for word', (await p.textContent('#help-sheet details[open]:has-text("Share PDF")')).includes('Only share via email or text message. Do not share through any other app.'));
+  await p.click('#help-sheet details:has-text("Update the report, then share the PDF") summary');
+  ok('tapping it again closes it', await p.isHidden('#help-sheet :text("Send works only after this.")'));
+  await p.click('#help-sheet details:has-text("Fix a mistake") summary'); await p.click('#help-sheet details:has-text("Get my names back") summary');
+  ok('How do I rows open the same way', await p.isVisible('#help-sheet :text("Sent too soon?")') && await p.isVisible('#help-sheet :text("This is why you include yourself when you send.")'));
+  await p.click('#help-video-row summary');
+  ok('the training video opens inside its row', await p.isVisible('#help-video'));
+  await p.$eval('#help-video', v => { v.pause = () => { window.__paused = (window.__paused || 0) + 1; }; });
+  await p.click('#help-video-row summary'); await p.waitForTimeout(150);
+  ok('closing the row stops the video', await p.isHidden('#help-video') && (await p.evaluate(() => window.__paused)) === 1);
+  await p.$eval('#help-sheet .sheet', s => { s.scrollTop = 400; });
+  await p.click('#help-done'); await openHelp(p);
+  ok('opening How to use again shows the short list from the top', (await openIds(p)) === 'help-install' && (await p.$eval('#help-sheet .sheet', s => s.scrollTop)) === 0);
+  const size = await p.evaluate(() => { document.querySelectorAll('#help-sheet details').forEach(d => { d.open = true; }); return { words: document.querySelector('#help-sheet .sheet').innerText.trim().split(/\s+/).length, lines: Math.max(...[...document.querySelectorAll('#help-sheet ul.help-body')].map(u => u.children.length)) }; });
+  ok('it stays short: under 900 words in all (' + size.words + '), and no step longer than 5 lines (' + size.lines + ')', size.words < 900 && size.lines <= 5);
+  await p.click('#help-done');
+
+  // From the Home Screen app, nothing starts open. On the smallest phone, nothing is wider than the screen with every row open.
+  const app = await browser.newContext({ ...devices['iPhone SE'] });
+  await app.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen'].forEach(k => localStorage.setItem(k, '1')); Object.defineProperty(Navigator.prototype, 'standalone', { get: () => true }); } catch (e) {} });
+  const q = await app.newPage(); q.on('pageerror', e => problems.push(e.message));
+  await q.goto(BASE.replace('#huddle', '')); await q.waitForSelector('#start-home:not([hidden])'); await openHelp(q);
+  ok('from the Home Screen app every step starts closed', (await openIds(q)) === '');
+  await q.screenshot({ path: OUT + '/help-se-closed.png' });
+  ok('the first three steps show on the first screen of a small phone', await q.evaluate(() => { const r = document.querySelectorAll('#help-sheet .help-num')[2].getBoundingClientRect(); return r.bottom <= window.innerHeight; }));
+  await q.evaluate(() => document.querySelectorAll('#help-sheet details').forEach(d => { d.open = true; })); await q.waitForTimeout(150);
+  ok('320 px: nothing wider than the screen with every row open', await q.evaluate(() => { const s = document.querySelector('#help-sheet .sheet'); return document.documentElement.scrollWidth <= window.innerWidth && s.scrollWidth <= s.clientWidth && [...s.querySelectorAll('*')].every(e => e.getBoundingClientRect().right <= window.innerWidth + 0.5); }));
+  await app.close();
+
   // Names reminder: the first time names carry over (practice week), then never again
   await p.fill('#ward', 'Riverton 5th Ward');
   await p.evaluate(() => document.querySelector('[data-action="help"]').click()); await p.waitForTimeout(200); await p.click('#help-sheet [data-action="practice"]'); await p.waitForSelector('#confirm-sheet:not([hidden])');

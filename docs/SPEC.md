@@ -284,8 +284,21 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
 
 ## Help built into the app
 
-- **How to use:** training video, Take the tour, See a sample agenda, Try a practice week, and
-  the written instructions. Opens by itself the first time in a phone's browser.
+- **How to use** is a short list, not a page of text. It has an intro line, the warning "Never add
+  confidential information to this agenda." (always showing), and three groups of rows:
+  - **The week, step by step:** six numbered steps, each with a one-line summary: Add Huddle to
+    your Home Screen, Before ward council, Ward council, Huddle, Send, During the week.
+  - **How do I…:** Hand off to someone else, Fix a mistake, Share the PDF again, Get my names
+    back, Add or remove a name, New members and those being taught.
+  - **Watch or try:** Take the tour, See a sample agenda, Try a practice week, and Watch the
+    training video (the video opens inside its row; closing the row stops it).
+
+  Tapping a step or question opens it in place, and tapping it again closes it. A step is at most
+  five short lines that say what to tap; what a screen already explains is left out. The Send step
+  carries the sharing rule word for word. Every time How to use opens it is the short list again,
+  scrolled to the top. In a phone's browser the first step (Add Huddle to your Home Screen) starts
+  open, and How to use opens by itself on the first visit; from the Home Screen app every step
+  starts closed.
 - **Tour:** 21 stops. The stops about one person open a person's screen; when New members is
   empty the tour shows a sample name, which is never saved. Starts once on its own the first time the app is opened from the Home
   Screen (or on a computer).
