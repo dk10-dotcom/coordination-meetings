@@ -40,7 +40,7 @@ names as rows and one screen per person.
 | `scenarios.js` | Names added, assigned, removed, renamed, re-added and converted across several huddles |
 | `live.js` | The weekly cycle: Send finishes the huddle, Undo, Share again, the 4-week name rule, Erase everything |
 | `steps.js` | The Huddle's four sections, Mark section done, Back, layout on two phone sizes |
-| `full.js` | The PDF: every value printed, margins, page breaks, and loading it back |
+| `full.js` | The PDF: phone-shaped pages, every value printed, margins, page numbers, and loading it back |
 | `handoff.js` | Hand off links on iPhone and Android, pasting a link, a broken link |
 | `people.js`, `undo.js` | Carry forward and undoing it, folded lists, the Sent message |
 | `practice.js` | Practice week: loading, limits, removing |
@@ -48,6 +48,9 @@ names as rows and one screen per person.
 | `textassign.js` | Text this assignment |
 | `tour.js`, `help.js`, `tips.js`, `sample-view.js`, `swipe.js` | Tour, How to use, Tips, the sample agenda, closing sheets |
 | `empty.js`, `fixed.js`, `remind.js` | Empty lists, fixed wording, reminders |
+
+`tools/make-sample.js` is not a test. It remakes the sample agenda pictures (`sample/page-*.png`)
+from the current PDF; run it whenever the PDF's look changes.
 
 `obsolete/` holds tests and one-off scripts written for earlier designs (saved agendas,
 Send & Clear, the one-page form). They do not pass and are kept only for reference.

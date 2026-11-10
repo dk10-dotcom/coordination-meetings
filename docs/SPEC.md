@@ -326,18 +326,38 @@ Nothing is sent anywhere. The page's Content-Security-Policy allows connections 
 
 ## The PDF
 
-US Letter, built in the browser with pdf-lib, with no fillable fields. File name:
+Built in the browser with pdf-lib, with no fillable fields. File name:
 `Huddle - {Ward} - {YYYY-MM-DD}.pdf`.
 
-- Top: "Keep this PDF secure and delete it when it's no longer needed.", title, ward, date, who
-  conducted, the Ward Council and huddle reminder boxes, and the attendees.
-- **From the {date} huddle · Did it happen?** Return and Report: person, action, happened, notes.
-- **{date} huddle plan:** Covenant Path Report Review and Name Next Ordinance, with Ward Council
-  columns (name, next ordinance, needs) and Huddle columns (attended sacrament, action item,
-  assigned to, when). Temple status and baptism commitments print under the name.
-- Plans to Find New People to Teach.
+**It is made to read on a phone.** A PDF cannot rearrange itself to fit a screen, so the pages
+are phone-shaped instead: 360 × 780 points, with 12-point text. A phone shows a page at full
+width with nothing to zoom. On letter paper a page prints as a narrow column at about actual size.
+
+- Top: "Keep this PDF secure and delete it when it's no longer needed.", title, then Ward, Date,
+  Conducting and **Attended**. Attended lists only the people who were there, on one line, in the
+  order of the form (a dash when no one was marked).
+- There are no tables and no Who/What/How/When boxes. **Each person is one short block** with a
+  thin bar in the color of their list at the left and a hairline under it. A block stays together
+  on one page when it fits, and a heading never sits alone at the bottom of a page.
+- **From the {date} huddle · Did it happen?** Return and Report. Each block: the name with **Yes**,
+  **Partly** or **No** in color at the right ("Not marked" when unanswered), the list the person is
+  on, **Action item** with who and when in gray under it, **Notes**, "Carried forward to the
+  {date} plan", and **Huddle notes**. An item typed in without a person prints its text in place
+  of the name.
+- **{date} huddle plan:** Covenant Path Report Review (a tinted label for each list: new members,
+  returning members, those being taught) and Name Next Ordinance. Each block: the name; one colored
+  line with the temple status (new members), "Committed · {date}" or "Scheduled: {date}" (those
+  being taught) and a green tick with "Attended sacrament meeting"; then **Next ordinance**,
+  **Needs**, **Action item** (who and when in gray, "Carried over from {date}" in italics; "None
+  yet" when there is no action item) and **Huddle notes**. Empty parts are left out. An empty list
+  prints "No one on the Covenant Path Report this week" when confirmed, otherwise "Not reviewed".
+- **Plans to Find New People to Teach:** the plan, then each assignment with its when.
 - **Missionary Referrals:** name, referred by, notes. With no referrals it prints "None listed",
   but only where there is room: an empty referral section never starts a page by itself.
+- Every page ends with the ward, the date and, when there is more than one page, "Page 1 of 3".
+
+The sample agenda in How to use (`sample/page-1.png` to `page-4.png`) is this PDF made from a
+made-up huddle. Remake it with `node test/tools/make-sample.js` whenever the PDF's look changes.
 
 A copy of the huddle's data is stored inside the PDF (the `HuddleData` entry of its information
 dictionary; app id `huddle-agenda`, version 1). **Load from a PDF** reads it back. Keep this

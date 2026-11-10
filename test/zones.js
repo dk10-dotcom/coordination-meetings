@@ -46,8 +46,9 @@ const res = []; const ok = (l, c, x) => { res.push(c); console.log((c ? 'PASS ' 
   await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); document.querySelector('[data-action="after-done"]').click(); } }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#share-btn:not([disabled])');
   const [d1] = await Promise.all([p.waitForEvent('download'), p.click('#share-btn')]); await d1.saveAs(OUT + '/w1.pdf');
   const t1 = execFileSync('pdftotext', ['-raw', OUT + '/w1.pdf', '-']).toString().replace(/\s+/g, ' ');
-  ok('PDF has the group labels', t1.includes('WARD COUNCIL · WHO & WHAT') && t1.includes('HUDDLE · HOW & WHEN'));
-  ok('PDF shows the huddle note on its own line', t1.includes('Huddle notes: Rides on Sunday'));
+  ok('PDF has one block per person: needs, then the action item', /Marcus Bell Needs Friends at church Action item Visit/.test(t1), t1.slice(t1.indexOf('Marcus'), t1.indexOf('Marcus') + 160));
+  ok('PDF has no Who/What/How/When boxes or table labels', !/WHO & WHAT|HOW & WHEN|Huddles decide|ATTENDED|ASSIGNED/.test(t1));
+  ok('PDF shows the huddle note on its own line', t1.includes('Huddle notes Rides on Sunday'));
   execFileSync('pdftoppm', ['-r', '90', '-png', '-singlefile', OUT + '/w1.pdf', OUT + '/w1']);
   await p.click('#confirm-primary', { timeout: 3000 }).catch(() => {});
   await setDate(p, '2026-11-08');

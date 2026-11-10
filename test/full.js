@@ -75,11 +75,11 @@ function words(v) { return v.replace(/[“”]/g, '').split(/\s+/).filter(Boolea
 
     const info = execFileSync('pdfinfo', [file]).toString();
     const pages = +/Pages:\s+(\d+)/.exec(info)[1];
-    ok('page size is US Letter', /612 x 792/.test(info));
+    ok('pages are phone-shaped', /360 x 780/.test(info));
     console.log('     pages: ' + pages);
     const text = pdfText(file);
 
-    // Every typed value must appear (checked word by word, since long text wraps inside table cells)
+    // Every typed value must appear (checked word by word, since long text wraps onto the next line)
     const missing = [];
     const need = [s.ward, 'Sunday, November 1, 2026'];
     s.rr.forEach(r => need.push(r.plan, r.happened, r.notes));
@@ -89,23 +89,26 @@ function words(v) { return v.replace(/[“”]/g, '').split(/\s+/).filter(Boolea
     need.forEach(v => { const w = words(v); const joined = w.join(' '); if (!text.includes(joined)) { if (!w.every(x => text.includes(x))) missing.push(v); } });
     ok('every typed value is in the PDF', missing.length === 0, missing.length ? 'missing: ' + missing.join(' | ') : `${need.length} values checked`);
 
-    // Attendees: all names printed, and the ticked ones checked (checked = drawn tick next to the label)
-    ok('all attendee labels printed', ATT.every(a => text.includes(a)));
+    // Attendees: only the people who attended, on one line, in the order of the form
+    const att = (/ Attended (.*?) FROM THE LAST HUDDLE/.exec(text) || [])[1];
+    ok('only the people who attended are listed', att === ATT.filter(a => s.attendees.includes(a)).join(', '), att);
     // Fixed agenda text
-    const fixed = ['Weekly Coordination', 'Meeting Agenda', 'Ward Council', 'Weekly Coordination Meeting', 'Return and Report', 'FROM THE LAST HUDDLE', 'Did it happen?', 'NOV 1 HUDDLE PLAN',
-      'Covenant Path Report Review', 'Name Next Ordinance (Ward Council Focus Names)', 'Missionary Referrals', 'REFERRED BY',
-      'NEW MEMBERS', 'RETURNING MEMBERS', 'THOSE BEING TAUGHT'];
+    const fixed = ['Keep this PDF secure', 'Weekly Coordination', 'Meeting Agenda', 'Return and Report', 'FROM THE LAST HUDDLE', 'Did it happen?', 'NOV 1 HUDDLE PLAN',
+      'Covenant Path Report Review', 'Name Next Ordinance', 'Ward council focus names', 'Plans to Find New People to Teach', 'Missionary Referrals', 'Referred by',
+      'NEW MEMBERS', 'RETURNING MEMBERS', 'THOSE BEING TAUGHT', 'Next ordinance', 'Action item'];
     const fixedMissing = fixed.filter(f => !text.includes(f));
     ok('all section headings printed', fixedMissing.length === 0, fixedMissing.join(' | '));
     ok('how-to lines left off the PDF', !text.includes('Open the Covenant Path Report') && !text.includes('Open the 3 Names Next Ordinance spreadsheet') && !text.includes('Make a plan'));
+    ok('no Who/What/How/When boxes, table headings or youth reminder', !/Huddles decide|WHO & WHAT|HOW & WHEN|ASSIGNED TO|HAPPENED\?|involve the youth/.test(text));
     ok('no stake name', !text.includes('Riverton Utah South Stake'));
     ok('no unprintable-character marks', !/\?\?|�/.test(text));
-    if (pages > 1) ok('continued pages have a header and page numbers', text.includes('(continued)') && text.includes('Page 2 of ' + pages));
+    ok('every page ends with the ward and date', text.split(s.ward + ' · Nov 1, 2026').length - 1 === pages, pages + ' pages');
+    if (pages > 1) ok('every page is numbered', Array.from({ length: pages }, (_, i) => 'Page ' + (i + 1) + ' of ' + pages).every(t => text.includes(t)) && !text.includes('(continued)'));
 
     // Text stays inside the page margins
     const bbox = execFileSync('pdftotext', ['-bbox', file, '-']).toString();
     const xs = [...bbox.matchAll(/xMin="([\d.]+)" yMin="([\d.]+)" xMax="([\d.]+)" yMax="([\d.]+)"/g)].map(m => m.slice(1).map(Number));
-    const out = xs.filter(([x0, y0, x1, y1]) => x0 < 40 || x1 > 572 || y0 < 20 || y1 > 780);
+    const out = xs.filter(([x0, y0, x1, y1]) => x0 < 20 || x1 > 340 || y0 < 16 || y1 > 770);
     ok('all text inside page margins', out.length === 0, out.length ? out.length + ' words outside' : '');
 
     // Render each page for a visual check

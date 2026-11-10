@@ -83,10 +83,13 @@ New members (blue), Returning members (green), Those being taught (purple) and N
 
 ## The PDF at a glance
 
-- **Top:** title, ward, date, who conducted, and the Ward Council (who · what) / huddle (how · when) reminder. Attendees who were there print dark; those who weren't print light gray.
-- **Two bands group the page, named by date:** **FROM THE NOV 1 HUDDLE** (Did it happen?) over Return and Report, and **NOV 8 HUDDLE PLAN** over Covenant Path Report Review and 3 Names. The form's home screen groups its sections the same way (From the Nov 8 huddle / Nov 15 huddle plan).
-- **Return and Report:** one row per item: the person (with their list in color), last week's action with who and when in gray, whether it happened (green / amber / red), and notes. Carried-forward items say so, and last week's huddle notes sit under the person.
-- **Covenant Path Report Review and 3 Names:** Ward Council columns (name, next ordinance, need) then Huddle columns (attended sacrament as a green tick, action, assigned to, when). Temple countdowns and baptism commitments sit under the name; huddle notes sit in the person's row. Empty lists say "None this week."
+The PDF is made to read on a phone: its pages are the shape of a phone screen (360 × 780 points), with text large enough to read without zooming. On letter paper each page prints as a narrow column.
+
+- **Top:** "Keep this PDF secure", the title, ward, date, who conducted, and **Attended**: only the people who were there, on one line.
+- **Two bands group the pages, named by date:** **FROM THE NOV 1 HUDDLE** (Did it happen?) over Return and Report, and **NOV 8 HUDDLE PLAN** over the rest.
+- **One short block per person,** with a thin bar in the color of their list. There are no tables.
+- **Return and Report:** the name with **Yes**, **Partly** or **No** in color at the right (or "Not marked"), the person's list, last huddle's action item with who and when in gray, and notes. Carried-forward items say so.
+- **Covenant Path Report Review** (new members, returning members, those being taught) **and Name Next Ordinance:** the name; a colored line for the temple count, a baptism commitment and "Attended sacrament meeting"; then next ordinance, needs, and the action item with who and when. Huddle notes come last.
 - **Plans to Find New People to Teach:** the plan and its assignments.
 - **Missionary Referrals:** name, referred by and notes. With none, it prints "None listed" where there is room.
-
+- **Every page ends with** the ward, the date and the page number.

@@ -14,6 +14,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
   ok((await p.textContent('#attendee-list')).includes('High Councilor') && !(await p.textContent('#attendee-list')).includes('Councilman'), 'High Councilor');
   ok(await p.locator('[data-bind="cp.bt.0.ordinance"]').count() === 0 && (await p.textContent('[data-group="bt"] .fixed-value')).trim() === 'Baptism', 'being taught: ordinance fixed to Baptism');
   await p.fill('#ward', 'Test Ward'); await p.fill('#date', '2026-11-01');
+  await p.click('#attendee-list .chip:has-text("High Councilor")');
   await p.fill('[data-bind="cp.bt.0.name"]', 'Olivia Chen'); await p.fill('[data-bind="cp.bt.0.action"]', 'Teach lesson 3');
   await p.click('[data-group="bt"] .commit-box');
   ok(!(await p.isVisible('#toast')) || !(await p.textContent('#toast')).includes('Covenant Path Report'), 'no reminder for committed to baptism');
@@ -24,8 +25,9 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
   const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#share-btn')]);
   await dl.saveAs(__dirname + '/out-fixed.pdf');
   const t = execSync(`pdftotext -layout "${__dirname}/out-fixed.pdf" -`).toString();
-  ok(/Olivia Chen\s+Baptism/.test(t), 'PDF shows Baptism for being taught');
-  ok(/High Councilor/.test(t), 'PDF says High Councilor');
+  ok(/Olivia Chen[\s\S]{0,80}Next ordinance\s+Baptism/.test(t), 'PDF shows Baptism for being taught');
+  ok(/Attended\s+High Councilor/.test(t), 'PDF lists High Councilor as attended');
+  ok(!/Relief Society|Elders Quorum|Primary presidency/.test(t), 'PDF leaves out the people who did not attend');
   ok(!errs.length, 'no errors ' + errs.join('; '));
   console.log(pass + '/' + (pass + fail) + ' checks passed'); await b.close();
 })().catch(e => { console.error(e); process.exit(1); });

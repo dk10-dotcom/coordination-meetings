@@ -25,6 +25,9 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
   Update `docs/SPEC.md` and the tests too.
 - Keep the data embedded in the PDF and the handoff link format compatible with earlier versions,
   so an older PDF or link still loads.
+- **The PDF is read on phones.** Its pages are phone-shaped (360 × 780 points) with one short block
+  per person: no tables, no small print. When its look changes, remake the sample agenda pictures
+  with `node test/tools/make-sample.js` and look at them.
 - The people who use this are not technical. Prefer fewer screens, fewer taps and plain words.
   Check every screen on a small iPhone (320 px wide): nothing may make the page wider than the screen.
 - **It should look and feel like an ordinary iPhone app.** Every list uses the same row (`.nav-row`
@@ -53,6 +56,7 @@ There is no build step and no framework. Edit the files directly.
 python3 -m http.server 8765          # from the top folder; the tests expect this address
 node test/twodoor.js                 # one test
 bash test/run-all.sh                 # every test, with a summary (about 20 minutes)
+node test/tools/make-sample.js       # remakes sample/page-*.png (the sample agenda) from the current PDF
 ```
 
 See `test/README.md` for setup (Playwright and the poppler PDF tools).
@@ -79,8 +83,6 @@ and `huddle-cards-open` (every card open in its list, for tests that fill many c
 ## Open items
 
 - The training video (`media/training-video.mp4`) and its deck show an older design.
-- The sample agenda images (`sample/page-1.png`, `page-2.png`) show an older PDF: old band names, no
-  Missionary Referrals section, and names outside the approved fake-name list.
 - First run: a phone browser opens How to use (with Add to Home Screen first); the Home Screen app
   then starts the tour once. These could be combined into one short welcome.
 - `test/obsolete/` holds tests for removed features (saved agendas, Send & Clear). Do not revive them.

@@ -11,6 +11,8 @@ const { chromium, devices } = require('playwright');
     await p.evaluate(() => document.querySelector('.title-row [data-action="help"]').click()); await p.waitForSelector('#help-sheet:not([hidden])');
     await p.click('[data-action="sample"]'); await p.waitForSelector('#sample-sheet:not([hidden])');
     await p.waitForFunction(() => [...document.querySelectorAll('.sample-page')].every(i => i.complete && i.naturalWidth > 0));
+    ok(await p.evaluate(() => { const i = [...document.querySelectorAll('.sample-page')]; return i.length === 4 && i.every(x => x.naturalWidth === 900 && x.naturalHeight === 1950); }), dev + ' four phone-shaped sample pages');
+    ok(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth && [...document.querySelectorAll('.sample-page')].every(x => x.getBoundingClientRect().right <= window.innerWidth)), dev + ' sample pages fit the screen width');
     ok(await p.evaluate(() => { const r = document.querySelector('.sample-close').getBoundingClientRect(); const el = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2); return !!el.closest('.sample-close'); }), dev + ' close button on top');
     await p.screenshot({ path: `test/out-sample/${tag}-top.png` });
     await p.evaluate(() => { const s = document.querySelector('#sample-sheet .sheet'); s.scrollTop = 900; });

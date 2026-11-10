@@ -2764,10 +2764,8 @@
     var rgb = P.rgb;
     var C = {
       navy: rgb(0.122, 0.22, 0.392), blue: rgb(0.18, 0.333, 0.592), dark: rgb(0.133, 0.133, 0.133),
-      gray: rgb(0.42, 0.447, 0.502), line: rgb(0.788, 0.808, 0.839), head: rgb(0.933, 0.949, 0.973),
-      group: rgb(0.965, 0.972, 0.984), white: rgb(1, 1, 1),
-      councilFill: rgb(0.902, 0.937, 0.98), councilLine: rgb(0.18, 0.455, 0.788),
-      faint: rgb(0.62, 0.65, 0.70), hudFill: rgb(0.988, 0.929, 0.898), hudLine: rgb(0.878, 0.4, 0.18), hudInk: rgb(0.64, 0.29, 0.07), amber: rgb(1, 0.973, 0.902), amberLine: rgb(0.922, 0.796, 0.478)
+      gray: rgb(0.42, 0.447, 0.502), line: rgb(0.788, 0.808, 0.839), white: rgb(1, 1, 1),
+      faint: rgb(0.62, 0.65, 0.70), hudInk: rgb(0.64, 0.29, 0.07)
     };
     // Each Covenant Path list gets its own color on the PDF, matching the form.
     var GROUP_PDF = {
@@ -2778,28 +2776,14 @@
       fn: { fill: rgb(0.91, 0.961, 0.961), ink: rgb(0.055, 0.431, 0.451) },
       mr: { fill: rgb(0.98, 0.933, 0.945), ink: rgb(0.659, 0.2, 0.333) }
     };
-    // Name card tables: Name | Attended sacrament | Next ordinance | Need | Action | Assigned to | When
-    // Name | Next ordinance | Need  (Ward Council)  ·  Attended sacrament | Action | Assigned to | When  (Huddle)
-    var CARD_COLS = [48, 132, 194, 270, 332, 450, 516];
-    var CARD_HEADS = ['NEXT\nORDINANCE', 'NEEDS', 'ATTENDED\nSACRAMENT', 'ACTION\nITEM', 'ASSIGNED\nTO', 'WHEN'];
-    var CARD_GROUPS = [{ text: 'WARD COUNCIL · WHO & WHAT', from: 0, to: 3, kind: 'wc' }, { text: 'HUDDLE · HOW & WHEN', from: 3, to: 7, kind: 'hd' }];
     var TEMPLE_RED = rgb(0.70, 0.16, 0.16);
-    function cardRow(a, gid) {
-      var sub = null;
-      if (gid === 'nm' && (str(a.name).trim() || a.bap)) {
-        var st = templeStatus(a, s.date);
-        sub = { text: 'Temple: ' + (st.left === undefined && !st.done ? 'no date' : st.short), color: st.done ? STATUS_PDF.Yes : TEMPLE_RED };
-      }
-      if (gid === 'bt' && baptismNote(a)) {
-        var d = shortDay(str(a.bap));
-        sub = { text: a.committed ? 'Committed' + (d ? ' · ' + d : '') : 'Scheduled: ' + d, color: GROUP_PDF.bt.ink };
-      }
-      var act = str(a.action).trim();
-      return { boldFirst: true, sub: sub, note: str(a.hneed).trim(), cells: [str(a.name).trim(), ordOf(a, gid), str(a.need).trim(), { check: !!a.sac, mark: true },
-        a.actionCarried && act ? { text: act, meta: carriedText(s), metaItal: true } : act, str(a.assigned).trim(), str(a.when).trim()] };
-    }
     var STATUS_PDF = { Yes: rgb(0.122, 0.42, 0.227), Partly: rgb(0.62, 0.42, 0.02), No: rgb(0.70, 0.16, 0.16) };
-    var W = 612, H = 792, L = 48, R = 564, TOP = 40, BOTTOM = 46;
+    var STATUS_FILL = { Yes: rgb(0.906, 0.957, 0.922), Partly: rgb(1, 0.957, 0.855), No: rgb(0.988, 0.918, 0.918) };
+    // A phone-shaped page: it fills a phone screen without zooming, and prints on letter paper as a narrow column.
+    var W = 360, H = 780, L = 22, R = 338, TOP = 26, BOTTOM = 40;
+    var IN = 11;                              // a block's text sits this far in from its color bar
+    var LBL = 80;                             // room for the small labels ("Next ordinance")
+    var FS = 12, LH = 15.5, MS = 10, MLH = 13; // the value text, and the smaller gray lines under it
     var page = null, y = 0, pages = [];
     var wardTxt = s.ward.trim(), dateTxt = longDate(s.date);
 
@@ -2848,378 +2832,246 @@
     function hline(x0, x1, top, color, th) {
       page.drawLine({ start: { x: x0, y: H - top }, end: { x: x1, y: H - top }, thickness: th || 0.6, color: color || C.line });
     }
-    function vline(x, t0, t1) {
-      page.drawLine({ start: { x: x, y: H - t0 }, end: { x: x, y: H - t1 }, thickness: 0.6, color: C.line });
-    }
     function box(x, top, w, hh, opts) {
       page.drawRectangle(Object.assign({ x: x, y: H - top - hh, width: w, height: hh }, opts));
     }
-    function rbox(x, top, w, hh, r, fill, stroke, bw) {
+    function rbox(x, top, w, hh, r, fill) {
       var p = 'M ' + r + ' 0 H ' + (w - r) + ' Q ' + w + ' 0 ' + w + ' ' + r + ' V ' + (hh - r) + ' Q ' + w + ' ' + hh + ' ' + (w - r) + ' ' + hh +
         ' H ' + r + ' Q 0 ' + hh + ' 0 ' + (hh - r) + ' V ' + r + ' Q 0 0 ' + r + ' 0 Z';
-      page.drawSvgPath(p, { x: x, y: H - top, color: fill, borderColor: stroke, borderWidth: bw || 0 });
+      page.drawSvgPath(p, { x: x, y: H - top, color: fill });
     }
-    function checkbox(x, base, checked) {
-      box(x, base - 8.1, 9.2, 9.2, { color: C.white, borderColor: C.gray, borderWidth: 0.8 });
-      if (checked) {
-        var p = 'M 1.9 4.9 L 3.9 7.2 L 7.6 2';
-        page.drawSvgPath(p, { x: x, y: H - (base - 8.1), borderColor: C.navy, borderWidth: 1.4 });
-      }
+    function tick(x, top, color) {
+      page.drawLine({ start: { x: x + 1.2, y: H - (top + 5) }, end: { x: x + 3.4, y: H - (top + 7.4) }, thickness: 1.5, color: color });
+      page.drawLine({ start: { x: x + 3.4, y: H - (top + 7.4) }, end: { x: x + 7.6, y: H - (top + 1.8) }, thickness: 1.5, color: color });
     }
-    function bullet(base) { page.drawCircle({ x: 53, y: H - (base - 3.3), size: 1.9, color: C.dark }); }
-    function newPage(cont) {
-      page = doc.addPage([W, H]); pages.push(page); y = TOP;
-      if (cont) {
-        tx(L, y + 9, DOC_TITLE + (wardTxt ? ' · ' + wardTxt : '') + (dateTxt ? ' · ' + dateTxt : '') + ' (continued)', F.bold, 9, C.gray);
-        y += 20;
-      }
+    function newPage() { page = doc.addPage([W, H]); pages.push(page); y = TOP; }
+
+    // The page is built from lines. Lines that belong together (one person's block, or a heading and the
+    // first block under it) move to the next page together when they don't fit on this one.
+    var lead = []; // headings waiting for the block they sit above
+    function line(hh, draw) { return { h: hh, draw: draw }; }
+    function space(hh) { return { h: hh, space: true }; }
+    function put(rows) {
+      rows = lead.concat(rows); lead = [];
+      var total = rows.reduce(function (n, r) { return n + r.h; }, 0);
+      if (y + total > H - BOTTOM && total <= H - BOTTOM - TOP) newPage();
+      rows.forEach(function (r) {
+        if (y + r.h > H - BOTTOM) newPage();
+        if (r.space && !r.bar && y === TOP) return; // no empty gap at the top of a page
+        if (r.bar) box(L, y, 2.5, r.h + 0.3, { color: r.bar });
+        if (r.draw) r.draw(y);
+        y += r.h;
+      });
     }
-    function ensure(need) { if (y + need > H - BOTTOM) newPage(true); }
-    // A slim band that groups sections: from the last huddle (looking back) and this huddle's plan (looking ahead).
-    function band(label, sub) {
-      ensure(70);
-      box(L, y, R - L, 17, { color: C.navy });
-      var e = tx(L + 8, y + 12, label, F.bold, 8.5, C.white);
-      if (sub) tx(e + 8, y + 12, sub, F.ital, 8.5, rgb(0.82, 0.87, 0.94));
-      y += 17 + 8;
+    // A thin bar in the list's color runs down the left of a block and shows which list it belongs to.
+    function barred(rows, color) { rows.forEach(function (r) { r.bar = color; }); return rows; }
+    function rule() { return line(7, function (top) { hline(L, R, top + 3.5, C.line, 0.6); }); }
+    function block(rows, color) { put(barred([space(3)].concat(rows, [space(3)]), color).concat([rule()])); }
+
+    // A slim band groups the sections: from the last huddle (looking back) and this huddle's plan (looking ahead).
+    function band(label, sub, gap) {
+      lead.push(space(gap === undefined ? 18 : gap));
+      lead.push(line(22, function (top) {
+        box(L, top, R - L, 22, { color: C.navy });
+        var e = tx(L + IN, top + 14.8, label, F.bold, 9.5, C.white);
+        if (sub && e + 8 + width(sub, F.ital, 9.5) <= R - IN) tx(e + 8, top + 14.8, sub, F.ital, 9.5, rgb(0.82, 0.87, 0.94));
+      }));
     }
     function heading(label, note) {
-      ensure(40);
-      var e = tx(L, y + 9, label, F.bold, 11.5, C.blue);
-      if (note) tx(e + 6, y + 9, note, F.ital, 9, C.gray);
-      hline(L, R, y + 14);
-      y += 14;
+      lead.push(space(14));
+      lead.push(line(30, function (top) {
+        var e = tx(L, top + 13, label, F.bold, 13.5, C.blue);
+        if (note && e + 7 + width(note, F.ital, 9.5) <= R) tx(e + 7, top + 13, note, F.ital, 9.5, C.gray);
+        hline(L, R, top + 20.5, C.line, 0.8);
+      }));
+    }
+    function groupLabel(title, gid) {
+      var gc = GROUP_PDF[gid];
+      lead.push(line(26, function (top) {
+        box(L, top, R - L, 19, { color: gc.fill });
+        box(L, top, 2.5, 19, { color: gc.ink });
+        tx(L + IN, top + 12.8, title.toUpperCase(), F.bold, 8.5, gc.ink);
+      }));
+    }
+    function emptyRow(text) {
+      put([line(20, function (top) { tx(L + IN, top + 11, text, F.ital, 10.5, C.gray); }), space(6)]);
     }
 
-    // Tables
-    function table(cols, headers, rows, groups) {
-      var edges = cols.concat([R]);
-      var FS = 8.5, LH = 10.5;
-      // A header can take two lines ("ATTENDED\nSACRAMENT") so narrow columns stay readable.
-      var headLines = headers.map(function (t) { return t.split('\n'); });
-      var HH = headLines.some(function (l) { return l.length > 1; }) ? 23 : 14;
-      var GH = groups ? 13 : 0;
-      function drawHeader() {
-        // Optional labels above the header: which group fills in which columns.
-        if (groups) {
-          groups.forEach(function (g) {
-            var col = g.kind === 'hd' ? C.hudInk : C.blue;
-            tx(edges[g.from] + 5, y + 8.5, g.text, F.bold, 6.8, col);
-            page.drawLine({ start: { x: edges[g.from] + (g.from ? 2 : 0), y: H - (y + GH - 1.5) }, end: { x: edges[g.to] - (g.to < edges.length - 1 ? 2 : 0), y: H - (y + GH - 1.5) }, thickness: 1.6, color: col });
-          });
-          y += GH;
-        }
-        box(L, y, R - L, HH, { color: C.head });
-        headLines.forEach(function (ls, i) { ls.forEach(function (t, k) { tx(edges[i] + 5, y + 10 + k * 9, t, F.bold, 8, C.navy); }); });
-        hline(L, R, y); hline(L, R, y + HH);
-        vline(L, y, y + HH); vline(R, y, y + HH);
-        y += HH;
-      }
-      // A cell is plain text, or a list of {t, bold} pieces when only part of it is bold.
-      function segWrap(segs, maxW) {
-        var sp = F.reg.widthOfTextAtSize(' ', FS), words = [];
-        segs.forEach(function (sg) {
-          var font = sg.bold ? F.bold : F.reg;
-          clean(sg.t, font).replace(/\n/g, ' ').split(/ +/).filter(Boolean).forEach(function (w) {
-            while (font.widthOfTextAtSize(w, FS) > maxW && w.length > 1) {
-              var cut = w.length - 1;
-              while (cut > 1 && font.widthOfTextAtSize(w.slice(0, cut), FS) > maxW) cut--;
-              words.push({ t: w.slice(0, cut), font: font, w: font.widthOfTextAtSize(w.slice(0, cut), FS) }); w = w.slice(cut);
-            }
-            words.push({ t: w, font: font, w: font.widthOfTextAtSize(w, FS) });
-          });
-        });
-        var lines = [], cur = [], cw = 0;
-        words.forEach(function (wd) {
-          var add = (cur.length ? sp : 0) + wd.w;
-          if (cur.length && cw + add > maxW) { lines.push(cur); cur = []; cw = 0; add = wd.w; }
-          cur.push(wd); cw += add;
-        });
-        if (cur.length) lines.push(cur);
-        return { seg: true, sp: sp, lines: lines.length ? lines : [[]] };
-      }
-      function rowLayout(row) {
-        if (row.group) return { h: 15 };
-        if (row.empty) return { h: 18 };
-        var cells = row.cells.map(function (c, i) {
-          var maxW = edges[i + 1] - edges[i] - 10;
-          if (c && typeof c === 'object' && 'check' in c) return { box: true, on: !!c.check, mark: !!c.mark, lines: [] };
-          // Main text, with a smaller gray line underneath (who and when, or a short status).
-          if (c && typeof c === 'object' && 'meta' in c) {
-            var main = wrap(str(c.text), F.reg, FS, maxW), meta = str(c.meta) ? wrap(c.meta, c.metaItal ? F.ital : F.reg, 7.8, maxW) : [];
-            return { font: F.reg, lines: str(c.text) ? main : [], meta: meta, metaItal: !!c.metaItal, extra: meta.length * 0.9 };
-          }
-          if (Array.isArray(c)) return segWrap(c, maxW);
-          var font = row.boldFirst && i === 0 ? F.bold : F.reg;
-          return { font: font, lines: wrap(c, font, FS, maxW) };
-        });
-        var n = Math.max.apply(null, cells.map(function (c) { return c.lines.length + (c.extra || 0); }));
-        var subLines = null;
-        if (row.sub) {
-          subLines = wrap(row.sub.text, F.bold, 7.5, edges[1] - edges[0] - 10);
-          n = Math.max(n, cells[0].lines.length + subLines.length * 0.85);
-        }
-        var cellH = Math.max(18, Math.ceil(n * LH + 7));
-        // Huddle notes get their own full-width line under the row.
-        var noteLines = null, noteH = 0, noteLabelW = 0;
-        if (row.note) {
-          noteLabelW = F.bold.widthOfTextAtSize('Huddle notes: ', 8);
-          noteLines = wrap(row.note, F.reg, 8, R - L - 34 - noteLabelW);
-          noteH = noteLines.length * 10 + 11;
-        }
-        return { h: cellH + noteH, cellH: cellH, cells: cells, subLines: subLines, noteLines: noteLines, noteLabelW: noteLabelW };
-      }
-      var first = rows.length ? rowLayout(rows[0]) : { h: 18 };
-      ensure(GH + HH + first.h + 4);
-      drawHeader();
-      rows.forEach(function (row, ri) {
-        var lay = rowLayout(row);
-        // A list label never sits alone at the bottom of a page: keep it with its first person.
-        var keep = row.group && rows[ri + 1] ? rowLayout(rows[ri + 1]).h : 0;
-        if (y + lay.h + keep > H - BOTTOM) { newPage(true); drawHeader(); }
-        if (row.empty) {
-          tx(L + 8, y + 11.5, row.empty, F.ital, 8.5, C.gray);
-          vline(L, y, y + lay.h); vline(R, y, y + lay.h);
-        } else if (row.group) {
-          var gc = GROUP_PDF[row.gid] || { fill: C.group, ink: C.blue };
-          box(L, y, R - L, lay.h, { color: gc.fill });
-          box(L, y, 3, lay.h, { color: gc.ink });
-          tx(L + 8, y + 10.5, row.group.toUpperCase(), F.bold, 7.5, gc.ink);
-          vline(L, y, y + lay.h); vline(R, y, y + lay.h);
-        } else {
-          // A thin bar in the list's color marks where each row came from.
-          if (row.gid && GROUP_PDF[row.gid]) box(L, y, 3, lay.h, { color: GROUP_PDF[row.gid].ink });
-          lay.cells.forEach(function (c, i) {
-            if (c.box) {
-              // A green tick when the person attended sacrament meeting (an empty box only on blank forms).
-              var bx = (edges[i] + edges[i + 1]) / 2 - 4.5, by = y + 4.5;
-              if (!c.mark) page.drawRectangle({ x: bx, y: H - (by + 9), width: 9, height: 9, borderColor: C.gray, borderWidth: 0.8 });
-              if (c.on) {
-                page.drawLine({ start: { x: bx + 1.8, y: H - (by + 4.8) }, end: { x: bx + 3.8, y: H - (by + 7) }, thickness: 1.4, color: STATUS_PDF.Yes });
-                page.drawLine({ start: { x: bx + 3.8, y: H - (by + 7) }, end: { x: bx + 7.6, y: H - (by + 2) }, thickness: 1.4, color: STATUS_PDF.Yes });
-              }
-              return;
-            }
-            c.lines.forEach(function (ln, k) {
-              if (!c.seg) {
-                var isStatus = row.status && i === (row.statusCol || 1) && STATUS_PDF[row.status];
-                tx(edges[i] + 5, y + 11.5 + k * LH, ln, isStatus ? F.bold : c.font, FS, isStatus ? STATUS_PDF[row.status] : C.dark);
-                return;
-              }
-              var x = edges[i] + 5;
-              ln.forEach(function (wd, j) {
-                if (j) x += c.sp;
-                page.drawText(wd.t, { x: x, y: H - (y + 11.5 + k * LH), size: FS, font: wd.font, color: C.dark });
-                x += wd.w;
-              });
-            });
-          });
-          lay.cells.forEach(function (c, i) {
-            if (!c.meta || !c.meta.length) return;
-            var my = y + 11.5 + c.lines.length * LH - (c.lines.length ? 0.5 : 0);
-            c.meta.forEach(function (ln, k) { tx(edges[i] + 5, my + k * 9.5, ln, c.metaItal ? F.ital : F.reg, 7.8, C.gray); });
-          });
-          if (lay.subLines) {
-            var sy = y + 11.5 + lay.cells[0].lines.length * LH;
-            lay.subLines.forEach(function (ln, k) { tx(edges[0] + 5, sy + k * 9, ln, F.bold, 7.5, row.sub.color); });
-          }
-          // Outer border only; rows are separated by horizontal rules, which reads cleaner on paper.
-          vline(L, y, y + lay.h); vline(R, y, y + lay.h);
-          if (lay.noteLines) {
-            // The note sits inside the same row, tucked under the name with a connector,
-            // so it reads as belonging to that person.
-            var ny = y + lay.cellH - 1, nh = lay.h - lay.cellH - 3;
-            rbox(L + 18, ny, R - L - 24, nh, 3, C.hudFill, C.hudLine, 0.5);
-            page.drawLine({ start: { x: L + 9, y: H - (y + lay.cellH - 3) }, end: { x: L + 9, y: H - (ny + nh / 2) }, thickness: 0.9, color: C.hudLine });
-            page.drawLine({ start: { x: L + 9, y: H - (ny + nh / 2) }, end: { x: L + 18, y: H - (ny + nh / 2) }, thickness: 0.9, color: C.hudLine });
-            tx(L + 24, ny + 10.5, 'Huddle notes:', F.bold, 8, C.hudInk);
-            lay.noteLines.forEach(function (ln, k) { tx(L + 24 + lay.noteLabelW, ny + 10.5 + k * 10, ln, F.reg, 8, C.dark); });
-          }
-        }
-        hline(L, R, y + lay.h);
-        y += lay.h;
+    function textLines(text, font, size, color, lh, base, maxW) {
+      return wrap(text, font, size, maxW).map(function (ln) {
+        return line(lh, function (top) { tx(L + IN, top + base, ln, font, size, color); });
       });
+    }
+    // The name at the top of a block, with an optional piece at the right of its first line (Yes, Partly, No).
+    // A typed item with no person's name is a sentence, not a name, so it prints in plain text (plain).
+    function titleLines(text, missing, rightW, drawRight, plain) {
+      var has = !!str(text).trim();
+      var rows = textLines(has ? text : missing, !has ? F.ital : plain ? F.reg : F.bold, plain ? 12.5 : 13.5, has ? C.dark : C.gray, plain ? 16 : 17.5, 13, R - L - IN - (rightW ? rightW + 10 : 0));
+      if (drawRight) { var first = rows[0].draw; rows[0].draw = function (top) { first(top); drawRight(top); }; }
+      return rows;
+    }
+    // Short colored notes under a name: the temple count, a baptism commitment, sacrament meeting attendance.
+    function tagLines(tags) {
+      var out = [], cur = [], cx = L + IN;
+      tags.forEach(function (t) {
+        var w = width(t.text, F.bold, 9.5) + (t.check ? 12 : 0);
+        if (cur.length && cx + w > R) { out.push(cur); cur = []; cx = L + IN; }
+        cur.push({ t: t, x: cx }); cx += w + 14;
+      });
+      if (cur.length) out.push(cur);
+      return out.map(function (items) {
+        return line(14, function (top) {
+          items.forEach(function (it) {
+            if (it.t.check) tick(it.x, top + 2, it.t.color);
+            tx(it.x + (it.t.check ? 12 : 0), top + 10.5, it.t.text, F.bold, 9.5, it.t.color);
+          });
+        });
+      });
+    }
+    // One labeled value: a small gray label, the value beside it, and smaller gray lines under it (who and when).
+    function field(label, value, metas, quiet) {
+      var x = L + IN + LBL, maxW = R - x, rows = [];
+      function add(hh, base, draw) {
+        var first = !rows.length;
+        rows.push(line(hh, function (top) {
+          if (first && label) tx(L + IN, top + base, label, F.reg, 9.5, C.gray);
+          draw(top);
+        }));
+      }
+      var vf = quiet ? F.ital : F.reg, vc = quiet ? C.gray : C.dark;
+      if (str(value).trim()) {
+        wrap(str(value).trim(), vf, FS, maxW).forEach(function (ln) { add(LH, 11.5, function (top) { tx(x, top + 11.5, ln, vf, FS, vc); }); });
+      }
+      (metas || []).forEach(function (m) {
+        if (!m || !str(m.text).trim()) return;
+        var mf = m.ital ? F.ital : F.reg;
+        wrap(m.text, mf, MS, maxW).forEach(function (ln) { add(MLH, 10, function (top) { tx(x, top + 10, ln, mf, MS, C.gray); }); });
+      });
+      if (rows.length) rows.push(space(4));
+      return rows;
+    }
+
+    // One person from the Covenant Path lists or Name Next Ordinance.
+    function cardBlock(a, gid) {
+      var name = str(a.name).trim(), tags = [];
+      if (gid === 'nm' && (name || a.bap)) {
+        var st = templeStatus(a, s.date);
+        tags.push({ text: 'Temple: ' + (st.left === undefined && !st.done ? 'no date' : st.short), color: st.done ? STATUS_PDF.Yes : TEMPLE_RED });
+      }
+      if (gid === 'bt' && baptismNote(a)) {
+        var d = shortDay(str(a.bap));
+        tags.push({ text: a.committed ? 'Committed' + (d ? ' · ' + d : '') : 'Scheduled: ' + d, color: GROUP_PDF.bt.ink });
+      }
+      if (a.sac) tags.push({ text: 'Attended sacrament meeting', color: STATUS_PDF.Yes, check: true });
+      var ord = ordOf(a, gid), need = str(a.need).trim(), act = str(a.action).trim(), note = str(a.hneed).trim();
+      var who = [str(a.assigned).trim(), str(a.when).trim()].filter(Boolean).join(' · ');
+      var rows = titleLines(name, 'No name').concat(tagLines(tags), [space(5)]);
+      if (ord) rows = rows.concat(field('Next ordinance', ord));
+      if (need) rows = rows.concat(field('Needs', need));
+      rows = rows.concat(field('Action item', act || 'None yet', [{ text: who }, { text: a.actionCarried && act ? carriedText(s) : '', ital: true }], !act));
+      if (note) rows = rows.concat(field('Huddle notes', note));
+      block(rows, GROUP_PDF[gid].ink);
     }
 
     /* ----- page 1 header ----- */
-    newPage(false);
+    newPage();
     // Privacy reminder for everyone who receives the agenda.
-    var sx = tx(L, 27, 'Keep this PDF secure', F.bold, 8, C.hudInk);
-    tx(sx, 27, ' and delete it when it’s no longer needed.', F.reg, 8, C.gray);
-    tx(L, 54, 'Weekly Coordination', F.bold, 21, C.navy);
-    tx(L, 77, 'Meeting Agenda', F.bold, 21, C.navy);
-    var lx = tx(L, 96, 'Ward', F.reg, 9, C.gray);
-    tx(L + 58, 96, wardTxt || '—', F.bold, 10, C.dark);
-    tx(L, 111, 'Date', F.reg, 9, C.gray);
-    tx(L + 58, 111, dateTxt || '—', F.bold, 10, C.dark);
-    tx(L, 126, 'Conducting', F.reg, 9, C.gray);
-    tx(L + 58, 126, conductingLabel(s) || '—', F.bold, 10, C.dark);
-    void lx;
-
-    // Who/What · How/When diagram
-    [[41, 'Who'], [61, 'What'], [91, 'How'], [111, 'When']].forEach(function (p) {
-      rbox(346, p[0], 46, 16, 4, C.white, C.line, 0.8);
-      var tw = F.bold.widthOfTextAtSize(p[1], 8);
-      tx(369 - tw / 2, p[0] + 10.8, p[1], F.bold, 8, C.navy);
-    });
-    [[41, 77, 59], [91, 127, 109]].forEach(function (b) {
-      page.drawLine({ start: { x: 396, y: H - b[0] }, end: { x: 402, y: H - b[0] }, thickness: 0.8, color: C.gray });
-      page.drawLine({ start: { x: 402, y: H - b[0] }, end: { x: 402, y: H - b[1] }, thickness: 0.8, color: C.gray });
-      page.drawLine({ start: { x: 396, y: H - b[1] }, end: { x: 402, y: H - b[1] }, thickness: 0.8, color: C.gray });
-      page.drawLine({ start: { x: 402, y: H - b[2] }, end: { x: 430, y: H - b[2] }, thickness: 0.8, color: C.gray });
-      page.drawSvgPath('M 0 0 L 6 3 L 0 6 Z', { x: 430, y: H - (b[2] - 3), color: C.gray });
-    });
-    // Detail text may mark bold words with *asterisks*; lines are centered word by word.
-    function richWrap(text, size, maxW) {
-      var words = clean(text, F.reg).split(/ +/).filter(Boolean).map(function (w) {
-        var bold = /^\*.*\*[.,]?$/.test(w);
-        var t = bold ? w.replace(/\*/g, '') : w;
-        var font = bold ? F.bold : F.reg;
-        return { t: t, font: font, w: font.widthOfTextAtSize(t, size) };
+    var sx = tx(L, 30, 'Keep this PDF secure', F.bold, 8.5, C.hudInk);
+    tx(sx, 30, ' and delete it when it’s no longer needed.', F.reg, 8.5, C.gray);
+    tx(L, 62, 'Weekly Coordination', F.bold, 21, C.navy);
+    tx(L, 86, 'Meeting Agenda', F.bold, 21, C.navy);
+    y = 100;
+    // Only the people who attended are listed, in the order of the form.
+    var attended = ATTENDEES.filter(function (a) { return s.attendees.indexOf(a.id) >= 0; }).map(function (a) { return a.label; }).join(', ');
+    [['Ward', wardTxt, F.bold], ['Date', dateTxt, F.bold], ['Conducting', conductingLabel(s), F.bold], ['Attended', attended, F.reg]].forEach(function (m) {
+      wrap(m[1] || '—', m[2], 11.5, R - L - 70).forEach(function (ln, k) {
+        if (!k) tx(L, y + 11, m[0], F.reg, 9.5, C.gray);
+        tx(L + 70, y + 11, ln, m[2], 11.5, C.dark);
+        y += 15;
       });
-      var sp = F.reg.widthOfTextAtSize(' ', size), lines = [], cur = [], cw = 0;
-      words.forEach(function (wd) {
-        var add = (cur.length ? sp : 0) + wd.w;
-        if (cur.length && cw + add > maxW) { lines.push({ words: cur, w: cw }); cur = []; cw = 0; add = wd.w; }
-        cur.push(wd); cw += add;
-      });
-      if (cur.length) lines.push({ words: cur, w: cw });
-      // Avoid a single word alone on the last line.
-      var n = lines.length;
-      if (n > 1 && lines[n - 1].words.length === 1 && lines[n - 2].words.length > 2) {
-        var moved = lines[n - 2].words.pop();
-        lines[n - 2].w -= moved.w + sp;
-        lines[n - 1].words.unshift(moved);
-        lines[n - 1].w += moved.w + sp;
-      }
-      return { lines: lines, sp: sp };
-    }
-    function infoBox(top, hh, fill, stroke, title, detail) {
-      rbox(436, top, 128, hh, 5, fill, stroke, 1.2);
-      var tl = wrap(title, F.bold, 9, 118), dl = richWrap(detail, 7, 118);
-      var total = tl.length * 10.5 + dl.lines.length * 8.4;
-      var b = top + (hh - total) / 2 + 8;
-      tl.forEach(function (ln) { tx(500 - F.bold.widthOfTextAtSize(ln, 9) / 2, b, ln, F.bold, 9, C.navy); b += 10.5; });
-      dl.lines.forEach(function (ln) {
-        var x = 500 - ln.w / 2;
-        ln.words.forEach(function (wd, i) {
-          if (i) x += dl.sp;
-          page.drawText(wd.t, { x: x, y: H - b, size: 7, font: wd.font, color: wd.font === F.bold ? C.navy : C.dark });
-          x += wd.w;
-        });
-        b += 8.4;
-      });
-    }
-    infoBox(37, 48, C.councilFill, C.councilLine, 'Ward Council', 'Reviews the Covenant Path Report, then selects *who* to focus on and *what* each person’s next ordinance is.');
-    infoBox(89, 44, C.hudFill, C.hudLine, 'Weekly Coordination Meeting', 'Huddles decide *how* and *when* to help.');
-    hline(L, R, 139, C.navy, 1.2);
-    y = 152;
-
-    /* ----- Attendees ----- */
-    // A label like Ward, Date and Conducting, not a section heading: it's about the meeting, not a topic.
-    var al = tx(L, y + 3, 'Attendees', F.reg, 9, C.gray);
-    tx(al + 6, y + 3, 'Make an extra effort to involve the youth', F.ital, 8.5, C.gray);
-    y += 5;
-    var arows = [ATTENDEES.slice(0, 4), ATTENDEES.slice(4, 8), ATTENDEES.slice(8)];
-    var fontFor = function (a) { return a.youth ? F.bold : F.reg; };
-    var colw = [0, 1, 2, 3].map(function (i) {
-      return Math.max.apply(null, arows.filter(function (r) { return r[i]; }).map(function (r) { return fontFor(r[i]).widthOfTextAtSize(r[i].label, 9.5); }));
+      y += 3;
     });
-    var gap = (R - 48.4 - 4 * 14.6 - colw.reduce(function (a, b) { return a + b; }, 0)) / 3;
-    var xs = [48.4];
-    for (var ci = 0; ci < 3; ci++) xs.push(xs[ci] + 14.6 + colw[ci] + gap);
-    var ab = y + 13;
-    arows.forEach(function (r) {
-      r.forEach(function (a, i) {
-        var here = s.attendees.indexOf(a.id) >= 0;
-        checkbox(xs[i], ab, here);
-        tx(xs[i] + 14.6, ab, a.label, fontFor(a), 9.5, here || !s.attendees.length ? C.dark : C.faint);
-      });
-      ab += 14;
-    });
-    y = ab - 14 + 8;
+    hline(L, R, y + 7, C.navy, 1.2);
+    y += 8;
 
     /* ----- Return and Report ----- */
-    y += 12;
-    band(fromLabel(s).toUpperCase(), 'Did it happen?');
+    band(fromLabel(s).toUpperCase(), 'Did it happen?', 14);
     heading('Return and Report');
-    y += 7;
-    var rrRows = s.rr.filter(function (r) { return r.prefilled || rrHasInput(r); }).map(function (r) {
+    var rrItems = s.rr.filter(function (r) { return r.prefilled || rrHasInput(r); });
+    if (!rrItems.length) emptyRow('Nothing to report from the last huddle.');
+    rrItems.forEach(function (r) {
       var gid = r.prefilled ? groupOf(r) : '';
       var name = gid === 'fn' ? 'Finding new people' : r.prefilled ? (str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim()) : '';
       var who = [str(r.assigned).trim(), str(r.when).trim()].filter(Boolean).join(' · ');
-      var action = r.prefilled ? (str(r.action).trim() || 'No action item written') : str(r.plan).trim();
-      var notes = str(r.notes).trim();
-      return {
-        gid: gid, boldFirst: true, status: r.happened || '', statusCol: 2,
-        sub: gid && gid !== 'fn' ? { text: SOURCE[gid], color: GROUP_PDF[gid].ink } : null,
-        note: str(r.hneed).trim(),
-        cells: [name, { text: action, meta: who }, r.happened || '—', { text: notes, meta: r.carriedFwd ? 'Carried forward to ' + (monthDay(s.date) ? 'the ' + monthDay(s.date) + ' plan' : 'this plan') : '', metaItal: true }]
-      };
+      var action = r.prefilled ? str(r.action).trim() : str(r.plan).trim();
+      var notes = str(r.notes).trim(), note = str(r.hneed).trim();
+      var fwd = r.carriedFwd ? 'Carried forward to ' + (monthDay(s.date) ? 'the ' + monthDay(s.date) + ' plan' : 'this plan') : '';
+      // Did it happen? Yes, Partly or No in its color at the right of the name.
+      var status = STATUS_PDF[r.happened] ? r.happened : '';
+      var sw = width(status || 'Not marked', F.bold, 9.5) + (status ? 16 : 0);
+      var rows = titleLines(name || action, 'No action item written', sw, function (top) {
+        if (!status) { tx(R - sw, top + 12.3, 'Not marked', F.bold, 9.5, C.faint); return; }
+        rbox(R - sw, top + 1, sw, 16, 8, STATUS_FILL[status]);
+        tx(R - sw + 8, top + 12.3, status, F.bold, 9.5, STATUS_PDF[status]);
+      }, !name);
+      if (gid && gid !== 'fn') rows = rows.concat(tagLines([{ text: SOURCE[gid], color: GROUP_PDF[gid].ink }]));
+      rows.push(space(5));
+      if (name) rows = rows.concat(field('Action item', action || 'No action item written', [{ text: who }], !action));
+      else if (who) rows = rows.concat(field('Assigned to', who));
+      rows = rows.concat(field(notes ? 'Notes' : '', notes, [{ text: fwd, ital: true }]));
+      if (note) rows = rows.concat(field('Huddle notes', note));
+      block(rows, gid && GROUP_PDF[gid] ? GROUP_PDF[gid].ink : C.faint);
     });
-    if (!rrRows.length) rrRows = [{ empty: 'Nothing to report from the last huddle.' }];
-    table([48, 140, 352, 418], ['PERSON', 'ACTION', 'HAPPENED?', 'NOTES'], rrRows);
 
     /* ----- Covenant Path Report Review ----- */
-    y += 18;
-    band(monthDay(s.date) ? monthDay(s.date).toUpperCase() + ' HUDDLE PLAN' : 'THIS HUDDLE’S PLAN', 'Who and what from ward council; how and when from the huddle');
+    band(monthDay(s.date) ? monthDay(s.date).toUpperCase() + ' HUDDLE PLAN' : 'THIS HUDDLE’S PLAN');
     heading('Covenant Path Report Review');
-    // The PDF keeps only the table; the how-to lines live on the form.
-    y += 7;
-    var cpRows = [];
     GROUPS.forEach(function (g) {
-      cpRows.push({ group: g.title, gid: g.id });
+      groupLabel(g.title, g.id);
       var filled = s.cp[g.id].filter(function (a) { return a.sac || hasText(a, CARD_KEYS); });
-      if (!filled.length) cpRows.push({ empty: noneConfirmed(g.id, s) ? 'No one on the Covenant Path Report this week' : 'Not reviewed' });
-      filled.forEach(function (a) { cpRows.push(cardRow(a, g.id)); });
+      if (!filled.length) emptyRow(noneConfirmed(g.id, s) ? 'No one on the Covenant Path Report this week' : 'Not reviewed');
+      filled.forEach(function (a) { cardBlock(a, g.id); });
     });
-    table(CARD_COLS, ['NAME'].concat(CARD_HEADS), cpRows, CARD_GROUPS);
 
-    // Three Names (same header style as Covenant Path Report Review)
-    y += 13;
-    ensure(95); // keep the heading with its table
-    heading('Name Next Ordinance (Ward Council Focus Names)');
-    y += 7;
-    table(CARD_COLS, ['FOCUS NAME'].concat(CARD_HEADS),
-      (function () {
-        var tnRows = s.tn.filter(function (n) { return n.sac || hasText(n, CARD_KEYS); }).map(function (n) { var row = cardRow(n); row.gid = 'tn'; return row; });
-        return tnRows.length ? tnRows : [{ empty: 'None this week' }];
-      })(), CARD_GROUPS);
+    /* ----- Name Next Ordinance ----- */
+    heading('Name Next Ordinance', 'Ward council focus names');
+    var tnItems = s.tn.filter(function (n) { return n.sac || hasText(n, CARD_KEYS); });
+    if (!tnItems.length) emptyRow('None this week');
+    tnItems.forEach(function (n) { cardBlock(n, 'tn'); });
 
     /* ----- Plans to find new people to teach ----- */
-    y += 13;
-    ensure(70); // keep the heading with its table
     heading('Plans to Find New People to Teach');
-    y += 7;
     var fPlan = str(s.find.plan).trim();
-    var fRows = s.find.items.filter(assignHasText).map(function (x) {
+    var fItems = s.find.items.filter(assignHasText);
+    if (!fPlan && !fItems.length) emptyRow('None this week');
+    if (fPlan) block(field('Plan', fPlan), GROUP_PDF.fn.ink);
+    if (fPlan && !fItems.length) block(field('Assignment', 'No assignments yet', null, true), GROUP_PDF.fn.ink);
+    fItems.forEach(function (x) {
       var t = str(x.task).trim();
-      return { gid: 'fn', cells: [x.carried && t ? { text: t, meta: carriedText(s), metaItal: true } : t, str(x.when).trim()] };
+      block(field('Assignment', t || '—', [{ text: str(x.when).trim() }, { text: x.carried && t ? carriedText(s) : '', ital: true }]), GROUP_PDF.fn.ink);
     });
-    if (fPlan) { table([48], ['PLAN'], [{ gid: 'fn', cells: [fPlan] }]); y += 8; }
-    if (fRows.length || !fPlan) table([48, 470], ['ASSIGNMENT', 'WHEN'], fRows.length ? fRows : [{ empty: fPlan ? 'No assignments yet' : 'None this week' }]);
 
     /* ----- Missionary referrals ----- */
-    var mRows = cleanReferrals(s.referrals).map(function (x) {
-      return { gid: 'mr', cells: [str(x.name).trim() || '—', str(x.by).trim(), str(x.notes).trim()] };
-    });
+    var refs = cleanReferrals(s.referrals);
+    heading('Missionary Referrals');
     // With no referrals, the section prints "None listed" only where there's room: it never starts a page by itself.
-    if (mRows.length || y + 13 + 70 <= H - BOTTOM) {
-      y += 13;
-      ensure(70); // keep the heading with its table
-      heading('Missionary Referrals');
-      y += 7;
-      table([48, 190, 320], ['NAME', 'REFERRED BY', 'NOTES'], mRows.length ? mRows : [{ empty: 'None listed' }]);
+    if (!refs.length) {
+      if (y + 44 + 26 <= H - BOTTOM) emptyRow('None listed'); else lead = [];
     }
+    refs.forEach(function (x) {
+      var rows = titleLines(str(x.name).trim(), 'No name').concat([space(5)], field('Referred by', str(x.by).trim()), field('Notes', str(x.notes).trim()));
+      block(rows, GROUP_PDF.mr.ink);
+    });
 
-    y += 12;
-
-    // Footers
+    // Footers: the ward and date on every page, so a printed page can be matched to its huddle.
     var total = pages.length;
     pages.forEach(function (pg, i) {
       page = pg;
-      var foot = DOC_TITLE + (wardTxt ? ' · ' + wardTxt : '') + (dateTxt ? ' · ' + dateTxt : '') + (total > 1 ? ' · Page ' + (i + 1) + ' of ' + total : '');
-      tx(L, H - 22, foot, F.reg, 7.5, C.gray);
+      var num = total > 1 ? 'Page ' + (i + 1) + ' of ' + total : '';
+      var nw = num ? width(num, F.reg, 8) : 0;
+      var foot = [wardTxt, shortDate(s.date)].filter(Boolean).join(' · ') || DOC_TITLE;
+      tx(L, H - 20, wrap(foot, F.reg, 8, R - L - nw - 14)[0], F.reg, 8, C.gray);
+      if (num) tx(R - nw, H - 20, num, F.reg, 8, C.gray);
     });
 
     // Metadata and the hidden copy of the form data used by "Load last week"
