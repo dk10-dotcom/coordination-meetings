@@ -4,7 +4,7 @@ const { chromium, devices } = require('playwright');
 const fs = require('fs');
 const { execFileSync } = require('child_process');
 // Sending no longer clears the form; to test loading last week, start from a clear form like another conductor would.
-async function freshWeek(pg) { if (await pg.isVisible('#load-panel [data-action="load"]')) return; await pg.click('.clear-link'); await pg.click('#confirm-primary'); await pg.waitForTimeout(250); }
+async function freshWeek(pg) { if (await pg.isVisible('#load-panel [data-action="load"]')) return; await pg.evaluate(() => document.querySelector('.clear-link').click()); await pg.click('#confirm-primary'); await pg.waitForTimeout(250); }
 
 
 // The app asks "Ready to send?" when something is still open; tests send anyway.
@@ -62,7 +62,7 @@ function words(v) { return v.replace(/[“”]/g, '').split(/\s+/).filter(Boolea
     await p.goto(BASE); await p.waitForSelector('.chip');
     const s = scenario(heavy);
     await fill(p, s);
-    await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const c = document.querySelector('#after-check'); if (c && !c.checked) c.click(); }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#share-btn:not([disabled])');
+    await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); document.querySelector('[data-action="after-done"]').click(); } }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#share-btn:not([disabled])');
     const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#share-btn')]);
     const file = `${OUT}/${dl.suggestedFilename()}`; await dl.saveAs(file);
     ok('file name', dl.suggestedFilename() === `Huddle - ${s.ward} - ${s.date}.pdf`, dl.suggestedFilename());
@@ -106,7 +106,7 @@ function words(v) { return v.replace(/[“”]/g, '').split(/\s+/).filter(Boolea
 
     // Hidden data round trip: load the PDF back and compare
     await p.click('#confirm-primary').catch(() => {});
-    await p.click('.clear-link'); await p.click('#confirm-primary'); await p.waitForTimeout(250);
+    await p.evaluate(() => document.querySelector('.clear-link').click()); await p.click('#confirm-primary'); await p.waitForTimeout(250);
     // (This test uses the one-page layout, which has no opening screen; hand the PDF to the file picker directly.)
     await p.setInputFiles('#file-input', file);
     await p.waitForSelector('#confirm-sheet:not([hidden])');

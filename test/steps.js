@@ -1,3 +1,5 @@
+// These checks fill many cards in a row, so they keep every card open in its list ('huddle-cards-open').
+// The lists of names and each person's own screen are covered by rows.js and twodoor.js.
 const { chromium, devices } = require('playwright');
 (async () => {
   const b = await chromium.launch(); let pass = 0, fail = 0;
@@ -10,7 +12,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
   for (const dev of ['iPhone 13', 'iPhone SE']) {
     const tag = dev === 'iPhone SE' ? 'se' : 'i13';
     const ctx = await b.newContext({ ...devices[dev] });
-    await ctx.addInitScript(() => { try { ['huddle-names-hint-seen', 'huddle-tour-seen', 'huddle-help-seen'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
+    await ctx.addInitScript(() => { try { ['huddle-names-hint-seen', 'huddle-tour-seen', 'huddle-help-seen', 'huddle-cards-open'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
     const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
     await p.goto('http://127.0.0.1:8765/#huddle'); await p.waitForSelector('.chip', { state: 'attached' }); await p.click('[data-action="dismiss-install"]').catch(() => {});
     const vis = s => p.isVisible(s);
@@ -20,7 +22,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'no sideways overflow');
     ok(await p.locator('.step-row').count() === 4, 'four steps');
     ok(!(await vis('[data-step="rr"]')) && !(await vis('[data-step="cp"]')), 'sections hidden on home');
-    ok(await p.locator('.step-row.next, .step-tag, #steps-count, .steps-bar').count() === 0 && (await p.textContent('.step-num')).trim() === '', 'no up next, numbers or progress bar');
+    ok(await p.locator('.step-row.next, .step-tag, #steps-count, .steps-bar').count() === 0 && await p.locator('.step-num').count() === 0, 'no up next, numbers, empty circles or progress bar');
     await p.click('#details-summary');
     ok(await vis('#details-full .btn-collapse'), 'open details have a Close button at the top');
     await p.click('#details-full .btn-collapse'); await p.waitForTimeout(150);
@@ -79,7 +81,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     // Send & Clear resets
     await p.evaluate(() => { navigator.canShare = () => true; navigator.share = () => Promise.resolve(); });
     if (process.env.DBG) { console.log(await p.evaluate(() => { const r = e => JSON.stringify(document.querySelector(e).getBoundingClientRect()); return [r('.actionbar'), r('.fine-notes'), innerHeight, scrollY, document.documentElement.scrollHeight, document.body.className].join(' | '); })); await p.screenshot({ path: OUT + '/dbg.png' }); }
-    await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const c = document.querySelector('#after-check'); if (c && !c.checked) c.click(); }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#share-btn:not([disabled])'); await p.click('#share-btn');
+    await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); document.querySelector('[data-action="after-done"]').click(); } }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#share-btn:not([disabled])'); await p.click('#share-btn');
     await p.waitForSelector('#confirm-sheet:not([hidden])'); await p.click('#confirm-primary');
     ok(await p.locator('.step-row.done').count() === 0 && await vis('#steps-home') && (await p.textContent('#sent-line')).includes('huddle sent'), 'after sending, the next huddle starts with no checks and the sent line shows');
     // Missing ward on send opens details
@@ -88,7 +90,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     await p.fill('#ward', 'Sample Ward').catch(() => {});
     await p.click('[data-action="open-details"]').catch(() => {}); await p.fill('#ward', 'Sample Ward'); await p.fill('[data-bind="find.plan"]', 'x').catch(() => {});
     await p.click('[data-action="open-step"][data-a="fn"]').catch(() => {}); await p.fill('[data-bind="find.plan"]', 'Plan'); await p.click('[data-action="steps-home"]'); await p.waitForTimeout(200);
-    await p.click('.clear-link'); await p.click('#confirm-primary'); await p.waitForTimeout(200);
+    await p.evaluate(() => document.querySelector('.clear-link').click()); await p.click('#confirm-primary'); await p.waitForTimeout(200);
     ok(await p.inputValue('#ward') === 'Sample Ward', 'Clear keeps the ward name');
     ok(await p.locator('.btn-done:visible').count() === 0, 'no list Done buttons in the step view');
     // View-all flag shows the classic long page

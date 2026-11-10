@@ -1,7 +1,7 @@
 // Practice week: first-time Load last week offers sample data; it can't be sent or saved; Remove restores the form.
 const { chromium, devices } = require('playwright');
 // Sending no longer clears the form; to test loading last week, start from a clear form like another conductor would.
-async function freshWeek(pg) { if (await pg.isVisible('#load-panel [data-action="load"]')) return; await pg.click('.clear-link'); await pg.click('#confirm-primary'); await pg.waitForTimeout(250); }
+async function freshWeek(pg) { if (await pg.isVisible('#load-panel [data-action="load"]')) return; await pg.evaluate(() => document.querySelector('.clear-link').click()); await pg.click('#confirm-primary'); await pg.waitForTimeout(250); }
 
 
 // The app asks "Ready to send?" when something is still open; tests send anyway.
@@ -28,26 +28,26 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
   ok(await p.locator('#rr-list .rr-card').count() === 7, 'Return and Report has 7 sample items (3 lists + 3 focus names + 1 finding)');
   await p.click('[data-action="steps-home"]');
   await p.click('[data-action="open-step"][data-a="cp"]');
-  const names = await p.evaluate(() => ['nm', 'rm', 'bt'].map(g => Array.from(document.querySelectorAll(`[data-group="${g}"] input[data-bind$=".name"]`)).map(i => i.value)));
+  const names = await p.evaluate(() => ['nm', 'rm', 'bt'].map(g => Array.from(document.querySelectorAll(`#cp-groups [data-group="${g}"] .person-row .person-name`)).map(i => i.textContent)));
   ok(JSON.stringify(names) === JSON.stringify([['Daniel Rivera'], ['Olivia Chen'], ['Marcus Hill']]), 'one sample name in each Covenant Path list');
   await p.click('[data-action="steps-home"]'); await p.click('[data-action="open-step"][data-a="tn"]');
-  const tn = await p.evaluate(() => [0, 1, 2].map(i => document.querySelector(`[data-bind="tn.${i}.name"]`).value));
+  const tn = await p.$$eval('#tn-list .person-row .person-name', e => e.map(x => x.textContent));
   ok(tn.join('|') === 'Grace Thompson|Samuel Ortiz|Emma Walsh', 'three sample focus names');
   // Mark Name Next Ordinance done even though actions are missing -> stays orange
   await p.click('[data-action="step-done"]'); await p.waitForTimeout(200);
   ok(await p.locator('[data-a="tn"].step-row.done .step-status.warn').count() === 1, 'a done section with missing actions stays dark orange');
   // Send and save are blocked
-  await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const c = document.querySelector('#after-check'); if (c && !c.checked) c.click(); }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#confirm-sheet:not([hidden])');
+  await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); document.querySelector('[data-action="after-done"]').click(); } }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#confirm-sheet:not([hidden])');
   ok((await p.textContent('#confirm-title')).includes('Remove the practice week first'), 'Send is blocked during practice');
   await p.click('#confirm-secondary'); await p.waitForTimeout(200);
   await p.evaluate(() => document.querySelector('[data-action="handoff"]').click()); await p.waitForTimeout(200);
   ok((await p.textContent('#toast')).includes('Remove the practice week'), 'Hand off is blocked during practice');
-  await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const c = document.querySelector('#after-check'); if (c && !c.checked) c.click(); }).then(() => p.click('.actionbar [data-action="send"]')); await p.waitForSelector('#confirm-sheet:not([hidden])');
+  await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); document.querySelector('[data-action="after-done"]').click(); } }).then(() => p.click('.actionbar [data-action="send"]')); await p.waitForSelector('#confirm-sheet:not([hidden])');
   await p.click('#confirm-primary'); await p.waitForTimeout(300);
   ok(await p.isHidden('#loaded-banner') && await p.locator('.step-row.done').count() === 0, 'removing restores the form');
   ok((await p.textContent('#details-sub')).includes('1 attended') && (await p.textContent('#details-line')).includes('Real Ward'), 'real details kept');
   await p.click('[data-action="open-step"][data-a="tn"]');
-  ok(await p.inputValue('[data-bind="tn.0.name"]') === '', 'sample focus names gone');
+  ok(await p.locator('#tn-list .person-row.is-blank').count() === 3, 'sample focus names gone');
   // How to use button starts it too
   await p.click('[data-action="steps-home"]'); await p.evaluate(() => document.querySelector('[data-action="help"]').click()); await p.waitForTimeout(200);
   await p.click('#help-sheet [data-action="practice"]'); await p.waitForTimeout(300);

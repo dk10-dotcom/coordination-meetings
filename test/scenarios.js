@@ -1,5 +1,7 @@
 // Scenarios: names added, assigned, removed, renamed, re-added and moved between lists across huddles.
 // Each scenario checks that nothing errors, nothing is lost silently, and the PDF still builds.
+// These checks fill many cards in a row, so they keep every card open in its list ('huddle-cards-open').
+// The lists of names and each person's own screen are covered by rows.js and twodoor.js.
 const { chromium, devices } = require('playwright');
 const { execFileSync } = require('child_process');
 const fs = require('fs');
@@ -11,7 +13,7 @@ const OUT = 'test/out-scen'; fs.mkdirSync(OUT, { recursive: true });
   let n = 0;
   const open = async () => {
     const ctx = await b.newContext({ ...devices['iPhone 13'], acceptDownloads: true });
-    await ctx.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
+    await ctx.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen', 'huddle-cards-open'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
     const p = await ctx.newPage(); p.errs = []; p.on('pageerror', e => p.errs.push(e.message));
     await p.goto('http://127.0.0.1:8765/'); await p.waitForSelector('.chip', { state: 'attached' }); await p.click('[data-action="dismiss-install"]').catch(() => {});
     await p.click('.door-hd'); await p.click('#details-summary'); await p.fill('#ward', 'Sample Ward'); await p.click('[data-action="conducting"][data-a="wml"]'); await p.click('[data-action="toggle-att"][data-a="wml"]'); await p.click('#details-full .btn-collapse'); await p.click('#mode-bar [data-action="go-start"]');
@@ -27,7 +29,7 @@ const OUT = 'test/out-scen'; fs.mkdirSync(OUT, { recursive: true });
   const rrIdx = async (p, name) => (await st(p)).rr.findIndex(r => r.pname === name);
   const mark = async (p, name, v) => { const i = await rrIdx(p, name); await step(p, 'rr'); await p.click(`[data-action="happened"][data-a="${i}"][data-b="${v}"]`); await p.waitForTimeout(150); return i; };
   const send = async (p, label) => {
-    await toStart(p); await p.evaluate(() => { navigator.canShare = () => false; const c = document.querySelector('#after-check'); if (!c.checked) c.click(); });
+    await toStart(p); await p.evaluate(() => { navigator.canShare = () => false; const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); document.querySelector('[data-action="after-done"]').click(); } });
     await p.click('.actionbar [data-action="send"]'); await p.waitForTimeout(200);
     if (await p.isVisible('#confirm-sheet') && /Ready to send/.test(await p.textContent('#confirm-title'))) await p.click('#confirm-primary');
     await p.waitForSelector('#share-btn:not([disabled])', { timeout: 15000 }).catch(async e => { console.log('BLOCKED', label, await p.textContent('#confirm-title').catch(() => ''), '|', await p.textContent('#toast').catch(() => '')); throw e; });
@@ -164,7 +166,7 @@ const OUT = 'test/out-scen'; fs.mkdirSync(OUT, { recursive: true });
   { const p = await open(); await addName(p, 'nm', 'Daniel Rivera'); await assign(p, 'nm', 'Daniel Rivera', 'Drive him to the temple'); await send(p, 'L1');
     await removeName(p, 'nm', 'Daniel Rivera'); await addName(p, 'nm', 'Olivia Chen'); await p.waitForTimeout(400); await p.reload(); await p.waitForSelector('.chip', { state: 'attached' });
     let s = await st(p); ok(s.cp.nm.some(a => a.name === 'Olivia Chen') && !s.cp.nm.some(a => a.name === 'Daniel Rivera') && s.rr.some(r => r.pname === 'Daniel Rivera'), 'L: adds and removes survive a reload');
-    await p.evaluate(() => { navigator.canShare = () => true; navigator.share = () => Promise.resolve(); const c = document.querySelector('#after-check'); if (!c.checked) c.click(); });
+    await p.evaluate(() => { navigator.canShare = () => true; navigator.share = () => Promise.resolve(); const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); document.querySelector('[data-action="after-done"]').click(); } });
     await p.click('.actionbar [data-action="send"]'); await p.waitForTimeout(200); if (await p.isVisible('#confirm-sheet') && /Ready to send/.test(await p.textContent('#confirm-title'))) await p.click('#confirm-primary');
     await p.waitForSelector('#share-btn:not([disabled])'); await p.click('#share-btn'); await p.waitForSelector('#confirm-sheet:not([hidden])'); await p.click('#confirm-secondary'); await p.waitForTimeout(300);
     s = await st(p); ok(s.cp.nm.some(a => a.name === 'Olivia Chen') && s.rr.some(r => r.pname === 'Daniel Rivera') && s.verified.after, 'L: Undo after sending brings back the same names, report items and check');

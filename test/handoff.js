@@ -1,11 +1,13 @@
 // Handoff link: the ward mission leader texts the agenda; another leader opens the link (iPhone Safari, iPhone app via paste, Android) and it loads.
+// These checks fill many cards in a row, so they keep every card open in its list ('huddle-cards-open').
+// The lists of names and each person's own screen are covered by rows.js and twodoor.js.
 const { chromium, devices } = require('playwright');
 const fs = require('fs');
 const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
 (async () => {
   const b = await chromium.launch(); let pass = 0, fail = 0;
   const ok = (c, m) => { if (c) { pass++; console.log('PASS', m); } else { fail++; console.log('FAIL', m); } };
-  const seen = ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen'];
+  const seen = ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen', 'huddle-cards-open'];
   const mk = async (dev, extra) => {
     const ctx = await b.newContext({ ...devices[dev], ...(extra || {}) });
     await ctx.addInitScript(k => { try { k.forEach(x => localStorage.setItem(x, '1')); } catch (e) {} }, seen);
@@ -62,7 +64,8 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   await r.click('[data-action="paste-handoff"]'); await r.waitForSelector('#confirm-sheet:not([hidden])');
   ok((await r.textContent('#confirm-title')).includes('Load this handoff?'), 'Paste a handoff reads the link from the clipboard');
   await r.click('#confirm-primary'); await r.waitForTimeout(300);
-  await r.click('[data-action="open-step"][data-a="tn"]');
+  // (The Undo message sits over this row for a few seconds; tap the row itself, the way a finger would beside it.)
+  await r.evaluate(() => document.querySelector('[data-action="open-step"][data-a="tn"]').click());
   ok(await r.inputValue('[data-bind="tn.0.name"]') === 'Grace Thompson', 'pasted handoff loads the agenda');
   // Undo right after
   await r.click('[data-action="steps-home"]');

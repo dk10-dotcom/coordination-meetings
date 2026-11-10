@@ -1,4 +1,4 @@
-/* Weekly Coordination Meeting Agenda: phone-first form.
+/* Huddle (the Ward Mission Leader Process app): phone-first form.
    System fonts only (no downloads), light theme to match the printed agenda. */
 :root {
   --ink: #1B2B4B;
@@ -55,6 +55,8 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px 
 .top { display: flex; flex-direction: column; gap: 16px; }
 .title-row { display: flex; flex-direction: column-reverse; gap: 10px; }
 .title-row h1 { min-width: 0; }
+.title-text { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.app-name { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
 .title-row .top-buttons { align-self: flex-end; display: flex; gap: 8px; }
 .title-row .help-link { margin-top: 0; }
 .help-link {
@@ -694,39 +696,63 @@ body.touring .actionbar { z-index: 10; }
 
 /* ---------- Four steps ---------- */
 .steps-home { display: flex; flex-direction: column; gap: 12px; }
-.steps-band { margin: 4px 0 0; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-.steps-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-.step-row { display: grid; grid-template-columns: 38px 1fr auto; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border-radius: 16px;
-  background: var(--card); border: 1px solid var(--card-line); box-shadow: 0 1px 2px rgba(27,43,75,.06), 0 3px 10px rgba(27,43,75,.07);
-  font: inherit; text-align: left; color: inherit; cursor: pointer; }
-.step-row:active { background: #F6F8FC; }
-.step-num { width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px;
-  border: 2px solid var(--line); color: var(--muted); background: #FFFFFF; }
-.step-num svg { width: 18px; height: 18px; }
-.step-row.done .step-num { background: #1F6B3A; border-color: #1F6B3A; color: #FFFFFF; }
-.step-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.step-title { font-size: 17px; font-weight: 800; color: var(--ink); line-height: 1.2; }
-.step-status { font-size: 14px; color: var(--text); line-height: 1.3; }
-.step-status.warn { color: var(--orange-ink); font-weight: 700; }
-.step-chev { font-size: 26px; font-weight: 600; color: #9AA3B2; line-height: 1; }
+.steps-band { margin: 6px 16px -4px; font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+/* Rows the way an iPhone lists them: one rounded box per group, a hairline between rows, a chevron on the right.
+   The huddle's sections, ward council's lists and every list of names use the same row. */
+.steps-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0;
+  background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 2px rgba(27,43,75,.05); }
+.steps-list > li + li::before { content: ''; display: block; height: 1px; margin-left: 16px; background: #E3E7EE; }
+.nav-row { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 60px; padding: 11px 12px 11px 16px; border: 0; border-radius: 0;
+  background: none; font: inherit; text-align: left; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.nav-row:active { background: #E9EDF3; }
+.step-num { flex: none; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: #1F6B3A; color: #FFFFFF; }
+.step-num svg { width: 14px; height: 14px; }
+.step-text { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.step-title { font-size: 17px; font-weight: 600; color: var(--ink); line-height: 1.25; overflow-wrap: anywhere; }
+.step-status { font-size: 14.5px; color: var(--muted); line-height: 1.3; overflow-wrap: anywhere; }
+.step-status.warn { color: var(--orange-ink); font-weight: 600; }
+.step-chev { flex: none; font-size: 24px; font-weight: 400; color: #B4BBC8; line-height: 1; }
+.row-tags { display: flex; flex-wrap: wrap; gap: 4px 6px; margin-top: 4px; }
+.row-tags .fold-tag { font-weight: 600; }
+.fold-tag.ok { background: #EAF5EE; color: #1F4D30; border-color: #A9D3B6; }
+.person-row.is-blank .step-title { color: var(--muted); font-weight: 500; }
+.add-row, .none-row { min-height: 52px; font-size: 17px; font-weight: 500; color: var(--accent); }
+.add-row svg { flex: none; width: 18px; height: 18px; }
+.none-row { color: var(--text); }
+/* A list of names: a small heading over the box, a count beside it */
+.list-panel.rows, .list-panel.person-panel { padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; gap: 8px; }
+.list-panel.rows .list-head { padding: 0 16px; }
+.list-panel.rows .list-title { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+/* Each list keeps its color (the same one the PDF uses) as a dot beside its name */
+.list-panel.rows .list-title::before { content: ''; flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--list-ink); }
+.list-panel.rows .list-count { padding: 0; border: 0; background: none; font-size: 13px; font-weight: 500; color: var(--muted); }
+.list-panel.rows .temple-goal { margin: 0; padding: 0 16px; border: 0; background: none; font-size: 13px; line-height: 1.35; color: var(--muted); }
+.person-rows .list-empty { border: 0; border-radius: 0; background: none; min-height: 52px; padding: 8px 12px 8px 16px; }
+.person-rows .list-empty-undo { color: var(--accent); }
+/* One person's screen */
+.person-view[hidden] { display: none; }
+.person-view .stack { gap: 16px; }
+.person-remove { align-self: center; min-height: 44px; }
 
-.step-bar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+.step-bar { position: sticky; top: 0; z-index: 5; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 6px;
   margin: calc(-1 * max(24px, env(safe-area-inset-top, 0px))) -16px 0; padding: max(10px, env(safe-area-inset-top, 0px)) 16px 8px; background: rgba(243,245,249,.96);
   border-bottom: 1px solid var(--line); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-.step-back { display: inline-flex; align-items: center; gap: 6px; min-height: 46px; padding: 0 20px 0 12px; border: none; border-radius: 999px;
-  background: var(--accent); color: #FFFFFF; font: inherit; font-size: 17px; font-weight: 800; cursor: pointer; box-shadow: 0 1px 2px rgba(27,43,75,.15); }
-.step-back:active { filter: brightness(.92); }
+/* Back the way an iPhone shows it: a chevron and the word, in the app's blue, with the screen's name centered beside it */
+.step-back { justify-self: start; display: inline-flex; align-items: center; gap: 2px; min-height: 44px; margin-left: -8px; padding: 0 10px 0 2px; border: none; border-radius: 10px;
+  background: none; color: var(--accent); font: inherit; font-size: 17px; font-weight: 500; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.step-back svg { width: 24px; height: 24px; }
+.step-back:active { opacity: .45; }
 .step-foot { display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 6px; }
 .step-foot .btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .step-foot .btn-link { min-height: 44px; font-weight: 700; color: var(--accent); }
 
-.details-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 12px 14px; border-radius: 16px;
-  background: var(--card); border: 1px solid var(--card-line); box-shadow: 0 1px 2px rgba(27,43,75,.06), 0 3px 10px rgba(27,43,75,.07);
+.details-summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 60px; padding: 11px 12px 11px 16px; border-radius: 14px;
+  background: var(--card); border: 1px solid var(--card-line); box-shadow: 0 1px 2px rgba(27,43,75,.05); -webkit-tap-highlight-color: transparent;
   font: inherit; text-align: left; color: inherit; cursor: pointer; }
-.details-summary:active { background: #F6F8FC; }
+.details-summary:active { background: #E9EDF3; }
 .details-summary-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.details-title { font-size: 17px; font-weight: 800; color: var(--ink); line-height: 1.2; }
-.details-line { font-size: 14px; color: var(--text); line-height: 1.3; }
+.details-title { font-size: 17px; font-weight: 600; color: var(--ink); line-height: 1.25; }
+.details-line { font-size: 14.5px; color: var(--muted); line-height: 1.3; }
 .details-line b { color: var(--ink); font-weight: 700; }
 .details-sub { font-size: 13.5px; color: var(--muted); line-height: 1.3; }
 .details-sub .warn { color: var(--orange-ink); font-weight: 700; white-space: nowrap; }
@@ -857,9 +883,8 @@ body[data-view="start"] #meeting-date, body[data-view="start"] #details-summary,
 .door-title { font-size: 24px; font-weight: 800; color: var(--ink); line-height: 1.15; }
 .door-sub { font-size: 14.5px; color: var(--text); line-height: 1.35; }
 .door-then { margin: 0; text-align: center; font-size: 15px; color: var(--muted); }
-.mode-title { font-size: 17px; font-weight: 800; color: var(--ink); }
-#mode-bar { display: flex; align-items: center; gap: 12px; }
-#mode-bar[hidden] { display: none; }
+.mode-title { grid-column: 2; min-width: 0; text-align: center; font-size: 17px; font-weight: 700; color: var(--ink); line-height: 1.2; text-wrap: balance; overflow-wrap: anywhere; }
+#mode-bar[hidden], #step-bar[hidden] { display: none; }
 /* Ward council */
 .wc-view { display: flex; flex-direction: column; gap: 16px; }
 .wc-panel { display: flex; flex-direction: column; gap: 12px; padding: 14px; }
@@ -867,7 +892,10 @@ body[data-view="start"] #meeting-date, body[data-view="start"] #details-summary,
 .wc-card { display: flex; flex-direction: column; gap: 10px; }
 .wc-card-head { display: flex; align-items: flex-end; gap: 8px; }
 .wc-card-head .field { flex: 1; min-width: 0; }
-.wc-warning { margin: 0; }
+/* The one reminder in ward council, under its two lists */
+.wc-note { display: flex; align-items: center; gap: 8px; margin: -6px 16px 0; font-size: 13.5px; line-height: 1.35; color: #7A1C1C; }
+.wc-note[hidden] { display: none; }
+.wc-note .help-warning-icon { width: 20px; height: 20px; font-size: 13px; }
 .send-tools { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; border-radius: 12px; background: var(--amber-soft); border: 1px solid var(--amber-line); font-size: 15px; line-height: 1.4; }
 .send-tools[hidden] { display: none; }
 .send-tools p { margin: 0; }
@@ -896,21 +924,20 @@ body[data-view="start"] .meeting-time { display: none; }
 
 /* Huddle and ward council screens: no title, help buttons or Send bar; those live on the opening screen */
 body[data-view="home"] .title-row { display: none; }
-/* The two Covenant Path Report checks */
-.check-box { display: flex; align-items: stretch; border-radius: 14px; background: var(--amber-soft); border: 1.5px solid var(--amber-line); overflow: hidden; }
+/* The two Covenant Path Report checks: each is one button that opens its list. It's marked done from inside. */
+.check-box { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 12px 12px 16px; border-radius: 14px; background: var(--amber-soft); border: 1.5px solid var(--amber-line);
+  font: inherit; text-align: left; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.check-box:active { filter: brightness(.97); }
 .check-box.done { background: #E4F3E9; border-color: #8CC6A0; }
-.check-tick { display: flex; align-items: center; justify-content: center; flex: none; width: 58px; cursor: pointer; }
-.check-tick input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-.check-mark { width: 28px; height: 28px; border-radius: 8px; border: 2px solid #B98A1B; background: #FFFFFF; display: block; position: relative; }
-.check-tick input:focus-visible + .check-mark { outline: 3px solid var(--accent-line); outline-offset: 2px; }
-.check-box.done .check-mark { background: #1F6B3A; border-color: #1F6B3A; }
-.check-box.done .check-mark::after { content: ''; position: absolute; left: 8px; top: 3px; width: 7px; height: 13px; border: solid #FFFFFF; border-width: 0 3px 3px 0; transform: rotate(45deg); }
-.check-open { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 14px 12px 0; border: 0; background: none; font: inherit; text-align: left; color: inherit; cursor: pointer; }
-.check-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.check-line { font-size: 16px; font-weight: 800; color: var(--ink); line-height: 1.25; }
+.check-tick { display: none; flex: none; width: 26px; height: 26px; border-radius: 50%; align-items: center; justify-content: center; background: #1F6B3A; color: #FFFFFF; }
+.check-box.done .check-tick { display: inline-flex; }
+.check-text { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.check-line { font-size: 16px; font-weight: 700; color: var(--ink); line-height: 1.25; }
 .check-sub { font-size: 13.5px; color: var(--text); line-height: 1.3; }
 .check-box.done .cpr-step-k { color: #1F6B3A; }
 .check-box .cpr-step-k { margin: 0; }
+.check-state { margin: 0; text-align: center; font-size: 15px; font-weight: 700; color: #1F6B3A; }
+.check-state[hidden] { display: none; }
 /* Quick name lists and the after-huddle review */
 .quick-panel { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; }
 .quick-panel .wc-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 15px; }
@@ -930,11 +957,20 @@ body[data-view="home"] .title-row { display: none; }
 .after-fact.partly { color: #7A5A00; } .after-fact.no { color: #9B2C2C; }
 /* Section titles sit beside Back, always on screen */
 body.steps-on [data-step] .section-head h2, body.steps-on [data-step] .head-line, #h-wc { display: none; }
-.bar-title { text-align: right; line-height: 1.2; font-size: 16px; min-width: 0; }
+/* A section whose heading box holds only that title has nothing left to show */
+body.steps-on [data-step="tn"] .section-head, body.steps-on [data-step="fn"] .section-head { display: none; }
+
 .carry-none { margin: 0; padding: 10px 12px; border-radius: 10px; background: #F4F6FA; border: 1px solid var(--card-line); font-size: 14px; color: var(--muted); line-height: 1.35; }
 .huddle-tips { align-self: flex-start; }
 .wc-details { gap: 3px; }
-/* Ward council's two lists, rolled up like the huddle's sections */
-.wc-row { grid-template-columns: 1fr auto; }
-.wc-row-sub { font-size: 13.5px; color: var(--muted); line-height: 1.3; }
 #wc-rows[hidden] { display: none; }
+/* Screens slide in like an iPhone app: deeper from the right, back from the left. Not during the tour, which measures the page. */
+.wrap { overflow-x: clip; }
+@supports (overflow-x: clip) {
+  @media (prefers-reduced-motion: no-preference) {
+    body.nav-fwd:not(.touring) .wrap > section, body.nav-fwd:not(.touring) .wrap > header { animation: nav-fwd .2s cubic-bezier(.2,.7,.2,1); }
+    body.nav-back:not(.touring) .wrap > section, body.nav-back:not(.touring) .wrap > header { animation: nav-back .2s cubic-bezier(.2,.7,.2,1); }
+  }
+}
+@keyframes nav-fwd { from { opacity: 0; transform: translateX(22px); } }
+@keyframes nav-back { from { opacity: 0; transform: translateX(-22px); } }

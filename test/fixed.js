@@ -20,7 +20,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
   await p.click('[data-group="rm"] .sac-toggle >> nth=0');
   await p.waitForTimeout(4500); ok(await p.isVisible('#toast') && (await p.textContent('#toast')).includes('sacrament'), 'sacrament reminder still showing after 4.5 s');
   await p.evaluate(() => { navigator.canShare = () => false; });
-  await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const c = document.querySelector('#after-check'); if (c && !c.checked) c.click(); }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#share-btn:not([disabled])');
+  await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); document.querySelector('[data-action="after-done"]').click(); } }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#share-btn:not([disabled])');
   const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#share-btn')]);
   await dl.saveAs(__dirname + '/out-fixed.pdf');
   const t = execSync(`pdftotext -layout "${__dirname}/out-fixed.pdf" -`).toString();

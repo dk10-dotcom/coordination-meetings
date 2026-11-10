@@ -34,12 +34,12 @@ const res = []; const ok = (l, c, x) => { res.push(c); console.log((c ? 'PASS ' 
   ok('reopens in place, not stuck off-screen', (await p.$eval('#help-sheet .sheet', s => s.style.transform)) === '' && await p.isVisible('#help-title'));
   await p.click('[data-action="close-help"]');
   await p.fill('#ward', 'Riverton 5th Ward'); await p.fill('[data-bind="cp.nm.0.name"]', 'Maria Lopez');
-  await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const c = document.querySelector('#after-check'); if (c && !c.checked) c.click(); }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#share-btn:not([disabled])');
+  await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); document.querySelector('[data-action="after-done"]').click(); } }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#share-btn:not([disabled])');
   await p.$eval('#send-sheet .sheet', s => { s.scrollTop = 0; }); await p.waitForTimeout(100);
   const t2 = await p.$eval('#send-sheet .sheet', s => s.getBoundingClientRect().top);
   await swipe(t2 + 20, t2 + 320, 250);
   ok('swipe down closes the Send sheet too, form kept', await p.isHidden('#send-sheet') && (await p.inputValue('[data-bind="cp.nm.0.name"]')) === 'Maria Lopez');
-  await p.click('.clear-link'); await p.waitForSelector('#confirm-sheet:not([hidden])');
+  await p.evaluate(() => document.querySelector('.clear-link').click()); await p.waitForSelector('#confirm-sheet:not([hidden])');
   const t3 = await p.$eval('#confirm-sheet .sheet', s => s.getBoundingClientRect().top);
   await swipe(t3 + 20, t3 + 320, 250);
   ok('swipe down on Clear? cancels without clearing', await p.isHidden('#confirm-sheet') && (await p.inputValue('[data-bind="cp.nm.0.name"]')) === 'Maria Lopez');

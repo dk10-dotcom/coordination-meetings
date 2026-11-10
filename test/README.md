@@ -26,13 +26,17 @@ Each test prints PASS or FAIL per check and a count at the end. Screenshots and 
 `test/out*` folders, which are not kept in the repository.
 
 Most tests open `http://127.0.0.1:8765/#huddle`, which goes straight to the Huddle screen.
-A few set `huddle-view-all`, an older one-page layout kept only for them.
+Two flags in the phone's storage exist only for tests. Many set `huddle-view-all`, an older
+one-page layout. A few set `huddle-cards-open`, which keeps every card open in its list so a test
+can fill many cards in a row. `rows.js` and `twodoor.js` set neither: they use what people see,
+names as rows and one screen per person.
 
 ## What each test covers
 
 | Test | Covers |
 | --- | --- |
-| `twodoor.js` | Opening screen, the two Covenant Path Report boxes, Ward council roll-ups and lists, Send gating, Change date |
+| `twodoor.js` | Opening screen, the two Covenant Path Report boxes (marked done from inside), Ward council and Huddle lists of names, a person's screen, Send gating, Change date |
+| `rows.js` | Names as rows and a person's screen: what a row says, Remove, Convert, the 4-week question, the same-person question, the slide between screens |
 | `scenarios.js` | Names added, assigned, removed, renamed, re-added and converted across several huddles |
 | `live.js` | The weekly cycle: Send finishes the huddle, Undo, Share again, the 4-week name rule, Erase everything |
 | `steps.js` | The Huddle's four sections, Mark section done, Back, layout on two phone sizes |

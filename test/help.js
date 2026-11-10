@@ -1,7 +1,7 @@
 // How to use: first-visit open, header link, #help link, one-time names reminder after Load last week.
 const { chromium, devices } = require('playwright');
 // Sending no longer clears the form; to test loading last week, start from a clear form like another conductor would.
-async function freshWeek(pg) { if (await pg.isVisible('#load-panel [data-action="load"]')) return; await pg.click('.clear-link'); await pg.click('#confirm-primary'); await pg.waitForTimeout(250); }
+async function freshWeek(pg) { if (await pg.isVisible('#load-panel [data-action="load"]')) return; await pg.evaluate(() => document.querySelector('.clear-link').click()); await pg.click('#confirm-primary'); await pg.waitForTimeout(250); }
 
 const OUT = __dirname + '/out2';
 const BASE = 'http://127.0.0.1:8765/#huddle';

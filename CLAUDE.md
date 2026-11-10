@@ -1,4 +1,7 @@
-# Ward Mission Leader Process (weekly coordination meeting agenda)
+# Huddle: the Ward Mission Leader Process app (weekly coordination meeting agenda)
+
+The app's name is **Huddle** (Home Screen icon, browser tab, and small letters above the opening
+screen's title, which stays "Ward Mission Leader Process").
 
 A phone-first web app that a ward mission leader uses every week. It is live at
 https://dk10-dotcom.github.io/coordination-meetings/ and used by nine wards.
@@ -12,7 +15,7 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
   The page's security settings block outside connections; keep it that way.
 - **The PDF is the only thing that leaves the phone,** and only by email or text. Keep this wording
   wherever sharing is offered: "Only share via email or text message. Do not share through any other app."
-- Keep this warning visible in Ward council, How to use and the tour:
+- Keep this warning visible in Ward council (once, under its two lists), How to use and the tour:
   "Never add confidential information to this agenda."
 - Keep both lines in the footer: "Not affiliated with The Church of Jesus Christ of Latter-day Saints."
   and "Darren Kirkham · darrenkirkham@mac.com".
@@ -24,6 +27,9 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
   so an older PDF or link still loads.
 - The people who use this are not technical. Prefer fewer screens, fewer taps and plain words.
   Check every screen on a small iPhone (320 px wide): nothing may make the page wider than the screen.
+- **It should look and feel like an ordinary iPhone app.** Every list uses the same row (`.nav-row`
+  inside `.steps-list`): title, one status line, chevron. Names are rows; a name opens on its own
+  screen; Back, Done and the phone's Back return to the list. Don't put fields in a list.
 
 ## Layout
 
@@ -51,6 +57,9 @@ bash test/run-all.sh                 # every test, with a summary (about 20 minu
 
 See `test/README.md` for setup (Playwright and the poppler PDF tools).
 A link ending in `#huddle` opens straight to the Huddle screen; most tests use it.
+Two flags in the phone's storage exist only for tests: `huddle-view-all` (an older one-page layout)
+and `huddle-cards-open` (every card open in its list, for tests that fill many cards).
+`rows.js` and `twodoor.js` test what people see: names as rows and one screen per person.
 
 ## Releasing
 

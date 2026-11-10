@@ -1,14 +1,24 @@
 {
-  "name": "Weekly Coordination Meeting Agenda",
+  "name": "Huddle",
   "short_name": "Huddle",
-  "description": "Fill in the weekly coordination meeting agenda, send it as a PDF, and load last week's action items. Everything stays on your phone.",
+  "description": "The ward mission leader's weekly process: ward council, the huddle and the Covenant Path Report, sent as a PDF. Everything stays on your phone.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#F3F5F9",
   "theme_color": "#1B2B4B",
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }

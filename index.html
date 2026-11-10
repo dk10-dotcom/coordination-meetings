@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Huddle">
-<title>Weekly Coordination Meeting Agenda</title>
+<title>Huddle</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -54,7 +54,7 @@
 
   <header class="top">
     <div class="title-row">
-      <h1>Ward Mission Leader Process</h1>
+      <div class="title-text"><p class="app-name">Huddle</p><h1>Ward Mission Leader Process</h1></div>
       <div class="top-buttons">
         <button type="button" class="help-link" data-action="help" aria-haspopup="dialog">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="9" r="7.2"/><path d="M6.9 7a2.1 2.1 0 1 1 3 1.9c-.6.3-.9.8-.9 1.4v.3"/><path d="M9 13v.2"/></svg>
@@ -131,13 +131,11 @@
 
 
   <section class="start-home" id="start-home" aria-label="Where to start" hidden>
-    <div class="check-box" id="before-box">
-      <label class="check-tick"><input type="checkbox" id="before-check" aria-label="Done: the names match the Covenant Path Report"><span class="check-mark" aria-hidden="true"></span></label>
-      <button type="button" class="check-open" data-action="open-before">
-        <span class="check-text"><span class="cpr-step-k">Before ward council</span><span class="check-line">Match the names to the Covenant Path Report</span><span class="check-sub" id="before-sub">Tap to see and fix the names</span></span>
-        <span class="step-chev" aria-hidden="true">›</span>
-      </button>
-    </div>
+    <button type="button" class="check-box" id="before-box" data-action="open-before">
+      <span class="check-text"><span class="cpr-step-k">Before ward council</span><span class="check-line">Match the names to the Covenant Path Report</span><span class="check-sub" id="before-sub">Tap to see and fix the names, then mark it done</span></span>
+      <span class="check-tick" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span>
+      <span class="step-chev" aria-hidden="true">›</span>
+    </button>
     <button type="button" class="door door-wc" data-action="open-wc">
       <span class="door-text"><span class="door-kicker">Who · What</span><span class="door-title">Ward council</span><span class="door-sub" id="door-wc-sub">Add the names, next ordinances and needs</span></span>
       <span class="step-chev" aria-hidden="true">›</span>
@@ -146,25 +144,25 @@
       <span class="door-text"><span class="door-kicker">How · When</span><span class="door-title">Huddle</span><span class="door-sub" id="door-hd-sub">Report back, take attendance, plan the assignments</span></span>
       <span class="step-chev" aria-hidden="true">›</span>
     </button>
-    <div class="check-box" id="after-box">
-      <label class="check-tick"><input type="checkbox" id="after-check" aria-label="Done: the Covenant Path Report is updated"><span class="check-mark" aria-hidden="true"></span></label>
-      <button type="button" class="check-open" data-action="open-after">
-        <span class="check-text"><span class="cpr-step-k">After the huddle, before you send</span><span class="check-line">Update the Covenant Path Report</span><span class="check-sub" id="after-sub">Tap to see what to update. Check this off to send.</span></span>
-        <span class="step-chev" aria-hidden="true">›</span>
-      </button>
-    </div>
+    <button type="button" class="check-box" id="after-box" data-action="open-after">
+      <span class="check-text"><span class="cpr-step-k">After the huddle, before you send</span><span class="check-line">Update the Covenant Path Report</span><span class="check-sub" id="after-sub">Tap to see what to update, then mark it done to send</span></span>
+      <span class="check-tick" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span>
+      <span class="step-chev" aria-hidden="true">›</span>
+    </button>
     <div class="newweek-panel" id="newweek-panel">
       <button type="button" class="btn-link newweek-load" data-action="load-other">Load a handoff or PDF</button>
     </div>
   </section>
 
   <section class="wc-view" id="wc-view" aria-labelledby="h-wc" hidden>
-    <div class="section-head">
-      <h2 id="h-wc">Ward council</h2>
-      <p class="help-warning wc-warning"><span class="help-warning-icon" aria-hidden="true">!</span><span><strong>Never add confidential information to this agenda.</strong></span></p>
-    </div>
+    <h2 id="h-wc">Ward council</h2>
     <ul class="steps-list" id="wc-rows" hidden></ul>
+    <p class="wc-note" id="wc-note" hidden><span class="help-warning-icon" aria-hidden="true">!</span><span><strong>Never add confidential information to this agenda.</strong></span></p>
     <div class="stack" id="wc-list"></div>
+  </section>
+
+  <section class="person-view" id="person-view" aria-label="One person" hidden>
+    <div class="stack" id="person-card"></div>
   </section>
 
   <section class="steps-home" id="steps-home" aria-label="Agenda sections" hidden>
@@ -309,8 +307,9 @@
         <span class="btn-tools-text">Open the Covenant Path Report<span class="btn-tools-sub">In Member Tools: Reports → Covenant Path Progress</span></span>
       </a>
     <div class="stack" id="before-list"></div>
-    <button type="button" class="btn-primary full" data-action="before-done">The names match · Mark done</button>
-    <button type="button" class="btn-secondary full" data-action="close-before">Not yet</button>
+    <p class="check-state" id="before-state" hidden>✓ Marked done</p>
+    <button type="button" class="btn-primary full" data-action="before-done" id="before-done-btn">The names match · Mark done</button>
+    <button type="button" class="btn-secondary full" data-action="close-before" id="before-other-btn">Not yet</button>
   </div>
 </div>
 
@@ -325,8 +324,9 @@
         <span class="btn-tools-text">Open the Covenant Path Report<span class="btn-tools-sub">In Member Tools: Reports → Covenant Path Progress</span></span>
       </a>
     <div class="stack" id="after-list"></div>
-    <button type="button" class="btn-primary full" data-action="after-done">It’s all updated · Mark done</button>
-    <button type="button" class="btn-secondary full" data-action="close-after">Not yet</button>
+    <p class="check-state" id="after-state" hidden>✓ Marked done</p>
+    <button type="button" class="btn-primary full" data-action="after-done" id="after-done-btn">It’s all updated · Mark done</button>
+    <button type="button" class="btn-secondary full" data-action="close-after" id="after-other-btn">Not yet</button>
   </div>
 </div>
 
@@ -435,7 +435,7 @@
     <div class="help-video">
       <p class="help-video-title">Watch the training video</p>
       <p class="help-video-sub">About 4½ minutes: the ward mission leader’s weekly flow and how to use the agenda.</p>
-      <video id="help-video" controls playsinline preload="none" poster="media/training-poster.jpg" aria-label="Training video: the Weekly Coordination Meeting Agenda">
+      <video id="help-video" controls playsinline preload="none" poster="media/training-poster.jpg" aria-label="Training video: the Huddle app">
         <source src="media/training-video.mp4" type="video/mp4">
       </video>
     </div>
@@ -476,10 +476,10 @@
     </div>
     <div class="help-rhythm">
       <p><strong>The app opens to four steps, in order.</strong> <strong>1.</strong> Before ward council: match the names to the Covenant Path Report. <strong>2.</strong> Ward council: who to focus on, and what each person’s next ordinance is. <strong>3.</strong> Huddle: how and when to help. <strong>4.</strong> After the huddle, before you send: update the Covenant Path Report. Then tap <strong>Send</strong>. There’s no date to set: the PDF is stamped with the day you send it.</p>
-      <p><strong>Steps 1 and 4 are checks against the Covenant Path Report.</strong> Each has a box that turns green when you check it. <strong>Before ward council:</strong> tap it to see every name at a glance, add or remove names, and open the report. <strong>After the huddle, before you send:</strong> tap it to see each person’s sacrament attendance, temple attendance, needs and assignment, so you know what to update in the report. <strong>Send only works once that second box is checked.</strong> Both lists show the Covenant Path Report names only; focus names are chosen by ward council and aren’t part of the report.</p>
-      <p><strong>Ward council:</strong> Tap <strong>Ward council</strong>. It shows two lists, each with a count: <strong>Covenant Path Report lists</strong> (new members, returning members and those being taught) and <strong>Name Next Ordinance</strong> (the focus names). Tap a list to open it, and <strong>Back</strong> when you’re finished. Each name has only what ward council decides: the name, the next ordinance and the need. Under each name, a short <strong>Details</strong> box shows what’s known: baptism date and temple status for a new member, a scheduled baptism for someone being taught, and whether they attended sacrament meeting as of the last huddle. A name that had an assignment at the last huddle shows it, with how it went (<strong>Done</strong>, <strong>Partly done</strong>, <strong>Not done</strong> or <strong>Pending</strong>), so ward council can plan from it. It can’t be changed there; the huddle marks it.</p>
-      <p><strong>Huddle:</strong> Tap <strong>Huddle</strong>. Take attendance in Huddle Details, then go down the four sections: mark Return and Report, check sacrament and temple attendance, and plan one action item per person (who will do it, and when). Text each assignment before everyone leaves.</p>
-      <p><strong>Send:</strong> Tap <strong>Send</strong>. First check off <strong>After the huddle, before you send</strong> on the opening screen, then share the PDF with the bishop-approved list, the stake presidency and the full-time missionaries, and include yourself. Sending finishes the huddle: its assignments move into Return and Report for next time, and the names and needs stay.</p>
+      <p><strong>Steps 1 and 4 are checks against the Covenant Path Report.</strong> Each is a box you tap to open. At the bottom of its list, tap <strong>Mark done</strong> and the box turns green; that is the only way to mark it. Marked one by mistake? Open it again and tap <strong>Mark as not done</strong>. <strong>Before ward council:</strong> tap it to see every name at a glance, add or remove names, and open the report. <strong>After the huddle, before you send:</strong> tap it to see each person’s sacrament attendance, temple attendance, needs and assignment, so you know what to update in the report. <strong>Send only works once that second box is marked done.</strong> Both lists show the Covenant Path Report names only; focus names are chosen by ward council and aren’t part of the report.</p>
+      <p><strong>Ward council:</strong> Tap <strong>Ward council</strong>. It shows two lists, each with a count: <strong>Covenant Path Report lists</strong> (new members, returning members and those being taught) and <strong>Name Next Ordinance</strong> (the focus names). Tap a list to see its names, one row each, with the next ordinance under the name. Tap a name to open that person, and tap <strong>Add a name</strong> to add someone. <strong>Done</strong> or <strong>Back</strong> returns to the list. Each person has only what ward council decides: the name, the next ordinance and the need. Under those, a short <strong>Details</strong> box shows what’s known: baptism date and temple status for a new member, a scheduled baptism for someone being taught, and whether they attended sacrament meeting as of the last huddle. A name that had an assignment at the last huddle shows it, with how it went (<strong>Done</strong>, <strong>Partly done</strong>, <strong>Not done</strong> or <strong>Pending</strong>), so ward council can plan from it. It can’t be changed there; the huddle marks it.</p>
+      <p><strong>Huddle:</strong> Tap <strong>Huddle</strong>. Take attendance in Huddle Details, then go down the four sections: mark Return and Report, check sacrament and temple attendance, and plan one action item per person (who will do it, and when). Each list shows one row per name, with their action item under it; orange means they still need one. Tap a name to open that person, then <strong>Done</strong> to return to the list. Text each assignment before everyone leaves.</p>
+      <p><strong>Send:</strong> Tap <strong>Send</strong>. First open <strong>After the huddle, before you send</strong> on the opening screen and mark it done, then share the PDF with the bishop-approved list, the stake presidency and the full-time missionaries, and include yourself. Sending finishes the huddle: its assignments move into Return and Report for next time, and the names and needs stay.</p>
       <p><strong>During the week:</strong> As people report back, mark their assignments in <strong>Huddle → Return and Report</strong>.</p>
     </div>
 
@@ -493,16 +493,16 @@
         </ul>
       </li>
       <li>
-        <p><strong>Before the huddle, tap Ward council.</strong> Open <strong>Covenant Path Report lists</strong> or <strong>Name Next Ordinance</strong>; each name has the three things ward council decides: who, their next ordinance, and what they need. A list turns orange if someone is missing a next ordinance. Fill it in before or during ward council. Everything you enter here is already on the huddle’s cards when you tap Huddle.</p>
+        <p><strong>Before the huddle, tap Ward council.</strong> Open <strong>Covenant Path Report lists</strong> or <strong>Name Next Ordinance</strong>, then tap a name (or <strong>Add a name</strong>). Each person has the three things ward council decides: who, their next ordinance, and what they need. A list turns orange if someone is missing a next ordinance. Fill it in before or during ward council. Everything you enter here is already on the huddle’s cards when you tap Huddle.</p>
         <ul>
           <li><strong>No date to set.</strong> The huddle is dated the day you send it. Meeting on a different day than you’re sending? On the Send screen, tap <strong>Change date</strong>.</li>
           <li><strong>First time?</strong> Just start filling it in with the names from the Covenant Path Report. To try it with sample names first, tap <strong>Try a practice week</strong> at the top of How to use.</li>
           <li>Names stay from one huddle to the next. Before ward council, compare them to this week’s Covenant Path Report in Tools (tap <strong>Before ward council</strong> on the opening screen for the quick list and the link): add anyone new, remove anyone no longer listed, and update each person’s next ordinance and need. <strong>To find a need for someone on the Covenant Path Report lists, tap their name in the report;</strong> the empty Needs box reminds you. Focus names aren’t on the report, so their needs come from ward council.</li>
           <li><strong>New members:</strong> enter the baptism date. The red <strong>Temple attendance</strong> box counts down the 30 days to baptisms for the dead and stays red, week after week, until you check it.</li>
-          <li><strong>Those being taught:</strong> in the huddle’s <strong>Covenant Path Report Review</strong>, check <strong>Committed to baptism</strong> and enter the scheduled baptismal date once it’s set. Once they’re baptized, tap <strong>Convert to new member</strong> to move them to New members.</li>
+          <li><strong>Those being taught:</strong> in the huddle’s <strong>Covenant Path Report Review</strong>, open the person and check <strong>Committed to baptism</strong> and enter the scheduled baptismal date once it’s set. Once they’re baptized, tap <strong>Convert to new member</strong> to move them to New members.</li>
           <li><strong>No one in a list this week?</strong> In the huddle’s <strong>Covenant Path Report Review</strong>, tap <strong>Confirm none this week</strong> on that list. The PDF then shows it was reviewed and empty; a list left blank prints <strong>Not reviewed</strong>.</li>
           <li><strong>Name Next Ordinance</strong> holds the three focus names from ward council, with each person’s next ordinance and need.</li>
-          <li><strong>Names nobody has updated in 4 weeks</strong> ask “Still on the Covenant Path Report?” Tap <strong>Keep</strong> or <strong>Remove</strong>. After 5 weeks with no changes, a name is removed automatically.</li>
+          <li><strong>Names nobody has updated in 4 weeks</strong> show <strong>Not updated in 4 weeks</strong> in the list. Open the name; it asks “Still on the Covenant Path Report?” Tap <strong>Keep</strong> or <strong>Remove</strong>. After 5 weeks with no changes, a name is removed automatically.</li>
           <li><strong>Someone else running the meeting?</strong> Tap <strong>Hand off</strong> (next to Send on the opening screen) and text them the link. On Android it loads right away. On iPhone the link opens in Safari: they tap <strong>Copy handoff</strong>, open the app from the Home Screen, then tap <strong>Load a handoff or PDF</strong> (on the opening screen) <strong>→ Paste a handoff</strong>. They can hand it back the same way. After they send it, open the PDF they sent you and tap <strong>Load a handoff or PDF → Load from a PDF</strong>; your app sets up the next huddle from it.</li>
         </ul>
       </li>
@@ -516,7 +516,7 @@
         </ul>
       </li>
       <li>
-        <p><strong>Plan the week.</strong> Each name card has two halves. The top, <strong>Ward Council · Who &amp; What</strong>, is filled in before the meeting. The bottom, <strong>Huddle · How &amp; When</strong>, is the huddle’s: check <strong>Attended sacrament</strong> if they were there, then add one action item, who it’s assigned to, and when. Tap <strong>Add action</strong> for more.</p>
+        <p><strong>Plan the week.</strong> Open a section, then tap a name. Each person’s screen has two halves. The top, <strong>Ward Council · Who &amp; What</strong>, is filled in before the meeting. The bottom, <strong>Huddle · How &amp; When</strong>, is the huddle’s: check <strong>Attended sacrament</strong> if they were there, then add one action item, who it’s assigned to, and when. Tap <strong>Done</strong> to return to the list. To add someone to a list, tap <strong>Add a name</strong>; to take someone off, open them and tap <strong>Remove from the list</strong> at the bottom (a focus name has <strong>Clear this focus name</strong>).</p>
         <ul>
           <li><strong>Text this assignment:</strong> once a card has an action and someone assigned, tap it before everyone leaves. Messages opens with the name, the action and when (no needs or notes); pick who to send it to. The card then shows <strong>Texted</strong>.</li>
           <li>The huddle can add any new needs it spots in the same <strong>Needs</strong> box. To relay something back to ward council, tap <strong>+ Add a note for ward council</strong>.</li>
@@ -524,7 +524,7 @@
         </ul>
       </li>
       <li>
-        <p><strong>Send it.</strong> Go back to the opening screen (tap <strong>Back</strong>); <strong>Send</strong> and <strong>Hand off</strong> live there. Tap <strong>After the huddle, before you send</strong>, update the Covenant Path Report from the list it shows, and check it off. Then tap <strong>Send</strong> and <strong>Share PDF</strong>, and pick Mail or Messages. If anything is still open, <strong>Ready to send?</strong> lists it first; tap a line to go there, or send anyway.</p>
+        <p><strong>Send it.</strong> Go back to the opening screen (tap <strong>Back</strong>); <strong>Send</strong> and <strong>Hand off</strong> live there. Tap <strong>After the huddle, before you send</strong>, update the Covenant Path Report from the list it shows, and tap <strong>It’s all updated · Mark done</strong>. Then tap <strong>Send</strong> and <strong>Share PDF</strong>, and pick Mail or Messages. If anything is still open, <strong>Ready to send?</strong> lists it first; tap a line to go there, or send anyway.</p>
         <ul>
           <li><strong>Sending finishes the huddle.</strong> Right after, the app is ready for your next huddle. This huddle’s action items move into Return and Report, and names and needs stay for ward council to update. Attendance, answers and checks clear. Sent it too soon? Tap <strong>Undo</strong> in the <strong>Sent successfully</strong> message, fix it, and send again.</li>
           <li><strong>Need to share it again?</strong> On the opening screen, tap <strong>Share again</strong> next to <strong>✓ Nov 8 huddle sent</strong> (with your date). The app keeps only the last huddle you sent, and replaces it the next time you send.</li>

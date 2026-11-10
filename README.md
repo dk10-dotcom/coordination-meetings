@@ -1,13 +1,13 @@
-# Weekly Coordination Meeting Agenda (web form)
+# Huddle: the Ward Mission Leader Process app
 
-A phone-friendly agenda form for ward huddles. It opens to three things: **Ward council** (every name with its next ordinance and need), **Huddle** (attendance, Return and Report, and this huddle's assignments) and **Send** (update Tools, then share the PDF). Sending finishes the huddle: its action items move into Return and Report for next time, and names and needs stay. There is no date to set; the PDF is dated the day it's sent.
+A phone-friendly app for the ward mission leader's weekly process, built around the weekly coordination meeting (the huddle). It opens to four steps and **Send**: **Before ward council** (match the names to the Covenant Path Report), **Ward council** (every name with its next ordinance and need), **Huddle** (attendance, Return and Report, and this huddle's assignments) and **After the huddle** (update the Covenant Path Report). Sending finishes the huddle: its action items move into Return and Report for next time, and names and needs stay. There is no date to set; the PDF is dated the day it's sent.
 
 ## Privacy and security
 
 - **Everything happens on the phone.** The page has no server, database, analytics, or tracking. The website host only delivers the page; it never sees what anyone types.
 - **No outside connections.** All code is included in this folder, and the page's security settings block it from contacting any other site.
-- **The agenda lives on the phone.** The next huddle's agenda is kept in the app's private storage on that phone. Names nobody has updated in 4 weeks ask "Still on the Covenant Path Report?", and after 5 weeks with no changes they're removed. **Clear the whole form** erases everything except the ward name.
-- **One sent copy.** After a send, the app keeps one copy of that huddle so **Share again** can resend its PDF. It's replaced at the next send, removed after 5 weeks, and erased by **Clear the whole form**. Nothing is saved online.
+- **The agenda lives on the phone.** The next huddle's agenda is kept in the app's private storage on that phone. Names nobody has updated in 4 weeks ask "Still on the Covenant Path Report?", and after 5 weeks with no changes they're removed. **Erase everything and start over** erases everything except the ward name.
+- **One sent copy.** After a send, the app keeps one copy of that huddle so **Share again** can resend its PDF. It's replaced at the next send, removed after 5 weeks, and erased by **Erase everything and start over**. Nothing is saved online.
 - **Ward name is remembered** on each phone for convenience.
 - **The PDF is the only copy that leaves the phone,** sent through the person's own email or text messages. The PDF also carries a hidden copy of the form data, so **Load a handoff or PDF → Load from a PDF** can set up the next huddle from it on another phone. A **Hand off** link carries the agenda in the part of the link browsers never send to the website. Treat the PDF as confidential.
 - **iPhone users must add the app to their Home Screen and always open it from that icon.** In plain Safari, iPhones can erase a website's saved data after about 7 days without a visit, and Safari and the Home Screen app keep separate storage. Whenever the app is opened in a phone's browser instead of from the icon, an **Add to Home Screen** button appears at the top. On Android it opens the phone's install prompt; on iPhone it shows the three steps.
@@ -39,7 +39,7 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 ## Built-in instructions
 
 - **How to use** (top of the opening screen) has the training video, the tour, a sample agenda, a practice week and the written steps. In a phone's browser it opens by itself the first time, since it starts with Add to Home Screen.
-- **Guided tour:** a 19-stop walk-through that dims the page and explains each part in a bubble (Next / Back / Skip tour). It starts once on its own the first time the app is opened from the Home Screen. Replay it from **Take the tour** in How to use, or send people the site link plus `#tour`. The wording lives in `tour.js`.
+- **Guided tour:** a 20-stop walk-through that dims the page and explains each part in a bubble (Next / Back / Skip tour). It starts once on its own the first time the app is opened from the Home Screen. Replay it from **Take the tour** in How to use, or send people the site link plus `#tour`. The wording lives in `tour.js`.
 - **Tips for an effective meeting** is at the top of the Huddle screen. It opens the Principles for Effective Coordination and the Prepare ahead tip.
 - Send people straight to the instructions with the site link plus `#help` (for example `https://dk10-dotcom.github.io/coordination-meetings/#help`).
 - The How to use wording lives in `index.html`.
@@ -48,16 +48,16 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 
 The opening screen is titled **Ward Mission Leader Process** and shows four steps in order, then Send. The full description of every screen and rule is in [`docs/SPEC.md`](docs/SPEC.md).
 
-1. **Before ward council:** tap the first box to see every name on the three Covenant Path Report lists, add or remove names, and open the report in Member Tools. Check the box when the names match.
-2. **Ward council:** two roll-ups, **Covenant Path Report lists** and **Name Next Ordinance** (the three focus names). Each name has the name, next ordinance and needs, with read-only details and the last huddle's assignment underneath.
-3. **Huddle:** take attendance in Huddle Details, then go through Return and Report, Covenant Path Report Review, Name Next Ordinance and Find New People to Teach. Each card has a Ward Council half (already filled in) and a Huddle half (attended sacrament, action item, assigned to, when). **Text this assignment** texts each one before everyone leaves.
-4. **After the huddle, before you send:** tap the box to see what to update in the Covenant Path Report for each person, then check it off. Send is blocked until it is.
+1. **Before ward council:** tap the first box to see every name on the three Covenant Path Report lists, add or remove names, and open the report in Member Tools. Tap **The names match · Mark done** at the bottom when they match.
+2. **Ward council:** two rows, **Covenant Path Report lists** and **Name Next Ordinance** (the three focus names). Each list shows one row per name; tap a name to open it. A person has the name, next ordinance and needs, with read-only details and the last huddle's assignment underneath.
+3. **Huddle:** take attendance in Huddle Details, then go through Return and Report, Covenant Path Report Review, Name Next Ordinance and Find New People to Teach. Each list shows one row per name with their action item; tap a name to open their card, which has a Ward Council half (already filled in) and a Huddle half (attended sacrament, action item, assigned to, when). **Text this assignment** texts each one before everyone leaves.
+4. **After the huddle, before you send:** tap the box to see what to update in the Covenant Path Report for each person, then tap **It's all updated · Mark done**. Send is blocked until it is.
 
 **Send → Share PDF** finishes the huddle: its action items move into Return and Report for next time, names and needs stay, and everything else clears. **Undo** in the Sent successfully message puts it back. **Share again** on the opening screen resends the last PDF. There is no date to set; the PDF is dated the day it's sent, and **Change date** on the Send screen overrides that.
 
 Someone else conducting? **Hand off** texts them a link that loads the huddle on their phone. After they send it, **Load a handoff or PDF → Load from a PDF** sets up the next huddle from their PDF.
 
-New members (blue), Returning members (green), Those being taught (purple) and Name Next Ordinance (amber) each have their own color in the app and on the PDF. Return and Report cards fill green, amber or red once marked Yes, Partly or No.
+New members (blue), Returning members (green), Those being taught (purple) and Name Next Ordinance (amber) each have their own color in the app (a dot beside the list's name, and on the person's card) and on the PDF. Return and Report cards fill green, amber or red once marked Yes, Partly or No.
 
 ## Making changes later
 

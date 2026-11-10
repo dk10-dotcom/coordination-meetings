@@ -1,4 +1,6 @@
 // Always the next huddle: Send closes it and sets up the next one (+ Undo), Share again, Return and Report as the one place to mark, 4-week name rule.
+// These checks fill many cards in a row, so they keep every card open in its list ('huddle-cards-open').
+// The lists of names and each person's own screen are covered by rows.js and twodoor.js.
 const { chromium, devices } = require('playwright');
 const fs = require('fs');
 const OUT = 'test/out-live'; fs.mkdirSync(OUT, { recursive: true });
@@ -8,7 +10,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
   const b = await chromium.launch(); let pass = 0, fail = 0;
   const ok = (c, m) => { if (c) { pass++; console.log('PASS', m); } else { fail++; console.log('FAIL', m); } };
   const ctx = await b.newContext({ ...devices['iPhone 13'] });
-  await ctx.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
+  await ctx.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen', 'huddle-cards-open'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
   // Test hook: age a name card as the page loads (after the previous page saved itself on the way out).
   await ctx.addInitScript(() => { try { const d = localStorage.getItem('__touch'); if (d) { const s = JSON.parse(localStorage.getItem('huddle-agenda-v1')); s.cp.nm[0].touched = d; localStorage.setItem('huddle-agenda-v1', JSON.stringify(s)); localStorage.removeItem('__touch'); } } catch (e) {} });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
@@ -23,7 +25,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
   const plus = n => { const d = new Date(); d.setDate(d.getDate() + n); return iso(d); };
   const rrRow = async () => (await p.textContent('.step-row[data-a="rr"] .step-status')).trim();
   const sendNow = async () => {
-    await home(); await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const c = document.querySelector('#after-check'); if (c && !c.checked) c.click(); }).then(() => p.click('.actionbar [data-action="send"]')); await p.waitForTimeout(200);
+    await home(); await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); document.querySelector('[data-action="after-done"]').click(); } }).then(() => p.click('.actionbar [data-action="send"]')); await p.waitForTimeout(200);
     if (await p.isVisible('#confirm-sheet') && /Ready to send/.test(await p.textContent('#confirm-title'))) await p.click('#confirm-primary');
     await p.waitForSelector('#share-btn:not([disabled])'); await p.click('#share-btn'); await p.waitForSelector('#confirm-sheet:not([hidden])');
   };
@@ -51,7 +53,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
 
   // Ready to send? (attendance not taken, Return and Report empty is fine)
   await p.evaluate(() => { navigator.canShare = () => true; navigator.share = () => Promise.resolve(); });
-  await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const c = document.querySelector('#after-check'); if (c && !c.checked) c.click(); }).then(() => p.click('.actionbar [data-action="send"]')); await p.waitForSelector('#confirm-sheet:not([hidden])');
+  await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); document.querySelector('[data-action="after-done"]').click(); } }).then(() => p.click('.actionbar [data-action="send"]')); await p.waitForSelector('#confirm-sheet:not([hidden])');
   ok((await p.textContent('#confirm-title')).includes('Ready to send?') && (await p.textContent('#confirm-compare')).includes('Attendance not taken'), 'Ready to send? lists what is open');
   await p.screenshot({ path: `${OUT}/ready.png` });
   await p.click('#confirm-compare .jump-row'); await p.waitForTimeout(200);
@@ -145,7 +147,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
   // Clear erases the sent copy too
   await sendNow(); await p.click('#confirm-primary'); await p.waitForTimeout(250);
   ok(await p.evaluate(() => !!localStorage.getItem('huddle-last-sent')), 'a sent copy is kept');
-  await home(); await p.click('.clear-link'); await p.click('#confirm-primary'); await p.waitForTimeout(250);
+  await home(); await p.evaluate(() => document.querySelector('.clear-link').click()); await p.click('#confirm-primary'); await p.waitForTimeout(250);
   ok(await p.evaluate(() => localStorage.getItem('huddle-last-sent') === null) && !(await p.isVisible('#sent-line')), 'Clear erases the sent copy too');
   ok(!errs.length, 'no page errors ' + errs.join('; '));
   console.log(`${pass}/${pass + fail} checks passed`);
