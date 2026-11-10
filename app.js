@@ -2894,7 +2894,7 @@
     if (isStandalone() || readJSON('sessionStorage', 'huddle-install-dismissed')) return;
     if (isIOS) {
       $('#install-banner .install-title').textContent = 'Add to Home Screen first';
-      $('#install-banner .install-body').textContent = 'Do this before you fill anything in. Agendas saved here in Safari won’t carry over to the Home Screen app.';
+      $('#install-banner .install-body').textContent = 'Do this before you fill anything in. What you enter here in Safari won’t carry over to the Home Screen app.';
     }
     $('#install-banner').hidden = false;
   }

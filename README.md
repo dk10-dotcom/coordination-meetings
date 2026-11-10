@@ -38,38 +38,31 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 
 ## Built-in instructions
 
-- **How to use** (top right) opens the instructions: the steps and good-to-know notes.
-- **Guided tour:** a 19-stop walk-through that dims the page and explains each part in a bubble (Next / Back / Skip tour). It starts once on its own the first time the app is opened from the Home Screen (in a phone's browser, How to use opens instead, since it starts with Add to Home Screen). Replay it from **Take the tour** at the top of How to use, or send people the site link plus `#tour`. The wording lives in `tour.js`.
-- **Tips for an effective meeting** (next to it) opens the Principles for Effective Coordination and the Prepare ahead tip. These are no longer printed on the PDF. It also opens by itself the first time someone visits on a new device.
-- Send people straight to it with the site link plus `#help` (for example `https://dk10-dotcom.github.io/coordination-meetings/#help`).
-- The first time last week's names carry over, a one-time reminder asks the user to compare them to this week's Covenant Path Report.
-- The wording lives in `index.html` under `How to use`.
+- **How to use** (top of the opening screen) has the training video, the tour, a sample agenda, a practice week and the written steps. In a phone's browser it opens by itself the first time, since it starts with Add to Home Screen.
+- **Guided tour:** a 19-stop walk-through that dims the page and explains each part in a bubble (Next / Back / Skip tour). It starts once on its own the first time the app is opened from the Home Screen. Replay it from **Take the tour** in How to use, or send people the site link plus `#tour`. The wording lives in `tour.js`.
+- **Tips for an effective meeting** is at the top of the Huddle screen. It opens the Principles for Effective Coordination and the Prepare ahead tip.
+- Send people straight to the instructions with the site link plus `#help` (for example `https://dk10-dotcom.github.io/coordination-meetings/#help`).
+- The How to use wording lives in `index.html`.
 
 ## How people use it each week
 
-**In ward council:** check the names against the Covenant Path Report (in Tools) and update each person's next ordinance and need, right in the next huddle's agenda. **During huddle:** take attendance, confirm Return and Report, and check sacrament attendance. Then plan one action item per person: who will do it, and when. **After huddle:** Send it to the bishop-approved list, the stake presidency and the full-time missionaries. **During the week:** mark Return and Report as people report back, and keep the Covenant Path Report in Tools updated.
+The opening screen is titled **Ward Mission Leader Process** and shows four steps in order, then Send. The full description of every screen and rule is in [`docs/SPEC.md`](docs/SPEC.md).
 
-1. Open the app from the Home Screen icon. Before the huddle, tap **Ward council** and update the names, next ordinances and needs. A name that had an assignment from the last huddle shows it there, with Yes / Partly / No. At the meeting, tap **Huddle**; choose who is **Conducting** in Huddle Details (remembered on the phone and printed on the PDF). A link ending in `#huddle` opens straight to the huddle's list.
-2. Tap everyone who attended. **Return and Report** is labeled with the huddle its items came from ("From the November 8 huddle"), and the home screen shows how many are marked ("From Nov 8 · 3 of 8 marked"). Mark each item Yes / Partly / No. For Partly or No, **Carry forward to this week** copies it into this week's plan.
-3. Fill in the Covenant Path Report actions and the 3 Names Next Ordinance (Ward Council Focus Names). **Text this assignment** texts each one before everyone leaves.
-4. **Send → Share PDF.** The huddle closes: the app sets up the next huddle a week later, moves the action items into Return and Report, and keeps names and needs. **Undo** in the Sent successfully message puts the huddle back. Under the date, **✓ Nov 8 huddle sent · Share again** resends the last PDF.
-   - Someone else conducting? **Hand off** texts them a link that loads the agenda. When they send it, load their PDF to set up your next huddle.
+1. **Before ward council:** tap the first box to see every name on the three Covenant Path Report lists, add or remove names, and open the report in Member Tools. Check the box when the names match.
+2. **Ward council:** two roll-ups, **Covenant Path Report lists** and **Name Next Ordinance** (the three focus names). Each name has the name, next ordinance and needs, with read-only details and the last huddle's assignment underneath.
+3. **Huddle:** take attendance in Huddle Details, then go through Return and Report, Covenant Path Report Review, Name Next Ordinance and Find New People to Teach. Each card has a Ward Council half (already filled in) and a Huddle half (attended sacrament, action item, assigned to, when). **Text this assignment** texts each one before everyone leaves.
+4. **After the huddle, before you send:** tap the box to see what to update in the Covenant Path Report for each person, then check it off. Send is blocked until it is.
 
-The Ward Council (who · what) and huddle (how · when) boxes stay at the top of the page as a constant reminder. The note about who conducts sits right under the Conducting choice. New members (blue), Returning members (green), Those being taught (purple) and 3 Names Next Ordinance (amber) each have their own colored panel, with numbered cards. Return and Report cards carry a stripe and tag in the color of the list they came from, and fill green, amber or red once marked Yes, Partly or No. The PDF uses the same colors.
+**Send → Share PDF** finishes the huddle: its action items move into Return and Report for next time, names and needs stay, and everything else clears. **Undo** in the Sent successfully message puts it back. **Share again** on the opening screen resends the last PDF. There is no date to set; the PDF is dated the day it's sent, and **Change date** on the Send screen overrides that.
 
-Each name card has an **Attended sacrament** checkbox (top right), **Next ordinance**, **Need**, then the action item, who it's assigned to, and when. When last week is loaded, all of these show on that person's Return and Report card. Carried-over names keep their next ordinance and need; the sacrament checkbox starts blank each week.
+Someone else conducting? **Hand off** texts them a link that loads the huddle on their phone. After they send it, **Load a handoff or PDF → Load from a PDF** sets up the next huddle from their PDF.
 
-**New members** also have a **Baptism date** and a red **Temple attendance** checkbox. Goal: baptisms for the dead within 30 days of baptism. The box counts the days from the baptism date to the meeting date ("18 days left of 30", "12 days past the 30-day goal") and stays red until it's checked, carrying forward every week. The PDF shows "Temple: …" under each new member's name, and next week's Return and Report shows the updated count.
-
-**Two halves on every name card:** the top, **Ward Council · Who & What** (name, next ordinance, need, and the baptism date / temple or committed-to-baptism details), is filled in before the meeting from ward council and the Covenant Path Report. The bottom, **Huddle · How & When** (action, assigned to, when), is filled in at the huddle. Both groups can add to **Needs**. **+ Add a note for ward council** opens a "Huddle notes" box for anything the huddle wants to relay back; it carries forward, shows on Return and Report as "Huddle notes," and prints on the PDF on its own light-orange line under that person's row, labeled "Huddle notes." On the PDF the tables carry a Ward Council label over Name / Next ordinance / Need and a Huddle label over Attended sacrament / Action / Assigned to / When.
-
-**Done:** each Covenant Path list and 3 Names has a **Done** button. It folds that list to one line per person (name, action, who, when, plus a red temple tag if it's still due), and warns first if someone has no action item. Tap the list's title to reopen it. Folding only changes the screen: the PDF prints everything, and loading or opening an agenda starts with every list open. Return and Report has its own **Done** too: it folds each item to one line with its Yes/Partly/No answer and notes, and warns first if any item isn't marked.
-
-**Those being taught** have a **Committed to baptism** checkbox and a **Scheduled baptismal date**. Both carry forward each week and show on Return and Report and under the name on the PDF ("Committed · Nov 21"). After the baptism, **Convert to new member** moves the card to New members with everything on it, and the 30-day temple count starts from the baptism date.
+New members (blue), Returning members (green), Those being taught (purple) and Name Next Ordinance (amber) each have their own color in the app and on the PDF. Return and Report cards fill green, amber or red once marked Yes, Partly or No.
 
 ## Making changes later
 
 - Edit the files (for example in VS Code, Antigravity, or Claude Code), then upload the changed files to the same repository. Pages updates within a minute or two.
+- `CLAUDE.md` has the project's rules and release steps, and `test/` has the automated checks (see `test/README.md`).
 - After changing any file, change `huddle-v1` in `sw.js` to `huddle-v2` (and so on). That tells phones to fetch the new version.
 - Agenda wording lives in `index.html`. The PDF layout and wording live in the `buildPdf` section of `app.js`.
 
@@ -82,6 +75,10 @@ Each name card has an **Attended sacrament** checkbox (top right), **Next ordina
 | `app.js` | Form behavior, PDF creation, Send (closes the huddle), Hand off, Load from a PDF |
 | `vendor/pdf-lib.min.js` | PDF library (pdf-lib 1.17.1, MIT license) |
 | `sw.js` | Lets the page open without a connection after the first visit |
+| `tour.js` | The guided tour |
+| `docs/SPEC.md` | How the app behaves, screen by screen |
+| `CLAUDE.md` | Project rules and release steps |
+| `test/` | Automated checks |
 | `manifest.webmanifest`, `icons/` | Home-screen app name and icon |
 
 ## The PDF at a glance

@@ -1,0 +1,6 @@
+node_modules/
+test/node_modules/
+test/out*/
+test/out*.pdf
+test/package-lock.json
+.DS_Store

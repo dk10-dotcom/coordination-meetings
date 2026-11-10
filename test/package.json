@@ -1,0 +1,11 @@
+{
+  "name": "coordination-meetings-tests",
+  "private": true,
+  "description": "Automated checks for the Ward Mission Leader Process web app. Fake names only.",
+  "scripts": {
+    "all": "bash run-all.sh"
+  },
+  "devDependencies": {
+    "playwright": "^1.50.0"
+  }
+}

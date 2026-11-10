@@ -1,0 +1,28 @@
+const { chromium, devices } = require('playwright');
+const res = []; const ok = (l, c, x) => { res.push(c); console.log((c ? 'PASS ' : 'FAIL ') + l + (x ? '  ' + x : '')); };
+(async () => {
+  const b = await chromium.launch(); const ctx = await b.newContext({ ...devices['iPhone 13'] });
+  await ctx.addInitScript(() => { try { localStorage.setItem('huddle-view-all', '1'); } catch (e) {} }); await ctx.addInitScript(() => { try { localStorage.setItem('huddle-names-hint-seen','1'); } catch (e) {} });
+  const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
+  await p.goto('http://127.0.0.1:8765/#huddle'); await p.waitForSelector('.chip'); await p.click('[data-action="dismiss-install"]').catch(() => {});
+  await p.fill('[data-bind="cp.nm.0.name"]', 'Maria Lopez');
+  await p.click('[data-action="add-cp"][data-a="nm"]'); await p.fill('[data-bind="cp.nm.1.name"]', 'Tom Hale');
+  await p.click('[data-action="remove-cp"][data-a="nm"][data-b="1"]'); await p.waitForTimeout(200);
+  ok('asks before removing a filled card', await p.isVisible('#confirm-sheet') && (await p.textContent('#confirm-title')) === 'Remove Tom Hale?');
+  await p.click('#confirm-secondary'); await p.waitForTimeout(150);
+  ok('Keep it keeps the card', (await p.inputValue('[data-bind="cp.nm.1.name"]')) === 'Tom Hale');
+  await p.click('[data-action="remove-cp"][data-a="nm"][data-b="1"]'); await p.keyboard.press('Escape'); await p.waitForTimeout(150);
+  ok('dismissing keeps the card', (await p.inputValue('[data-bind="cp.nm.1.name"]')) === 'Tom Hale');
+  await p.click('[data-action="remove-cp"][data-a="nm"][data-b="1"]'); await p.click('#confirm-primary'); await p.waitForTimeout(150);
+  ok('Remove removes it', (await p.$$('[data-group="nm"] .card')).length === 1 && (await p.inputValue('[data-bind="cp.nm.0.name"]')) === 'Maria Lopez');
+  await p.click('[data-action="add-cp"][data-a="nm"]');
+  await p.click('[data-action="remove-cp"][data-a="nm"][data-b="1"]'); await p.waitForTimeout(150);
+  ok('an empty card goes without asking', await p.isHidden('#confirm-sheet') && (await p.$$('[data-group="nm"] .card')).length === 1);
+  await p.fill('[data-bind="rr.0.plan"]', 'Visit the Smiths');
+  await p.click('[data-action="remove-rr"][data-a="0"]'); await p.waitForTimeout(150);
+  ok('Return and Report items ask too', await p.isVisible('#confirm-sheet') && (await p.textContent('#confirm-title')) === 'Remove this Return and Report item?');
+  await p.click('#confirm-primary'); await p.waitForTimeout(150);
+  ok('and remove on Remove', (await p.inputValue('[data-bind="rr.0.plan"]')) === '');
+  console.log('PROBLEMS:', errs.length ? errs : 'none'); console.log(`${res.filter(Boolean).length}/${res.length} checks passed`);
+  await b.close();
+})().catch(e => { console.error(e); process.exit(1); });
