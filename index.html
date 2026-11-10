@@ -24,7 +24,7 @@
 
   <div class="install-banner" id="install-banner" role="note" hidden>
     <div class="install-text">
-      <p class="install-title">Add this app to your Home Screen</p>
+      <p class="install-title">Add Huddle to your Home Screen</p>
       <p class="install-body">It opens like an app and keeps your names and assignments safe on this phone.</p>
     </div>
     <div class="install-actions">
@@ -122,10 +122,10 @@
 
     <div class="field attendees-field" role="group" aria-labelledby="h-attendees">
       <span id="h-attendees">Attendees</span>
-      <span class="attendees-hint">Make an extra effort to involve the youth. Tap everyone who attended.</span>
+      <span class="attendees-hint">Tap everyone who attended. Make an extra effort to involve the youth.</span>
       <div class="chips" id="attendee-list"></div>
     </div>
-    <button type="button" class="btn-outline full details-done" data-action="close-details" hidden>Done with huddle details</button>
+    <button type="button" class="btn-outline full details-done" data-action="close-details" hidden>Done</button>
     </div>
   </header>
 
@@ -137,11 +137,11 @@
       <span class="step-chev" aria-hidden="true">›</span>
     </button>
     <button type="button" class="door door-wc" data-action="open-wc">
-      <span class="door-text"><span class="door-kicker">Who · What</span><span class="door-title">Ward council</span><span class="door-sub" id="door-wc-sub">Add the names, next ordinances and needs</span></span>
+      <span class="door-text"><span class="door-kicker">Who &amp; What</span><span class="door-title">Ward council</span><span class="door-sub" id="door-wc-sub">Add the names, next ordinances and needs</span></span>
       <span class="step-chev" aria-hidden="true">›</span>
     </button>
     <button type="button" class="door door-hd" data-action="open-huddle">
-      <span class="door-text"><span class="door-kicker">How · When</span><span class="door-title">Huddle</span><span class="door-sub" id="door-hd-sub">Report back, take attendance, plan the assignments</span></span>
+      <span class="door-text"><span class="door-kicker">How &amp; When</span><span class="door-title">Huddle</span><span class="door-sub" id="door-hd-sub">Report back, take attendance, plan the assignments</span></span>
       <span class="step-chev" aria-hidden="true">›</span>
     </button>
     <button type="button" class="check-box" id="after-box" data-action="open-after">
@@ -194,7 +194,7 @@
   <section class="section" aria-labelledby="h-rr" data-step="rr">
     <div class="section-head">
       <div class="head-line"><h2 id="h-rr">Return and Report</h2></div>
-      <p class="muted">Mark each assignment from the last huddle as people report back. If one didn’t happen, tap <strong class="ink">Carry forward</strong> to add it to this huddle’s plan.</p>
+      <p class="muted">Mark each assignment from the last huddle as people report back. If one isn’t finished, tap <strong class="ink">Carry forward to this huddle</strong>.</p>
       <p class="rr-from" id="rr-from" hidden></p>
     </div>
 
@@ -202,7 +202,7 @@
     <div class="list-foot rr-foot" id="rr-foot">
       <button type="button" class="btn-add" data-action="add-rr">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>
-        Add item
+        Add an item
       </button>
       <button type="button" class="btn-done" data-action="list-done" data-a="rr" aria-label="Done with Return and Report">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>
@@ -355,7 +355,7 @@
     </div>
 
     <label class="send-date" id="send-date-row"><span>Dated <strong id="send-date-text"></strong></span><span class="send-date-change">Change date</span><input type="date" id="send-date" aria-label="Change the huddle date"></label>
-    <p class="send-recipients" id="send-recipients"><strong>Send to the bishop-approved list, the stake presidency and the full-time missionaries.</strong> Make sure the elders quorum representative is included.</p>
+    <p class="send-recipients" id="send-recipients"><strong>Send to the bishop-approved list, the stake presidency and the full-time missionaries.</strong> Include the elders quorum representative and yourself, so you keep a copy.</p>
     <p class="step-hint share-rule" id="share-hint">Only share via email or text message. Do not share through any other app.</p>
     <button type="button" class="btn-primary full" data-action="share" id="share-btn" disabled>Share PDF</button>
 
@@ -369,7 +369,7 @@
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="after-title">
     <div class="grab" aria-hidden="true"></div>
     <h2 id="after-title">After the huddle</h2>
-    <p class="muted">Update the Covenant Path Report with what happened: sacrament attendance, temple attendance, and needs that were met.</p>
+    <p class="muted">Update the Covenant Path Report with what happened: sacrament attendance, temple attendance and needs that were met.</p>
       <a class="btn-tools" data-tools-link href="https://lcr.churchofjesuschrist.org/one-work/progress-record?lang=eng">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 3h6v6"/><path d="M17 3l-8 8"/><path d="M15 12v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4"/></svg>
         <span class="btn-tools-text">Open the Covenant Path Report<span class="btn-tools-sub">In Member Tools: Reports → Covenant Path Progress</span></span>
@@ -531,8 +531,8 @@
         <summary class="nav-row"><span class="help-num" aria-hidden="true">3</span><span class="step-text"><span class="step-title">Huddle</span><span class="step-status">How and when to help</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
         <ul class="help-body">
           <li>Tap <strong>Huddle</strong>, then <strong>Huddle Details</strong>. Choose who’s conducting and tap everyone who attended.</li>
-          <li><strong>Return and Report:</strong> mark each item <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>. To keep an unfinished item on the plan, tap <strong>Carry forward to this huddle</strong>.</li>
-          <li><strong>Covenant Path</strong> and <strong>Name Next Ordinance:</strong> tap a name. Check <strong>Attended sacrament</strong> if they came. Add one action item, who will do it, and when.</li>
+          <li><strong>Return and Report:</strong> mark each assignment <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>. To keep an unfinished one on the plan, tap <strong>Carry forward to this huddle</strong>.</li>
+          <li><strong>Covenant Path</strong> and <strong>Name Next Ordinance:</strong> tap a name. Check <strong>Attended sacrament</strong> if they came. Add one action item, who will do it and when.</li>
           <li><strong>Find New People to Teach:</strong> write the plan and any assignments. <strong>Missionary Referrals:</strong> tap <strong>Add a referral</strong>.</li>
           <li>Before everyone leaves, tap <strong>Text this assignment</strong> on each person’s screen.</li>
         </ul>
@@ -544,7 +544,7 @@
           <li>Update the report, then tap <strong>It’s all updated · Mark done</strong>. Send works only after this.</li>
           <li>Tap <strong>Send</strong>, then <strong>Share PDF</strong>. <strong>Only share via email or text message. Do not share through any other app.</strong></li>
           <li>Send it to the bishop-approved list, the stake presidency and the full-time missionaries. Include the elders quorum representative and yourself.</li>
-          <li>Sending finishes the huddle. Its action items move to Return and Report for next time. Names and needs stay.</li>
+          <li>Sending finishes the huddle. Its assignments move to Return and Report for next time. Names and needs stay.</li>
         </ul>
       </details></li>
       <li><details class="help-item">
@@ -572,7 +572,7 @@
         <ul class="help-body">
           <li><strong>Sent too soon?</strong> Tap <strong>Undo</strong> in the <strong>Sent successfully</strong> message, fix it, and send again.</li>
           <li><strong>Marked something done by mistake?</strong> Open it and tap <strong>Mark as not done</strong>.</li>
-          <li><strong>Carried an item forward by mistake?</strong> Tap <strong>Undo</strong> on that item.</li>
+          <li><strong>Carried an assignment forward by mistake?</strong> Tap <strong>Undo</strong> on that assignment.</li>
         </ul>
       </details></li>
       <li><details class="help-item">
@@ -610,7 +610,7 @@
     <h3 class="help-band">Watch or try</h3>
     <ul class="steps-list help-list">
       <li><button type="button" class="nav-row" data-action="tour">
-        <span class="step-text"><span class="step-title">Take the tour</span><span class="step-status">A 1-minute walk-through of the app</span></span><span class="step-chev" aria-hidden="true">›</span>
+        <span class="step-text"><span class="step-title">Take the tour</span><span class="step-status">A 4-minute walk-through of the app</span></span><span class="step-chev" aria-hidden="true">›</span>
       </button></li>
       <li><button type="button" class="nav-row" data-action="sample" aria-haspopup="dialog">
         <span class="step-text"><span class="step-title">See a sample agenda</span><span class="step-status">What the PDF you send looks like</span></span><span class="step-chev" aria-hidden="true">›</span>
@@ -639,7 +639,7 @@
     <div class="grab" aria-hidden="true"></div>
     <h2 id="install-title">Add to your Home Screen</h2>
     <ol class="install-steps" id="install-steps"></ol>
-    <p class="step-hint">From now on, open the agenda from the new icon so your names and assignments are always there.</p>
+    <p class="step-hint">From now on, open Huddle from its icon so your names and assignments are always there.</p>
     <button type="button" class="btn-primary full" data-action="close-install">Got it</button>
   </div>
 </div>

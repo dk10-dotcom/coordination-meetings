@@ -391,7 +391,7 @@
           })() : null
         ].filter(Boolean);
         body = h('div', { class: 'prefill' }, [
-          gid ? h('span', { class: 'group-tag', text: SOURCE[gid] }) : null,
+          gid && gid !== 'fn' ? h('span', { class: 'group-tag', text: SOURCE[gid] }) : null, // (a finding assignment's title already says so)
           // Name and next ordinance share a line; a long name pushes the tag to the next line.
           ordTag ? h('div', { class: 'person-line' }, [ordTag]) : null,
           facts.length ? h('div', { class: 'facts' }, facts) : null,
@@ -402,7 +402,7 @@
         body = field('What was planned', 'rr.' + i + '.plan', { placeholder: 'What did we plan to do?' });
       }
       var seg = h('div', {}, [
-        h('p', { class: 'seg-label', text: 'Happened?' }),
+        h('p', { class: 'seg-label', text: 'Did it happen?' }),
         h('div', { class: 'seg', role: 'group', 'aria-label': 'Did item ' + (i + 1) + ' happen?' }, ['Yes', 'Partly', 'No'].map(function (v) {
           return h('button', { type: 'button', 'data-action': 'happened', 'data-a': i, 'data-b': v, 'aria-pressed': r.happened === v ? 'true' : 'false', text: v });
         }))
@@ -444,7 +444,7 @@
   function fromLabel(s) { var d = s ? monthDay(prevHuddle(s)) : ''; return d ? 'From the ' + d + ' huddle' : 'From the last huddle'; }
   function planLabel() { return 'This huddle’s plan'; }
   function nextPlan() { return 'this huddle’s plan'; }
-  function carriedText(s) { var d = s ? monthDay(prevHuddle(s)) : ''; return d ? 'Carried over from ' + d : 'Carried from last huddle'; }
+  function carriedText(s) { var d = s ? monthDay(prevHuddle(s)) : ''; return d ? 'Carried forward from ' + d : 'Carried forward from the last huddle'; }
   function carriedTag() { return h('span', { class: 'source carried-tag', text: carriedText() }); }
   // The person's name, typed right in the bold title at the top of the card.
   function nameInput(path, ph) {
@@ -580,7 +580,7 @@
       sacToggle(base + 'sac', a.sac),
       g === 'nm' ? templeBox(base, i, a) : null,
       g === 'bt' ? committedBox(base, a) : null,
-      g === 'bt' ? field('Scheduled baptismal date', base + 'bap', { type: 'date', full: true }) : null
+      g === 'bt' ? field('Scheduled baptism date', base + 'bap', { type: 'date', full: true }) : null
     ]);
   }
   /* ---------- Ward council's screen for one person: the mirror of the Huddle's ----------
@@ -675,7 +675,7 @@
     var from = state.rolledFrom || (state.loaded && state.loaded.date) || '';
     var d = parseISO(from);
     rf.hidden = !d;
-    if (d) rf.textContent = state.loaded && state.loaded.practice ? 'Practice week: sample assignments' : 'From your last huddle';
+    if (d) rf.textContent = state.loaded && state.loaded.practice ? 'Practice week: sample assignments' : 'From the last huddle';
   }
   function renderLoadState() {
     renderRRFrom();
@@ -774,7 +774,7 @@
       if (gid === 'nm' && name) { var ts = templeStatus(a, state.date); if (!ts.done) tags.push(rowTag('Temple: ' + ts.short, 'due')); }
       if (gid === 'bt' && a.committed) tags.push(rowTag(baptismNote(a)));
       if (a.sac) tags.push(rowTag('✓ Sacrament', 'ok'));
-      if (a.actionCarried && str(a.action).trim()) tags.push(rowTag('Carried over', 'carried'));
+      if (a.actionCarried && str(a.action).trim()) tags.push(rowTag('Carried forward', 'carried'));
       sub = [str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim()].filter(Boolean).join(' · ');
       if (!sub && name) { sub = 'Needs an action item'; warn = true; }
     } else if (kind === 'bw') {
@@ -931,7 +931,7 @@
               many ? removeButton('remove-cp', g.id, i, 'Remove action ' + (i + 1) + ' for ' + g.title) : null]),
             h('div', { class: 'card-head-right' }, [sacToggle(base + 'sac', it.sac)])
           ]),
-          cardFields(base, 'Name', 'From the Covenant Path Report', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: fromLabel() }) : null, g.id === 'nm' ? 'Baptism date' : g.id === 'bt' ? 'Scheduled baptismal date' : '', 'Tap their name in the Covenant Path Report to identify needs', '',
+          cardFields(base, 'Name', 'From the Covenant Path Report', 'e.g. Tue', it.carried ? h('span', { class: 'source', text: fromLabel() }) : null, g.id === 'nm' ? 'Baptism date' : g.id === 'bt' ? 'Scheduled baptism date' : '', 'Tap their name in the Covenant Path Report to identify needs', '',
             g.id === 'nm' ? templeBox(base, i, it) : g.id === 'bt' ? committedBox(base, it) : null, FIXED_ORD[g.id]),
           g.id === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': i }, ['Convert to new member']) : null
         ]);
@@ -957,7 +957,7 @@
     if (!name) { toast('Add their name first.'); return; }
     ask({
       title: 'Move ' + name + ' to New members?',
-      body: 'Everything on this card moves with them, including the baptism date. The 30-day temple count starts from that date.',
+      body: 'Everything entered for them moves too, including the baptism date. The 30-day temple count starts from that date.',
       primary: 'Move to New members',
       onPrimary: function () {
         var c = blankAction();
@@ -1048,7 +1048,7 @@
       h('div', { class: 'card fn-card' }, [
         h('div', { class: 'card-grid' }, [field('Plan', 'find.plan', { full: true, multi: true, placeholder: 'What will the ward do this week to find new people to teach?' })]),
         h('p', { class: 'fn-assign-title', text: 'Assignments' })
-      ].concat(rows).concat([h('div', { class: 'list-foot' }, [addButton('add-fn', '', 'Add assignment')])]))
+      ].concat(rows).concat([h('div', { class: 'list-foot' }, [addButton('add-fn', '', 'Add an assignment')])]))
     ]));
   }
   /* ---------- Done: fold a finished list to one line per person ---------- */
@@ -1087,7 +1087,7 @@
       if (gid === 'bt' && it.committed) tag = h('span', { class: 'fold-tag', text: baptismNote(it) });
       var plan = [str(it.action).trim(), str(it.assigned).trim() ? str(it.assigned).trim() : '', str(it.when).trim()].filter(Boolean).join(' · ');
       return foldButton(gid, x.i, it.name.trim(), [
-        h('span', { class: 'fold-line' }, [h('span', { class: 'fold-name', text: it.name.trim() }), tag, it.actionCarried && str(it.action).trim() ? h('span', { class: 'fold-tag carried', text: 'Carried over' }) : null]),
+        h('span', { class: 'fold-line' }, [h('span', { class: 'fold-name', text: it.name.trim() }), tag, it.actionCarried && str(it.action).trim() ? h('span', { class: 'fold-tag carried', text: 'Carried forward' }) : null]),
         h('span', { class: 'fold-plan' + (plan ? '' : ' missing'), text: plan || 'No action item' })
       ]);
     });
@@ -1251,9 +1251,9 @@
       var list = id === 'tn' ? state.tn : GROUPS.reduce(function (a, g) { return a.concat(state.cp[g.id]); }, []);
       var named = list.filter(function (a) { return str(a.name).trim(); });
       var missing = named.filter(function (a) { return !str(a.action).trim(); }).length;
-      if (!named.length) return { text: id === 'cp' && GROUPS.every(function (g) { return noneConfirmed(g.id); }) ? 'No one on the report this week' : 'No names yet' };
+      if (!named.length) return { text: id === 'cp' && GROUPS.every(function (g) { return noneConfirmed(g.id); }) ? 'No one on the report this week' : id === 'tn' ? 'No focus names yet' : 'No names yet' };
       var lead = id === 'tn' ? named.length + ' of 3 focus names' : plural(named.length, 'person', 'people');
-      return { text: lead + ' · ' + (missing ? missing + (missing === 1 ? ' needs' : ' need') + ' an action' : 'everyone has a plan'), warn: missing > 0 };
+      return { text: lead + ' · ' + (missing ? missing + (missing === 1 ? ' needs' : ' need') + ' an action item' : 'everyone has an action item'), warn: missing > 0 };
     }
     if (id === 'mr') { var nr = cleanReferrals(state.referrals).length; return { text: nr ? plural(nr, 'referral', 'referrals') : 'None listed' }; }
     var plan = str(state.find.plan).trim(), k = state.find.items.filter(function (x) { return str(x.task).trim(); }).length;
@@ -1594,7 +1594,7 @@
 
   // Removing a card that has anything on it always asks first. Swiping the question away keeps the card.
   function confirmRemove(title, onYes) {
-    ask({ title: title, body: 'This card and everything typed on it will be removed from this agenda.', primary: 'Remove', onPrimary: onYes, secondary: 'Keep it' });
+    ask({ title: title, body: 'Everything typed here will be removed from this agenda.', primary: 'Remove', onPrimary: onYes, secondary: 'Keep it' });
   }
   var askSecondary = null;
   function ask(opts) {
@@ -1839,7 +1839,7 @@
           renderCP(); renderWC(); renderBefore(); if (view === 'start') renderDoors(); saveDraft();
         };
         if (cItem && (cItem.sac || cItem.temple || cItem.committed || hasText(cItem, CARD_KEYS))) {
-          confirmRemove(str(cItem.name).trim() ? 'Remove ' + cItem.name.trim() + '?' : 'Remove this card?', doRemoveCP);
+          confirmRemove(str(cItem.name).trim() ? 'Remove ' + cItem.name.trim() + '?' : 'Remove this person?', doRemoveCP);
         } else doRemoveCP();
         break;
       }
@@ -2065,10 +2065,10 @@
     if (rr.length && unmarked) out.push({ text: 'Return and Report: ' + unmarked + ' not marked', go: go('rr') });
     var needs = function (list) { return list.filter(function (a) { return str(a.name).trim() && !str(a.action).trim(); }).length; };
     var cpN = GROUPS.reduce(function (n, g) { return n + needs(state.cp[g.id]); }, 0);
-    if (cpN) out.push({ text: 'Covenant Path: ' + cpN + (cpN === 1 ? ' person needs' : ' people need') + ' an action', go: go('cp') });
+    if (cpN) out.push({ text: 'Covenant Path: ' + cpN + (cpN === 1 ? ' person needs' : ' people need') + ' an action item', go: go('cp') });
     GROUPS.forEach(function (g) { if (listEmpty(g.id) && !noneConfirmed(g.id)) out.push({ text: g.title + ': not reviewed', go: go('cp') }); });
     var tnN = needs(state.tn);
-    if (tnN) out.push({ text: 'Name Next Ordinance: ' + tnN + (tnN === 1 ? ' person needs' : ' people need') + ' an action', go: go('tn') });
+    if (tnN) out.push({ text: 'Name Next Ordinance: ' + tnN + (tnN === 1 ? ' person needs' : ' people need') + ' an action item', go: go('tn') });
     if (!str(state.find.plan).trim()) out.push({ text: 'Find New People to Teach: no plan yet', go: go('fn') });
     return out;
   }
@@ -2106,7 +2106,7 @@
       body: (downloaded ? 'Attach it to an email or text message to send it. ' : '') +
         'You’re set for your next huddle. ' +
         (n ? 'This huddle’s assignments are now in Return and Report: mark them as people report back. ' : '') +
-        'Names and needs stay for ward council to update. Tip: include yourself when you send it, so you always have a copy of the PDF.',
+        'Names and needs stay for ward council to update.',
       primary: 'Done',
       secondary: 'Undo', onSecondary: function () {
         state = normalizeState(snap); showBlank = {};
@@ -2218,7 +2218,7 @@
     handoffMsg = null; handoffBuild = null;
     if (!why) handoffBuild = packHandoff(state).then(function (code) {
       var d = parseISO(state.date);
-      handoffMsg = 'Handoff: the ' + (state.ward.trim() ? state.ward.trim() + ' ' : '') + 'coordination agenda' + (d ? ' for ' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : '') +
+      handoffMsg = 'Handoff: the ' + (state.ward.trim() ? state.ward.trim() + ' ' : '') + 'huddle' + (d ? ' for ' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : '') +
         '. Tap the link and follow the steps to load it into the Huddle app:\n' + handoffUrl(code);
       return handoffMsg;
     });
@@ -2238,7 +2238,7 @@
   function showHandoffPage(code, s) {
     var inc = normalizeState(s), day = parseISO(inc.date);
     handoffHere = { code: code, s: s };
-    $('#hp-what').textContent = [inc.ward.trim(), day ? 'Huddle for ' + day.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : ''].filter(Boolean).join(' · ') || 'A huddle agenda';
+    $('#hp-what').textContent = [inc.ward.trim(), day ? 'Huddle for ' + day.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : ''].filter(Boolean).join(' · ') || 'A huddle';
     setHandoffCopied('');
     $('#hp-noapp').open = false;
     document.body.classList.add('handoff-open'); $('#handoff-page').hidden = false;
@@ -2272,7 +2272,7 @@
       if (isIOS && !isStandalone()) showHandoffPage(code, s);
       else confirmApplyAgenda(s, 'handoff');
     }, function () {
-      ask({ title: 'This handoff link didn’t work', body: 'Ask for the link again, or load the agenda from its PDF.', primary: 'OK' });
+      ask({ title: 'This handoff link didn’t work', body: 'Ask for the link again, or tap Load from a PDF and choose the last PDF that was sent.', primary: 'OK' });
     });
   }
   function pasteHandoff() {
@@ -2283,7 +2283,7 @@
     var useText = function (text, typed) {
       var m = /handoff=([A-Za-z0-9_-]+)/.exec(text || '');
       if (!m) { if (typed) ask({ title: 'That isn’t a handoff link', body: 'Copy the whole link from the text, then try again.', primary: 'OK' }); else manual('There’s no handoff link on the clipboard. Paste it here:'); return; }
-      unpackHandoff(m[1]).then(function (s) { confirmApplyAgenda(s, 'handoff'); }, function () { ask({ title: 'This handoff link didn’t work', body: 'Ask for the link again, or load the agenda from its PDF.', primary: 'OK' }); });
+      unpackHandoff(m[1]).then(function (s) { confirmApplyAgenda(s, 'handoff'); }, function () { ask({ title: 'This handoff link didn’t work', body: 'Ask for the link again, or tap Load from a PDF and choose the last PDF that was sent.', primary: 'OK' }); });
     };
     if (navigator.clipboard && navigator.clipboard.readText) navigator.clipboard.readText().then(function (t) { useText(t, false); }, function () { manual(); });
     else manual();
@@ -2298,10 +2298,10 @@
     var pdf = how === 'pdf';
     var rows = [['Ward', incoming.ward.trim() || 'Not listed'], [pdf ? 'Sent huddle' : 'Huddle', longDate(incoming.date) || 'No date']];
     if (state.ward.trim() && incoming.ward.trim() && norm(state.ward) !== norm(incoming.ward)) rows.push(['This phone’s ward', state.ward.trim()]);
-    var replaces = isEmpty(state) ? '' : ' It replaces the agenda on this phone. You can undo it right after.';
+    var replaces = isEmpty(state) ? '' : ' It replaces the huddle on this phone. You can undo it right after.';
     ask({
       title: pdf ? 'Set up the next huddle from this PDF?' : 'Load this handoff?', compare: rows,
-      body: pdf ? 'Its assignments go into Return and Report, and its names and needs stay.' + replaces : (isEmpty(state) ? 'It becomes the agenda on this phone.' : replaces.trim()),
+      body: pdf ? 'Its assignments go into Return and Report, and its names and needs stay.' + replaces : (isEmpty(state) ? 'It becomes the huddle on this phone.' : replaces.trim()),
       primary: pdf ? 'Set up the next huddle' : 'Load it', onPrimary: function () { if (after) after(); applyAgenda(incoming, pdf); }, secondary: 'Cancel'
     });
   }
@@ -2312,8 +2312,8 @@
     if (fromPdf) rollForward(todayISO());
     resetView();
     renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
-    toast(fromPdf ? 'Set up your next huddle from the ' + monthDay(incoming.date) + ' PDF.' : 'Loaded the ' + (monthDay(state.date) || '') + ' agenda.', 8000,
-      { label: 'Undo', run: function () { state = normalizeState(snap); showBlank = {}; resetView(); renderAll(); applyView(); saveDraft(); toast('Your agenda is back.'); } });
+    toast(fromPdf ? 'Set up your next huddle from the ' + monthDay(incoming.date) + ' PDF.' : 'Loaded the ' + (monthDay(state.date) ? monthDay(state.date) + ' ' : '') + 'huddle.', 8000,
+      { label: 'Undo', run: function () { state = normalizeState(snap); showBlank = {}; resetView(); renderAll(); applyView(); saveDraft(); toast('Your huddle is back.'); } });
   }
 
   function startPractice() { applyLoad(practiceData(), 'Practice week', { practice: true }); }
@@ -2551,7 +2551,7 @@
     var carried = carryNames(data);
     if (opts.practice) state.referrals = cleanReferrals(data.referrals);
     renderRR(); renderCP(); renderTN(); renderMR(); saveDraft();
-    toast(opts.practice ? 'Practice week loaded: ' + items.length + ' sample action items are in Return and Report, and the names carried over.'
+    toast(opts.practice ? 'Practice week loaded: sample names, with ' + items.length + ' sample assignments in Return and Report.'
       : 'Loaded ' + items.length + (items.length === 1 ? ' action item' : ' action items') +
       (carried ? ' and ' + carried + (carried === 1 ? ' name' : ' names') : '') + ' from last week.', opts.practice ? 6000 : undefined);
     if (stepsOn) { var sh = $('#steps-home'); if (sh) sh.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
@@ -2579,7 +2579,7 @@
     if (!data) {
       ask({
         title: 'This PDF can’t be loaded',
-        body: 'It wasn’t made with this agenda form. Choose the PDF named “Huddle - [Ward] - [Date]” from last week.',
+        body: 'It wasn’t made with Huddle. Choose the PDF named “Huddle - [Ward] - [Date]” from your last huddle.',
         primary: 'Choose a different file', onPrimary: pickFile,
         secondary: 'Cancel'
       });
@@ -3307,6 +3307,8 @@
     resetSendSheet();
     $('#send-title').textContent = resending ? 'Share the ' + (monthDay(agenda.date) || 'last') + ' agenda again' : 'Send this huddle’s agenda';
     $('#send-date-row').hidden = resending;
+    // Sharing a sent huddle again changes nothing, so its way out is Close, not Keep editing.
+    $('#send-sheet [data-action="close-send"]').textContent = resending ? 'Close' : 'Keep editing';
     $('#send-date-text').textContent = parseISO(agenda.date) ? parseISO(agenda.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : 'today';
     $('#send-date').value = agenda.date;
     var name = fileName(agenda);
@@ -3320,8 +3322,7 @@
       $('#send-status').textContent = out.pages + (out.pages === 1 ? ' page' : ' pages') + ' · locked so it can’t be edited';
       if (!canShareFiles(sendFile)) {
         // No share menu for files here (some desktop browsers): download instead.
-        $('#share-hint').textContent = resending ? 'Saves the PDF to your Downloads. Attach it to an email or message.'
-          : 'Saves the PDF to your Downloads. Attach it to an email or message.';
+        $('#share-hint').textContent = 'Saves the PDF to your Downloads. Attach it to an email or text message.';
         $('#share-btn').textContent = 'Download PDF';
       }
       $('#share-btn').disabled = false;

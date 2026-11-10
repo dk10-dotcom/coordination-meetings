@@ -63,7 +63,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     await p.click('[data-action="list-done"][data-a="nm"]');
     if (await p.isVisible('#confirm-sheet')) await p.click('#confirm-primary');
     ok(await p.locator('[data-group="nm"].is-folded').count() === 1, 'New members folded');
-    ok(await p.locator('[data-group="nm"] .fold-tag', { hasText: 'Carried over' }).count() === 1, 'folded row says Carried over');
+    ok(await p.locator('[data-group="nm"] .fold-tag', { hasText: 'Carried forward' }).count() === 1, 'folded row says Carried forward');
     await p.click('[data-group="nm"] .fold-row-btn >> nth=0');
     ok(await p.locator('[data-group="nm"] .fold-open .card').count() === 1, 'tapped name opens its card');
     ok(await p.locator('[data-group="nm"].is-folded').count() === 1, 'list stays folded');
@@ -95,7 +95,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#share-btn')]);
     const f = `${OUT}/${tag}.pdf`; await dl.saveAs(f);
     const t = execSync(`pdftotext -layout "${f}" -`).toString();
-    ok((t.match(/Carried over from Oct 25/g) || []).length === 3, 'PDF marks 3 carried actions with the last huddle’s date: ' + (t.match(/Carried over from Oct 25/g) || []).length);
+    ok((t.match(/Carried forward from Oct 25/g) || []).length === 3, 'PDF marks 3 carried actions with the last huddle’s date: ' + (t.match(/Carried forward from Oct 25/g) || []).length);
     ok(/FROM THE OCT 25 HUDDLE/.test(t) && /NOV 1 HUDDLE PLAN/.test(t), 'PDF bands name the huddles by date');
     ok(!errs.length, 'no errors ' + errs.join('; '));
     await ctx.close();

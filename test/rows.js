@@ -123,7 +123,7 @@ const seed = () => ({
     await p.click(`[data-action="happened"][data-a="${mi}"][data-b="No"]`); await p.waitForTimeout(200);
     await p.click(`[data-action="carry-fwd"][data-a="${mi}"]`); await p.waitForTimeout(300);
     await back(); await p.click('[data-action="open-step"][data-a="cp"]'); await p.waitForTimeout(300);
-    ok(await rowSub('#cp-groups', 'nm', 1) === 'Invite to church · Sis. Lee' && (await rowTags('#cp-groups', 'nm', 1)).includes('Carried over'), tag + ': an assignment carried forward follows the converted name, and the row says Carried over');
+    ok(await rowSub('#cp-groups', 'nm', 1) === 'Invite to church · Sis. Lee' && (await rowTags('#cp-groups', 'nm', 1)).includes('Carried forward'), tag + ': an assignment carried forward follows the converted name, and the row says Carried forward');
     await back();
 
     // ---- Name Next Ordinance in the huddle: action on the row; a blank spot opens ready to type

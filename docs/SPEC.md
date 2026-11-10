@@ -8,6 +8,21 @@ This describes the behavior of the app as it is today. The code is the final wor
 `app.js` (behavior and PDF), `index.html` (screens and How to use), `tour.js` (the tour).
 When behavior changes, change this file in the same commit.
 
+## Words the app uses
+
+One word for each thing, on every screen, in How to use and in the tour:
+
+| Word | Means |
+| --- | --- |
+| Huddle | The app, the weekly coordination meeting, and that meeting's plan on the phone ("Text this huddle", "Sending finishes the huddle") |
+| Agenda | What is filled in and sent: the PDF ("Send this huddle's agenda", "Sample agenda") |
+| Opening screen | The first screen: the four steps and Send |
+| Covenant Path Report | The report in Member Tools (always "Member Tools", never "Tools") |
+| Assignment | An action item with who will do it and when. **Action item** is only the name of that field |
+| Focus names | The three names in Name Next Ordinance |
+| Carry forward | Moving an unfinished assignment onto this huddle's plan. A carried one is tagged "Carried forward" |
+| The last huddle | Where Return and Report comes from (not "last week") |
+
 ## Who it's for
 
 The person who conducts a ward's weekly coordination meeting ("the huddle"), usually the ward
@@ -15,7 +30,7 @@ mission leader. Ward council decides **who** to focus on and **what** each perso
 is. The huddle decides **how** and **when** to help. The app carries the names from ward council to
 the huddle, records the huddle's assignments, and produces a PDF that is shared by email or text.
 
-The users are not technical. The app must be usable with no training beyond a one-minute tour.
+The users are not technical. The app must be usable with no training beyond a short tour.
 It should look and behave like an ordinary iPhone app: lists of rows with a chevron, one screen per
 thing, **Back** at the top left with the screen's name centered beside it, and screens that slide
 in from the right and back out to the left (no slide when the phone asks for reduced motion).
@@ -54,7 +69,7 @@ Ward council and the Huddle show names the same way.
   when, and in Before ward council the next ordinance and needs. A missing one shows in orange
   ("Needs a next ordinance", "Needs an action item").
   Small tags under that line show what matters at a glance: the 30-day temple count for a new
-  member, "Committed to baptism", "✓ Sacrament", "Carried over" and "Not updated in 4 weeks".
+  member, "Committed to baptism", "✓ Sacrament", "Carried forward" and "Not updated in 4 weeks".
 - **Add a name** is the last row of each Covenant Path Report list. It opens a new person with the
   cursor in Name. A new name left empty is dropped when you leave it.
 - The three focus-name spots always show; an empty one reads "Focus name 2 · Tap to add".
@@ -203,7 +218,7 @@ Also in the huddle's half:
 
 - **New members:** a red **Temple attendance** box counts down the 30 days from the baptism date
   and stays red until checked. The goal is stated once, under the New members list.
-- **Those being taught:** **Committed to baptism** and the scheduled baptismal date.
+- **Those being taught:** **Committed to baptism** and **Scheduled baptism date**.
   **Convert to new member** (under the card) moves the person to New members and keeps their
   screen open.
 - **Text this assignment** opens Messages with the name, action and when. Needs and notes are
@@ -244,8 +259,8 @@ People referred to the full-time missionaries. The same list opens from Ward cou
 2. Requires the after-huddle box to be marked done.
 3. **Ready to send?** lists anything still open (attendance, unmarked report-backs, people with
    no action, no finding plan). Each line jumps to that spot. **Send anyway** continues.
-4. The Send screen shows the file name, **Dated {day} · Change date**, who to send to, and the
-   share rule: "Only share via email or text message. Do not share through any other app."
+4. The Send screen shows the file name, **Dated {day} · Change date**, who to send to (including
+   yourself, so you keep a copy), and the share rule: "Only share via email or text message. Do not share through any other app."
 5. **Share PDF** opens the phone's share menu. On a computer the PDF downloads instead.
 
 The PDF goes to the bishop-approved list, the stake presidency and the full-time missionaries.
@@ -327,7 +342,7 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
   scrolled to the top. In a phone's browser the first-time step (Add Huddle to your Home Screen) starts
   open, and How to use opens by itself on the first visit; from the Home Screen app every step
   starts closed.
-- **Tour:** 21 stops. The stops about one person open a person's screen; when New members is
+- **Tour:** 21 stops, about 4 minutes. The stops about one person open a person's screen; when New members is
   empty the tour shows a sample name, which is never saved. Starts once on its own the first time the app is opened from the Home
   Screen (or on a computer).
 - **Practice week:** loads sample names, sample report-backs and one sample referral. Send and Hand off are blocked
@@ -389,7 +404,7 @@ width with nothing to zoom. On letter paper a page prints as a narrow column at 
   returning members, those being taught) and Name Next Ordinance. Each block: the name; one colored
   line with the temple status (new members), "Committed · {date}" or "Scheduled: {date}" (those
   being taught) and a green tick with "Attended sacrament meeting"; then **Next ordinance**,
-  **Needs**, **Action item** (who and when in gray, "Carried over from {date}" in italics; "None
+  **Needs**, **Action item** (who and when in gray, "Carried forward from {date}" in italics; "None
   yet" when there is no action item) and **Huddle notes**. Empty parts are left out. An empty list
   prints "No one on the Covenant Path Report this week" when confirmed, otherwise "Not reviewed".
 - **Plans to Find New People to Teach:** the plan, then each assignment with its when.

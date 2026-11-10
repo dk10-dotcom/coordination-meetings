@@ -150,7 +150,7 @@ const OUT = 'test/out-scen'; fs.mkdirSync(OUT, { recursive: true });
   // J. A name with no assignment
   { const p = await open(); await addName(p, 'rm', 'Olivia Chen'); await addName(p, 'rm', 'Marcus Bell'); await assign(p, 'rm', 'Marcus Bell', 'Invite to activity'); await send(p, 'J1');
     const s = await st(p); const o = s.rr.find(r => r.pname === 'Olivia Chen');
-    if (o) note('J: a name that had no assignment still gets a Return and Report item (“No action item was written”), so the huddle is asked “Happened?” about nothing. Home shows ' + s.rr.filter(r => r.prefilled).length + ' items for 1 real assignment.');
+    if (o) note('J: a name that had no assignment still gets a Return and Report item (“No action item was written”), so the huddle is asked “Did it happen?” about nothing. Home shows ' + s.rr.filter(r => r.prefilled).length + ' items for 1 real assignment.');
     else ok(true, 'J: names without an assignment don’t create Return and Report items');
     await done(p, 'J'); }
 

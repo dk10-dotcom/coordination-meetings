@@ -79,7 +79,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
   ok(await p.locator('.step-row.done').count() === 0, 'section checks cleared');
   await p.locator('header.top').screenshot({ path: `${OUT}/header-next.png` });
   await open('rr');
-  ok((await p.textContent('#rr-from')).includes('From your last huddle'), 'Return and Report says where its items came from: ' + await p.textContent('#rr-from'));
+  ok((await p.textContent('#rr-from')).includes('From the last huddle'), 'Return and Report says where its items came from: ' + await p.textContent('#rr-from'));
   ok(await p.locator('#rr-list .rr-card').count() === 3, 'the 3 action items are in Return and Report');
   await p.click('[data-action="happened"][data-a="0"][data-b="No"]');
   ok((await p.textContent('[data-action="carry-fwd"][data-a="0"]')).trim() === 'Carry forward to this huddle', 'Carry forward has no date: ' + await p.textContent('[data-action="carry-fwd"][data-a="0"]'));
