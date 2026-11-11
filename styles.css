@@ -904,7 +904,13 @@ body[data-view="start"] #meeting-date, body[data-view="start"] #details-summary,
 .wc-view { display: flex; flex-direction: column; gap: 16px; }
 /* Before ward council: a short line on what to update, the report button, then the same rows as every other list */
 .bw-view { display: flex; flex-direction: column; gap: 16px; }
-.bw-intro { margin: 0; padding: 0 4px; font-size: 15px; line-height: 1.4; color: var(--text); }
+/* One line at the top of each of the four steps' pages saying what to do there */
+.page-intro { margin: 0; padding: 0 4px; font-size: 15px; line-height: 1.4; color: var(--text); }
+.page-intro[hidden] { display: none; }
+/* The Huddle's page: two things above its intro take no room (the unseen date field, and the practice-week
+   banner's box when there is no practice week), so its intro starts where the other pages' intros do. */
+body.steps-on[data-view="home"] #meeting-date { position: absolute; }
+body.steps-on[data-view="home"] .start-here:has(#loaded-banner[hidden]) { display: none; }
 .bw-note { margin: -4px 0 0; padding: 0 16px; font-size: 13px; line-height: 1.4; color: var(--muted); }
 .bw-undo { align-self: center; min-height: 44px; font-weight: 700; color: var(--accent); }
 .bw-undo[hidden] { display: none; }

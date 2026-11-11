@@ -40,6 +40,20 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     ok(await p.isHidden('#handoff-sheet') && (await p.textContent('[data-action="load-other"]')).trim() === 'Load from a PDF', tag + ': Cancel closes it; the quiet link reads Load from a PDF');
     const [chooser] = await Promise.all([p.waitForEvent('filechooser'), p.click('[data-action="load-other"]')]);
     ok(!!chooser && await p.locator('.overlay:not([hidden])').count() === 0, tag + ': Load from a PDF goes straight to choosing the file');
+    // Each of the four steps opens a page of its own (none slides up as a sheet), and each page starts with one line saying what to do there
+    const pages = [['#before-box', '#bw-view', '#bw-view .page-intro', 'Before ward council', 'Update each person from the Covenant Path Report: next ordinance, needs, temple attendance and sacrament attendance.'],
+      ['.door-wc', '#wc-view', '#wc-intro', 'Ward council', 'Decide who to focus on, each person’s next ordinance, and what they need.'],
+      ['.door-hd', '#steps-home', '#hd-intro', 'Huddle', 'Report back on the last huddle, take attendance, and plan one assignment for each person: what, who and when.'],
+      ['#after-box', '#af-view', '#af-view .page-intro', 'After the huddle', 'Update the Covenant Path Report with what happened, then mark it done so you can send.']];
+    const introTops = [];
+    for (const [door, pageSel, introSel, title, text] of pages) {
+      await p.click(door); await p.waitForSelector(pageSel + ':not([hidden])'); await p.waitForTimeout(350);
+      ok(await vis(introSel) && (await p.textContent(introSel)).trim() === text && (await p.textContent('#mode-title')) === title && await vis('#mode-bar') && !(await vis('#start-home')) && await p.locator('.overlay:not([hidden])').count() === 0 && await noOverflow(), tag + ': ' + title + ' is a page with Back and one line saying what to do there');
+      introTops.push(await p.evaluate(i => Math.round(document.querySelector(i).getBoundingClientRect().top - document.querySelector('#mode-bar').getBoundingClientRect().bottom), introSel));
+      await p.click('#mode-bar [data-action="go-start"]'); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(300);
+    }
+    ok(introTops.every(t => t === introTops[0]), tag + ': that line sits in the same place on all four pages: ' + introTops.join(', '));
+    ok(!(await vis('#hd-intro')) && !(await vis('#wc-intro')), tag + ': the lines belong to their pages, not the opening screen');
     // Before ward council: its own screen. The three Covenant Path Report lists as rows; a name opens on its own
     // screen with what the report tells you: next ordinance, needs, temple attendance and sacrament attendance.
     const bwNames = g => p.$$eval(`#before-list [data-bw="${g}"] .person-row .person-name`, e => e.map(x => x.textContent));
@@ -152,6 +166,7 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     // Covenant Path Report lists: three lists of rows, each ending in Add a name
     await p.click('[data-action="open-wc-list"][data-a="cp"]'); await p.waitForTimeout(250);
     ok(await p.locator('#wc-list .list-panel').count() === 3 && await p.locator('#wc-list [data-wc="tn"]').count() === 0 && (await p.textContent('#step-title')) === 'Covenant Path Report', tag + ': Covenant Path Report opens the three lists');
+    ok(!(await vis('#wc-intro')) && !(await vis('#wc-rows')), tag + ': Ward council’s intro line stays on its opening list, not on a list of names');
     ok((await rowNames('#wc-list', 'rm')).join('|') === 'Marcus Bell' && await rowSub('#wc-list', 'rm', 0) === 'Needs a next ordinance' && await p.locator('#wc-list [data-wc="rm"] .person-row .step-status.warn').count() === 1, tag + ': a name with no next ordinance says so in orange');
     ok(await p.locator('#wc-list [data-action="add-person"]').count() === 3 && await p.locator('#wc-list [data-action="cp-none"]').count() === 0, tag + ': each list ends in Add a name (Confirm none is the huddle’s)');
     await addPerson('#wc-list', 'nm');
@@ -250,14 +265,27 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     await p.click('#mode-bar [data-action="go-start"]'); await p.waitForTimeout(200);
     await p.click('.actionbar [data-action="send"]'); await p.waitForSelector('#confirm-sheet:not([hidden])');
     ok((await p.textContent('#confirm-title')).includes('Update the Covenant Path Report first') && !(await vis('#send-sheet')), tag + ': Send is held until the after-huddle box is checked');
-    await p.click('#confirm-primary'); await p.waitForSelector('#after-sheet:not([hidden])');
+    await p.click('#confirm-primary'); await p.waitForSelector('#af-view:not([hidden])'); await p.waitForTimeout(300);
+    ok(await vis('#mode-bar') && (await p.textContent('#mode-title')) === 'After the huddle' && !(await vis('.actionbar')) && !(await vis('#start-home')) && await p.locator('.overlay:not([hidden])').count() === 0, tag + ': Show me what to update opens After the huddle as its own screen with Back, not a sheet');
     const dan = (await p.locator('#after-list .after-card', { hasText: 'Daniel Rivera' }).textContent()).replace(/\s+/g, ' ');
-    ok(dan.includes('Sacrament') && dan.includes('Temple') && dan.includes('A ride') && dan.includes('Drive him to the temple') && await vis('#after-sheet [data-tools-link]'), tag + ': it lists sacrament, temple, needs and the assignment per person, with the report link');
+    ok(dan.includes('Sacrament') && dan.includes('Temple') && dan.includes('A ride') && dan.includes('Drive him to the temple') && await vis('#af-view [data-tools-link]'), tag + ': it lists sacrament, temple, needs and the assignment per person, with the report link');
     ok(!(await p.textContent('#after-list')).includes('Grace Thompson'), tag + ': focus names aren’t in the after-huddle list');
     ok(await noOverflow(), tag + ': the after-huddle list fits the phone');
     await p.screenshot({ path: `${OUT}/${tag}-afterlist.png` });
-    await p.click('[data-action="after-done"]'); await p.waitForTimeout(200);
-    ok(await isDone('after') && await vis('#after-box .check-tick'), tag + ': marking it done turns the box green');
+    ok((await p.textContent('#after-done-btn')).trim() === 'It’s all updated · Mark done' && !(await vis('#after-other-btn')) && !(await vis('#after-state')), tag + ': Mark done is at the bottom of the screen');
+    await p.click('[data-action="after-done"]'); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(300);
+    ok(await isDone('after') && await vis('#after-box .check-tick'), tag + ': marking it done returns to the opening screen and turns the box green');
+    await p.click('#after-box'); await p.waitForSelector('#af-view:not([hidden])'); await p.waitForTimeout(300);
+    ok(await vis('#after-state') && (await p.textContent('#after-done-btn')).trim() === 'Done · Back' && (await p.textContent('#after-other-btn')).trim() === 'Marked by mistake? Mark as not done', tag + ': opened again it shows Marked done, with Done · Back and Mark as not done');
+    await p.click('#after-other-btn'); await p.waitForTimeout(250);
+    ok(await vis('#af-view') && !(await vis('#after-state')) && !(await vis('#after-other-btn')) && (await p.textContent('#after-done-btn')).trim() === 'It’s all updated · Mark done', tag + ': Mark as not done takes the mark off and offers Mark done again');
+    await p.goBack(); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(300);
+    ok(!(await isDone('after')), tag + ': the phone’s Back returns to the opening screen and leaves it not done');
+    await p.click('.actionbar [data-action="send"]'); await p.waitForSelector('#confirm-sheet:not([hidden])');
+    ok((await p.textContent('#confirm-title')).includes('Update the Covenant Path Report first'), tag + ': Send waits again');
+    await p.click('#confirm-secondary'); await p.waitForTimeout(200);
+    await p.click('#after-box'); await p.waitForSelector('#af-view:not([hidden])'); await p.waitForTimeout(300);
+    await p.click('[data-action="after-done"]'); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(300);
     await p.screenshot({ path: `${OUT}/${tag}-checked.png` });
     await p.click('.actionbar [data-action="send"]'); await p.waitForTimeout(200);
     if (await vis('#confirm-sheet') && /Ready to send/.test(await p.textContent('#confirm-title'))) await p.click('#confirm-primary');

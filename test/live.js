@@ -25,7 +25,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
   const plus = n => { const d = new Date(); d.setDate(d.getDate() + n); return iso(d); };
   const rrRow = async () => (await p.textContent('.step-row[data-a="rr"] .step-status')).trim();
   const sendNow = async () => {
-    await home(); await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); document.querySelector('[data-action="after-done"]').click(); } }).then(() => p.click('.actionbar [data-action="send"]')); await p.waitForTimeout(200);
+    await home(); await p.evaluate(async () => { const settle = () => new Promise(r => setTimeout(r, 150)); const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) { g.click(); await settle(); } const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); await settle(); document.querySelector('[data-action="after-done"]').click(); await settle(); } }).then(() => p.click('.actionbar [data-action="send"]')); await p.waitForTimeout(200);
     if (await p.isVisible('#confirm-sheet') && /Ready to send/.test(await p.textContent('#confirm-title'))) await p.click('#confirm-primary');
     await p.waitForSelector('#share-btn:not([disabled])'); await p.click('#share-btn'); await p.waitForSelector('#confirm-sheet:not([hidden])');
   };
@@ -53,7 +53,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
 
   // Ready to send? (attendance not taken, Return and Report empty is fine)
   await p.evaluate(() => { navigator.canShare = () => true; navigator.share = () => Promise.resolve(); });
-  await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); document.querySelector('[data-action="after-done"]').click(); } }).then(() => p.click('.actionbar [data-action="send"]')); await p.waitForSelector('#confirm-sheet:not([hidden])');
+  await p.evaluate(async () => { const settle = () => new Promise(r => setTimeout(r, 150)); const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) { g.click(); await settle(); } const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); await settle(); document.querySelector('[data-action="after-done"]').click(); await settle(); } }).then(() => p.click('.actionbar [data-action="send"]')); await p.waitForSelector('#confirm-sheet:not([hidden])');
   ok((await p.textContent('#confirm-title')).includes('Ready to send?') && (await p.textContent('#confirm-compare')).includes('Attendance not taken'), 'Ready to send? lists what is open');
   await p.screenshot({ path: `${OUT}/ready.png` });
   await p.click('#confirm-compare .jump-row'); await p.waitForTimeout(200);

@@ -51,7 +51,7 @@ const OUT = 'test/out-empty'; fs.mkdirSync(OUT, { recursive: true });
   ok(!(await p.isVisible('.actionbar')), 'Save and Send are hidden inside a section');
   await p.click('[data-action="steps-home"]');
   ok(!(await p.isVisible('.actionbar')), 'no Send bar on the huddle’s list (it’s on the opening screen)');
-  await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); document.querySelector('[data-action="after-done"]').click(); } }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#share-btn:not([disabled])');
+  await p.evaluate(async () => { const settle = () => new Promise(r => setTimeout(r, 150)); const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) { g.click(); await settle(); } const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); await settle(); document.querySelector('[data-action="after-done"]').click(); await settle(); } }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#share-btn:not([disabled])');
   const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#share-btn')]);
   const file = `${OUT}/empty.pdf`; await dl.saveAs(file);
   const t = execFileSync('pdftotext', ['-layout', file, '-']).toString();

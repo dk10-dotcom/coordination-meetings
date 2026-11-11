@@ -92,6 +92,7 @@
           <span><strong>Reminder:</strong> These names should match the Covenant Path Report. Add new names and remove any no longer listed.</span>
         </p>
       </section>
+    <p class="page-intro" id="hd-intro" hidden>Report back on the last huddle, take attendance, and plan one assignment for each person: what, who and when.</p>
     <button type="button" class="details-summary" id="details-summary" data-action="open-details" hidden>
       <span class="details-summary-text">
         <span class="details-title">Huddle Details</span>
@@ -156,6 +157,7 @@
 
   <section class="wc-view" id="wc-view" aria-labelledby="h-wc" hidden>
     <h2 id="h-wc">Ward council</h2>
+    <p class="page-intro" id="wc-intro" hidden>Decide who to focus on, each person’s next ordinance, and what they need.</p>
     <ul class="steps-list" id="wc-rows" hidden></ul>
     <p class="wc-note" id="wc-note" hidden><span class="help-warning-icon" aria-hidden="true">!</span><span><strong>Never add confidential information to this agenda.</strong></span></p>
     <div class="stack" id="wc-list"></div>
@@ -163,7 +165,7 @@
 
   <!-- Before ward council: bring each person up to date from the Covenant Path Report -->
   <section class="bw-view" id="bw-view" aria-label="Before ward council" hidden>
-    <p class="bw-intro">Update each person from the Covenant Path Report: next ordinance, needs, temple attendance and sacrament attendance.</p>
+    <p class="page-intro bw-intro">Update each person from the Covenant Path Report: next ordinance, needs, temple attendance and sacrament attendance.</p>
     <a class="btn-tools" data-tools-link href="https://lcr.churchofjesuschrist.org/one-work/progress-record?lang=eng">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 3h6v6"/><path d="M17 3l-8 8"/><path d="M15 12v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4"/></svg>
         <span class="btn-tools-text">Open the Covenant Path Report<span class="btn-tools-sub">In Member Tools: Reports → Covenant Path Progress</span></span>
@@ -173,6 +175,19 @@
     <p class="check-state" id="before-state" hidden>✓ Marked done</p>
     <button type="button" class="btn-primary full" data-action="before-done" id="before-done-btn">All up to date · Mark done</button>
     <button type="button" class="btn-link bw-undo" data-action="before-undo" id="before-other-btn" hidden>Marked by mistake? Mark as not done</button>
+  </section>
+
+  <!-- After the huddle: what to update in the Covenant Path Report, person by person -->
+  <section class="bw-view" id="af-view" aria-label="After the huddle" hidden>
+    <p class="page-intro">Update the Covenant Path Report with what happened, then mark it done so you can send.</p>
+    <a class="btn-tools" data-tools-link href="https://lcr.churchofjesuschrist.org/one-work/progress-record?lang=eng">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 3h6v6"/><path d="M17 3l-8 8"/><path d="M15 12v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4"/></svg>
+        <span class="btn-tools-text">Open the Covenant Path Report<span class="btn-tools-sub">In Member Tools: Reports → Covenant Path Progress</span></span>
+      </a>
+    <div class="stack" id="after-list"></div>
+    <p class="check-state" id="after-state" hidden>✓ Marked done</p>
+    <button type="button" class="btn-primary full" data-action="after-done" id="after-done-btn">It’s all updated · Mark done</button>
+    <button type="button" class="btn-link bw-undo" data-action="after-undo" id="after-other-btn" hidden>Marked by mistake? Mark as not done</button>
   </section>
 
   <section class="person-view" id="person-view" aria-label="One person" hidden>
@@ -361,23 +376,6 @@
 
     <button type="button" class="btn-secondary full" data-action="close-send">Keep editing</button>
     <p class="fine center"><strong>Private by design:</strong> everything stays on this phone, and nothing is saved online. The only copy that leaves is the PDF you choose to share.</p>
-  </div>
-</div>
-
-<!-- After the huddle: what to update in the Covenant Path Report -->
-<div class="overlay" id="after-sheet" hidden>
-  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="after-title">
-    <div class="grab" aria-hidden="true"></div>
-    <h2 id="after-title">After the huddle</h2>
-    <p class="muted">Update the Covenant Path Report with what happened: sacrament attendance, temple attendance and needs that were met.</p>
-      <a class="btn-tools" data-tools-link href="https://lcr.churchofjesuschrist.org/one-work/progress-record?lang=eng">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 3h6v6"/><path d="M17 3l-8 8"/><path d="M15 12v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4"/></svg>
-        <span class="btn-tools-text">Open the Covenant Path Report<span class="btn-tools-sub">In Member Tools: Reports → Covenant Path Progress</span></span>
-      </a>
-    <div class="stack" id="after-list"></div>
-    <p class="check-state" id="after-state" hidden>✓ Marked done</p>
-    <button type="button" class="btn-primary full" data-action="after-done" id="after-done-btn">It’s all updated · Mark done</button>
-    <button type="button" class="btn-secondary full" data-action="close-after" id="after-other-btn">Not yet</button>
   </div>
 </div>
 

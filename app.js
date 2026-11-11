@@ -1341,7 +1341,7 @@
   }
   // Which parts of the page show: the step list (home), one step, or everything (view-all).
   // Screens slide in the way they do in an iPhone app: deeper from the right, back from the left.
-  function viewDepth(v) { return v === 'start' ? 0 : v === 'home' || v === 'wc' || v === 'bw' ? 1 : isPerson(v) ? 3 : 2; }
+  function viewDepth(v) { return v === 'start' ? 0 : v === 'home' || v === 'wc' || v === 'bw' || v === 'af' ? 1 : isPerson(v) ? 3 : 2; }
   var navTimer = null;
   function navFeel(d) {
     var b = document.body; b.classList.remove('nav-fwd', 'nav-back'); clearTimeout(navTimer);
@@ -1354,7 +1354,7 @@
     var all = !stepsOn;
     document.body.classList.toggle('steps-on', !all);
     document.body.setAttribute('data-view', all ? 'all' : view);
-    var home = all || view === 'home', start = !all && view === 'start', wc = !all && view === 'wc', wcSub = !all && isWcList(view), bw = !all && view === 'bw';
+    var home = all || view === 'home', start = !all && view === 'start', wc = !all && view === 'wc', wcSub = !all && isWcList(view), bw = !all && view === 'bw', af = !all && view === 'af';
     // A person's screen needs a person; anything else (a stale Back, a removed name) falls back to their list.
     if (!all && isPerson(view) && !personOk(personRef)) { view = personRef ? personListView(personRef) : 'home'; personRef = null; return applyView(); }
     var person = !all && isPerson(view);
@@ -1363,9 +1363,10 @@
     $('#person-view').hidden = !person;
     // Find New People to Teach and Missionary Referrals are one section each, shown in the Huddle and in ward council.
     var stepShown = view === 'wc-fn' ? 'fn' : view === 'wc-mr' ? 'mr' : view;
-    $('#start-home').hidden = !start; $('#wc-view').hidden = !wc && !(!all && isWcNames(view)); $('#mode-bar').hidden = all || !(view === 'home' || wc || bw);
-    $('#bw-view').hidden = !bw;
-    $('#mode-title').textContent = wc ? 'Ward council' : bw ? 'Before ward council' : 'Huddle';
+    $('#start-home').hidden = !start; $('#wc-view').hidden = !wc && !(!all && isWcNames(view)); $('#mode-bar').hidden = all || !(view === 'home' || wc || bw || af);
+    $('#bw-view').hidden = !bw; $('#af-view').hidden = !af;
+    $('#mode-title').textContent = wc ? 'Ward council' : bw ? 'Before ward council' : af ? 'After the huddle' : 'Huddle';
+    $('#hd-intro').hidden = all || view !== 'home'; // the Huddle's one line on what to do there
     var stp = STEPS.filter(function (x) { return x.id === view; })[0] || WC_LISTS.filter(function (x) { return 'wc-' + x.id === view; })[0];
     $('#step-title').textContent = person ? personTitle(personRef) : stp ? stp.title : '';
     // Leaving a person's screen: drop a name left empty, then redraw the lists it appears on.
@@ -1375,10 +1376,10 @@
     if (!all && view === 'rr' && shownView !== 'rr') { rrAdding = false; renderRR(); } // names may have changed since it was drawn
     if (!all && shownView && shownView !== view) navFeel(viewDepth(view) - viewDepth(shownView));
     shownView = view;
-    renderWC(); renderMR(); renderPerson(); renderChecks(); renderBefore();
+    renderWC(); renderMR(); renderPerson(); renderChecks(); renderBefore(); if (af) renderAfter();
     if (start) renderDoors();
     $('#steps-home').hidden = all || view !== 'home';
-    $('#step-bar').hidden = all || home || start || wc || bw; $('#step-foot').hidden = all || home || start || wc || wcSub || person || bw;
+    $('#step-bar').hidden = all || home || start || wc || bw || af; $('#step-foot').hidden = all || home || start || wc || wcSub || person || bw || af;
     // Hand off and Send live on the opening screen and the huddle's list; inside a section they're hidden.
     var bar = $('.actionbar'); if (bar) bar.hidden = !all && !start;
     Array.prototype.forEach.call(document.querySelectorAll('[data-step]'), function (el) { el.hidden = !all && el.getAttribute('data-step') !== stepShown; });
@@ -1457,6 +1458,7 @@
   function renderWC() {
     var wrap = $('#wc-list'), rows = $('#wc-rows'); if (!wrap || !rows) return;
     rows.hidden = !(stepsOn && view === 'wc');
+    var wcIntro = $('#wc-intro'); if (wcIntro) wcIntro.hidden = rows.hidden;
     if (!rows.hidden) rows.replaceChildren.apply(rows, WC_LISTS.map(function (l) {
       var st = wcStatus(l.id);
       return h('li', {}, [h('button', { type: 'button', class: 'nav-row wc-row', 'data-action': 'open-wc-list', 'data-a': l.id, 'aria-label': l.title + '. ' + st.text }, [
@@ -1497,16 +1499,14 @@
       var on = !!state.verified[c[0]], box = $('#' + c[0] + '-box'); if (!box) return;
       box.classList.toggle('done', on); $('#' + c[0] + '-sub').textContent = on ? c[2] : c[1];
       box.setAttribute('aria-label', $('#' + c[0] + '-box .cpr-step-k').textContent + ': ' + $('#' + c[0] + '-box .check-line').textContent + (on ? '. Done.' : '. Not done yet.'));
-      // Inside the sheet: mark it done, or take the mark back off.
+      // On the step's own screen: mark it done at the bottom, or take the mark back off.
       var doneBtn = $('#' + c[0] + '-done-btn'), otherBtn = $('#' + c[0] + '-other-btn');
-      // Once it's done, the main button just closes the list; taking the mark off is the quieter choice under it.
+      // Once it's done, the main button just goes back; taking the mark off is the quieter choice under it.
+      // ("Not yet" is the Back button at the top of the screen.)
       if (!doneBtn.getAttribute('data-label')) doneBtn.setAttribute('data-label', doneBtn.textContent);
-      var screen = c[0] === 'before'; // Before ward council is a screen with Back at the top; After the huddle is a sheet
-      doneBtn.textContent = on ? (screen ? 'Done · Back' : 'Close') : doneBtn.getAttribute('data-label');
+      doneBtn.textContent = on ? 'Done · Back' : doneBtn.getAttribute('data-label');
       doneBtn.setAttribute('data-action', on ? 'close-' + c[0] : c[0] + '-done');
-      otherBtn.textContent = on ? (screen ? 'Marked by mistake? Mark as not done' : 'Mark as not done') : 'Not yet';
-      otherBtn.setAttribute('data-action', on ? c[0] + '-undo' : 'close-' + c[0]);
-      if (screen) otherBtn.hidden = !on; // "Not yet" is the Back button at the top
+      otherBtn.hidden = !on;
       $('#' + c[0] + '-state').hidden = !on;
     });
   }
@@ -1567,7 +1567,7 @@
   function goStart() {
     if (view === 'start') return;
     var st = null; try { st = history.state; } catch (e) { /* ignore */ }
-    if (st && (st.hv === 'home' || st.hv === 'wc' || st.hv === 'bw') && st.pushed) { try { history.back(); return; } catch (e) { /* fall through */ } }
+    if (st && (st.hv === 'home' || st.hv === 'wc' || st.hv === 'bw' || st.hv === 'af') && st.pushed) { try { history.back(); return; } catch (e) { /* fall through */ } }
     showView('start', 'replace');
   }
   function goHome() {
@@ -1792,11 +1792,11 @@
       case 'open-before': showView('bw', 'push'); break;
       case 'close-before': goStart(); break;
       case 'before-done': setVerified('before', true); goStart(); toast('Before ward council: done.'); break;
-      case 'open-after': renderAfter(); openOverlay('#after-sheet', '#after-title'); $('#after-sheet .sheet').scrollTop = 0; break;
-      case 'close-after': closeOverlay('#after-sheet'); break;
-      case 'after-done': closeOverlay('#after-sheet'); setVerified('after', true); toast('Covenant Path Report updated. You can send.'); break;
+      case 'open-after': showView('af', 'push'); break;
+      case 'close-after': goStart(); break;
+      case 'after-done': setVerified('after', true); goStart(); toast('Covenant Path Report updated. You can send.'); break;
       case 'before-undo': setVerified('before', false); toast('Before ward council: marked as not done.'); break;
-      case 'after-undo': closeOverlay('#after-sheet'); setVerified('after', false); toast('Marked as not done. Send waits until it’s done.'); break;
+      case 'after-undo': setVerified('after', false); toast('Marked as not done. Send waits until it’s done.'); break;
       case 'wc-edit-toggle': {
         personWcOpen = !personWcOpen; renderPerson();
         var wt = document.querySelector('#person-card ' + (personWcOpen ? '.card-name-input' : '.zone-toggle'));
@@ -3339,7 +3339,7 @@
     if (!resending) reconcileCarries();
     if (!resending && !state.verified.after && readyToSave('send')) {
       ask({ title: 'Update the Covenant Path Report first', body: 'Before you send, open step 4, “After the huddle”, on the opening screen and mark it done. It shows what to update for each person.',
-        primary: 'Show me what to update', onPrimary: function () { if (stepsOn && view !== 'start') showView('start', 'replace'); renderAfter(); openOverlay('#after-sheet', '#after-title'); }, secondary: 'Cancel' });
+        primary: 'Show me what to update', onPrimary: function () { if (stepsOn && view !== 'start') showView('start', 'replace'); showView('af', 'push'); }, secondary: 'Cancel' });
       return;
     }
     if (!resending && !readyToSave('send')) return;
@@ -3465,7 +3465,7 @@
       var v = e.state && e.state.hv;
       if (!stepsOn) return;
       if (isPerson(v)) { personRef = (e.state && e.state.ref) || null; personWcOpen = wcOpenDefault(personRef); }
-      view = v === 'home' || v === 'wc' || v === 'bw' || isWcList(v) || isPerson(v) || v === 'start' || STEPS.some(function (st) { return st.id === v; }) ? v : START;
+      view = v === 'home' || v === 'wc' || v === 'bw' || v === 'af' || isWcList(v) || isPerson(v) || v === 'start' || STEPS.some(function (st) { return st.id === v; }) ? v : START;
       applyView(); window.scrollTo(0, 0);
     });
 
@@ -3563,7 +3563,7 @@
     });
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;
-      var top = ['#confirm-sheet', '#sample-sheet', '#handoff-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#find-tips-sheet', '#after-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
+      var top = ['#confirm-sheet', '#sample-sheet', '#handoff-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#find-tips-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
       if (top) dismissSheet(top);
     });
     enableSwipeDown();

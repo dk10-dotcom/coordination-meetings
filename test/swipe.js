@@ -34,7 +34,7 @@ const res = []; const ok = (l, c, x) => { res.push(c); console.log((c ? 'PASS ' 
   ok('reopens in place, not stuck off-screen', (await p.$eval('#help-sheet .sheet', s => s.style.transform)) === '' && await p.isVisible('#help-title'));
   await p.click('[data-action="close-help"]');
   await p.fill('#ward', 'Riverton 5th Ward'); await p.fill('[data-bind="cp.nm.0.name"]', 'Maria Lopez');
-  await p.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); document.querySelector('[data-action="after-done"]').click(); } }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#share-btn:not([disabled])');
+  await p.evaluate(async () => { const settle = () => new Promise(r => setTimeout(r, 150)); const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) { g.click(); await settle(); } const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); await settle(); document.querySelector('[data-action="after-done"]').click(); await settle(); } }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#share-btn:not([disabled])');
   await p.$eval('#send-sheet .sheet', s => { s.scrollTop = 0; }); await p.waitForTimeout(100);
   const t2 = await p.$eval('#send-sheet .sheet', s => s.getBoundingClientRect().top);
   await swipe(t2 + 20, t2 + 320, 250);

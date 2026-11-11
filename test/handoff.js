@@ -139,7 +139,7 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   // Handing it back: the leader who filled in sends the PDF, then hands the huddle back the same way
   await s.click('#confirm-primary'); await s.waitForTimeout(500);
   await s.evaluate(() => { navigator.canShare = () => true; navigator.share = () => Promise.resolve(); });
-  await s.evaluate(() => { const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) g.click(); const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); document.querySelector('[data-action="after-done"]').click(); } }).then(() => s.click('.actionbar [data-action="send"]'));
+  await s.evaluate(async () => { const settle = () => new Promise(r => setTimeout(r, 150)); const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) { g.click(); await settle(); } const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); await settle(); document.querySelector('[data-action="after-done"]').click(); await settle(); } }).then(() => s.click('.actionbar [data-action="send"]'));
   await s.waitForTimeout(300); if (await s.isVisible('#confirm-sheet') && /Ready to send/.test(await s.textContent('#confirm-title'))) await s.click('#confirm-primary');
   await s.waitForSelector('#share-btn:not([disabled])'); await s.click('#share-btn'); await s.waitForSelector('#confirm-sheet:not([hidden])');
   ok((await s.textContent('#confirm-title')).includes('Sent successfully'), 'the leader who filled in sends the PDF');

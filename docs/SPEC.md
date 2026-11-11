@@ -106,10 +106,23 @@ From top to bottom:
 - **Erase everything and start over**, then the footer. Both appear on this screen only.
 - Fixed at the bottom: **Hand off** and **Send**. These appear on this screen only.
 
-The two boxes have no check box to tap. Each is one button: the first opens the Before ward
-council screen and the second opens the After the huddle sheet. The only way to mark one done is
-the **Mark done** button at the bottom of what it opens. Opening one that is already done shows
-**✓ Marked done** with a way to take the mark back off. Both clear after a send.
+The two boxes have no check box to tap. Each is one button that opens its step's screen. The only
+way to mark one done is the **Mark done** button at the bottom of that screen, which also returns
+to the opening screen. Opening one that is already done shows **✓ Marked done**, **Done · Back**
+and **Marked by mistake? Mark as not done**. Both clear after a send.
+
+**Each of the four steps opens a screen of its own**, with **Back** at the top and the step's name
+beside it. None of them slides up as a sheet. **Each screen starts with one line saying what to do
+there**, in the same place on all four:
+
+| Step | The line |
+| --- | --- |
+| Before ward council | Update each person from the Covenant Path Report: next ordinance, needs, temple attendance and sacrament attendance. |
+| Ward council | Decide who to focus on, each person's next ordinance, and what they need. |
+| Huddle | Report back on the last huddle, take attendance, and plan one assignment for each person: what, who and when. |
+| After the huddle | Update the Covenant Path Report with what happened, then mark it done so you can send. |
+
+Ward council's line shows on its opening list only, not on a list of names or a person's screen.
 
 ### Before ward council (screen)
 
@@ -138,17 +151,17 @@ the list. **Remove from the list** is at the bottom and asks first when the pers
 name already on that list is refused ("… is already on this list."). A name added and left empty
 does not stay.
 
-### After the huddle (sheet)
+### After the huddle (screen)
 
-Opens from the second box, which reads "Step 4", "After the huddle", then "Update the Covenant
+Opens from the second box as a screen of its own, like Before ward council. The box reads "Step 4", "After the huddle", then "Update the Covenant
 Path Report, then send". Read-only. For each person on the three Covenant Path Report lists it
 shows what to carry into the report: sacrament attendance, temple attendance (new members),
 baptism commitment (those being taught), next ordinance, needs, how the last assignment went
-(with any note), the new assignment, and huddle notes. It has the same report button and
-**It's all updated · Mark done**.
+(with any note), the new assignment, and huddle notes. It has the same report button and, at the
+bottom, **It's all updated · Mark done**.
 
 **Send is blocked until this box is marked done.** Tapping Send early explains why and offers to
-open this sheet.
+open this screen.
 
 ## Ward council
 
@@ -179,7 +192,8 @@ the mirror of the Huddle's:**
 
 ## Huddle
 
-Top to bottom: **Huddle Details**, **Tips for an effective meeting**, then five sections as rows.
+Top to bottom: the one line saying what to do, **Huddle Details**, **Tips for an effective meeting**,
+then five sections as rows.
 There is no Erase everything, footer, Send or Hand off on this screen.
 A section's name sits beside **Back** when it is open. **Mark section done** gives a section a
 green check; it is optional, never blocks Send, and clears when the huddle is sent. A section whose

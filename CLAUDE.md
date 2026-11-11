@@ -33,6 +33,9 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
   with `node test/tools/make-sample.js` and look at them.
 - The people who use this are not technical. Prefer fewer screens, fewer taps and plain words.
   Check every screen on a small iPhone (320 px wide): nothing may make the page wider than the screen.
+- **Each of the four steps opens a screen of its own** (Back at the top, the step's name beside it),
+  never a sheet that slides up, and **starts with one line saying what to do there**. Keep those
+  lines short and in the same place on all four.
 - **It should look and feel like an ordinary iPhone app.** Every list uses the same row (`.nav-row`
   inside `.steps-list`): title, one status line, chevron. Names are rows; a name opens on its own
   screen; Back, Done and the phone's Back return to the list. Don't put fields in a list.
