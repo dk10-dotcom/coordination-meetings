@@ -38,6 +38,30 @@
     { id: 'bt', title: 'Those being taught' }
   ];
   var SOURCE = { nm: 'New members', rm: 'Returning members', bt: 'Those being taught', tn: 'Name Next Ordinance', fn: 'Finding new people' };
+  /* "How can we help?": the discussion items Preach My Gospel, chapter 13 suggests for the weekly coordination
+   * meeting ("Participate in the Weekly Coordination Meeting"), one set per section, in the manual's words.
+   * They open on request in the Huddle only. Nothing is typed or saved, and none of it goes on the PDF. */
+  var HOW_HELP = {
+    nm: { list: 'New members', title: 'How can we help those who were recently baptized?', items: [
+      'Which new members in their first year of membership are attending sacrament meeting? How can we help any who are not attending?',
+      'Which new members have friends in the ward? How can ministering brothers and sisters help? How can youth quorums and classes help?',
+      'Which new members have an assignment or calling?',
+      'How can we help new members begin researching their deceased ancestors so temple ordinances can be performed for them? Do new members have a temple recommend? If a temple is nearby, how can we help them go to the temple to perform baptisms for these ancestors?',
+      'Which lessons from chapter 3 still need to be taught again? How can members participate?',
+      'Review My Covenant Path progress for each new member.'] },
+    rm: { list: 'Returning members', title: 'How can we help returning members?', items: [
+      'Which part-member families can the missionaries visit and teach?',
+      'Which returning members can the missionaries visit and teach?',
+      'Which returning members have friends in the ward and appropriate opportunities to serve?',
+      'How can we help these members?'] },
+    bt: { list: 'Those being taught', title: 'How can we help those being taught?', items: [
+      'Which members could participate in the lessons this coming week? Who will invite them to participate?',
+      'What are the challenges for those being taught? How can members help?',
+      'What are the needs for those with a scheduled baptismal date? Has the baptism been planned?'] },
+    fn: { list: 'Find New People to Teach', title: 'How can we find more people to teach?', items: [
+      'How can we help individuals, including youth, and families apply the principles of love, share, and invite?',
+      'How can we help members, including Primary leaders, invite friends to ward activities?'] }
+  };
   // On screen the three focus names are always called Focus names; SOURCE is what is saved and what the PDF prints.
   function listName(gid) { return gid === 'tn' ? 'Focus names' : SOURCE[gid]; }
 
@@ -808,8 +832,25 @@
     return h('section', { class: 'list-panel list-' + g.id + ' is-empty', 'data-group': g.id, 'aria-label': g.title }, [
       h('div', { class: 'list-head' }, [
         h('h3', { class: 'list-title', text: g.title }),
-        h('span', { class: 'list-count', text: ok ? 'None this week' : countText(0) })
+        h('span', { class: 'list-count', text: ok ? 'None this week' : countText(0) }),
+        howHelpLink(g.id)
       ]), body, foot]);
+  }
+  /* ---------- How can we help? ---------- */
+  // The small link under a list's name in the Huddle.
+  function howHelpLink(id) {
+    return h('button', { type: 'button', class: 'how-help', 'data-action': 'how-help', 'data-a': id, 'aria-haspopup': 'dialog' },
+      [h('span', { text: 'How can we help?' }), h('span', { class: 'how-help-chev', 'aria-hidden': 'true', text: '›' })]);
+  }
+  // The panel that slides up with that section's questions. It closes with the X, a tap outside, or a swipe down.
+  function openHowHelp(id) {
+    var q = HOW_HELP[id]; if (!q) return;
+    var sheet = $('#howhelp-sheet .sheet'), list = $('#howhelp-list');
+    sheet.className = 'sheet help howhelp g-' + id; // the list's own color
+    $('#howhelp-kicker').textContent = q.list;
+    $('#howhelp-title').textContent = q.title;
+    list.replaceChildren.apply(list, q.items.map(function (t) { return h('li', { text: t }); }));
+    openOverlay('#howhelp-sheet', '.sheet-x'); sheet.scrollTop = 0;
   }
   /* ---------- Name rows: one line per person; tap to open their screen ---------- */
   function rowTag(text, cls) { return h('span', { class: 'fold-tag' + (cls ? ' ' + cls : ''), text: text }); }
@@ -888,7 +929,8 @@
     }
     var kids = [h('div', { class: 'list-head' }, [
       h('h3', { class: 'list-title', text: title }),
-      h('span', { class: 'list-count', text: isTn ? tnCountText() : ok ? 'None this week' : countText(countNamed(gid)) })
+      h('span', { class: 'list-count', text: isTn ? tnCountText() : ok ? 'None this week' : countText(countNamed(gid)) }),
+      kind === 'hd' && HOW_HELP[gid] ? howHelpLink(gid) : null // the Huddle only: not ward council's or Before ward council's lists
     ]), h('ul', { class: 'steps-list person-rows' }, rows)];
     if (kind === 'hd' && gid === 'nm' && named) kids.push(h('p', { class: 'temple-goal', text: 'Goal: every new member attends the temple for baptisms for the dead within 30 days of their baptism.' }));
     var attrs = { class: 'list-panel rows list-' + gid + (named ? '' : ' is-empty'), 'aria-label': title };
@@ -957,7 +999,8 @@
       var named = countNamed(g.id);
       var head = h('div', { class: 'list-head' }, [
         h('h3', { class: 'list-title', text: g.title }),
-        h('span', { class: 'list-count', text: countText(named) })
+        h('span', { class: 'list-count', text: countText(named) }),
+        howHelpLink(g.id)
       ]);
       var extra = g.id === 'nm' ? [
         h('p', { class: 'temple-goal', text: 'Goal: every new member attends the temple for baptisms for the dead within 30 days of their baptism.' })
@@ -1964,6 +2007,8 @@
       case 'close-help': closeHelp(); break;
       case 'sample': openOverlay('#sample-sheet', '.sample-close'); $('#sample-sheet .sheet').scrollTop = 0; break;
       case 'close-sample': closeOverlay('#sample-sheet'); break;
+      case 'how-help': openHowHelp(a); break;
+      case 'close-how-help': closeOverlay('#howhelp-sheet'); break;
       case 'find-tips': openOverlay('#find-tips-sheet', '#find-tips-title'); $('#find-tips-sheet .sheet').scrollTop = 0; break;
       case 'close-find-tips': closeOverlay('#find-tips-sheet'); break;
       case 'add-fn':
@@ -3558,12 +3603,13 @@
       if (e.target.id === 'help-sheet') closeHelp();
       if (e.target.id === 'tips-sheet') closeOverlay('#tips-sheet');
       if (e.target.id === 'find-tips-sheet') closeOverlay('#find-tips-sheet');
+      if (e.target.id === 'howhelp-sheet') closeOverlay('#howhelp-sheet');
       if (e.target.id === 'sample-sheet') closeOverlay('#sample-sheet');
       if (e.target.id === 'confirm-sheet' && askSecondary) askSecondary();
     });
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;
-      var top = ['#confirm-sheet', '#sample-sheet', '#handoff-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#find-tips-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
+      var top = ['#confirm-sheet', '#sample-sheet', '#handoff-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#find-tips-sheet', '#howhelp-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
       if (top) dismissSheet(top);
     });
     enableSwipeDown();

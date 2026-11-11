@@ -87,6 +87,12 @@ Ward council and the Huddle show names the same way.
 The same row is used for the Huddle's sections, Ward council's lists and Before ward council, so
 every list in the app looks alike. A section marked done shows a green check before its chevron.
 
+**The three Covenant Path lists stand out.** Wherever New members, Returning members and Those
+being taught are listed together (the Huddle, Ward council and Before ward council), each name is
+large and bold on a band of the list's own color (blue, green, purple, the colors the PDF uses),
+with the count beside it. On the smallest phones the name is a little smaller so the count stays
+beside it. Focus names and Missionary Referrals have a screen each and keep the small heading.
+
 ## Opening screen
 
 Title: "Ward Mission Leader Process" with the app's name, Huddle, in small letters above it, and
@@ -230,7 +236,8 @@ The Huddle's second section. On screen it is called **Covenant Path Report**, th
 council uses for these lists; the PDF's heading for it stays "Covenant Path Report Review".
 
 **Open the Covenant Path Report** is at the top (there is no reminder box), then the three lists as
-rows. Tapping a name opens that person's screen, which has two halves:
+rows. Under each list's name is a small **How can we help?** link (see How can we help?).
+Tapping a name opens that person's screen, which has two halves:
 
 - **Ward Council · Who & What** is condensed to a short summary: next ordinance, needs, and a new
   member's baptism date. **Edit** opens the name, baptism date, next ordinance and needs;
@@ -280,6 +287,31 @@ called **Focus names** in both meetings; the PDF's heading for it stays "Name Ne
 
 A plan for the week and any number of assignments (who will do what, and when), plus
 **Tips for finding new people to teach**. The same section opens from Ward council.
+In the Huddle it starts with its own **How can we help?** link; Ward council's copy does not have it.
+
+### How can we help?
+
+Questions to talk through, for the person conducting who is not sure what to ask. The link is in
+the Huddle only: under New members, Returning members and Those being taught in the Covenant Path
+Report, and at the top of Find New People to Teach. It is not in Ward council, Before ward council
+or on a person's screen.
+
+Tapping it slides up a panel with that section's questions and no others:
+
+| Link under | The panel's heading | Questions |
+| --- | --- | --- |
+| New members | How can we help those who were recently baptized? | 6 |
+| Returning members | How can we help returning members? | 4 |
+| Those being taught | How can we help those being taught? | 3 |
+| Find New People to Teach | How can we find more people to teach? | 2 |
+
+The headings and questions are the "possible discussion items" in *Preach My Gospel*, chapter 13
+("Participate in the Weekly Coordination Meeting"), word for word. Under them is the line
+"From *Preach My Gospel*, chapter 13", a link to the chapter in the Gospel Library.
+
+The panel closes with one tap: the **X** at its top right, or a tap outside it (a swipe down and
+Escape work too). There is nothing to type and nothing is saved. The questions are never on the
+PDF, in a handoff or in an assignment text.
 
 ### Missionary Referrals
 
@@ -383,6 +415,10 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
   - **Watch or try:** Take the tour, See a sample agenda, Try a practice week, and Watch the
     training video (the video opens inside its row; closing the row stops it).
 
+  **Sources** is the second row under About this app: links to *Preach My Gospel*, chapter 13
+  (questions), General Handbook 23.4 (the meeting) and "Ideas for Weekly Missionary Coordination"
+  (tips).
+
   Tapping a step or question opens it in place, and tapping it again closes it. A step is at most
   five short lines that say what to tap; what a screen already explains is left out. The After the
   huddle step carries the sharing rule word for word. Every time How to use opens it is the short list again,
@@ -391,9 +427,15 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
   starts closed.
 - **Tour:** 10 stops, about 2 minutes: Welcome, the four steps, Before ward council, Ward council
   (with the warning "Never add confidential information to this agenda."), Huddle Details, Return
-  and Report, a person's screen in the huddle, the 30-day temple goal, After the huddle, and Send.
+  and Report, a person's screen in the huddle (which also points to **How can we help?**), the
+  30-day temple goal, After the huddle, and Send.
   The stops about names show a sample name when New members is empty, which is never saved.
   Starts once on its own the first time the app is opened from the Home Screen (or on a computer).
+- **Tips for an effective meeting** (in the Huddle) and **Tips for finding new people to teach**
+  (in Find New People to Teach) each end their borrowed text with a source line linking to
+  "Ideas for Weekly Missionary Coordination" in *Sharing the Gospel: Resources for Leaders*.
+  The first says "Adapted from" (five points condensed from the page's eight principles); the
+  second says "From" (quoted). The **Prepare ahead** tip is the app's own and sits below the line.
 - **Practice week:** loads sample names, sample report-backs and one sample referral. Send and Hand off are blocked
   while it is on. Removing it restores what was there before.
 - **Add to Home Screen** banner whenever the app is open in a phone's browser.
@@ -410,6 +452,24 @@ Erases every name, need and assignment and the last sent huddle. The ward name i
 | `#help` | Opens How to use |
 | `#tour` | Starts the tour |
 | `#handoff=…` | Offers to load a handed-off huddle |
+
+### Source links
+
+Whatever the app quotes or adapts names its source in one small line (`.source-line`) with a link
+to that page in the Gospel Library. The links open outside the app (`target="_blank"`); tapping
+one is the only time these pages are contacted, and the app itself still makes no network calls.
+
+| Where | Source line | Opens |
+| --- | --- | --- |
+| How can we help? panels | From *Preach My Gospel*, chapter 13 | `…/preach-my-gospel-2023/21-chapter-13` |
+| Tips for an effective meeting | Adapted from "Ideas for Weekly Missionary Coordination," *Sharing the Gospel: Resources for Leaders* | `…/sharing-the-gospel-resources-for-leaders/02-effective-coordination-with-missionaries` |
+| Tips for finding new people to teach | From the same page | the same page |
+| How to use: Sources | The two above, and General Handbook 23.4 (who conducts and who is invited) | `…/general-handbook/23-sharing-the-gospel-and-strengthening-new-and-returning-members` |
+
+Not from these sources, and so not cited: the 30-day temple goal, the Who & What / How & When
+labels, the Prepare ahead tip, and the three attendee choices General Handbook 23.4 does not list
+(TFH leader, TFH consultants, High Councilor). When adding quoted or adapted text, add its source
+line in the same change and a row here.
 
 **Open the Covenant Path Report** opens `membertools://` on iPhone, the Member Tools app by its ID
 on Android (falling back to the web report), and the Leader and Clerk Resources report elsewhere.

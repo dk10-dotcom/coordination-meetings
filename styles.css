@@ -726,6 +726,50 @@ body.touring .actionbar { z-index: 10; }
 .list-panel.rows .list-title::before { content: ''; flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--list-ink); }
 .list-panel.rows .list-count { padding: 0; border: 0; background: none; font-size: 13px; font-weight: 500; color: var(--muted); }
 .list-panel.rows .temple-goal { margin: 0; padding: 0 16px; border: 0; background: none; font-size: 13px; line-height: 1.35; color: var(--muted); }
+/* The three Covenant Path lists (New members, Returning members, Those being taught): each name is large and bold on a
+   band of its own color, so the lists are easy to tell apart on a phone. Focus names and Referrals have a screen each. */
+.list-nm { --list-band: #DCE6F6; }
+.list-rm { --list-band: #DBEEE2; }
+.list-bt { --list-band: #EBDDF4; }
+.list-panel.rows.list-nm .list-head, .list-panel.rows.list-rm .list-head, .list-panel.rows.list-bt .list-head {
+  flex-wrap: wrap; gap: 0 10px; padding: 10px 14px 10px 12px; border-radius: 12px; border-left: 6px solid var(--list-ink); background: var(--list-band); }
+.list-panel.rows.list-nm .list-title, .list-panel.rows.list-rm .list-title, .list-panel.rows.list-bt .list-title {
+  font-size: 20px; line-height: 1.2; font-weight: 800; letter-spacing: 0; text-transform: none; color: var(--list-ink); }
+.list-panel.rows.list-nm .list-title::before, .list-panel.rows.list-rm .list-title::before, .list-panel.rows.list-bt .list-title::before { content: none; }
+.list-panel.rows.list-nm .list-count, .list-panel.rows.list-rm .list-count, .list-panel.rows.list-bt .list-count { font-size: 14px; font-weight: 600; color: var(--list-ink); }
+.list-panel.rows + .list-panel.rows { margin-top: 6px; }
+/* On the smallest phones the name is a little smaller, so the count stays beside it on all three bands */
+@media (max-width: 359px) {
+  .list-panel.rows.list-nm .list-title, .list-panel.rows.list-rm .list-title, .list-panel.rows.list-bt .list-title { font-size: 18px; }
+}
+
+/* How can we help?: a small link under a list's name in the Huddle. It opens that section's questions to talk through. */
+.how-help { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; margin: 0; padding: 0; border: 0; background: none;
+  color: var(--list-ink, var(--accent)); font: inherit; font-size: 15px; font-weight: 600; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.how-help > span:first-child { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.how-help-chev { font-size: 19px; line-height: 1; }
+.how-help:active { opacity: .55; }
+.list-head .how-help { flex: 0 0 100%; }
+.list-panel:not(.rows) .list-head { flex-wrap: wrap; }
+.list-panel.rows .list-head .how-help { min-height: 40px; margin-bottom: -8px; }
+.how-help-fn { align-self: flex-start; color: #0E6E73; margin: -8px 0 -12px; padding: 0 4px; }
+body[data-view="wc-fn"] .how-help-fn { display: none; } /* the Huddle only, not ward council's copy of this page */
+
+/* The panel: a list name, the question the manual asks, and its discussion items. Read-only. */
+.sheet.howhelp { gap: 14px; padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+.howhelp-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.howhelp-heading { min-width: 0; }
+.howhelp-kicker { margin: 0 0 4px; font-size: 13px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--list-ink, var(--accent)); }
+.sheet.howhelp h2 { font-size: 21px; line-height: 1.2; }
+.sheet-x { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin: -4px -6px 0 0;
+  border: 0; border-radius: 50%; background: #E9EDF4; color: var(--ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.sheet-x:active { background: #D9DFEA; }
+.howhelp-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.howhelp-list li { padding: 12px 14px; border-radius: 12px; border-left: 5px solid var(--list-ink, var(--accent)); background: var(--list-soft, var(--accent-soft));
+  font-size: 17px; line-height: 1.4; color: var(--ink); }
+/* Where a list of questions or tips comes from: one small line with a link to that page in the Gospel Library */
+.source-line { margin: 0; font-size: 14px; line-height: 1.45; color: var(--muted); }
+.source-line a, .help-body a { color: var(--accent); font-weight: 600; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .person-rows .list-empty { border: 0; border-radius: 0; background: none; min-height: 52px; padding: 8px 12px 8px 16px; }
 .person-rows .list-empty-undo { color: var(--accent); }
 /* The Huddle's screen for one person: ward council's half is a short, quiet summary; the huddle's half is the part to do */

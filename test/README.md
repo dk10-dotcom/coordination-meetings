@@ -46,6 +46,7 @@ names as rows and one screen per person.
 | `practice.js` | Practice week: loading, limits, removing |
 | `fields.js`, `zones.js`, `committed.js`, `temple.js`, `convert.js`, `remove.js`, `tncarry.js` | What's on each card and what carries to the next huddle |
 | `textassign.js` | Text this assignment |
+| `howhelp.js` | How can we help? links and their panels (Huddle only, right questions, closes with one tap, nothing saved, nothing on the PDF), the bold list names on bands, and every source line and link |
 | `tour.js`, `help.js`, `tips.js`, `sample-view.js`, `swipe.js` | Tour, How to use, Tips, the sample agenda, closing sheets |
 | `empty.js`, `fixed.js`, `remind.js` | Empty lists, fixed wording, reminders |
 

@@ -26,6 +26,10 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
 - **Keep How to use short.** It is a list of steps that open when tapped, at most five short lines
   each, saying what to tap. Updating it usually means changing a line, not adding one: leave out
   anything the screen already explains. `test/help.js` fails if it grows past 900 words.
+- **Name the source of anything quoted or adapted** from *Preach My Gospel*, the General Handbook or
+  another Church page: one small line (`.source-line`) under it, linked to that page in the Gospel
+  Library, and a row in the "Source links" table in `docs/SPEC.md`. Quote the manual's own words;
+  don't cite a source for wording that isn't in it. `test/howhelp.js` checks the lines and links.
 - Keep the data embedded in the PDF and the handoff link format compatible with earlier versions,
   so an older PDF or link still loads.
 - **The PDF is read on phones.** Its pages are phone-shaped (360 × 780 points) with one short block
@@ -70,6 +74,7 @@ A link ending in `#huddle` opens straight to the Huddle screen; most tests use i
 Two flags in the phone's storage exist only for tests: `huddle-view-all` (an older one-page layout)
 and `huddle-cards-open` (every card open in its list, for tests that fill many cards).
 `rows.js` and `twodoor.js` test what people see: names as rows and one screen per person.
+`howhelp.js` tests the How can we help? panels, the list names' bands and the source links.
 
 ## Releasing
 
