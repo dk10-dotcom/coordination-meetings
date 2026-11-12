@@ -121,6 +121,16 @@ There is no "needs attention" list: the sections' own orange status lines alread
 
 ## Opening screen
 
+**Look.** At the top, How to use, then a deep blue header card: "Huddle", the title "Ward Mission
+Leader Process", and under a thin line the ward name (or "Set your ward in Huddle Details") and
+today's date. The four steps follow as a timeline: white cards joined by a line on the left, each
+with an icon tile in its page's color (Before ward council slate, Ward council blue, Huddle orange,
+After the huddle green). The circle on the line shows the step's number, or a green check once the
+step is done: Before ward council and After the huddle when marked done, Ward council when every
+name has a next ordinance, the Huddle when all five sections are marked done. The first step not
+done is **Up next**: outlined in its color, a little larger, with an "Up next" tag. The bottom bar
+(Hand off, Send) is frosted; Send is pale until After the huddle is done, then solid blue.
+
 Title: "Ward Mission Leader Process" with the app's name, Huddle, in small letters above it, and
 **How to use** beside it.
 
@@ -439,7 +449,8 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
     delete old copies); and never to enter confidential or sensitive information, because everyone
     who gets the PDF can read it.
   - **Watch or try:** Take the tour, See a sample agenda, Try a practice week, and Watch the
-    training video (the video opens inside its row; closing the row stops it).
+    training video (the video opens inside its row; closing the row stops it). The video (about 4 minutes,
+    no sound, words on screen) is made from the app with `node test/tools/video/make.js`.
 
   **Sources** is the second row under About this app: links to *Preach My Gospel*, chapter 13
   (questions), General Handbook 23.4 (the meeting) and "Ideas for Weekly Missionary Coordination"

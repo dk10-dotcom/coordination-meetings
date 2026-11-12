@@ -31,7 +31,7 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     ok(await noOverflow(), tag + ': opening screen fits the phone');
     ok(await vis('#before-box') && await vis('#after-box') && (await p.textContent('h1')).trim() === 'Ward Mission Leader Process', tag + ': title is Ward Mission Leader Process, with the two Covenant Path Report boxes');
     ok((await p.textContent('.app-name')).trim() === 'Huddle' && await p.title() === 'Huddle', tag + ': the app is named Huddle, on the page and in the browser');
-    ok(await p.locator('#start-home input[type="checkbox"]').count() === 0 && await p.evaluate(() => ['before', 'after'].every(w => document.querySelector('#' + w + '-box').tagName === 'BUTTON')) && !(await vis('#before-box .check-tick')), tag + ': the two boxes have no check box to tap; each is one button');
+    ok(await p.locator('#start-home input[type="checkbox"]').count() === 0 && await p.evaluate(() => ['before', 'after'].every(w => document.querySelector('#' + w + '-box').tagName === 'BUTTON')) && !(await vis('#before-box .tl-check')), tag + ': the two boxes have no check box to tap; each is one button');
     ok(await vis('.clear-link') && await vis('.fine-notes .credit-name'), tag + ': Erase everything and the footer are on the opening screen');
     // Hand off holds both ends of a handoff; the quiet link under the steps is for a PDF only
     await p.click('.actionbar [data-action="handoff"]'); await p.waitForSelector('#handoff-sheet:not([hidden])');
@@ -123,7 +123,7 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     ok((await bwNames('bt')).length === 0, tag + ': a name added and left empty does not stay on the list');
     // Mark done sits at the bottom of the screen
     await p.click('[data-action="before-done"]'); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(300);
-    ok(await isDone('before') && await vis('#before-box .check-tick') && !(await isDone('after')) && (await p.textContent('#before-sub')).includes('Done'), tag + ': Mark done returns to the opening screen and turns the box green with a check');
+    ok(await isDone('before') && await vis('#before-box .tl-check') && !(await isDone('after')) && (await p.textContent('#before-sub')).includes('Done'), tag + ': Mark done returns to the opening screen and turns the box green with a check');
     // Opening it again offers to take the mark back off
     await p.click('#before-box'); await p.waitForSelector('#bw-view:not([hidden])'); await p.waitForTimeout(300);
     ok(await vis('#before-state') && (await p.textContent('#before-done-btn')).trim() === 'Done · Back' && (await p.textContent('#before-other-btn')).trim() === 'Marked by mistake? Mark as not done', tag + ': a box that is done shows Marked done, with Done · Back and Mark as not done');
@@ -274,7 +274,7 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     await p.screenshot({ path: `${OUT}/${tag}-afterlist.png` });
     ok((await p.textContent('#after-done-btn')).trim() === 'It’s all updated · Mark done' && !(await vis('#after-other-btn')) && !(await vis('#after-state')), tag + ': Mark done is at the bottom of the screen');
     await p.click('[data-action="after-done"]'); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(300);
-    ok(await isDone('after') && await vis('#after-box .check-tick'), tag + ': marking it done returns to the opening screen and turns the box green');
+    ok(await isDone('after') && await vis('#after-box .tl-check'), tag + ': marking it done returns to the opening screen and turns the box green');
     await p.click('#after-box'); await p.waitForSelector('#af-view:not([hidden])'); await p.waitForTimeout(300);
     ok(await vis('#after-state') && (await p.textContent('#after-done-btn')).trim() === 'Done · Back' && (await p.textContent('#after-other-btn')).trim() === 'Marked by mistake? Mark as not done', tag + ': opened again it shows Marked done, with Done · Back and Mark as not done');
     await p.click('#after-other-btn'); await p.waitForTimeout(250);

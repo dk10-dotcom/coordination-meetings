@@ -32,6 +32,8 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
   don't cite a source for wording that isn't in it. `test/howhelp.js` checks the lines and links.
 - Keep the data embedded in the PDF and the handoff link format compatible with earlier versions,
   so an older PDF or link still loads.
+- **The training video is made from the app itself.** When the look or the steps change, run
+  `node test/tools/video/make.js` (wording and timing are in `test/tools/video/scenes.js`) and watch it.
 - **The PDF is read on phones.** Its pages are phone-shaped (360 × 780 points) with one short block
   per person: no tables, no small print. When its look changes, remake the sample agenda pictures
   with `node test/tools/make-sample.js` and look at them.
@@ -67,6 +69,7 @@ python3 -m http.server 8765          # from the top folder; the tests expect thi
 node test/twodoor.js                 # one test
 bash test/run-all.sh                 # every test, with a summary (about 20 minutes)
 node test/tools/make-sample.js       # remakes sample/page-*.png (the sample agenda) from the current PDF
+node test/tools/video/make.js        # remakes the training video and its poster from the app as it is now
 ```
 
 See `test/README.md` for setup (Playwright and the poppler PDF tools).
@@ -95,7 +98,6 @@ within those pieces; don't add a "needs attention" list (the user decided it rep
 
 ## Open items
 
-- The training video (`media/training-video.mp4`) and its deck show an older design.
 - First run: a phone browser opens How to use (with Add to Home Screen first); the Home Screen app
   then starts the tour once. These could be combined into one short welcome.
 - `test/obsolete/` holds tests for removed features (saved agendas, Send & Clear). Do not revive them.

@@ -1177,3 +1177,58 @@ body.handoff-open main.wrap { display: none; }
 /* After the huddle: each person's list shows in that list's color */
 .after-card .source { background: var(--list-band, var(--accent-soft)); color: var(--list-ink, var(--accent)); }
 .after-card.g-nm { --list-band: #DCE6F6; } .after-card.g-rm { --list-band: #DBEEE2; } .after-card.g-bt { --list-band: #EBDDF4; } .after-card.g-tn { --list-band: #FBEBC2; }
+
+
+/* ===== The opening screen: a header card, the four steps as a timeline, a frosted bottom bar ===== */
+body[data-view="start"] .title-text { display: flex; flex-direction: column; gap: 3px; padding: 18px 18px 17px; border-radius: 18px; color: #FFFFFF;
+  background: linear-gradient(135deg, #1E3A6E, #34589A); box-shadow: 0 10px 22px -12px #1E3A6E; }
+body[data-view="start"] .title-text .app-name { color: #FFFFFF; opacity: .8; }
+body[data-view="start"] .title-text h1 { color: #FFFFFF; font-size: 26px; line-height: 1.12; }
+.start-where { display: none; }
+body[data-view="start"] .start-where { display: flex; flex-direction: column; gap: 1px; margin: 10px 0 0; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, .28); }
+#start-ward { font-size: 17px; font-weight: 700; overflow-wrap: anywhere; }
+#start-date { font-size: 14.5px; opacity: .88; }
+
+/* The four steps: one white card each, with the step's color as its icon tile, joined by a line on the left */
+.start-home { position: relative; gap: 12px; padding-left: 34px; }
+.start-home::before { content: ''; position: absolute; left: 12px; top: 30px; bottom: 74px; width: 2px; border-radius: 2px; background: #D3D9E3; }
+.tl-step { position: relative; display: flex; align-items: center; gap: 12px; min-height: 0; padding: 14px 12px 14px 14px; border-radius: 16px;
+  border: 1px solid var(--card-line); background: var(--card); box-shadow: 0 1px 2px rgba(27, 43, 75, .05); text-align: left; }
+.tl-step.check-box.done, .tl-step.check-box { background: var(--card); border-color: var(--card-line); }
+.tl-step .check-tick { display: none !important; }
+.tl-step .cpr-step-k, .tl-step .door-kicker { font-size: 11.5px; font-weight: 800; letter-spacing: .07em; color: var(--muted); margin: 0; }
+.tl-step .check-line, .tl-step .door-title { display: block; font-size: 19px; font-weight: 800; color: var(--ink); line-height: 1.2; }
+.tl-step .check-sub, .tl-step .door-sub { font-size: 14px; color: var(--muted); line-height: 1.3; }
+.tl-step .check-text, .tl-step .door-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.tl-step .row-icon { width: 40px; height: 40px; border-radius: 11px; }
+.tl-step .row-icon svg { width: 23px; height: 23px; }
+.tile-step1 { --tile: #4F5A8C; } .tile-step2 { --tile: #2F5DA6; } .tile-step3 { --tile: #B0531A; } .tile-step4 { --tile: #237445; }
+/* The marker on the line: the step's number, a green check once it's done */
+.tl-mark { position: absolute; left: -34px; top: 50%; margin-top: -13px; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  background: var(--ground); border: 2px solid #C3CAD6; color: var(--muted); font-size: 13px; font-weight: 800; }
+.tl-check { display: none; }
+.tl-step.tl-done .tl-mark { background: #1F6B3A; border-color: #1F6B3A; color: #FFFFFF; }
+.tl-step.tl-done .tl-num { display: none; }
+.tl-step.tl-done .tl-check { display: block; }
+.tl-step.tl-done .check-sub, .tl-step.tl-done .door-sub { color: #1F6B3A; font-weight: 600; }
+/* Up next: a little larger, outlined in its own color, with a tag */
+.up-next { display: none; }
+.tl-step.tl-next { padding: 18px 12px 18px 14px; border: 2px solid var(--tile-ink); box-shadow: 0 10px 22px -14px var(--tile-ink); }
+.tl-step.tl-next .tl-mark { background: var(--tile-ink); border-color: var(--tile-ink); color: #FFFFFF; }
+.tl-step.tl-next .up-next { display: block; position: absolute; top: -10px; right: 14px; padding: 2px 9px; border-radius: 999px; background: var(--tile-ink); color: #FFFFFF;
+  font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.tl-step.tl-next .row-icon { width: 46px; height: 46px; }
+.tl-step[data-tl="1"] { --tile-ink: #4F5A8C; } .tl-step[data-tl="2"] { --tile-ink: #2F5DA6; } .tl-step[data-tl="3"] { --tile-ink: #B0531A; } .tl-step[data-tl="4"] { --tile-ink: #237445; }
+.start-home .newweek-panel { margin-left: -34px; }
+
+/* The bottom bar: frosted, the way iPhone apps do it. Send stays quiet until After the huddle is done. */
+body[data-view="start"] .actionbar { background: rgba(243, 245, 249, .72); -webkit-backdrop-filter: saturate(180%) blur(18px); backdrop-filter: saturate(180%) blur(18px); border-top-color: rgba(27, 43, 75, .1); }
+.actionbar .btn-primary.not-ready { background: #C9D3E6; border-color: #C9D3E6; color: #2E4A7E; box-shadow: none; }
+@media (max-width: 359px) {
+  .start-home { padding-left: 30px; }
+  .tl-mark { left: -30px; width: 24px; height: 24px; margin-top: -12px; }
+  .start-home::before { left: 11px; }
+  .start-home .newweek-panel { margin-left: -30px; }
+  .tl-step .row-icon { width: 34px; height: 34px; } .tl-step.tl-next .row-icon { width: 40px; height: 40px; }
+  .tl-step .check-line, .tl-step .door-title { font-size: 17.5px; }
+}

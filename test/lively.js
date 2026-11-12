@@ -39,6 +39,10 @@ const seed = {
     await p.goto(BASE); await p.waitForSelector('#start-home:not([hidden])');
     await p.evaluate(s => localStorage.setItem('__seed', JSON.stringify(s)), seed);
     await p.reload(); await p.waitForSelector('#start-home:not([hidden])');
+    // Opening screen: header card, the four steps as a timeline, Up next, Send quiet until After the huddle is done
+    const tl = await p.evaluate(() => ({ ward: document.querySelector('#start-ward').textContent, done: [...document.querySelectorAll('.tl-step')].map(e => e.classList.contains('tl-done') ? 'done' : e.classList.contains('tl-next') ? 'next' : '-').join(' '),
+      icons: document.querySelectorAll('.tl-step .row-icon svg').length, quiet: document.querySelector('.actionbar [data-action="send"]').classList.contains('not-ready') }));
+    ok(tl.ward === 'Sample Ward' && tl.done === 'done next - -' && tl.icons === 4 && tl.quiet && await fits(), dev + ': opening screen: ward in the header, step 1 done, step 2 up next, four icons, Send quiet');
     await p.click('.door-hd'); await p.waitForSelector('#steps-home:not([hidden])'); await p.waitForTimeout(300);
     ok(await p.isVisible('#hd-hero') && (await p.textContent('#hd-hero .hero-ward')) === 'Sample Ward' && (await p.textContent('#hd-hero .hero-count')) === '2 of 5 sections done', dev + ': Huddle header card: ward and 2 of 5 sections done');
     ok((await p.$eval('#hd-hero .hero-fill', e => e.style.width)) === '40%', dev + ': the bar is at 40%');

@@ -330,7 +330,11 @@
     cp: '<circle cx="7.2" cy="7" r="2.7"/><path d="M2.4 16c0-2.7 2.1-4.6 4.8-4.6S12 13.3 12 16"/><circle cx="14.2" cy="7.8" r="2.1"/><path d="M13.6 11.6c2.3-.2 4.1 1.5 4.1 3.9"/>', // people
     tn: '<path d="M10 2.9l2.2 4.5 4.9.7-3.6 3.5.9 4.9-4.4-2.3-4.4 2.3.9-4.9L2.9 8.1l4.9-.7z"/>',                    // a star: the names to focus on
     fn: '<circle cx="8.8" cy="8.8" r="5.3"/><path d="M12.8 12.8l4.2 4.2"/>',                                        // a magnifying glass: finding
-    mr: '<path d="M17 3L3 8.8l5.6 2.6L11.2 17z"/><path d="M17 3l-8.4 8.4"/>'                                        // a paper plane: sent to the missionaries
+    mr: '<path d="M17 3L3 8.8l5.6 2.6L11.2 17z"/><path d="M17 3l-8.4 8.4"/>',
+    // The four steps on the opening screen
+    bw: '<rect x="4.5" y="3.5" width="11" height="14" rx="2"/><path d="M7.5 3.5h5v2.4h-5z"/><path d="M7.4 11.2l1.8 1.8 3.6-3.8"/>',  // a clipboard with a check
+    hd: '<circle cx="10" cy="6" r="2.4"/><circle cx="4.6" cy="9.4" r="2"/><circle cx="15.4" cy="9.4" r="2"/><path d="M6.4 16.5c0-2.3 1.6-4 3.6-4s3.6 1.7 3.6 4"/><path d="M1.6 16c.2-1.7 1.4-3 3-3.1"/><path d="M18.4 16c-.2-1.7-1.4-3-3-3.1"/>', // a circle of people
+    af: '<path d="M17 3L3 8.8l5.6 2.6L11.2 17z"/><path d="M17 3l-8.4 8.4"/>'                                        // a paper plane: sent to the missionaries
   };
   function tile(name) { var t = h('span', { class: 'row-icon tile-' + name, 'aria-hidden': 'true' }); t.innerHTML = TILE_SVG + TILE_ICONS[name] + '</svg>'; return t; }
   // "Daniel Rivera" is DR; a single word gives one letter; no name yet gives a plus.
@@ -1658,8 +1662,23 @@
   }
 
   // The two doors on the opening screen say where things stand.
+  // The opening screen's four steps as a timeline: each is done, or the first one not done is "Up next".
+  // Ward council is done when every name has a next ordinance; the Huddle when all five sections are marked done.
+  function stepsDoneState() {
+    var wc = heroProgress('wc'), hd = heroProgress('hd');
+    return [!!state.verified.before, !!(wc && wc.done === wc.of), !!(hd && hd.done === hd.of), !!state.verified.after];
+  }
   function renderDoors() {
     renderChecks();
+    var done = stepsDoneState(), next = done.indexOf(false);
+    Array.prototype.forEach.call(document.querySelectorAll('.tl-step'), function (el) {
+      var i = +el.getAttribute('data-tl') - 1;
+      el.classList.toggle('tl-done', done[i]); el.classList.toggle('tl-next', i === next);
+      var t = el.querySelector('[data-tile]'); if (t && !t.firstChild) t.innerHTML = TILE_SVG + TILE_ICONS[t.getAttribute('data-tile')] + '</svg>';
+    });
+    $('#start-ward').textContent = state.ward.trim() || 'Set your ward in Huddle Details';
+    $('#start-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    var send = $('.actionbar [data-action="send"]'); if (send) send.classList.toggle('not-ready', !state.verified.after);
     var names = state.tn.filter(function (a) { return str(a.name).trim(); }).length + GROUPS.reduce(function (n, g) { return n + countNamed(g.id); }, 0);
     $('#door-wc-sub').textContent = names ? plural(names, 'name', 'names') + ' · next ordinances and needs' : 'Names, next ordinances and needs';
     var items = state.rr.filter(rrShown), marked = items.filter(function (r) { return r.happened; }).length;
