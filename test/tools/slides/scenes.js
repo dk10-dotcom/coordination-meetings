@@ -15,7 +15,7 @@ module.exports = [
   { shot: 's12-wc-note', k: 'Step 2 · Ward council', c: 'red', title: 'Never add confidential information', body: 'Everyone who receives the agenda can read it. Keep it to names, ordinances and simple needs.', t: 7 },
   { shot: 's13-start-up3', k: 'Step 3 · The Huddle', c: 'orange', title: 'How and when', body: 'The Huddle is the weekly coordination meeting: brief, focused, and about people.', t: 6 },
   { shot: 's14-huddle', k: 'Step 3 · The Huddle', c: 'orange', title: 'Five sections', body: 'The bar shows how many are done. Work through them in any order.', t: 6 },
-  { shot: 's15-attendance', k: 'Step 3 · The Huddle', c: 'orange', title: 'Who came', body: 'In Huddle Details, tap everyone who attended. Make an extra effort to involve the youth.', t: 7 },
+  { shot: 's15-attendance', k: 'Step 3 · The Huddle', c: 'orange', title: 'Who came', body: 'In Huddle Attendees, tap everyone who attended. Make an extra effort to involve the youth.', t: 7 },
   { shot: 's16-rr', k: 'Step 3 · Return and Report', c: 'orange', title: 'Did it happen?', body: 'Last week’s assignments come back here. Tap Yes, Partly or No, and add a short note on how it went.', t: 8 },
   { shot: 's17-hd-cp', k: 'Step 3 · Covenant Path Report', c: 'orange', title: 'One person at a time', body: 'Tap each name to plan how the ward will help this week.', t: 6 },
   { shot: 's18-howhelp', k: 'Step 3 · How can we help?', c: 'orange', title: 'Questions to guide you', body: 'Tap How can we help? for the questions in Preach My Gospel, chapter 13, for that group.', t: 8 },

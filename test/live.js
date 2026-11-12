@@ -33,7 +33,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
 
   ok(await p.isVisible('#steps-home') && await p.isVisible('#mode-bar') && !(await p.isVisible('#start-home')), 'the #huddle link opens the huddle’s list, with Back');
   ok((await p.textContent('#meeting-date .md-text')) === longD(daysAgo(0)), 'the huddle date is today without setting it: ' + (await p.textContent('#meeting-date .md-text')));
-  ok(await p.evaluate(() => { const i = document.querySelector('#meeting-date input[type=date]'); return !!i && i.id === 'date'; }) && !(await p.evaluate(() => !!document.querySelector('#details-full input[type=date]'))), 'the date is set at the top, not in Huddle Details');
+  ok(await p.evaluate(() => { const i = document.querySelector('#meeting-date input[type=date]'); return !!i && i.id === 'date'; }) && !(await p.evaluate(() => !!document.querySelector('#details-full input[type=date]'))), 'the date is set at the top, not in Huddle Attendees');
   ok((await rrRow()).startsWith('Nothing yet. After your first huddle'), 'Return and Report row before the first send: ' + await rrRow());
   ok((await p.textContent('#band-rr')).trim() === 'From the last huddle', 'home groups before a date: ' + await p.textContent('#band-rr'));
   const today = daysAgo(0);

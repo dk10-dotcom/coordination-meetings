@@ -140,7 +140,7 @@ the person picks the missionaries. Turned off during a practice week.
 **Look.** At the top, How to use, then a deep blue header card: "Huddle", the title "Ward Mission
 Leader Process", and under a thin line the ward name and today's date. **The ward is set here:** tapping
 the name (it has a small pencil) opens "Your ward" with one box and Done; with no ward yet the card reads
-"Tap to add your ward" in a dashed outline. Huddle Details no longer has a ward box. If Send finds no ward,
+"Tap to add your ward" in a dashed outline. Huddle Attendees no longer has a ward box. If Send finds no ward,
 it offers "Add the ward", which opens the same box. The four steps follow as a timeline: white cards joined by a line on the left, each
 with an icon tile in its page's color (Before ward council slate, Ward council blue, Huddle orange,
 After the huddle plum; green is kept for "done" only). The circle on the line shows the step's number, or a green check once the
@@ -252,14 +252,14 @@ the mirror of the Huddle's:**
 
 ## Huddle
 
-Top to bottom: the one line saying what to do, **Huddle Details**, **Tips for an effective meeting**,
+Top to bottom: the one line saying what to do, **Huddle Attendees**, **Tips for an effective meeting**,
 then five sections as rows.
 There is no Erase everything, footer, Send or Hand off on this screen.
 A section's name sits beside **Back** when it is open. **Mark section done** gives a section a
 green check; it is optional, never blocks Send, and clears when the huddle is sent. A section whose
 status is orange is still missing something.
 
-### Huddle Details
+### Huddle Attendees
 
 Ward name (remembered on the phone), who is conducting (Ward mission leader, Elders Quorum, or
 Other with a name), and attendance. Attendees, with the two youth roles first: Priests quorum
@@ -494,7 +494,7 @@ link clears both from the address bar.
   open, and How to use opens by itself on the first visit; from the Home Screen app every step
   starts closed.
 - **Tour:** 11 stops, about 2 minutes: Welcome, Your ward, the four steps, Before ward council, Ward council
-  (with the warning "Never add confidential information to this agenda."), Huddle Details, Return
+  (with the warning "Never add confidential information to this agenda."), Huddle Attendees, Return
   and Report, a person's screen in the huddle (which also points to **How can we help?**), the
   30-day temple goal, After the huddle, and Send.
   The stops about names show a sample name when New members is empty, which is never saved.
@@ -532,11 +532,12 @@ one is the only time these pages are contacted, and the app itself still makes n
 | How can we help? panels | From *Preach My Gospel*, chapter 13 | `…/preach-my-gospel-2023/21-chapter-13` |
 | Tips for an effective meeting | Adapted from "Ideas for Weekly Missionary Coordination," *Sharing the Gospel: Resources for Leaders* | `…/sharing-the-gospel-resources-for-leaders/02-effective-coordination-with-missionaries` |
 | Tips for finding new people to teach | From the same page | the same page |
+| Huddle Attendees: temple and family history invitation | General Handbook 25.2.3 (quoted) | `…/general-handbook/25-temple-and-family-history-work` |
 | How to use: Sources | The two above, and General Handbook 23.4 (who conducts and who is invited) | `…/general-handbook/23-sharing-the-gospel-and-strengthening-new-and-returning-members` |
 
 Not from these sources, and so not cited: the 30-day temple goal, the Who & What / How & When
 labels, the Prepare ahead tip, and the three attendee choices General Handbook 23.4 does not list
-(TFH leader, TFH consultants, High Councilor). When adding quoted or adapted text, add its source
+(High Councilor; the temple and family history leader and consultants are invited per 25.2.3). When adding quoted or adapted text, add its source
 line in the same change and a row here.
 
 **Open the Covenant Path Report** opens `membertools://` on iPhone, the Member Tools app by its ID

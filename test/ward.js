@@ -1,4 +1,4 @@
-// The ward name is set from the opening screen: tap it in the header card, type, Done. Huddle Details has no ward box.
+// The ward name is set from the opening screen: tap it in the header card, type, Done. Huddle Attendees has no ward box.
 const { chromium, devices } = require('playwright');
 (async () => {
   const b = await chromium.launch(); let pass = 0, fail = 0;
@@ -21,7 +21,7 @@ const { chromium, devices } = require('playwright');
     await p.click('.door-hd'); await p.waitForTimeout(300);
     ok((await p.textContent('#hd-hero .hero-ward')) === 'Sample Ward 2', tag + ': the Huddle’s header card shows it');
     await p.click('#details-summary'); await p.waitForTimeout(300);
-    ok(!(await p.isVisible('#details-full #ward')) && (await p.locator('#details-full input[data-bind="ward"]').count()) === 0, tag + ': Huddle Details has no ward box');
+    ok(!(await p.isVisible('#details-full #ward')) && (await p.locator('#details-full input[data-bind="ward"]').count()) === 0, tag + ': Huddle Attendees has no ward box');
     ok(errs.length === 0 && await fits(), tag + ': no errors; fits the screen ' + errs.join('; '));
     await c.close();
   }

@@ -1272,3 +1272,12 @@ body[data-view="start"] .actionbar { background: rgba(243, 245, 249, .72); -webk
 .slides-nav { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; }
 .slides-nav button { min-height: 52px; font-size: 17px; }
 .slides-nav button:disabled { opacity: .45; }
+
+/* Huddle Attendees: an invitation to the temple and family history leader and consultants, with an i for why */
+.tfh-invite { margin-top: 4px; font-size: 14.5px; color: var(--text); }
+.tfh-invite summary { display: flex; align-items: center; gap: 8px; min-height: 40px; list-style: none; cursor: pointer; font-weight: 600; color: var(--ink); }
+.tfh-invite summary::-webkit-details-marker { display: none; }
+.info-i { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%;
+  border: 1.5px solid var(--accent); color: var(--accent); font: italic 700 13px Georgia, serif; }
+.tfh-invite[open] .info-i { background: var(--accent); color: #FFFFFF; }
+.tfh-invite p { margin: 4px 0 0; line-height: 1.4; }

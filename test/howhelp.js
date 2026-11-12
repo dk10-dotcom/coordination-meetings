@@ -170,7 +170,7 @@ const huddle = {
     await p.screenshot({ path: `${OUT}/${tag}-5-sources.png` });
     await p.click('#help-done'); await p.waitForTimeout(250);
     const tourText = await p.evaluate(() => fetch('tour.js').then(r => r.text()));
-    ok(/tap \*\*How can we help\?\*\*/.test(tourText), tag + ': the tour mentions the link');
+    ok(/tap \*\*How can we help\?\*\*/i.test(tourText), tag + ': the tour mentions the link');
 
     // ----- None of it goes on the PDF -----
     await p.evaluate(() => { navigator.canShare = () => false; });

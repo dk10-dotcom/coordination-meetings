@@ -18,7 +18,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     await p.goto('http://127.0.0.1:8765/#huddle'); await p.waitForSelector('.chip', { state: 'attached' }); await p.click('[data-action="dismiss-install"]').catch(() => {});
     const vis = s => p.isVisible(s);
     // Home: details open on a fresh form, five sections listed, sections hidden
-    ok(!(await vis('#details-full')) && await vis('#details-summary') && (await p.textContent('#details-summary')).includes('Huddle Details'), 'details closed on a fresh form');
+    ok(!(await vis('#details-full')) && await vis('#details-summary') && (await p.textContent('#details-summary')).includes('Huddle Attendees'), 'details closed on a fresh form');
     ok((await p.textContent('#details-sub .warn')).includes('Attendance not taken yet') && await p.evaluate(() => getComputedStyle(document.querySelector('#details-sub .warn')).color) === 'rgb(154, 68, 22)', 'missing attendance shows in dark orange');
     ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'no sideways overflow');
     ok(await p.locator('.step-row').count() === 5 && (await p.textContent('.step-row[data-a="mr"]')).includes('Missionary Referrals') && (await p.textContent('.step-row[data-a="mr"] .step-status')).trim() === 'None listed', 'five sections, ending with Missionary Referrals');
