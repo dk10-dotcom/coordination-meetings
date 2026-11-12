@@ -46,6 +46,7 @@ names as rows and one screen per person.
 | `practice.js` | Practice week: loading, limits, removing |
 | `fields.js`, `zones.js`, `committed.js`, `temple.js`, `convert.js`, `remove.js`, `tncarry.js` | What's on each card and what carries to the next huddle |
 | `textassign.js` | Text this assignment |
+| `guided.js` | The guided practice week from start to Finish: each task moving on, the SAMPLE PDF, practice texts, a practice handoff on a second phone, and the real huddle coming back |
 | `ward.js` | Setting the ward from the opening screen's header card |
 | `datesmenu.js` | When as a date, Next ordinance as a menu, older typed values still loading, a list's band joined to its names, texting a referral |
 | `lively.js` | The header cards and their progress bars, section icons, initials, a person's screen header, the check's pop, the Sent celebration, both phone sizes and the two test layouts |

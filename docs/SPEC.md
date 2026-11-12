@@ -504,8 +504,25 @@ link clears both from the address bar.
   "Ideas for Weekly Missionary Coordination" in *Sharing the Gospel: Resources for Leaders*.
   The first says "Adapted from" (five points condensed from the page's eight principles); the
   second says "From" (quoted). The **Prepare ahead** tip is the app's own and sits below the line.
-- **Practice week:** loads sample names, sample report-backs and one sample referral. Send and Hand off are blocked
-  while it is on. Removing it restores what was there before.
+- **Practice week (guided):** Try a practice week sets this phone's huddle aside whole and starts a blank
+  week with only sample names (Daniel Rivera, Olivia Chen, Marcus Hill, three focus names, one referral and seven
+  sample assignments in Return and Report). A dark card at the bottom gives one task at a time ("Practice ·
+  Step 1", "3 of 10") and moves on by itself about a second after the task is done; two tasks can be skipped:
+  1. open Before ward council; 2. mark it done; 3. choose Samuel Ortiz's next ordinance in Ward council → Focus
+  names; 4. mark each Return and Report assignment; 5. give Daniel Rivera an action item, who and a date;
+  6. text it (skippable); 7. mark After the huddle done; 8. Send a sample; 9. send a practice handoff
+  (skippable); 10. Finish, which removes the practice and brings the real huddle back. **End practice** asks
+  first. The card hides while a panel is open, and comes back where it was if the app is reopened.
+  - **Send during practice** makes a sample: the file is "Huddle SAMPLE - …", every page has a large faint
+    SAMPLE and a red line "SAMPLE · practice names, not a real huddle" at the top, and the PDF carries no
+    huddle data to load. The panel says to send it to yourself. Sending it changes nothing: no "huddle sent",
+    nothing moves to Return and Report; it ends with "Sample sent".
+  - **Texts during practice** (an assignment or a referral) start with "SAMPLE (practice, not a real …)".
+  - **Hand off during practice** sends a practice handoff ("Practice handoff (sample names, not a real
+    huddle)"). On the phone that opens it, "Try this practice handoff?" loads it as a practice week, with that
+    phone's own huddle set aside until the practice week is removed. A real handoff or PDF never loads over a
+    practice week: it asks to remove the practice week first.
+
 - **Add to Home Screen** banner whenever the app is open in a phone's browser.
 
 ## Erase everything and start over

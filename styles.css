@@ -1281,3 +1281,26 @@ body[data-view="start"] .actionbar { background: rgba(243, 245, 249, .72); -webk
   border: 1.5px solid var(--accent); color: var(--accent); font: italic 700 13px Georgia, serif; }
 .tfh-invite[open] .info-i { background: var(--accent); color: #FFFFFF; }
 .tfh-invite p { margin: 4px 0 0; line-height: 1.4; }
+
+/* Guided practice: one task at a time in a card at the bottom; it moves on once the task is done */
+.coach { position: fixed; left: 10px; right: 10px; bottom: max(10px, env(safe-area-inset-bottom, 0px)); z-index: 20; max-width: 520px; margin: 0 auto;
+  display: flex; flex-direction: column; gap: 6px; padding: 12px 14px 12px; border-radius: 16px; background: #1E3A6E; color: #FFFFFF;
+  box-shadow: 0 12px 30px -10px rgba(14, 28, 56, .55); }
+.coach[hidden] { display: none; }
+.coach-top { display: flex; align-items: center; gap: 8px; }
+.coach-k { font-size: 12px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; opacity: .85; }
+.coach-n { font-size: 12px; font-weight: 600; opacity: .7; }
+.coach-end { margin-left: auto; min-height: 32px; padding: 0 4px; border: 0; background: none; color: #FFFFFF; opacity: .8; font: inherit; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.coach-t { margin: 0; font-size: 16px; line-height: 1.4; }
+.coach-t strong { color: #FFFFFF; }
+.coach.done { background: #1F6B3A; transition: background .2s; }
+.coach-btns { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+.coach-btns:has(> :not([hidden])) { margin-top: 2px; }
+.coach-btns > [hidden] { display: none; }
+.coach-skip { color: #FFFFFF; min-height: 36px; }
+.coach-finish { min-height: 44px; padding: 0 22px; background: #FFFFFF; color: #1E3A6E; border-color: #FFFFFF; }
+body.coaching { padding-bottom: calc(var(--coach-h, 120px) + 24px); }
+body.coaching .actionbar { bottom: calc(var(--coach-h, 120px) + 14px); }
+
+/* While practicing, messages sit above the practice card instead of over it */
+body.coaching .toast { bottom: calc(var(--coach-h, 120px) + 22px) !important; }

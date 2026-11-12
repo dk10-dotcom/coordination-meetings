@@ -81,6 +81,8 @@ and `huddle-cards-open` (every card open in its list, for tests that fill many c
 Next ordinance is a menu and When is a date (`datesmenu.js`). Older tests type words into them through
 `test/tools/compat-fill.js`, the way a huddle saved before the change holds them; new tests should pick a
 choice (`selectOption`) and type dates as `YYYY-MM-DD`.
+The practice week is guided (`guided.js`): a sample Send (stamped SAMPLE, no data inside, changes nothing) and a
+practice handoff are allowed; nothing from a practice may ever load over or replace a real huddle.
 `howhelp.js` tests the How can we help? panels, the list names' bands and the source links.
 `lively.js` tests the header cards, icons, initials and the Sent celebration. Keep color and motion
 within those pieces; don't add a "needs attention" list (the user decided it repeats what the sections say).

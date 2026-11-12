@@ -622,16 +622,16 @@
   // A referral, written out for the full-time missionaries. Messages opens; the person picks the missionaries.
   function textReferral(i) {
     var x = state.referrals[i]; if (!x) return;
-    if (tourDemo || (state.loaded && state.loaded.practice)) { toast('Texting is turned off for sample names.'); return; }
+    if (tourDemo) { toast('Texting is turned off for sample names.'); return; }
     var name = str(x.name).trim(), by = str(x.by).trim(), notes = str(x.notes).trim(), ward = state.ward.trim();
     if (!name) { toast('Add the name first.'); return; }
-    openMessages(['Missionary referral: ' + name, by ? 'Referred by: ' + by : null, notes || null,
+    openMessages([isPractice() ? 'SAMPLE (practice, not a real referral)' : null, 'Missionary referral: ' + name, by ? 'Referred by: ' + by : null, notes || null,
       'From the ' + (ward ? ward + ' ' : '') + 'huddle. Thank you!'].filter(Boolean).join('\n'));
   }
   function textAssignment(base) {
-    if (tourDemo || (state.loaded && state.loaded.practice)) { toast('Texting is turned off for sample names.'); return; }
+    if (tourDemo) { toast('Texting is turned off for sample names.'); return; }
     if (!textReady(base)) return;
-    openMessages(assignmentText(base));
+    openMessages((isPractice() ? 'SAMPLE (practice, not a real assignment)\n' : '') + assignmentText(base));
     setPath(base + 'texted', true); refreshTextButton(base); saveDraft();
   }
   // Ward council's half of a card: next ordinance and needs (and a new member's baptism date).
@@ -2083,6 +2083,9 @@
       }
       case 'open-details': openDetails(); break;
       case 'edit-ward': openOverlay('#ward-sheet', '#ward'); break;
+      case 'coach-skip': if (coachAt >= 0) { coachAt++; writeCoach(); drawCoach(); } break;
+      case 'coach-finish': removePractice(); break;
+      case 'coach-end': confirmRemovePractice(); break;
       case 'slides': openSlides(); break;
       case 'slide-next': if (slides && slideAt >= slides.length - 1) closeOverlay('#slides-sheet'); else showSlide(slideAt + 1); break;
       case 'slide-prev': showSlide(slideAt - 1); break;
@@ -2283,7 +2286,7 @@
       },
       tn: [
         card({ name: 'Grace Thompson', ordinance: 'Sealing', need: 'Help preparing family names', action: 'Family history consultant visits to prepare names', assigned: 'Sister Nguyen', when: 'Thu' }),
-        card({ name: 'Samuel Ortiz', ordinance: 'Melchizedek Priesthood', need: 'Someone to study with', action: 'Elders quorum president meets with him', assigned: 'Bro. Young', when: 'Tue' }),
+        card({ name: 'Samuel Ortiz', ordinance: '', need: 'Someone to study with', action: 'Elders quorum president meets with him', assigned: 'Bro. Young', when: 'Tue' }),
         card({ name: 'Emma Walsh', ordinance: 'Endowment', need: 'Temple preparation class', action: 'Invite her to the temple prep class', assigned: 'Sister Lee', when: 'Sun' })
       ],
       find: { plan: 'Invite friends to the ward Christmas devotional', items: [{ task: 'Each family invites one friend', when: 'Sun', carried: false }] },
@@ -2460,10 +2463,11 @@
     for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
     return out;
   }
-  async function packHandoff(s) {
+  async function packHandoff(s, practice) {
     var c = JSON.parse(JSON.stringify(s));
     delete c.practiceSnapshot; delete c.loaded; c.sentAt = ''; c.sentSig = ''; c.collapsed = {}; c.openOne = {};
-    var bytes = new TextEncoder().encode(JSON.stringify({ app: APP_ID, kind: 'handoff', v: 1, s: c })), tag = 'j';
+    var obj = { app: APP_ID, kind: 'handoff', v: 1, s: c }; if (practice) obj.practice = true; // a practice handoff loads as a practice week
+    var bytes = new TextEncoder().encode(JSON.stringify(obj)), tag = 'j';
     if (window.CompressionStream) {
       try { bytes = new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer()); tag = 'z'; } catch (e) { /* send uncompressed */ }
     }
@@ -2474,6 +2478,7 @@
     if (code[0] === 'z') bytes = new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
     var obj = JSON.parse(new TextDecoder().decode(bytes));
     if (!obj || obj.app !== APP_ID || obj.kind !== 'handoff' || !obj.s) throw new Error('not a handoff');
+    if (obj.practice) obj.s.__practice = true;
     return obj.s;
   }
   /* The huddle itself rides after the #, which a phone never sends to the website. Each link also gets a short
@@ -2487,21 +2492,18 @@
   // Hand off opens two choices: send this huddle (text it), or receive one (paste it).
   var handoffMsg = null, handoffBuild = null;
   function handoffBlocked() {
-    if (state.loaded && state.loaded.practice) return 'Remove the practice week before handing off.';
-    return isEmpty(state) ? 'Nothing to hand off yet.' : '';
+    return isEmpty(state) && !isPractice() ? 'Nothing to hand off yet.' : '';
   }
   function startHandoff() {
-    // During a practice week nothing is handed off or loaded over the sample names.
-    if (state.loaded && state.loaded.practice) { toast(handoffBlocked()); return; }
     var why = handoffBlocked(), sub = $('#handoff-send-sub');
-    sub.textContent = why ? 'Nothing to hand off yet' : 'Text this huddle to the leader who conducts next';
+    sub.textContent = why ? 'Nothing to hand off yet' : isPractice() ? 'Practice: text it to yourself to try it' : 'Text this huddle to the leader who conducts next';
     sub.classList.toggle('warn', false);
     $('#handoff-send').setAttribute('aria-disabled', why ? 'true' : 'false');
     // Build the link now, so tapping Send a handoff opens Messages right away.
     handoffMsg = null; handoffBuild = null;
-    if (!why) handoffBuild = packHandoff(state).then(function (code) {
+    if (!why) handoffBuild = packHandoff(state, isPractice()).then(function (code) {
       var d = parseISO(state.date);
-      handoffMsg = 'Handoff: the ' + (state.ward.trim() ? state.ward.trim() + ' ' : '') + 'huddle' + (d ? ' for ' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : '') +
+      handoffMsg = isPractice() ? 'Practice handoff (sample names, not a real huddle). Tap the link and follow the steps to try loading it into the Huddle app:\n' + handoffUrl(code) : 'Handoff: the ' + (state.ward.trim() ? state.ward.trim() + ' ' : '') + 'huddle' + (d ? ' for ' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : '') +
         '. Tap the link and follow the steps to load it into the Huddle app:\n' + handoffUrl(code);
       return handoffMsg;
     });
@@ -2510,8 +2512,8 @@
   function sendHandoff() {
     if (handoffBlocked()) return; // the row itself says why (a message here would cover Receive a handoff)
     closeOverlay('#handoff-sheet');
-    if (handoffMsg) { openMessages(handoffMsg); return; }
-    (handoffBuild || Promise.reject()).then(function (msg) { openMessages(msg); }, function () { toast('Couldn’t make the handoff. Try again.'); });
+    if (handoffMsg) { openMessages(handoffMsg); coachMark('handoff'); return; }
+    (handoffBuild || Promise.reject()).then(function (msg) { openMessages(msg); coachMark('handoff'); }, function () { toast('Couldn’t make the handoff. Try again.'); });
   }
   /* A handoff link opened in an iPhone's browser. iPhone opens links in Safari, never in the Home Screen app,
    * and the two keep their data apart, so the handoff can't land in the app. It gets a page of its own
@@ -2576,6 +2578,18 @@
   // A PDF is a huddle that was sent: loading it sets up the next huddle from it, the same as sending does.
   // Either way, Undo puts this phone's agenda back.
   function confirmApplyAgenda(data, how, after) {
+    if (data && data.__practice) {
+      var practiceIn = normalizeState(data);
+      ask({ title: 'Try this practice handoff?', body: 'It opens as a practice week with sample names. Your own huddle is set aside and comes back when you remove the practice week.',
+        primary: 'Load the practice', onPrimary: function () { if (after) after(); loadPracticeHandoff(practiceIn); }, secondary: 'Cancel' });
+      return;
+    }
+    // A real huddle never loads over a practice week (that would lose the huddle set aside under it).
+    if (isPractice()) {
+      ask({ title: 'Remove the practice week first', body: 'Your own huddle is set aside while you practice. Remove the practice week, then load this again.',
+        primary: 'Remove practice week', onPrimary: removePractice, secondary: 'Cancel' });
+      return;
+    }
     var incoming = normalizeState(data);
     incoming.loaded = null; incoming.practiceSnapshot = null; incoming.sentAt = ''; incoming.sentSig = '';
     var pdf = how === 'pdf';
@@ -2599,8 +2613,98 @@
       { label: 'Undo', run: function () { state = normalizeState(snap); showBlank = {}; resetView(); renderAll(); applyView(); saveDraft(); toast('Your huddle is back.'); } });
   }
 
-  function startPractice() { applyLoad(practiceData(), 'Practice week', { practice: true }); }
+  function isPractice() { return !!(state.loaded && state.loaded.practice); }
+  // A practice week is guided: a small card at the bottom gives one task at a time and moves on once it's done.
+  function startPractice() {
+    // The practice starts from a blank form with only the sample names, so none of this phone's real names are in it
+    // (or in a practice handoff). The real huddle is set aside whole and comes back when the practice is removed.
+    if (!isPractice()) {
+      var real = JSON.parse(JSON.stringify(state));
+      state = normalizeState(null); state.ward = real.ward; state.practiceSnapshot = real; showBlank = {};
+    }
+    applyLoad(practiceData(), 'Practice week', { practice: true });
+    if (!isPractice()) return;
+    // A fresh week to practice on (the real one, set aside, keeps its own marks).
+    state.verified = { before: false, after: false }; state.stepsDone = {}; state.attendees = [];
+    resetView(); renderAll(); applyView(); saveDraft();
+    startCoach(0);
+  }
+  var COACH_KEY = 'huddle-coach-step';
+  var COACH = [
+    { k: 'Step 1', t: 'Tap **Before ward council** on the opening screen.', done: function () { return view === 'bw' || state.verified.before; } },
+    { k: 'Step 1', t: 'Tap a name to see what’s there, then come back and tap **All up to date · Mark done** at the bottom.', done: function () { return !!state.verified.before; } },
+    { k: 'Step 2', t: 'Open **Ward council**, then **Focus names**. Tap **Samuel Ortiz** and choose his next ordinance.', done: function () { var a = state.tn[1]; return !!(a && ORDINANCES.indexOf(str(a.ordinance)) >= 0); } },
+    { k: 'Step 3', t: 'Open the **Huddle**, then **Return and Report**. Mark each assignment **Yes**, **Partly** or **No**.', done: function () { var r = state.rr.filter(rrShown); return r.length > 0 && r.every(function (x) { return x.happened; }); } },
+    { k: 'Step 3', t: 'Back in the Huddle, open **Covenant Path Report** and tap **Daniel Rivera**. Add an action item, who will do it, and a date.', done: function () { var a = state.cp.nm[0]; return !!(a && str(a.action).trim() && str(a.assigned).trim() && str(a.when).trim()); } },
+    { k: 'Step 3', t: 'On Daniel’s screen, tap **Text this assignment** and send it to yourself.', done: function () { var a = state.cp.nm[0]; return !!(a && a.texted); }, skip: true },
+    { k: 'Step 4', t: 'Back on the opening screen, open **After the huddle** and tap **It’s all updated · Mark done**.', done: function () { return !!state.verified.after; } },
+    { k: 'Send', t: 'Tap **Send**, then **Share PDF**. Send the sample to yourself to see what the agenda looks like.', done: function () { return coachFlag('sent'); } },
+    { k: 'Hand off', t: 'Try a handoff: tap **Hand off**, then **Send a handoff**, and text it to yourself. Opening it loads it as practice, so nothing is replaced.', done: function () { return coachFlag('handoff'); }, skip: true },
+    { k: 'All done', t: 'You’ve practiced a whole week. Tap **Finish** to remove the sample names; your own come back as they were.', end: true }
+  ];
+  var coachAt = -1, coachEl = null, coachTimer = null, coachMoving = false, coachFlags = {};
+  function coachFlag(k) { return !!coachFlags[k]; }
+  function coachMark(k) { if (coachAt >= 0) coachFlags[k] = true; }
+  function coachText(t) { var d = document.createElement('span'); d.textContent = t; return d.innerHTML.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'); }
+  function startCoach(i) {
+    coachAt = i; coachFlags = {}; writeCoach();
+    if (!coachEl) {
+      coachEl = h('div', { class: 'coach', role: 'status', 'aria-live': 'polite' }, [
+        h('div', { class: 'coach-top' }, [h('span', { class: 'coach-k' }), h('span', { class: 'coach-n' }),
+          h('button', { type: 'button', class: 'coach-end', 'data-action': 'coach-end', text: 'End practice' })]),
+        h('p', { class: 'coach-t' }),
+        h('div', { class: 'coach-btns' }, [h('button', { type: 'button', class: 'btn-link coach-skip', 'data-action': 'coach-skip', text: 'Skip this step' }),
+          h('button', { type: 'button', class: 'btn-primary coach-finish', 'data-action': 'coach-finish', text: 'Finish' })])
+      ]);
+      document.body.appendChild(coachEl);
+    }
+    document.body.classList.add('coaching');
+    drawCoach(); clearInterval(coachTimer); coachTimer = setInterval(coachTick, 400);
+  }
+  function drawCoach() {
+    var c = COACH[coachAt]; if (!c || !coachEl) return;
+    coachEl.classList.remove('done');
+    coachEl.querySelector('.coach-k').textContent = 'Practice · ' + c.k;
+    coachEl.querySelector('.coach-n').textContent = (coachAt + 1) + ' of ' + COACH.length;
+    coachEl.querySelector('.coach-t').innerHTML = coachText(c.t);
+    coachEl.querySelector('.coach-skip').hidden = !c.skip;
+    coachEl.querySelector('.coach-finish').hidden = !c.end;
+    coachEl.querySelector('.coach-end').hidden = !!c.end;
+    sizeCoach();
+  }
+  function sizeCoach() { if (coachEl) document.body.style.setProperty('--coach-h', coachEl.offsetHeight + 'px'); }
+  function coachTick() {
+    if (coachAt < 0 || !coachEl) return;
+    if (!isPractice()) { stopCoach(); return; }
+    // Out of the way while a panel or the tour is open.
+    coachEl.hidden = !!document.querySelector('.overlay:not([hidden])') || document.body.classList.contains('touring') || document.body.classList.contains('handoff-open');
+    var c = COACH[coachAt];
+    if (coachMoving || !c || c.end || !c.done()) return;
+    coachMoving = true; coachEl.classList.add('done');
+    coachEl.querySelector('.coach-t').innerHTML = '✓ ' + coachText(c.t);
+    setTimeout(function () { coachMoving = false; coachAt++; writeCoach(); drawCoach(); }, 1100);
+  }
+  function writeCoach() { try { if (coachAt >= 0) localStorage.setItem(COACH_KEY, String(coachAt)); else localStorage.removeItem(COACH_KEY); } catch (e) { /* ignore */ } }
+  function stopCoach() {
+    coachAt = -1; writeCoach(); clearInterval(coachTimer);
+    if (coachEl) coachEl.remove(); coachEl = null;
+    document.body.classList.remove('coaching'); document.body.style.removeProperty('--coach-h');
+  }
+  function resumeCoach() { // the app was reopened in the middle of a guided practice
+    var n = null; try { n = localStorage.getItem(COACH_KEY); } catch (e) { /* ignore */ }
+    if (n !== null && isPractice() && COACH[+n]) startCoach(+n); else if (n !== null) { coachAt = -1; writeCoach(); }
+  }
+  // A practice handoff opened on this phone: a practice week too. This phone's own huddle is set aside.
+  function loadPracticeHandoff(incoming) {
+    var snap = isPractice() ? state.practiceSnapshot : JSON.parse(JSON.stringify(state));
+    state = incoming; showBlank = {};
+    state.loaded = { fileName: 'Practice handoff', ward: str(incoming.ward), date: str(incoming.date), count: state.rr.filter(rrShown).length, practice: true };
+    state.practiceSnapshot = snap;
+    resetView(); renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
+    toast('Practice handoff loaded. When you’re done, remove the practice week and your own huddle comes back.', 8000);
+  }
   function removePractice() {
+    stopCoach();
     var snap = state.practiceSnapshot;
     state = normalizeState(snap || null); state.loaded = null; state.practiceSnapshot = null;
     resetView(); renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
@@ -3041,7 +3145,8 @@
     return 'Huddle - ' + w + ' - ' + s.date + '.pdf';
   }
 
-  async function buildPdf(s) {
+  async function buildPdf(s, opts) {
+    opts = opts || {};
     var P = PDFLib;
     var doc = await P.PDFDocument.create();
     var F = {
@@ -3362,8 +3467,13 @@
       if (num) tx(R - nw, H - 20, num, F.reg, 8, C.gray);
     });
 
+    // A sample (a practice week) says so across every page, and carries no data to load.
+    if (opts.sample) pages.forEach(function (pg) {
+      pg.drawText('SAMPLE', { x: 70, y: 250, size: 92, font: F.bold, color: rgb(0.70, 0.16, 0.16), opacity: 0.13, rotate: P.degrees(52) });
+      pg.drawText('SAMPLE · practice names, not a real huddle', { x: L, y: H - 14, size: 8, font: F.bold, color: rgb(0.70, 0.16, 0.16) });
+    });
     // Metadata and the hidden copy of the form data used by "Load last week"
-    doc.setTitle(DOC_TITLE + ' – ' + (wardTxt || 'Ward') + ' – ' + shortDate(s.date));
+    doc.setTitle((opts.sample ? 'SAMPLE – ' : '') +DOC_TITLE + ' – ' + (wardTxt || 'Ward') + ' – ' + shortDate(s.date));
     doc.setSubject(DOC_TITLE);
     doc.setKeywords([APP_ID]);
     doc.setCreator('Huddle agenda form');
@@ -3371,7 +3481,7 @@
     doc.setCreationDate(new Date());
     doc.setModificationDate(new Date());
     var payload = makePayload(s);
-    doc.getInfoDict().set(P.PDFName.of('HuddleData'), P.PDFHexString.fromText(JSON.stringify(payload)));
+    if (!opts.sample) doc.getInfoDict().set(P.PDFName.of('HuddleData'), P.PDFHexString.fromText(JSON.stringify(payload)));
     var bytes = await doc.save();
     return { bytes: bytes, pages: total, payload: payload };
   }
@@ -3535,7 +3645,8 @@
     $('#send-title').textContent = resending ? 'Share this agenda again' : 'Send this agenda';
     $('#share-btn').disabled = true; $('#share-btn').textContent = 'Share PDF';
     $('#share-hint').textContent = resending ? 'Only share via email or text message. Do not share through any other app. Your current huddle isn’t changed.' : SHARE_HINT;
-    $('#send-recipients').hidden = false;
+    var rc = $('#send-recipients'); rc.hidden = false;
+    if (!rc.getAttribute('data-html')) rc.setAttribute('data-html', rc.innerHTML); else rc.innerHTML = rc.getAttribute('data-html'); // a sample's note is put back
   }
 
   // Keep this week's agenda in the phone's saved agendas (newest 4).
@@ -3546,6 +3657,7 @@
 
   // Ward, date and some content are needed before sending or saving.
   function readyToSave(verb) {
+    if (isPractice() && verb === 'send') return true; // a practice week sends a sample, stamped SAMPLE
     if (state.loaded && state.loaded.practice) {
       ask({ title: 'Remove the practice week first', body: 'Practice names can’t be ' + (verb === 'save' ? 'saved' : 'sent') + '. Remove the practice week, then fill in your real huddle.',
         primary: 'Remove practice week', onPrimary: removePractice, secondary: 'Cancel' });
@@ -3594,12 +3706,17 @@
     $('#send-sheet [data-action="close-send"]').textContent = resending ? 'Close' : 'Keep editing';
     $('#send-date-text').textContent = parseISO(agenda.date) ? parseISO(agenda.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : 'today';
     $('#send-date').value = agenda.date;
-    var name = fileName(agenda);
+    var sample = !resending && isPractice();
+    var name = sample ? fileName(agenda).replace(/^Huddle - /, 'Huddle SAMPLE - ') : fileName(agenda);
     $('#send-filename').textContent = name;
+    if (sample) {
+      $('#send-title').textContent = 'Send a sample agenda';
+      $('#send-recipients').textContent = 'This is a practice: sample names, and SAMPLE across every page. Send it to yourself to see what the agenda looks like.';
+    }
     $('#send-status').textContent = 'Making your PDF…';
     openOverlay('#send-sheet', '#send-title');
     try {
-      var out = await buildPdf(agenda);
+      var out = await buildPdf(agenda, { sample: sample });
       sendFile = new File([out.bytes], name, { type: 'application/pdf' });
       sendPayload = out.payload;
       $('#send-status').textContent = out.pages + (out.pages === 1 ? ' page' : ' pages') + ' · locked so it can’t be edited';
@@ -3625,7 +3742,13 @@
   // No share menu (some desktop browsers): the PDF downloads, and the huddle closes the same as sharing it.
   async function downloadAndClose() {
     download(sendFile);
+    if (isPractice()) { closeSend(); sampleSent(); return; }
     closeSend(); closeHuddle(true);
+  }
+  // A sample changes nothing: the practice week stays as it was.
+  function sampleSent() {
+    coachMark('sent');
+    ask({ title: 'Sample sent', success: true, body: 'Open it to see what the weekly agenda looks like. Nothing changed in your practice week, and your own huddle is still set aside.', primary: 'OK' });
   }
 
   async function sharePdf() {
@@ -3646,6 +3769,7 @@
         await downloadAndClose();
         return;
       }
+      if (isPractice()) { closeSend(); sampleSent(); return; }
       closeSend(); closeHuddle();
     } else {
       await downloadAndClose();
@@ -3683,7 +3807,7 @@
       startSend(null, true);
     });
     renderAll();
-    datesForWhens(); renderCP(); renderTN(); renderFN();
+    datesForWhens(); renderCP(); renderTN(); renderFN(); resumeCoach();
     checkHandoffLink();
     window.addEventListener('hashchange', checkHandoffLink);
     // Tapping the date opens the phone's date picker right there.
