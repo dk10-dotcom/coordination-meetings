@@ -144,11 +144,11 @@ const huddle = {
     await p.click('.door-wc'); await p.waitForTimeout(350);
     await p.click('[data-action="open-wc-list"][data-a="cp"]'); await p.waitForTimeout(350);
     const wcHeads = await p.evaluate(() => ['nm', 'rm', 'bt'].map(g => { const head = document.querySelector('[data-wc="' + g + '"] .list-head'); return { band: getComputedStyle(head).backgroundColor, size: parseFloat(getComputedStyle(head.querySelector('.list-title')).fontSize), link: !!head.querySelector('[data-action="how-help"]') }; }));
-    ok(wcHeads.every(x => !x.link) && (await linksShown()) === 0, tag + ': Ward council’s lists have no link');
+    ok(wcHeads.every(x => x.link) && (await linksShown()) === 3, tag + ': Ward council’s three lists have the link too');
     ok(wcHeads.every(x => x.band !== 'rgba(0, 0, 0, 0)' && x.size >= 18) && await noOverflow(), tag + ': Ward council’s lists have the same bold names on bands');
     await p.goBack(); await p.waitForTimeout(300);
     await p.click('[data-action="open-wc-list"][data-a="fn"]'); await p.waitForTimeout(350);
-    ok((await p.evaluate(() => document.body.dataset.view)) === 'wc-fn' && (await linksShown()) === 0 && await p.isVisible('[data-action="find-tips"]'), tag + ': Ward council’s Find New People to Teach has no link');
+    ok((await p.evaluate(() => document.body.dataset.view)) === 'wc-fn' && (await linksShown()) === 1 && await p.isVisible('[data-action="find-tips"]'), tag + ': Ward council’s Find New People to Teach has its link too');
     await p.goBack(); await p.waitForTimeout(300); await p.goBack(); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(200);
     await p.click('#before-box'); await p.waitForTimeout(350);
     const bwHeads = await p.evaluate(() => ['nm', 'rm', 'bt'].map(g => { const head = document.querySelector('[data-bw="' + g + '"] .list-head'); return head ? { band: getComputedStyle(head).backgroundColor, link: !!head.querySelector('[data-action="how-help"]') } : null; }));

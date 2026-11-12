@@ -32,8 +32,9 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
   don't cite a source for wording that isn't in it. `test/howhelp.js` checks the lines and links.
 - Keep the data embedded in the PDF and the handoff link format compatible with earlier versions,
   so an older PDF or link still loads.
-- **The training video is made from the app itself.** When the look or the steps change, run
-  `node test/tools/video/make.js` (wording and timing are in `test/tools/video/scenes.js`) and watch it.
+- **The training slides are made from the app itself.** When the look or the steps change, run
+  `node test/tools/slides/make.js` (the words are in `test/tools/slides/scenes.js`) and look through them in
+  How to use → Training slides. People tap Next when ready; don't make them advance on their own.
 - **The PDF is read on phones.** Its pages are phone-shaped (360 × 780 points) with one short block
   per person: no tables, no small print. When its look changes, remake the sample agenda pictures
   with `node test/tools/make-sample.js` and look at them.
@@ -56,7 +57,7 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
 | `styles.css` | Look and layout |
 | `sw.js` | Offline support. `CACHE` must change on every release |
 | `vendor/pdf-lib.min.js` | PDF library |
-| `sample/`, `media/`, `icons/`, `manifest.webmanifest` | Sample agenda images, training video, app icon |
+| `sample/`, `media/`, `icons/`, `manifest.webmanifest` | Sample agenda images, training slides (`media/slides/`), app icon |
 | `docs/SPEC.md` | How the app behaves |
 | `test/` | Automated checks (Playwright). `test/obsolete/` is old material kept for reference |
 
@@ -69,7 +70,7 @@ python3 -m http.server 8765          # from the top folder; the tests expect thi
 node test/twodoor.js                 # one test
 bash test/run-all.sh                 # every test, with a summary (about 20 minutes)
 node test/tools/make-sample.js       # remakes sample/page-*.png (the sample agenda) from the current PDF
-node test/tools/video/make.js        # remakes the training video and its poster from the app as it is now
+node test/tools/slides/make.js       # remakes the training slides (media/slides/) from the app as it is now
 ```
 
 See `test/README.md` for setup (Playwright and the poppler PDF tools).

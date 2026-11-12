@@ -3,7 +3,7 @@
 const { chromium, devices } = require('playwright');
 const fs = require('fs');
 const seed = require('./seed.js');
-const OUT = require('path').join(__dirname, '..', '..', 'out-video', 'cap'); fs.mkdirSync(OUT, { recursive: true }); const shots = [];
+const OUT = require('path').join(__dirname, '..', '..', 'out-slides', 'cap'); fs.mkdirSync(OUT, { recursive: true }); const shots = [];
 module.exports = (async () => {
   const b = await chromium.launch();
   const ctx = await b.newContext({ ...devices['iPhone 13'], deviceScaleFactor: 2 });

@@ -420,6 +420,30 @@
   </div>
 </div>
 
+<!-- Training slides: one at a time; Next when ready. Pictures and words are in media/slides (made by test/tools/slides/make.js). -->
+<div class="overlay" id="slides-sheet" hidden>
+  <div class="sheet slides" role="dialog" aria-modal="true" aria-labelledby="slide-title">
+    <div class="slides-top">
+      <span class="slides-count" id="slides-count"></span>
+      <button type="button" class="sheet-x" data-action="close-slides" aria-label="Close the slides">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4.5 4.5l9 9M13.5 4.5l-9 9"/></svg>
+      </button>
+    </div>
+    <div class="slides-bar" aria-hidden="true"><span id="slides-fill"></span></div>
+    <div class="slide" id="slide" aria-live="polite">
+      <p class="slide-kicker" id="slide-kicker"></p>
+      <h2 id="slide-title"></h2>
+      <p class="slide-body" id="slide-body"></p>
+      <p class="slide-fine" id="slide-fine" hidden></p>
+      <img class="slide-img" id="slide-img" alt="">
+    </div>
+    <div class="slides-nav">
+      <button type="button" class="btn-secondary" data-action="slide-prev" id="slide-prev">Back</button>
+      <button type="button" class="btn-primary" data-action="slide-next" id="slide-next">Next</button>
+    </div>
+  </div>
+</div>
+
 <!-- The ward name: set once, from the opening screen's header card -->
 <div class="overlay" id="ward-sheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ward-title">
@@ -578,7 +602,7 @@
         <ul class="help-body">
           <li>Tap <strong>Ward council</strong>, then <strong>Covenant Path Report</strong> or <strong>Focus names</strong>.</li>
           <li>Tap a name, or <strong>Add a name</strong>. Choose the next ordinance; add what they need.</li>
-          <li>Fill this in before or during ward council. It all shows up in the Huddle, so nothing is typed twice.</li>
+          <li>For ideas, tap <strong>How can we help?</strong> It all shows up in the Huddle, so nothing is typed twice.</li>
         </ul>
       </details></li>
       <li><details class="help-item">
@@ -692,14 +716,9 @@
       <li><button type="button" class="nav-row" data-action="practice">
         <span class="step-text"><span class="step-title">Try a practice week</span><span class="step-status">Sample names and assignments to try it with</span></span><span class="step-chev" aria-hidden="true">›</span>
       </button></li>
-      <li><details class="help-item" id="help-video-row">
-        <summary class="nav-row"><span class="step-text"><span class="step-title">Watch the training video</span><span class="step-status">About 4 minutes</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
-        <div class="help-body help-video">
-          <video id="help-video" controls playsinline preload="none" poster="media/training-poster.jpg" aria-label="Training video: the Huddle app">
-            <source src="media/training-video.mp4" type="video/mp4">
-          </video>
-        </div>
-      </details></li>
+      <li><button type="button" class="nav-row" data-action="slides" aria-haspopup="dialog" id="help-slides-row">
+        <span class="step-text"><span class="step-title">Training slides</span><span class="step-status">At your own pace</span></span><span class="step-chev" aria-hidden="true">›</span>
+      </button></li>
     </ul>
 
     <button type="button" class="btn-primary full" data-action="close-help" id="help-done">Got it</button>

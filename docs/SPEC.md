@@ -343,13 +343,13 @@ called **Focus names** in both meetings; the PDF's heading for it stays "Name Ne
 
 A plan for the week and any number of assignments (who will do what, and when), plus
 **Tips for finding new people to teach**. The same section opens from Ward council.
-In the Huddle its "This week's plan" band carries its own **How can we help?** link; Ward council's copy does not have it.
+Its "This week's plan" band carries its own **How can we help?** link, in the Huddle and in Ward council.
 
 ### How can we help?
 
 Questions to talk through, for the person conducting who is not sure what to ask. The link is in
-the Huddle only: under New members, Returning members and Those being taught in the Covenant Path
-Report, and at the top of Find New People to Teach. It is not in Ward council, Before ward council
+the Huddle and in Ward council: under New members, Returning members and Those being taught in the
+Covenant Path Report, and at the top of Find New People to Teach. It is not in Before ward council
 or on a person's screen.
 
 Tapping it slides up a panel with that section's questions and no others:
@@ -475,9 +475,13 @@ link clears both from the address bar.
     PDF, an assignment text or a handoff); to protect the PDF (the sharing rule word for word, and
     delete old copies); and never to enter confidential or sensitive information, because everyone
     who gets the PDF can read it.
-  - **Watch or try:** Take the tour, See a sample agenda, Try a practice week, and Watch the
-    training video (the video opens inside its row; closing the row stops it). The video (about 4 minutes,
-    no sound, words on screen) is made from the app with `node test/tools/video/make.js`.
+  - **Watch or try:** Take the tour, See a sample agenda, Try a practice week, and Training slides
+    ("At your own pace"). The slides open full screen, one at a time: a count ("3 of 33") and a bar at the
+    top, the step in its color, a short title and a few sentences, then a picture of the app with a ring
+    around what to tap. **Back** and **Next** at the bottom (or a swipe left or right); nothing moves on by
+    itself, and the last slide's button is **Done**. The X closes them. The pictures and words are in
+    `media/slides/` (fetched from the website, not kept offline) and are made from the app with
+    `node test/tools/slides/make.js`; the words are in `test/tools/slides/scenes.js`.
 
   **Sources** is the second row under About this app: links to *Preach My Gospel*, chapter 13
   (questions), General Handbook 23.4 (the meeting) and "Ideas for Weekly Missionary Coordination"

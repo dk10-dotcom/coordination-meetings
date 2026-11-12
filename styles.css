@@ -657,7 +657,6 @@ body.touring .actionbar { z-index: 10; }
 .help-warning { display: flex; align-items: center; gap: 10px; margin: 0; padding: 12px 14px; border-radius: 12px; background: #FBEAEA; border: 1.5px solid #E8B4B4; font-size: 15px; color: #7A1C1C; }
 .help-warning strong { color: #8E1F1F; }
 .help-warning-icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #B22A2A; color: #FFFFFF; font-size: 15px; font-weight: 800; }
-.help-video video { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; background: #F3F5F9; border: 1px solid var(--line); }
 
 /* Sample agenda viewer: a Close button that stays at the top while scrolling */
 .sample-view { gap: 12px; }
@@ -756,7 +755,6 @@ body.touring .actionbar { z-index: 10; }
 .list-head .how-help { flex: 0 0 100%; }
 .list-panel:not(.rows) .list-head { flex-wrap: wrap; }
 .list-panel.rows .list-head .how-help { min-height: 40px; margin-bottom: -8px; }
-body[data-view="wc-fn"] .how-help-fn { display: none; } /* the Huddle only, not ward council's copy of this page */
 
 /* The panel: a list name, the question the manual asks, and its discussion items. Read-only. */
 .sheet.howhelp { gap: 14px; padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
@@ -1255,3 +1253,22 @@ body[data-view="start"] .actionbar { background: rgba(243, 245, 249, .72); -webk
 .howhelp-q { display: block; }
 .howhelp-list li.many .howhelp-q + .howhelp-q { padding-top: 10px; border-top: 1px solid rgba(27, 43, 75, .1); }
 .howhelp-list { gap: 14px; }
+
+/* Training slides: a full-height panel; words on top, the app's picture under them, Back and Next at the bottom */
+#slides-sheet { z-index: 30; }
+.sheet.slides { gap: 10px; height: 100vh; height: 100dvh; max-height: none; border-radius: 0; padding-top: max(14px, env(safe-area-inset-top, 0px)); padding-bottom: max(14px, env(safe-area-inset-bottom, 0px)); }
+.sheet.slides > .grab { display: none; }
+.slides-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.slides-count { font-size: 14px; font-weight: 700; color: var(--muted); }
+.slides-bar { height: 5px; border-radius: 5px; background: #E1E6EE; overflow: hidden; }
+.slides-bar span { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 5px; transition: width .25s; }
+.slide { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+.slide-kicker { margin: 4px 0 0; font-size: 13px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+.sheet.slides h2 { font-size: 24px; line-height: 1.15; }
+.slide-body { margin: 0; font-size: 17px; line-height: 1.45; color: var(--text); }
+.slide-fine { margin: 0; font-size: 14px; font-weight: 700; color: #7A1C1C; }
+.slide-img { flex: 1; min-height: 160px; width: 100%; object-fit: contain; object-position: center top; margin-top: 8px; }
+.slide-img[hidden] { display: none; }
+.slides-nav { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; }
+.slides-nav button { min-height: 52px; font-size: 17px; }
+.slides-nav button:disabled { opacity: .45; }

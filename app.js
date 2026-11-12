@@ -40,7 +40,7 @@
   var SOURCE = { nm: 'New members', rm: 'Returning members', bt: 'Those being taught', tn: 'Name Next Ordinance', fn: 'Finding new people' };
   /* "How can we help?": the discussion items Preach My Gospel, chapter 13 suggests for the weekly coordination
    * meeting ("Participate in the Weekly Coordination Meeting"), one set per section, in the manual's words.
-   * They open on request in the Huddle only. Nothing is typed or saved, and none of it goes on the PDF. */
+   * They open on request in the Huddle and in ward council. Nothing is typed or saved, and none of it goes on the PDF. */
   var HOW_HELP = {
     nm: { list: 'New members', title: 'How can we help those who were recently baptized?', items: [
       'Which new members in their first year of membership are attending sacrament meeting? How can we help any who are not attending?',
@@ -921,6 +921,33 @@
     }));
     openOverlay('#howhelp-sheet', '.sheet-x'); sheet.scrollTop = 0;
   }
+  /* ---------- Training slides ----------
+   * The training, one slide at a time: a picture of the app with a ring around what to tap, and a few words.
+   * Next when ready; nothing moves on by itself. The slides come from this website, like the app's own files. */
+  var slides = null, slideAt = 0;
+  function openSlides() {
+    openOverlay('#slides-sheet', '#slide-next');
+    if (slides) { showSlide(slideAt); return; }
+    $('#slide-title').textContent = 'Loading…'; $('#slide-body').textContent = ''; $('#slide-kicker').textContent = ''; $('#slide-img').hidden = true;
+    fetch('media/slides/slides.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (list) {
+      slides = list; showSlide(0);
+    }, function () { $('#slide-title').textContent = 'The slides didn’t load'; $('#slide-body').textContent = 'Check the phone’s connection and try again.'; });
+  }
+  function showSlide(i) {
+    if (!slides) return;
+    slideAt = Math.max(0, Math.min(slides.length - 1, i));
+    var s = slides[slideAt], img = $('#slide-img');
+    $('#slide-kicker').textContent = s.kicker; $('#slide-kicker').style.color = s.color;
+    $('#slide-title').textContent = s.title; $('#slide-body').textContent = s.body;
+    $('#slide-fine').hidden = !s.fine; $('#slide-fine').textContent = s.fine || '';
+    img.hidden = false; img.src = 'media/slides/' + s.img; img.alt = 'The app: ' + s.title;
+    $('#slides-count').textContent = (slideAt + 1) + ' of ' + slides.length;
+    $('#slides-fill').style.width = Math.round(100 * (slideAt + 1) / slides.length) + '%';
+    $('#slide-prev').disabled = slideAt === 0;
+    $('#slide-next').textContent = slideAt === slides.length - 1 ? 'Done' : 'Next';
+    $('#slides-sheet .sheet').scrollTop = 0;
+    if (slides[slideAt + 1]) { var pre = new Image(); pre.src = 'media/slides/' + slides[slideAt + 1].img; } // the next picture is ready when Next is tapped
+  }
   /* ---------- Name rows: one line per person; tap to open their screen ---------- */
   function rowTag(text, cls) { return h('span', { class: 'fold-tag' + (cls ? ' ' + cls : ''), text: text }); }
   function personRow(kind, gid, i, a) {
@@ -1001,7 +1028,7 @@
     var kids = [h('div', { class: 'list-head' }, [
       h('h3', { class: 'list-title', text: title }),
       h('span', { class: 'list-count', text: isTn ? tnCountText() : ok ? 'None this week' : countText(countNamed(gid)) }),
-      kind === 'hd' && HOW_HELP[gid] ? howHelpLink(gid) : null // the Huddle only: not ward council's or Before ward council's lists
+      (kind === 'hd' || kind === 'wc') && HOW_HELP[gid] ? howHelpLink(gid) : null // the Huddle and ward council (not Before ward council)
     ]), h('ul', { class: 'steps-list person-rows' }, rows)];
     if (kind === 'hd' && gid === 'nm' && named) kids.push(h('p', { class: 'temple-goal', text: 'Goal: every new member attends the temple for baptisms for the dead within 30 days of their baptism.' }));
     var attrs = { class: 'list-panel rows list-' + gid + (named ? '' : ' is-empty'), 'aria-label': title };
@@ -2053,6 +2080,10 @@
       }
       case 'open-details': openDetails(); break;
       case 'edit-ward': openOverlay('#ward-sheet', '#ward'); break;
+      case 'slides': openSlides(); break;
+      case 'slide-next': if (slides && slideAt >= slides.length - 1) closeOverlay('#slides-sheet'); else showSlide(slideAt + 1); break;
+      case 'slide-prev': showSlide(slideAt - 1); break;
+      case 'close-slides': closeOverlay('#slides-sheet'); break;
       case 'close-ward': closeOverlay('#ward-sheet'); renderDoors(); renderSteps(); break;
       case 'close-details': detailsOpen = false; renderDetails(); window.scrollTo(0, 0); break;
       case 'edit-one': {
@@ -3767,13 +3798,14 @@
       if (e.target.id === 'tips-sheet') closeOverlay('#tips-sheet');
       if (e.target.id === 'find-tips-sheet') closeOverlay('#find-tips-sheet');
       if (e.target.id === 'howhelp-sheet') closeOverlay('#howhelp-sheet');
+      if (e.target.id === 'slides-sheet') closeOverlay('#slides-sheet');
       if (e.target.id === 'ward-sheet') { closeOverlay('#ward-sheet'); renderDoors(); renderSteps(); }
       if (e.target.id === 'sample-sheet') closeOverlay('#sample-sheet');
       if (e.target.id === 'confirm-sheet' && askSecondary) askSecondary();
     });
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;
-      var top = ['#confirm-sheet', '#sample-sheet', '#handoff-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#find-tips-sheet', '#howhelp-sheet', '#ward-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
+      var top = ['#confirm-sheet', '#sample-sheet', '#handoff-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#find-tips-sheet', '#howhelp-sheet', '#ward-sheet', '#slides-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
       if (top) dismissSheet(top);
     });
     enableSwipeDown();
@@ -3811,9 +3843,20 @@
       else if (window.HuddleTour && !window.HuddleTour.seen()) window.HuddleTour.start();
     }
     window.addEventListener('hashchange', function () { if (location.hash === '#help') openHelp(); });
-    // Closing the training video's row stops the video.
-    var videoRow = $('#help-video-row');
-    if (videoRow) videoRow.addEventListener('toggle', function () { if (!videoRow.open) { try { $('#help-video').pause(); } catch (e) { /* ignore */ } } });
+    // Training slides: swipe left for the next one, right for the one before.
+    (function () {
+      var el = $('#slide'), x0 = null, y0 = 0;
+      if (!el) return;
+      el.addEventListener('touchstart', function (e) { if (e.touches.length === 1) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; } }, { passive: true });
+      el.addEventListener('touchend', function (e) {
+        if (x0 === null) return; var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+        if (Math.abs(dx) > 50 && Math.abs(dx) > 1.5 * Math.abs(dy)) showSlide(slideAt + (dx < 0 ? 1 : -1));
+      }, { passive: true });
+      document.addEventListener('keydown', function (e) {
+        if ($('#slides-sheet').hidden) return;
+        if (e.key === 'ArrowRight') showSlide(slideAt + 1); else if (e.key === 'ArrowLeft') showSlide(slideAt - 1);
+      });
+    })();
     // Enter moves to the next field instead of doing nothing
     document.addEventListener('keydown', function (e) { // Done on the keyboard closes the ward box
       if (e.key === 'Enter' && e.target && e.target.id === 'ward') { e.preventDefault(); closeOverlay('#ward-sheet'); renderDoors(); renderSteps(); }
