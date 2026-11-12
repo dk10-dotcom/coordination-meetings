@@ -7,6 +7,7 @@ const { execFileSync } = require('child_process');
 const fs = require('fs');
 const OUT = 'test/out-scen'; fs.mkdirSync(OUT, { recursive: true });
 (async () => {
+  await require('./tools/compat-fill.js')();
   const b = await chromium.launch(); let pass = 0, fail = 0; const notes = [];
   const ok = (c, m) => { if (c) { pass++; console.log('PASS', m); } else { fail++; console.log('FAIL', m); } };
   const note = m => { notes.push(m); console.log('NOTE', m); };

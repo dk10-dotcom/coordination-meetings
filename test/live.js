@@ -7,6 +7,7 @@ const OUT = 'test/out-live'; fs.mkdirSync(OUT, { recursive: true });
 const iso = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return iso(d); };
 (async () => {
+  await require('./tools/compat-fill.js')();
   const b = await chromium.launch(); let pass = 0, fail = 0;
   const ok = (c, m) => { if (c) { pass++; console.log('PASS', m); } else { fail++; console.log('FAIL', m); } };
   const ctx = await b.newContext({ ...devices['iPhone 13'] });

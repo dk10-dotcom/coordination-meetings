@@ -117,6 +117,10 @@ h1 { font-size: 30px; line-height: 1.12; font-weight: 700; color: var(--ink); }
   appearance: none;
 }
 .field input[type="date"] { line-height: 42px; }
+/* Next ordinance: a menu that looks like the other fields, with a small arrow */
+.field select { width: 100%; min-height: 44px; padding: 0 36px 0 12px; border: 1px solid var(--field-line); border-radius: 8px; font: inherit; font-size: 16px; font-weight: 400; color: var(--ink); text-overflow: ellipsis;
+  -webkit-appearance: none; appearance: none; background: var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none' stroke='%235B6474' stroke-width='1.8'%3E%3Cpath d='M3.5 5.5L7 9l3.5-3.5'/%3E%3C/svg%3E") no-repeat right 12px center; }
+.field select.is-empty { color: #8A93A3; }
 .field input::placeholder { color: #8A93A3; }
 .field.full { grid-column: 1 / -1; }
 
@@ -1232,3 +1236,10 @@ body[data-view="start"] .actionbar { background: rgba(243, 245, 249, .72); -webk
   .tl-step .row-icon { width: 34px; height: 34px; } .tl-step.tl-next .row-icon { width: 40px; height: 40px; }
   .tl-step .check-line, .tl-step .door-title { font-size: 17.5px; }
 }
+
+/* Each list's name and its names read as one card: the band is the card's top, the names hang right under it */
+.list-panel.rows { gap: 0; }
+.list-panel.rows .list-head { border-radius: 14px 14px 0 0; }
+.list-panel.rows .list-head + .person-rows { border-radius: 0 0 14px 14px; border: 1px solid var(--list-line); border-top: 0; border-left: 6px solid var(--list-ink); }
+.list-panel.rows .temple-goal { margin-top: 8px; }
+.list-panel.rows + .list-panel.rows { margin-top: 14px; }

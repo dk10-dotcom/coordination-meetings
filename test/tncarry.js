@@ -19,6 +19,7 @@ async function setDate(pg, date) { await pg.fill('#date', date); await pg.waitFo
 async function freshWeek(pg) { if (await pg.isVisible('#load-panel [data-action="load"]')) return; await pg.evaluate(() => document.querySelector('.clear-link').click()); await pg.click('#confirm-primary'); await pg.waitForTimeout(250); }
 
 (async () => {
+  await require('./tools/compat-fill.js')();
   const b = await chromium.launch(); let pass = 0, fail = 0;
   const ok = (c, m) => { if (c) pass++; else { fail++; console.log('FAIL', m); } };
   const ctx = await b.newContext({ ...devices['iPhone 13'] });

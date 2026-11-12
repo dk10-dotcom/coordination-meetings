@@ -46,6 +46,7 @@ names as rows and one screen per person.
 | `practice.js` | Practice week: loading, limits, removing |
 | `fields.js`, `zones.js`, `committed.js`, `temple.js`, `convert.js`, `remove.js`, `tncarry.js` | What's on each card and what carries to the next huddle |
 | `textassign.js` | Text this assignment |
+| `datesmenu.js` | When as a date, Next ordinance as a menu, older typed values still loading, a list's band joined to its names, texting a referral |
 | `lively.js` | The header cards and their progress bars, section icons, initials, a person's screen header, the check's pop, the Sent celebration, both phone sizes and the two test layouts |
 | `howhelp.js` | How can we help? links and their panels (Huddle only, right questions, closes with one tap, nothing saved, nothing on the PDF), the bold list names on bands, and every source line and link |
 | `tour.js`, `help.js`, `tips.js`, `sample-view.js`, `swipe.js` | Tour, How to use, Tips, the sample agenda, closing sheets |

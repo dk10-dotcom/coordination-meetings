@@ -1,6 +1,7 @@
 const { chromium, devices } = require('playwright');
 const res = []; const ok = (l, c, x) => { res.push(c); console.log((c ? 'PASS ' : 'FAIL ') + l + (x ? '  ' + x : '')); };
 (async () => {
+  await require('./tools/compat-fill.js')();
   const b = await chromium.launch();
   for (const [d, n] of [['iPhone 13', 'i13'], ['iPhone SE', 'se']]) {
     const ctx = await b.newContext({ ...devices[d] });

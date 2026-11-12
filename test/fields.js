@@ -26,6 +26,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
 const res = []; const ok = (l, c, x) => { res.push(c); console.log((c ? 'PASS ' : 'FAIL ') + l + (x ? '  ' + x : '')); };
 const txt = f => execFileSync('pdftotext', ['-raw', f, '-']).toString();
 (async () => {
+  await require('./tools/compat-fill.js')();
   const b = await chromium.launch(); const ctx = await b.newContext({ ...devices['iPhone 13'], acceptDownloads: true });
   await ctx.addInitScript(() => { try { localStorage.setItem('huddle-view-all', '1'); } catch (e) {} }); await ctx.addInitScript(() => { try { localStorage.setItem('huddle-names-hint-seen','1'); } catch (e) {} });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
@@ -50,7 +51,7 @@ const txt = f => execFileSync('pdftotext', ['-raw', f, '-']).toString();
   await p.evaluate(async () => { const settle = () => new Promise(r => setTimeout(r, 150)); const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) { g.click(); await settle(); } const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); await settle(); document.querySelector('[data-action="after-done"]').click(); await settle(); } }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#share-btn:not([disabled])');
   const [d1] = await Promise.all([p.waitForEvent('download'), p.click('#share-btn')]); await d1.saveAs(OUT + '/w1.pdf');
   const t1 = txt(OUT + '/w1.pdf').replace(/\s+/g, ' ');
-  ok('PDF labels each part of a person\'s block', /Attended sacrament meeting/.test(t1) && /Next ordinance Temple recommend/.test(t1) && /Needs A friend in Relief/.test(t1) && /Action item Invite to RS dinner Sister Jensen · Thursday/.test(t1), t1.slice(t1.indexOf('Maria'), t1.indexOf('Maria') + 200));
+  ok('PDF labels each part of a person\'s block', /Attended sacrament meeting/.test(t1) && /Next ordinance Temple recommend/.test(t1) && /Needs A friend in Relief/.test(t1) && /Action item Invite to RS dinner Sister Jensen · Thu(rsday|, [A-Z][a-z]{2} \d{1,2})/.test(t1), t1.slice(t1.indexOf('Maria'), t1.indexOf('Maria') + 200));
   ok('no sacrament line for someone who was not marked', !/Sam Ortiz Attended sacrament meeting/.test(t1) && /Ana Ruiz Attended sacrament meeting/.test(t1));
   ok('PDF shows ordinance and need', t1.includes('Temple recommend') && t1.replace(/\s+/g, ' ').includes('A friend in Relief') && t1.includes('Temple prep'));
   execFileSync('pdftoppm', ['-r', '90', '-png', '-singlefile', OUT + '/w1.pdf', OUT + '/w1']);
@@ -72,7 +73,7 @@ const txt = f => execFileSync('pdftotext', ['-raw', f, '-']).toString();
   await p.evaluate(async () => { const settle = () => new Promise(r => setTimeout(r, 150)); const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) { g.click(); await settle(); } const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); await settle(); document.querySelector('[data-action="after-done"]').click(); await settle(); } }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#share-btn:not([disabled])');
   const [d2] = await Promise.all([p.waitForEvent('download'), p.click('#share-btn')]); await d2.saveAs(OUT + '/w2.pdf');
   const t2 = txt(OUT + '/w2.pdf').replace(/\s+/g, ' ');
-  ok('week 2 PDF: Return and Report row plus details in this week\'s table', t2.includes('Maria Lopez') && t2.includes('Invite to RS dinner') && t2.includes('Sister Jensen · Thursday') && t2.includes('Temple recommend') && t2.includes('A friend in Relief Society'), t2.slice(t2.indexOf('Maria'), t2.indexOf('Maria') + 160));
+  ok('week 2 PDF: Return and Report row plus details in this week\'s table', t2.includes('Maria Lopez') && t2.includes('Invite to RS dinner') && /Sister Jensen · Thu(rsday|, [A-Z][a-z]{2} \d{1,2})/.test(t2) && t2.includes('Temple recommend') && t2.includes('A friend in Relief Society'), t2.slice(t2.indexOf('Maria'), t2.indexOf('Maria') + 160));
   execFileSync('pdftoppm', ['-r', '90', '-png', '-singlefile', OUT + '/w2.pdf', OUT + '/w2']);
   console.log('pages w1/w2:', /Pages:\s+(\d+)/.exec(execFileSync('pdfinfo', [OUT + '/w1.pdf']).toString())[1], /Pages:\s+(\d+)/.exec(execFileSync('pdfinfo', [OUT + '/w2.pdf']).toString())[1]);
   console.log('PROBLEMS:', errs.length ? errs : 'none'); console.log(`${res.filter(Boolean).length}/${res.length} checks passed`);

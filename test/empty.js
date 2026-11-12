@@ -10,6 +10,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
 
 const OUT = 'test/out-empty'; fs.mkdirSync(OUT, { recursive: true });
 (async () => {
+  await require('./tools/compat-fill.js')();
   const b = await chromium.launch(); let pass = 0, fail = 0;
   const ok = (c, m) => { if (c) { pass++; console.log('PASS', m); } else { fail++; console.log('FAIL', m); } };
   const ctx = await b.newContext({ ...devices['iPhone 13'], acceptDownloads: true });

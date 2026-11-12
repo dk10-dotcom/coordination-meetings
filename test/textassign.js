@@ -3,6 +3,7 @@
 // The lists of names and each person's own screen are covered by rows.js and twodoor.js.
 const { chromium, devices } = require('playwright');
 (async () => {
+  await require('./tools/compat-fill.js')();
   const b = await chromium.launch(); let pass = 0, fail = 0;
   const ok = (c, m) => { if (c) { pass++; console.log('PASS', m); } else { fail++; console.log('FAIL', m); } };
   const ctx = await b.newContext({ ...devices['iPhone 13'] });
@@ -20,6 +21,7 @@ const { chromium, devices } = require('playwright');
   await p.fill('[data-bind="cp.nm.0.name"]', 'Daniel Rivera'); await p.fill('[data-bind="cp.nm.0.ordinance"]', 'Temple baptisms');
   await p.fill('[data-bind="cp.nm.0.need"]', 'A ride to the temple'); await p.fill('[data-bind="cp.nm.0.action"]', 'Drive him to the temple');
   ok(!(await p.isVisible(btn)), 'hidden until someone is assigned');
+  ok((await p.getAttribute('[data-bind="cp.nm.0.when"]', 'type')) === 'date', 'the When box is a date');
   await p.fill('[data-bind="cp.nm.0.assigned"]', 'Bro. Patel'); await p.fill('[data-bind="cp.nm.0.when"]', 'Sat 9 am');
   ok(await p.isVisible(btn) && (await p.textContent(btn)).includes('Text this assignment'), 'button appears with action + assigned');
   await p.locator('[data-group="nm"] .card').first().screenshot({ path: 'test/out-empty/text-btn.png' });
@@ -28,7 +30,6 @@ const { chromium, devices } = require('playwright');
   console.log(body);
   ok(href.startsWith('sms:') && body === 'Drive him to the temple\nFor: Daniel Rivera\nWhen: Saturday 9 am (Nov 14)\nFrom the Sample Ward huddle. Please report back. Thank you!', 'Messages opens with the action, who it is for, when (the day spelled out, with its date) and where it came from');
   ok(!/https?:|calendar/i.test(body), 'the text has no link in it');
-  ok((await p.getAttribute('[data-bind="cp.nm.0.when"]', 'placeholder')) === 'e.g. Sat 9 am', 'the When box suggests a day and a time');
   // What the When line says for different things typed under When (today is Sunday, Nov 8)
   const whenLine = async when => {
     await p.fill('[data-bind="cp.nm.0.when"]', when); await p.evaluate(() => { window.__sms = ''; document.activeElement && document.activeElement.blur(); });

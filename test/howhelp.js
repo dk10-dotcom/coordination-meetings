@@ -36,6 +36,7 @@ const huddle = {
 };
 
 (async () => {
+  await require('./tools/compat-fill.js')();
   const b = await chromium.launch(); let pass = 0, fail = 0;
   const ok = (c, m) => { if (c) { pass++; console.log('PASS', m); } else { fail++; console.log('FAIL', m); } };
   for (const dev of ['iPhone 13', 'iPhone SE']) {

@@ -7,6 +7,7 @@ const OUT = __dirname + '/out2';
 const BASE = 'http://127.0.0.1:8765/#huddle';
 const ok = (l, c) => console.log((c ? 'PASS ' : 'FAIL ') + l);
 (async () => {
+  await require('./tools/compat-fill.js')();
   const browser = await chromium.launch();
   const problems = [];
   const ctx = await browser.newContext({ ...devices['iPhone 13'], acceptDownloads: true });

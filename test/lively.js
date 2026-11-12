@@ -28,6 +28,7 @@ const seed = {
 };
 
 (async () => {
+  await require('./tools/compat-fill.js')();
   const b = await chromium.launch(); let bad = 0, good = 0;
   const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (c) good++; else bad++; };
   for (const dev of ['iPhone 13', 'iPhone SE']) {

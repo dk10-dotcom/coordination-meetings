@@ -54,7 +54,7 @@ module.exports = (async () => {
   await back(); await back();
   await p.click('[data-action="open-wc-list"][data-a="tn"]'); await wait(500);
   await p.click('[data-wc="tn"] [data-action="open-person"][data-b="1"]'); await wait(500); await p.evaluate(() => scrollTo(0, 0));
-  await p.fill('#person-card [data-bind$=".ordinance"]', 'Baptism'); await p.fill('#person-card [data-bind$=".need"]', 'Someone to sit with at church'); await wait(200);
+  await p.selectOption('#person-card [data-bind$=".ordinance"]', 'Baptism'); await p.fill('#person-card [data-bind$=".need"]', 'Someone to sit with at church'); await wait(200);
   await shot('s11-wc-focus-person', '#person-card [data-bind$=".ordinance"]');
   await back(); await back();
   await shot('s12-wc-note', '#wc-note', { scroll: false });
@@ -82,7 +82,7 @@ module.exports = (async () => {
   await p.click('#person-card .sac-toggle'); await wait(200);
   await shot('s19-person-sac', '#person-card .sac-toggle', { block: 'start' });
   await p.fill('#person-card [data-bind$=".action"]', 'Go with the youth to the temple on Thursday');
-  await p.fill('#person-card [data-bind$=".assigned"]', 'Bro. Patel'); await p.fill('#person-card [data-bind$=".when"]', 'Thu'); await wait(300);
+  await p.fill('#person-card [data-bind$=".assigned"]', 'Bro. Patel'); await p.fill('#person-card [data-bind$=".when"]', '2026-11-19'); await wait(300);
   await shot('s20-person-action', '#person-card [data-bind$=".action"]', { block: 'center' });
   await shot('s21-person-temple', '#person-card .temple-box', { block: 'center' });
   await shot('s22-person-text', '#person-card [data-action="text-assign"]', { block: 'center' });
@@ -92,14 +92,14 @@ module.exports = (async () => {
     const s = JSON.parse(localStorage.getItem('huddle-agenda-v1'));
     return true;
   });
-  for (const [g, i, act, who, when] of [['nm', 1, 'Ask her to give the prayer in Young Women', 'Sister Lee', 'Wed'], ['rm', 0, 'Sit with her family at sacrament meeting', 'Sister Diaz', 'Sun'], ['bt', 0, 'Home evening with the Patel family', 'Bro. Patel', 'Mon'], ['bt', 1, 'Invite him to the ward Christmas devotional', 'Bro. Young', 'Sun']]) {
+  for (const [g, i, act, who, when] of [['nm', 1, 'Ask her to give the prayer in Young Women', 'Sister Lee', '2026-11-18'], ['rm', 0, 'Sit with her family at sacrament meeting', 'Sister Diaz', '2026-11-22'], ['bt', 0, 'Home evening with the Patel family', 'Bro. Patel', '2026-11-16'], ['bt', 1, 'Invite him to the ward Christmas devotional', 'Bro. Young', '2026-11-22']]) {
     await p.click(`[data-group="${g}"] [data-action="open-person"][data-b="${i}"]`); await wait(350);
     await p.fill('#person-card [data-bind$=".action"]', act); await p.fill('#person-card [data-bind$=".assigned"]', who); await p.fill('#person-card [data-bind$=".when"]', when);
     await p.click('#person-view .person-done'); await wait(350);
   }
   await p.evaluate(() => scrollTo(0, 0)); await shot('s23-hd-cp-done');
   await p.click('[data-action="step-done"]'); await wait(600);
-  for (const [i, act, who, when] of [[0, 'A family history consultant visits', 'Sister Nguyen', 'Thu'], [1, 'Sit with him at church', 'Bro. Hansen', 'Sun']]) {
+  for (const [i, act, who, when] of [[0, 'A family history consultant visits', 'Sister Nguyen', '2026-11-19'], [1, 'Sit with him at church', 'Bro. Hansen', '2026-11-22']]) {
     await p.click('[data-action="open-step"][data-a="tn"]'); await wait(350);
     await p.click(`[data-group="tn"] [data-action="open-person"][data-b="${i}"]`); await wait(350);
     await p.fill('#person-card [data-bind$=".action"]', act); await p.fill('#person-card [data-bind$=".assigned"]', who); await p.fill('#person-card [data-bind$=".when"]', when);
@@ -108,7 +108,7 @@ module.exports = (async () => {
   await p.click('[data-action="open-step"][data-a="tn"]'); await wait(350); await p.click('[data-action="step-done"]'); await wait(500);
   await p.click('[data-action="open-step"][data-a="fn"]'); await wait(500);
   await p.fill('[data-bind="find.plan"]', 'Invite friends to the ward Christmas devotional');
-  await p.fill('[data-bind="find.items.0.task"]', 'Each family invites one friend'); await p.fill('[data-bind="find.items.0.when"]', 'Sun'); await wait(300);
+  await p.fill('[data-bind="find.items.0.task"]', 'Each family invites one friend'); await p.fill('[data-bind="find.items.0.when"]', '2026-11-22'); await wait(300);
   await p.evaluate(() => scrollTo(0, 0));
   await shot('s24-fn', '[data-step="fn"] .how-help-fn', { scroll: false });
   await p.click('[data-action="step-done"]'); await wait(500);

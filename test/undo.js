@@ -17,6 +17,7 @@ async function setDate(pg, date) { await pg.fill('#date', date); await pg.waitFo
 async function freshWeek(pg) { if (await pg.isVisible('#load-panel [data-action="load"]')) return; await pg.evaluate(() => document.querySelector('.clear-link').click()); await pg.click('#confirm-primary'); await pg.waitForTimeout(250); }
 
 (async () => {
+  await require('./tools/compat-fill.js')();
   const b = await chromium.launch(); let pass = 0, fail = 0;
   const ok = (c, m) => { if (c) pass++; else { fail++; console.log('FAIL', m); } };
   for (const dev of ['iPhone 13', 'iPhone SE']) {
@@ -46,7 +47,7 @@ async function freshWeek(pg) { if (await pg.isVisible('#load-panel [data-action=
     ok(await p.inputValue('[data-bind="cp.nm.0.action"]') === '', 'undo clears the carried action');
     ok(await p.inputValue('[data-bind="cp.nm.0.assigned"]') === '', 'undo clears the carried assignee');
     ok(await p.inputValue('[data-bind="cp.nm.0.name"]') === 'Daniel Rivera', 'name (from last week) stays');
-    ok(await p.inputValue('[data-bind="cp.nm.0.when"]') === 'Sat 9 am', 'what you typed since stays');
+    ok(/^(Sat 9 am|\d{4}-\d{2}-\d{2})$/.test(await p.inputValue('[data-bind="cp.nm.0.when"]')), 'what you typed since stays (a typed day may have become its date)');
     ok(await p.locator('[data-group="nm"] .carried-tag').count() === 0, 'carried tag gone');
     ok(await p.locator('#rr-list [data-action="carry-fwd"][data-a="0"]').count() === 1, 'Carry forward button is back');
     // Name Next Ordinance: carry fills an empty slot; undo empties it again

@@ -358,6 +358,37 @@
       })
     ]);
   }
+  /* Next ordinance is chosen from a list. A name typed in before the list existed keeps its wording as one more choice. */
+  var ORDINANCES = ['Baptism', 'Sacrament', 'Temple baptisms', 'Priesthood advancement', 'Endowment', 'Sealing'];
+  function ordField(label, path, opts) {
+    opts = opts || {};
+    var v = str(getPath(path)).trim(), list = ORDINANCES.slice();
+    var same = list.filter(function (o) { return o.toLowerCase() === v.toLowerCase(); })[0];
+    if (v && !same) list.push(v);
+    var sel = h('select', { 'data-bind': path, class: 'ord-select' + (v ? '' : ' is-empty') },
+      [h('option', { value: '', text: 'Choose one' })].concat(list.map(function (o) { return h('option', { value: o, text: o }); })));
+    sel.value = same || v;
+    return h('label', { class: 'field' + (opts.full ? ' full' : '') }, [label, sel]);
+  }
+  /* When is a date. A When typed in before ("Sat", "tomorrow") becomes that date the first time it is shown;
+   * anything that isn't a day ("this week") stays as it was typed, in a text box, so nothing is lost. */
+  var ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+  function whenShow(v) {
+    v = str(v).trim(); var d = ISO_DAY.test(v) ? parseISO(v) : null;
+    return d ? d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : v;
+  }
+  // This huddle's When boxes that still hold a typed day ("Sat") become dates, once, when the app opens.
+  // (Return and Report keeps last week's wording as it was.)
+  function datesForWhens() {
+    var fix = function (o) { var v = str(o.when).trim(), p; if (v && !ISO_DAY.test(v) && (p = parseWhen(v)) && p.date) o.when = p.date; };
+    GROUPS.forEach(function (g) { state.cp[g.id].forEach(fix); }); state.tn.forEach(fix); state.find.items.forEach(fix);
+  }
+  function whenField(label, path, opts) {
+    var v = str(getPath(path)).trim();
+    if (v && !ISO_DAY.test(v)) { var p = parseWhen(v); if (p && p.date) { setPath(path, p.date); v = p.date; } }
+    if (v && !ISO_DAY.test(v)) return field(label, path, opts);
+    return field(label, path, Object.assign({}, opts, { type: 'date', placeholder: '' }));
+  }
   function removeButton(action, a, b, label) {
     var btn = h('button', { type: 'button', class: 'btn-remove', 'data-action': action, 'data-a': a, 'data-b': b, 'aria-label': label });
     btn.appendChild(icon('x'));
@@ -389,7 +420,7 @@
   function prefillMeta(r) {
     var bits = [];
     if (str(r.assigned).trim()) bits.push('Assigned to ' + r.assigned.trim());
-    if (str(r.when).trim()) bits.push(r.when.trim());
+    if (str(r.when).trim()) bits.push(whenShow(r.when));
     return bits.join(' · ');
   }
 
@@ -537,7 +568,7 @@
     // The action comes first, then who it is for and when, with the date written out.
     return [act,
       who ? 'For: ' + who : null,
-      when ? 'When: ' + whenLine(when, parseWhen(when)) : null,
+      when ? 'When: ' + (ISO_DAY.test(when) && parseISO(when) ? parseISO(when).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : whenLine(when, parseWhen(when))) : null,
       'From the ' + (ward ? ward + ' ' : '') + 'huddle. Please report back. Thank you!'].filter(Boolean).join('\n');
   }
   /* ---------- The When line of the text ----------
@@ -585,6 +616,15 @@
     btn.hidden = !textReady(base); btn.classList.toggle('sent', sent);
     btn.replaceChildren(icon(sent ? 'check' : 'chat'), h('span', { class: 'bta-label', text: textAssignLabel(base) }));
   }
+  // A referral, written out for the full-time missionaries. Messages opens; the person picks the missionaries.
+  function textReferral(i) {
+    var x = state.referrals[i]; if (!x) return;
+    if (tourDemo || (state.loaded && state.loaded.practice)) { toast('Texting is turned off for sample names.'); return; }
+    var name = str(x.name).trim(), by = str(x.by).trim(), notes = str(x.notes).trim(), ward = state.ward.trim();
+    if (!name) { toast('Add the name first.'); return; }
+    openMessages(['Missionary referral: ' + name, by ? 'Referred by: ' + by : null, notes || null,
+      'From the ' + (ward ? ward + ' ' : '') + 'huddle. Thank you!'].filter(Boolean).join('\n'));
+  }
   function textAssignment(base) {
     if (tourDemo || (state.loaded && state.loaded.practice)) { toast('Texting is turned off for sample names.'); return; }
     if (!textReady(base)) return;
@@ -598,7 +638,7 @@
       h('div', { class: 'card-grid' }, [
         withBap ? field(withBap, base + 'bap', { type: 'date', full: true }) : null,
         fixedOrd ? h('div', { class: 'field full' }, ['Next ordinance', h('p', { class: 'fixed-value', text: fixedOrd })])
-          : field('Next ordinance', base + 'ordinance', { placeholder: ordPh || 'e.g. Baptism', full: true }),
+          : ordField('Next ordinance', base + 'ordinance', { full: true }),
         field('Needs', base + 'need', { full: true, multi: true, placeholder: needPh || 'e.g. A ride to church' })
       ])
     ]);
@@ -618,7 +658,7 @@
         // Assigned to gets the wider share of its row; When is usually a day or two words.
         h('div', { class: 'assign-row' }, [
           field('Assigned to', base + 'assigned', { placeholder: 'Who will do it', cap: 'words' }),
-          field('When', base + 'when', { placeholder: whenPh })
+          whenField('When', base + 'when', { placeholder: whenPh })
         ]),
         h('div', { class: 'assign-actions' }, [textAssignButton(base)]),
         hneedField
@@ -688,7 +728,7 @@
       facts.push(['Temple', a.temple ? 'Attended' : parseISO(str(a.bap)) ? 'Not yet · ' + ts.text : 'Not yet', a.temple ? 'yes' : (ts.left !== undefined && ts.left <= 0 ? 'no' : '')]);
     }
     if (g === 'bt') facts.push(['Baptism', a.committed ? 'Committed' + (monthDay(a.bap) ? ' · scheduled ' + monthDay(a.bap) : ', no date yet') : monthDay(a.bap) ? 'Scheduled ' + monthDay(a.bap) : 'Not committed yet', a.committed ? 'yes' : '']);
-    var act = [str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim()].filter(Boolean).join(' · ');
+    var act = [str(a.action).trim(), str(a.assigned).trim(), whenShow(a.when)].filter(Boolean).join(' · ');
     facts.push(['Action item', act || 'None yet', act ? '' : 'unset']);
     if (str(a.hneed).trim()) facts.push(['Huddle notes', a.hneed.trim()]);
     return h('div', { class: 'wc-summary hd-summary' }, [
@@ -701,7 +741,7 @@
   // Last huddle's assignment for this name and how it went. Read-only: the huddle marks it.
   function wcLast(gid, a) {
     var rr = lastAction(gid, a.name); if (!rr) return null;
-    var who = [str(rr.assigned).trim(), str(rr.when).trim()].filter(Boolean).join(' · ');
+    var who = [str(rr.assigned).trim(), whenShow(rr.when)].filter(Boolean).join(' · ');
     var st = { Yes: 'Done', Partly: 'Partly done', No: 'Not done' }[rr.happened] || 'Pending';
     return h('div', { class: 'wc-last' }, [
       h('p', { class: 'wc-last-k' }, ['Last huddle’s assignment', h('span', { class: 'wc-status', 'data-status': statusOf(rr.happened) || 'pending', text: st })]),
@@ -721,7 +761,7 @@
         field(isTn ? 'Focus name' : 'Name', base + 'name', { full: true, placeholder: isTn ? 'Focus name' : 'From the Covenant Path Report', cap: 'words' }),
         g === 'nm' ? field('Baptism date', base + 'bap', { type: 'date', full: true }) : null,
         FIXED_ORD[g] ? h('div', { class: 'field full' }, ['Next ordinance', h('p', { class: 'fixed-value', text: FIXED_ORD[g] })])
-          : field('Next ordinance', base + 'ordinance', { full: true, placeholder: 'e.g. Temple baptisms' }),
+          : ordField('Next ordinance', base + 'ordinance', { full: true }),
         field('Needs', base + 'need', { full: true, multi: true, rows: isTn ? '2' : '3', placeholder: isTn ? 'What do they need to get there?' : 'Tap their name in the Covenant Path Report to identify needs' })
       ])
     ]);
@@ -747,7 +787,7 @@
           field('Name', base + 'name', { full: true, placeholder: 'From the Covenant Path Report', cap: 'words' }),
           g === 'nm' ? field('Baptism date', base + 'bap', { type: 'date', full: true }) : null,
           FIXED_ORD[g] ? h('div', { class: 'field full' }, ['Next ordinance', h('p', { class: 'fixed-value', text: FIXED_ORD[g] })])
-            : field('Next ordinance', base + 'ordinance', { full: true, placeholder: 'e.g. Temple baptisms' }),
+            : ordField('Next ordinance', base + 'ordinance', { full: true }),
           field('Needs', base + 'need', { full: true, multi: true, rows: '3', placeholder: 'Tap their name in the Covenant Path Report to identify needs' })
         ]),
         h('div', { class: 'hd-checks' }, [g === 'nm' ? templeBox(base, r.i, a) : null, sacToggle(base + 'sac', a.sac)])
@@ -885,7 +925,7 @@
       if (gid === 'bt' && a.committed) tags.push(rowTag(baptismNote(a)));
       if (a.sac) tags.push(rowTag('✓ Sacrament', 'ok'));
       if (a.actionCarried && str(a.action).trim()) tags.push(rowTag('Carried forward', 'carried'));
-      sub = [str(a.action).trim(), str(a.assigned).trim(), str(a.when).trim()].filter(Boolean).join(' · ');
+      sub = [str(a.action).trim(), str(a.assigned).trim(), whenShow(a.when)].filter(Boolean).join(' · ');
       if (!sub && name) { sub = 'Needs an action item'; warn = true; }
     } else if (kind === 'bw') {
       // Before ward council: what the Covenant Path Report says about them, at a glance.
@@ -968,7 +1008,8 @@
     return h('div', { class: 'card-grid' }, [
       field('Name', base + 'name', { full: true, placeholder: 'Who is being referred', cap: 'words' }),
       field('Referred by', base + 'by', { full: true, placeholder: 'Who gave the referral', cap: 'words' }),
-      field('Notes', base + 'notes', { full: true, multi: true, placeholder: 'Anything that helps the missionaries' })
+      field('Notes', base + 'notes', { full: true, multi: true, placeholder: 'Anything that helps the missionaries' }),
+      h('div', { class: 'assign-actions' }, [h('button', { type: 'button', class: 'btn-text-assign', 'data-action': 'text-referral', 'data-a': i }, [icon('chat'), h('span', { class: 'bta-label', text: 'Text this referral to the missionaries' })])])
     ]);
   }
   // One person's own screen: the huddle's card or ward council's, with a way to take them off the list.
@@ -1157,7 +1198,7 @@
         ]),
         h('div', { class: 'fn-fields' }, [
           field('Who will do what', base + 'task', { multi: true, placeholder: 'e.g. Bro. Lee invites a neighbor to the ward party' }),
-          field('When', base + 'when', { placeholder: 'e.g. Sat' })
+          whenField('When', base + 'when', { placeholder: 'e.g. Sat' })
         ])
       ]);
     });
@@ -1202,7 +1243,7 @@
         tag = st.done ? null : h('span', { class: 'fold-tag due', text: 'Temple: ' + st.short });
       }
       if (gid === 'bt' && it.committed) tag = h('span', { class: 'fold-tag', text: baptismNote(it) });
-      var plan = [str(it.action).trim(), str(it.assigned).trim() ? str(it.assigned).trim() : '', str(it.when).trim()].filter(Boolean).join(' · ');
+      var plan = [str(it.action).trim(), str(it.assigned).trim() ? str(it.assigned).trim() : '', whenShow(it.when)].filter(Boolean).join(' · ');
       return foldButton(gid, x.i, it.name.trim(), [
         h('span', { class: 'fold-line' }, [h('span', { class: 'fold-name', text: it.name.trim() }), tag, it.actionCarried && str(it.action).trim() ? h('span', { class: 'fold-tag carried', text: 'Carried forward' }) : null]),
         h('span', { class: 'fold-plan' + (plan ? '' : ' missing'), text: plan || 'No action item' })
@@ -1518,7 +1559,7 @@
     // Read-only here: ward council sees what was assigned and how it went, so it can plan from it. The huddle marks it.
     var r = lastAction(gid, a.name), last = null;
     if (r) {
-      var who = [str(r.assigned).trim(), str(r.when).trim()].filter(Boolean).join(' · ');
+      var who = [str(r.assigned).trim(), whenShow(r.when)].filter(Boolean).join(' · ');
       var st = { Yes: 'Done', Partly: 'Partly done', No: 'Not done' }[r.happened] || 'Pending';
       last = h('div', { class: 'wc-last' }, [
         h('p', { class: 'wc-last-k' }, ['Last huddle’s assignment', h('span', { class: 'wc-status', 'data-status': statusOf(r.happened) || 'pending', text: st })]),
@@ -1552,7 +1593,7 @@
       ]),
       gid === 'nm' ? field('Baptism date', base + 'bap', { type: 'date' }) : null,
       FIXED_ORD[gid] ? h('div', { class: 'field' }, ['Next ordinance', h('p', { class: 'fixed-value', text: FIXED_ORD[gid] })])
-        : field('Next ordinance', base + 'ordinance', { placeholder: 'e.g. Temple baptisms' }),
+        : ordField('Next ordinance', base + 'ordinance'),
       field('Needs', base + 'need', { multi: true, rows: gid === 'tn' ? '2' : '3', placeholder: gid === 'tn' ? 'What do they need to get there?' : 'Tap their name in the Covenant Path Report to identify needs' })
     ].concat(extras));
   }
@@ -1645,7 +1686,7 @@
       var a = x.a, r = null;
       for (var i = 0; i < state.rr.length; i++) { var q = state.rr[i]; if (q.prefilled && groupOf(q) === x.gid && norm(rrPerson(q)) === norm(a.name) && str(q.action).trim()) { r = q; break; } }
       var fact = function (k, v, cls) { return h('p', { class: 'after-fact' + (cls ? ' ' + cls : '') }, [h('span', { class: 'after-k', text: k }), v]); };
-      var who = [str(a.assigned).trim(), str(a.when).trim()].filter(Boolean).join(' · ');
+      var who = [str(a.assigned).trim(), whenShow(a.when)].filter(Boolean).join(' · ');
       return h('div', { class: 'card after-card g-' + x.gid }, [
         h('p', { class: 'after-name' }, [a.name.trim(), h('span', { class: 'source', text: label[x.gid] })]),
         fact('Sacrament', a.sac ? 'Attended' : 'Not marked', a.sac ? 'yes' : ''),
@@ -2038,6 +2079,7 @@
       case 'close-handoff': closeOverlay('#handoff-sheet'); break;
       case 'carry-fwd': carryForward(+a); break;
       case 'text-assign': textAssignment(a); break;
+      case 'text-referral': textReferral(+a); break;
       case 'stale-keep': setPath(a + 'touched', todayISO()); if (/^tn/.test(a)) renderTN(); else renderCP(); saveDraft(); toast('Kept. It won’t ask again for 4 weeks.'); break;
       case 'stale-remove': {
         var sp = a.split('.');
@@ -3166,7 +3208,7 @@
       }
       if (a.sac) tags.push({ text: 'Attended sacrament meeting', color: STATUS_PDF.Yes, check: true });
       var ord = ordOf(a, gid), need = str(a.need).trim(), act = str(a.action).trim(), note = str(a.hneed).trim();
-      var who = [str(a.assigned).trim(), str(a.when).trim()].filter(Boolean).join(' · ');
+      var who = [str(a.assigned).trim(), whenShow(a.when)].filter(Boolean).join(' · ');
       var rows = titleLines(name, 'No name').concat(tagLines(tags), [space(5)]);
       if (ord) rows = rows.concat(field('Next ordinance', ord));
       if (need) rows = rows.concat(field('Needs', need));
@@ -3204,7 +3246,7 @@
     rrItems.forEach(function (r) {
       var gid = r.prefilled ? groupOf(r) : '';
       var name = gid === 'fn' ? 'Finding new people' : r.prefilled ? (str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim()) : '';
-      var who = [str(r.assigned).trim(), str(r.when).trim()].filter(Boolean).join(' · ');
+      var who = [str(r.assigned).trim(), whenShow(r.when)].filter(Boolean).join(' · ');
       var action = r.prefilled ? str(r.action).trim() : str(r.plan).trim();
       var notes = str(r.notes).trim(), note = str(r.hneed).trim();
       var fwd = r.carriedFwd ? 'Carried forward to ' + (monthDay(s.date) ? 'the ' + monthDay(s.date) + ' plan' : 'this plan') : '';
@@ -3250,7 +3292,7 @@
     if (fPlan && !fItems.length) block(field('Assignment', 'No assignments yet', null, true), GROUP_PDF.fn.ink);
     fItems.forEach(function (x) {
       var t = str(x.task).trim();
-      block(field('Assignment', t || '—', [{ text: str(x.when).trim() }, { text: x.carried && t ? carriedText(s) : '', ital: true }]), GROUP_PDF.fn.ink);
+      block(field('Assignment', t || '—', [{ text: whenShow(x.when) }, { text: x.carried && t ? carriedText(s) : '', ital: true }]), GROUP_PDF.fn.ink);
     });
 
     /* ----- Missionary referrals ----- */
@@ -3597,6 +3639,7 @@
       startSend(null, true);
     });
     renderAll();
+    datesForWhens(); renderCP(); renderTN(); renderFN();
     checkHandoffLink();
     window.addEventListener('hashchange', checkHandoffLink);
     // Tapping the date opens the phone's date picker right there.
@@ -3631,6 +3674,7 @@
         val = str(t._nameWas); t.value = val;
       }
       setPath(path, val);
+      if (t.tagName === 'SELECT') t.classList.toggle('is-empty', !t.value);
       if (path === 'ward') writeWard(String(val).trim());
       if (path === 'date') { state.dateManual = true; renderDateHint(); }
       // Ward council: once a name is finished being typed, its Details and last assignment follow the new name.

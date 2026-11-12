@@ -2,6 +2,7 @@
 // The lists of names and each person's own screen are covered by rows.js and twodoor.js.
 const { chromium, devices } = require('playwright');
 (async () => {
+  await require('./tools/compat-fill.js')();
   const b = await chromium.launch(); let pass = 0, fail = 0;
   const ok = (c, m) => { if (c) pass++; else { fail++; console.log('FAIL', m); } };
   const OUT = __dirname + '/out-steps'; require('fs').mkdirSync(OUT, { recursive: true });

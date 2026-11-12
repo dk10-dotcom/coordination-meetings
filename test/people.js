@@ -1,6 +1,7 @@
 const { chromium, devices } = require('playwright');
 const { execSync } = require('child_process');
 (async () => {
+  await require('./tools/compat-fill.js')();
   const b = await chromium.launch(); let pass = 0, fail = 0;
   const ok = (c, m) => { if (c) pass++; else { fail++; console.log('FAIL', m); } };
   const OUT = __dirname + '/out-people'; require('fs').mkdirSync(OUT, { recursive: true });
@@ -72,7 +73,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     await p.click('[data-group="nm"] [data-action="close-one"]');
     ok(await p.locator('[data-group="nm"] .fold-open').count() === 0, 'Done with closes the one card');
     await p.locator('[data-group="nm"]').screenshot({ path: `${OUT}/${tag}-folded.png` });
-    ok((await p.textContent('[data-group="nm"] .fold-plan')).includes('Sat 9 am'), 'edit shows in the folded row');
+    ok(/Sat( 9 am|, [A-Z][a-z]{2} \d{1,2})/.test(await p.textContent('[data-group="nm"] .fold-plan')), 'edit shows in the folded row');
     // Return and Report fold and edit one
     await p.click('[data-action="list-done"][data-a="rr"]');
     await p.click('#rr-list .fold-row-btn >> nth=1');

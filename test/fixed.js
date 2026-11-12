@@ -5,6 +5,7 @@ const { execSync } = require('child_process');
 async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVisible('#confirm-sheet') && /Ready to send/.test(await pg.textContent('#confirm-title'))) await pg.click('#confirm-primary'); }
 
 (async () => {
+  await require('./tools/compat-fill.js')();
   const b = await chromium.launch(); let pass = 0, fail = 0;
   const ok = (c, m) => { if (c) pass++; else { fail++; console.log('FAIL', m); } };
   const ctx = await b.newContext({ ...devices['iPhone 13'], acceptDownloads: true });

@@ -6,6 +6,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
 
 const res = []; const ok = (l, c, x) => { res.push(c); console.log((c ? 'PASS ' : 'FAIL ') + l + (x ? '  ' + x : '')); };
 (async () => {
+  await require('./tools/compat-fill.js')();
   const b = await chromium.launch(); const ctx = await b.newContext({ ...devices['iPhone 13'] });
   await ctx.addInitScript(() => { try { localStorage.setItem('huddle-view-all', '1'); } catch (e) {} }); await ctx.addInitScript(() => { try { localStorage.setItem('huddle-names-hint-seen','1'); } catch (e) {} });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));

@@ -57,6 +57,7 @@ function pdfText(file) { return execFileSync('pdftotext', ['-raw', file, '-']).t
 function words(v) { return v.replace(/[“”]/g, '').split(/\s+/).filter(Boolean); }
 
 (async () => {
+  await require('./tools/compat-fill.js')();
   const browser = await chromium.launch();
   for (const heavy of [false, true]) {
     const label = heavy ? 'HEAVY' : 'TYPICAL';
@@ -123,7 +124,7 @@ function words(v) { return v.replace(/[“”]/g, '').split(/\s+/).filter(Boolea
     ok('Load from a PDF asks first', (await p.textContent('#confirm-title')).includes('Set up the next huddle from this PDF'));
     await p.click('#confirm-primary'); await p.waitForTimeout(400);
     // Names and needs stay on the cards; the actions, assignees and whens are in Return and Report.
-    const vals = await p.$$eval('#cp-groups input, #cp-groups textarea, #tn-list input, #tn-list textarea', els => els.map(e => e.value).join(' | '));
+    const vals = await p.$$eval('#cp-groups input, #cp-groups textarea, #cp-groups select, #tn-list input, #tn-list textarea, #tn-list select', els => els.map(e => e.value).join(' | '));
     const rrText = await p.$$eval('#rr-list .rr-card', els => els.map(e => e.textContent).join(' | '));
     const lost = [];
     for (const g of ['nm', 'rm', 'bt']) s.cp[g].forEach(a => { [a.name].forEach(v => { if (!vals.includes(v)) lost.push(v); }); [a.action, a.assigned, a.when].forEach(v => { if (v && !rrText.includes(v)) lost.push(v); }); });

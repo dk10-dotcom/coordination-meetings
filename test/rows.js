@@ -27,6 +27,7 @@ const seed = () => ({
 });
 
 (async () => {
+  await require('./tools/compat-fill.js')();
   const b = await chromium.launch(); let pass = 0, fail = 0;
   const ok = (c, m) => { if (c) { pass++; console.log('PASS', m); } else { fail++; console.log('FAIL', m); } };
   for (const dev of ['iPhone 13', 'iPhone SE']) {
@@ -60,7 +61,7 @@ const seed = () => ({
     await p.waitForTimeout(400);
     ok(await p.evaluate(() => !document.body.classList.contains('nav-fwd') && !document.body.classList.contains('nav-back')), tag + ': the slide is over in a moment');
     ok((await rowNames('#cp-groups', 'nm')).join('|') === 'Daniel Rivera|Emma Walsh' && (await rowNames('#cp-groups', 'rm')).join('|') === 'Olivia Chen' && (await rowNames('#cp-groups', 'bt')).join('|') === 'Marcus Hill', tag + ': each list shows its names, one row each');
-    ok(await rowSub('#cp-groups', 'rm', 0) === 'Temple prep lesson · Sis. Park · Wed' && await p.locator(row('#cp-groups', 'rm', 0) + ' .step-status.warn').count() === 0, tag + ': a row with an action shows the action, who and when');
+    ok(/^Temple prep lesson · Sis\. Park · Wed(, [A-Z][a-z]{2} \d{1,2})?$/.test(await rowSub('#cp-groups', 'rm', 0)) && await p.locator(row('#cp-groups', 'rm', 0) + ' .step-status.warn').count() === 0, tag + ': a row with an action shows the action, who and when');
     const danTags = await rowTags('#cp-groups', 'nm', 0), emmaTags = await rowTags('#cp-groups', 'nm', 1), marcusTags = await rowTags('#cp-groups', 'bt', 0);
     ok(danTags.join('|') === 'Temple: 20 days left', tag + ': a new member’s row counts down the 30-day temple goal: ' + danTags.join('|'));
     ok(emmaTags.includes('Not updated in 4 weeks'), tag + ': a name not updated in 4 weeks says so on its row: ' + emmaTags.join('|'));

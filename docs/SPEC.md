@@ -119,6 +119,22 @@ specks, and a line such as "4 people have a plan this week." (people with an act
 when there are none). Undo is unchanged. All motion is skipped when the phone is set to reduce motion.
 There is no "needs attention" list: the sections' own orange status lines already say what is missing.
 
+**Next ordinance is a menu:** Baptism, Sacrament, Temple baptisms, Priesthood advancement, Endowment,
+Sealing ("Choose one" until picked). Those being taught stay fixed on Baptism. A next ordinance typed in
+before the menu existed ("Aaronic Priesthood") stays chosen and is listed as one more choice.
+
+**When is a date** (the huddle's action items and Find New People to Teach's assignments). Rows and the
+PDF show it as "Thu, Nov 19"; the assignment text writes it out ("When: Thursday, November 19"). A When
+typed before ("Sat", "tomorrow") becomes that date when the app opens; one that isn't a day ("this week")
+stays as typed, in a text box. Return and Report keeps last week's wording as it was.
+
+**A list's band and its names are one card:** the band is the card's top and the names hang right under
+it, edged in the list's color.
+
+**Missionary Referrals:** a referral's screen has **Text this referral to the missionaries**. Messages
+opens with "Missionary referral: name", "Referred by: …", the notes, and "From the … huddle. Thank you!";
+the person picks the missionaries. Turned off during a practice week.
+
 ## Opening screen
 
 **Look.** At the top, How to use, then a deep blue header card: "Huddle", the title "Ward Mission
