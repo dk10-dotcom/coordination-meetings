@@ -493,7 +493,7 @@ link clears both from the address bar.
   scrolled to the top. In a phone's browser the first-time step (Add Huddle to your Home Screen) starts
   open, and How to use opens by itself on the first visit; from the Home Screen app every step
   starts closed.
-- **Tour:** 11 stops, about 2 minutes (the Huddle Details stop also points out the progress bar): Welcome, Your ward, the four steps, Before ward council, Ward council
+- **Tour:** 11 stops, about 2 minutes: Welcome, Your ward, the four steps, Before ward council, Ward council
   (with the warning "Never add confidential information to this agenda."), Huddle Details, Return
   and Report, a person's screen in the huddle (which also points to **How can we help?**), the
   30-day temple goal, After the huddle, and Send.
