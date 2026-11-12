@@ -26,6 +26,7 @@ const seed = {
     const row = (g, i) => p.textContent(`[data-group="${g}"] [data-action="open-person"][data-b="${i}"] .step-status`);
     await p.click('.door-hd'); await p.waitForTimeout(300); await p.click('[data-action="open-step"][data-a="cp"]'); await p.waitForTimeout(400);
     ok((await row('nm', 0)).endsWith('Sat, Nov 21'), tag + ': an older typed "Sat" becomes the next Saturday');
+    ok(await p.evaluate(() => JSON.parse(localStorage.getItem('huddle-agenda-v1')).cp.nm[0].ordinance) === 'Baptisms for the dead' || (await p.evaluate(() => { window.dispatchEvent(new Event('pagehide')); return JSON.parse(localStorage.getItem('huddle-agenda-v1')).cp.nm[0].ordinance; })) === 'Baptisms for the dead', tag + ': an older "Temple baptisms" becomes "Baptisms for the dead"');
     ok((await row('rm', 0)).endsWith('this week'), tag + ': a When that isn’t a day stays as typed');
     const grouped = await p.evaluate(() => { const h = document.querySelector('[data-group="nm"] .list-head').getBoundingClientRect(), l = document.querySelector('[data-group="nm"] .person-rows').getBoundingClientRect(); return Math.abs(l.top - h.bottom) < 1.5 && Math.abs(l.left - h.left) < 1.5 && Math.abs(l.right - h.right) < 1.5; });
     ok(grouped, tag + ': a list’s band and its names join as one card');
@@ -48,7 +49,7 @@ const seed = {
     await p.click('.door-wc'); await p.waitForTimeout(300); await p.click('[data-action="open-wc-list"][data-a="cp"]'); await p.waitForTimeout(300);
     await p.click('[data-wc="nm"] [data-action="open-person"][data-b="1"]'); await p.waitForTimeout(400);
     const opts = await p.$eval('#person-card select[data-bind$=".ordinance"]', e => e.value + ' | ' + [...e.options].map(o => o.text).join(', '));
-    ok(opts === 'Aaronic Priesthood | Choose one, Baptism, Sacrament, Temple baptisms, Priesthood advancement, Endowment, Sealing, Aaronic Priesthood', tag + ': Next ordinance is a menu of six; an older typed one stays chosen');
+    ok(opts === 'Aaronic Priesthood | Choose one, Baptism, Sacrament, Baptisms for the dead, Priesthood advancement, Endowment, Sealing, Aaronic Priesthood', tag + ': Next ordinance is a menu of six; an older typed one stays chosen');
     await p.selectOption('#person-card select[data-bind$=".ordinance"]', 'Priesthood advancement'); await p.waitForTimeout(300);
     await p.click('#person-view .person-done'); await p.waitForTimeout(400);
     ok((await p.textContent('[data-wc="nm"] [data-action="open-person"][data-b="1"] .step-status')) === 'Next: Priesthood advancement', tag + ': the choice shows on the row');

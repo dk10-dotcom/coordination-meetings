@@ -119,9 +119,9 @@ specks, and a line such as "4 people have a plan this week." (people with an act
 when there are none). Undo is unchanged. All motion is skipped when the phone is set to reduce motion.
 There is no "needs attention" list: the sections' own orange status lines already say what is missing.
 
-**Next ordinance is a menu:** Baptism, Sacrament, Temple baptisms, Priesthood advancement, Endowment,
+**Next ordinance is a menu:** Baptism, Sacrament, Baptisms for the dead, Priesthood advancement, Endowment,
 Sealing ("Choose one" until picked). Those being taught stay fixed on Baptism. A next ordinance typed in
-before the menu existed ("Aaronic Priesthood") stays chosen and is listed as one more choice.
+before the menu existed ("Aaronic Priesthood") stays chosen and is listed as one more choice. An older "Temple baptisms" becomes "Baptisms for the dead".
 
 **When is a date** (the huddle's action items and Find New People to Teach's assignments). Rows and the
 PDF show it as "Thu, Nov 19"; the assignment text writes it out ("When: Thursday, November 19"). A When
@@ -194,7 +194,7 @@ The screen has:
   sacrament attendance.
 - **Open the Covenant Path Report** (opens Member Tools; see Links).
 - The three Covenant Path Report lists, as the same rows every other list uses. A row shows the
-  name; one status line ("Next: Temple baptisms · Needs: A ride to the temple", with "Needs a next
+  name; one status line ("Next: Baptisms for the dead · Needs: A ride to the temple", with "Needs a next
   ordinance" in orange and "No needs listed" when those are missing); and tags for attendance: a
   new member's temple status ("Temple: 18 days left" in red, or "✓ Temple") and "✓ Sacrament".
   Each list ends in **Add a name**. Focus names are not shown here.

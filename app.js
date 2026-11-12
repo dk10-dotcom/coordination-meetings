@@ -359,7 +359,7 @@
     ]);
   }
   /* Next ordinance is chosen from a list. A name typed in before the list existed keeps its wording as one more choice. */
-  var ORDINANCES = ['Baptism', 'Sacrament', 'Temple baptisms', 'Priesthood advancement', 'Endowment', 'Sealing'];
+  var ORDINANCES = ['Baptism', 'Sacrament', 'Baptisms for the dead', 'Priesthood advancement', 'Endowment', 'Sealing'];
   function ordField(label, path, opts) {
     opts = opts || {};
     var v = str(getPath(path)).trim(), list = ORDINANCES.slice();
@@ -380,7 +380,10 @@
   // This huddle's When boxes that still hold a typed day ("Sat") become dates, once, when the app opens.
   // (Return and Report keeps last week's wording as it was.)
   function datesForWhens() {
-    var fix = function (o) { var v = str(o.when).trim(), p; if (v && !ISO_DAY.test(v) && (p = parseWhen(v)) && p.date) o.when = p.date; };
+    var fix = function (o) {
+      var v = str(o.when).trim(), p; if (v && !ISO_DAY.test(v) && (p = parseWhen(v)) && p.date) o.when = p.date;
+      if (/^temple baptisms?$/i.test(str(o.ordinance).trim())) o.ordinance = 'Baptisms for the dead'; // the menu's older name
+    };
     GROUPS.forEach(function (g) { state.cp[g.id].forEach(fix); }); state.tn.forEach(fix); state.find.items.forEach(fix);
   }
   function whenField(label, path, opts) {
@@ -2274,7 +2277,7 @@
     return {
       app: APP_ID, v: DATA_VERSION, ward: 'Sample Ward', date: isoShift(-7), conducting: 'wml', attendees: [], rr: [],
       cp: {
-        nm: [card({ name: 'Daniel Rivera', bap: isoShift(-12), ordinance: 'Temple baptisms', need: 'A ride to the temple', action: 'Invite him on the ward temple trip Saturday', assigned: 'Bro. Patel', when: 'Sat' })],
+        nm: [card({ name: 'Daniel Rivera', bap: isoShift(-12), ordinance: 'Baptisms for the dead', need: 'A ride to the temple', action: 'Invite him on the ward temple trip Saturday', assigned: 'Bro. Patel', when: 'Sat' })],
         rm: [card({ name: 'Olivia Chen', ordinance: 'Endowment', need: 'A friend at church', action: 'Sit with her family at sacrament meeting', assigned: 'Sister Diaz', when: 'Sun' })],
         bt: [card({ name: 'Marcus Hill', bap: isoShift(10), committed: true, need: 'Get to know ward members', action: 'Invite him to the ward dinner Friday', assigned: 'Elders quorum', when: 'Fri' })]
       },
@@ -2294,7 +2297,7 @@
     if (on && !tourDemo && listEmpty('nm')) {
       clearTimeout(draftTimer); // a save waiting to run must not catch the sample card
       tourDemo = { nm: state.cp.nm };
-      state.cp.nm = [Object.assign(blankAction(), { name: 'Daniel Rivera', bap: isoShift(-12), ordinance: 'Temple baptisms', need: 'A ride to the temple',
+      state.cp.nm = [Object.assign(blankAction(), { name: 'Daniel Rivera', bap: isoShift(-12), ordinance: 'Baptisms for the dead', need: 'A ride to the temple',
         action: 'Drive him to the temple for baptisms', assigned: 'Bro. Patel', when: 'Sat 9 am' })];
       renderCP();
     } else if (!on && tourDemo) {

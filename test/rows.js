@@ -74,12 +74,12 @@ const seed = () => ({
     await openPerson('#cp-groups', 'nm', 0);
     const sum = async () => (await p.textContent('#person-card .wc-summary')).replace(/\s+/g, ' ');
     ok(await vis('#person-card .wc-summary') && await p.locator('#person-card .wc-edit, #person-card .card-name-input, #person-card [data-bind$=".need"], #person-card [data-bind$=".ordinance"]').count() === 0, tag + ': ward council’s half is condensed by default');
-    ok((await sum()).includes('Next ordinanceTemple baptisms') && (await sum()).includes('NeedsA ride') && (await sum()).includes('Baptized') && (await p.textContent('#person-card .wc-summary .zone-toggle')) === 'Edit', tag + ': the summary shows next ordinance, needs and the baptism date, with Edit: ' + await sum());
+    ok((await sum()).includes('Next ordinanceBaptisms for the dead') && (await sum()).includes('NeedsA ride') && (await sum()).includes('Baptized') && (await p.textContent('#person-card .wc-summary .zone-toggle')) === 'Edit', tag + ': the summary shows next ordinance, needs and the baptism date, with Edit: ' + await sum());
     ok(await p.evaluate(() => { const c = document.querySelector('#person-card .card'), s = c.querySelector('.wc-summary'), z = c.querySelector('.zone-hd-wrap'); return s.compareDocumentPosition(z) & Node.DOCUMENT_POSITION_FOLLOWING && ['.sac-toggle', '.temple-box', '[data-bind$=".action"]', '[data-bind$=".assigned"]', '[data-bind$=".when"]'].every(q => z.querySelector(q)); }), tag + ': the huddle’s half holds sacrament, temple, action, assigned to and when, right under the summary');
     ok(await noOverflow(), tag + ': the condensed screen fits the phone');
     await p.screenshot({ path: `${OUT}/${tag}-person-condensed.png`, fullPage: true });
     await p.click('#person-card .wc-summary [data-action="wc-edit-toggle"]'); await p.waitForTimeout(150);
-    ok(await p.inputValue('[data-bind="cp.nm.0.name"]') === 'Daniel Rivera' && await p.inputValue('[data-bind="cp.nm.0.need"]') === 'A ride' && await p.inputValue('[data-bind="cp.nm.0.ordinance"]') === 'Temple baptisms' && await p.locator('#person-card .wc-summary').count() === 0 && (await p.textContent('#person-card .wc-edit .zone-toggle')) === 'Hide', tag + ': Edit opens the name, baptism date, next ordinance and needs');
+    ok(await p.inputValue('[data-bind="cp.nm.0.name"]') === 'Daniel Rivera' && await p.inputValue('[data-bind="cp.nm.0.need"]') === 'A ride' && await p.inputValue('[data-bind="cp.nm.0.ordinance"]') === 'Baptisms for the dead' && await p.locator('#person-card .wc-summary').count() === 0 && (await p.textContent('#person-card .wc-edit .zone-toggle')) === 'Hide', tag + ': Edit opens the name, baptism date, next ordinance and needs');
     await fill('cp.nm.0.need', 'A ride to the temple');
     ok(await noOverflow(), tag + ': the open screen fits the phone');
     await p.click('#person-card .wc-edit [data-action="wc-edit-toggle"]'); await p.waitForTimeout(150);
