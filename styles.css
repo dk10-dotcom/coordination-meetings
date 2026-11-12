@@ -1103,7 +1103,7 @@ body.handoff-open main.wrap { display: none; }
 .hero-bw { --hero-a: #414B76; --hero-b: #5F6BA3; }
 .hero-wc { --hero-a: #274A88; --hero-b: #3D6BB4; }
 .hero-hd { --hero-a: #9A4212; --hero-b: #B85A1C; }
-.hero-af { --hero-a: #1B6236; --hero-b: #2A7F4A; }
+.hero-af { --hero-a: #5A2669; --hero-b: #7A3A8A; } /* plum: green is kept for "done" */
 .hero p { margin: 0; }
 .hero-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
 .hero-kicker { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; opacity: .88; }
@@ -1212,7 +1212,7 @@ body[data-view="start"] .start-where { display: flex; flex-direction: column; ga
 .tl-step .check-text, .tl-step .door-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .tl-step .row-icon { width: 40px; height: 40px; border-radius: 11px; }
 .tl-step .row-icon svg { width: 23px; height: 23px; }
-.tile-step1 { --tile: #4F5A8C; } .tile-step2 { --tile: #2F5DA6; } .tile-step3 { --tile: #B0531A; } .tile-step4 { --tile: #237445; }
+.tile-step1 { --tile: #4F5A8C; } .tile-step2 { --tile: #2F5DA6; } .tile-step3 { --tile: #B0531A; } .tile-step4 { --tile: #6E2F7E; }
 /* The marker on the line: the step's number, a green check once it's done */
 .tl-mark { position: absolute; left: -34px; top: 50%; margin-top: -13px; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
   background: var(--ground); border: 2px solid #C3CAD6; color: var(--muted); font-size: 13px; font-weight: 800; }
@@ -1228,7 +1228,7 @@ body[data-view="start"] .start-where { display: flex; flex-direction: column; ga
 .tl-step.tl-next .up-next { display: block; position: absolute; top: -10px; right: 14px; padding: 2px 9px; border-radius: 999px; background: var(--tile-ink); color: #FFFFFF;
   font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
 .tl-step.tl-next .row-icon { width: 46px; height: 46px; }
-.tl-step[data-tl="1"] { --tile-ink: #4F5A8C; } .tl-step[data-tl="2"] { --tile-ink: #2F5DA6; } .tl-step[data-tl="3"] { --tile-ink: #B0531A; } .tl-step[data-tl="4"] { --tile-ink: #237445; }
+.tl-step[data-tl="1"] { --tile-ink: #4F5A8C; } .tl-step[data-tl="2"] { --tile-ink: #2F5DA6; } .tl-step[data-tl="3"] { --tile-ink: #B0531A; } .tl-step[data-tl="4"] { --tile-ink: #6E2F7E; }
 .start-home .newweek-panel { margin-left: -34px; }
 
 /* The bottom bar: frosted, the way iPhone apps do it. Send stays quiet until After the huddle is done. */

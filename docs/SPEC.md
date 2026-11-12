@@ -103,7 +103,7 @@ drawing on a rounded tile of the section's color, like an iPhone's Settings: Ret
 Find New People to Teach (a magnifying glass, teal), Missionary Referrals (a paper plane, rose).
 
 **Each of the four steps starts with a header card** in the step's color (Before ward council slate,
-Ward council blue, Huddle orange, After the huddle green): the step ("Step 3 · How & When") and the
+Ward council blue, Huddle orange, After the huddle plum): the step ("Step 3 · How & When") and the
 date on one line, the ward name large (or the step's name when no ward is set), then the step's one
 line on what to do. The Huddle and After the huddle show the huddle's date; the other two show
 today's. The two meetings also show progress:
@@ -143,7 +143,7 @@ the name (it has a small pencil) opens "Your ward" with one box and Done; with n
 "Tap to add your ward" in a dashed outline. Huddle Details no longer has a ward box. If Send finds no ward,
 it offers "Add the ward", which opens the same box. The four steps follow as a timeline: white cards joined by a line on the left, each
 with an icon tile in its page's color (Before ward council slate, Ward council blue, Huddle orange,
-After the huddle green). The circle on the line shows the step's number, or a green check once the
+After the huddle plum; green is kept for "done" only). The circle on the line shows the step's number, or a green check once the
 step is done: Before ward council and After the huddle when marked done, Ward council when every
 name has a next ordinance, the Huddle when all five sections are marked done. The first step not
 done is **Up next**: outlined in its color, a little larger, with an "Up next" tag. The bottom bar
@@ -283,6 +283,8 @@ an item left blank is gone the next time the section opens.
 that person's card, tagged as carried, and can be undone. It is offered only while the person is
 still listed. If they have been removed, a note says so. Someone converted from Those being
 taught to New members is followed to the new list.
+
+Each assignment has a **Notes** box ("How did it go?") under Yes / Partly / No; its words go on the PDF as before.
 
 ### Covenant Path Report
 

@@ -4,7 +4,7 @@ const { chromium } = require('playwright');
 const fs = require('fs');
 const scenes = require('./scenes.js');
 const WORK = require('path').join(__dirname, '..', '..', 'out-video');
-const COLORS = { slate: '#4F5A8C', blue: '#2F5DA6', orange: '#B0531A', green: '#237445', red: '#B22A2A' };
+const COLORS = { slate: '#4F5A8C', blue: '#2F5DA6', orange: '#B0531A', green: '#237445', plum: '#6E2F7E', red: '#B22A2A' };
 const PH = 640, SCALE = PH / 664, PW = Math.round(390 * SCALE);
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 let shots = {};

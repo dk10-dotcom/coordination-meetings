@@ -515,7 +515,7 @@
       }
       return h('div', { class: 'card rr-card' + (gid ? ' g-' + gid : ''), 'data-status': statusOf(r.happened) }, [head, body,
         // Happened? and the notes stay together so the tour can point at them.
-        h('div', { class: 'rr-answer' }, [seg, carry, field('Notes for ward council', 'rr.' + i + '.notes', { placeholder: 'Optional' })])]);
+        h('div', { class: 'rr-answer' }, [seg, carry, field('Notes', 'rr.' + i + '.notes', { placeholder: 'How did it go?' })])]);
   }
 
   function statusOf(v) { return { Yes: 'yes', Partly: 'partly', No: 'no' }[v] || ''; }
