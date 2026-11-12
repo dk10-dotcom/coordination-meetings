@@ -400,6 +400,12 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
 
 ## Hand off and loading
 
+**The link's form.** `…/coordination-meetings/?h=<6 random letters>#handoff=<code>`. The huddle is in the
+code after the #, which is never sent to the website. The random tag before the # carries nothing; it makes
+each link different, so Safari opens the link instead of bringing forward a Huddle tab that is already open
+(which showed the opening screen instead of the handoff page). Links without the tag still load. Opening a
+link clears both from the address bar.
+
 - **Hand off** (beside Send) opens two choices, for when someone else conducts:
   - **Send a handoff** opens Messages with a link that loads the current huddle on another phone.
     The person picks who to text; send it only to the leader who conducts next. With nothing

@@ -41,7 +41,7 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   const body = decodeURIComponent(href.replace(/^sms:\?&body=/, ''));
   const url = (body.match(/https?:\/\/\S+/) || [''])[0];
   console.log('message:', body.slice(0, 120) + '…', '| link length', url.length);
-  ok(/^sms:/.test(href) && body.includes('Sample Ward') && /#handoff=z/.test(url), 'Messages opens with the handoff link (compressed)');
+  ok(/^sms:/.test(href) && body.includes('Sample Ward') && /\?h=[a-z0-9]{1,6}#handoff=z/.test(url), 'Messages opens with the handoff link (compressed, with its own tag before the #)');
   ok(body.includes('Tap the link and follow the steps') && body.includes('Huddle app'), 'the text says to tap the link and follow the steps');
   ok(url.length < 4000, 'link is a reasonable length: ' + url.length);
   ok(!/Daniel|Rivera|temple/i.test(url), 'names aren’t readable in the link itself');

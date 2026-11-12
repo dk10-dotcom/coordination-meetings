@@ -2390,7 +2390,14 @@
     if (!obj || obj.app !== APP_ID || obj.kind !== 'handoff' || !obj.s) throw new Error('not a handoff');
     return obj.s;
   }
-  function handoffUrl(code) { return location.origin + location.pathname.replace(/index\.html$/, '') + '#handoff=' + code; }
+  /* The huddle itself rides after the #, which a phone never sends to the website. Each link also gets a short
+   * random tag before the # (it carries nothing about the huddle). Without it every handoff link looks the same
+   * up to the #, and Safari can bring forward a Huddle tab that is already open instead of opening the link,
+   * so the opening screen shows and the handoff page never does. */
+  function handoffUrl(code) {
+    var tag = Math.random().toString(36).slice(2, 8);
+    return location.origin + location.pathname.replace(/index\.html$/, '') + '?h=' + tag + '#handoff=' + code;
+  }
   // Hand off opens two choices: send this huddle (text it), or receive one (paste it).
   var handoffMsg = null, handoffBuild = null;
   function handoffBlocked() {
@@ -2457,7 +2464,7 @@
     if (!m) return;
     var code = m[1];
     handoffPending = true;
-    try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) { /* ignore */ }
+    try { history.replaceState(history.state, '', location.pathname); } catch (e) { /* ignore */ } // the tag and the huddle both leave the address bar
     unpackHandoff(code).then(function (s) {
       if (isIOS && !isStandalone()) showHandoffPage(code, s);
       else confirmApplyAgenda(s, 'handoff');
