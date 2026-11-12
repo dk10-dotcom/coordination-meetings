@@ -42,7 +42,7 @@ const res = []; const ok = (l, c, x) => { res.push(c); console.log((c ? 'PASS ' 
     ok(n + ': the two stops about one person open that person’s screen in the huddle', views.filter(v => v === 'p-hd').length === 2, views.join(','));
     ok(n + ': the tour covers all four steps: Before ward council, Ward council, the Huddle and After the huddle', views[3] === 'bw' && views[4] === 'wc' && views.includes('home') && views.includes('rr') && titles.includes('Before ward council') && titles.includes('After the huddle'), views.join(',') + ' | ' + titles.join(','));
     ok(n + ': the stop on the four steps no longer says the boxes turn green', !texts[2].includes('green') && texts[2].includes('Then tap Send.') && /ward’s name/.test(texts[1]), texts[1] + ' / ' + texts[2]);
-    ok(n + ': the tour keeps the confidentiality warning', demos.some(d => d.includes('Never add confidential information to this agenda.')));
+    ok(n + ': the tour keeps the confidentiality warning', demos.some(d => d.includes('Never add confidential information to this huddle report.')));
     await p.waitForTimeout(500);
     ok(n + ': the sample name the tour shows is never saved', await p.evaluate(() => !(localStorage.getItem('huddle-agenda-v1') || '').includes('Daniel Rivera')));
     ok(n + ': tour closes at the end and is remembered', await p.isHidden('.tour') && await p.evaluate(() => window.HuddleTour.seen()));

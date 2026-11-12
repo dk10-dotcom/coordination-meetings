@@ -15,7 +15,7 @@ One word for each thing, on every screen, in How to use and in the tour:
 | Word | Means |
 | --- | --- |
 | Huddle | The app, the weekly coordination meeting, and that meeting's plan on the phone ("Text this huddle", "Sending finishes the huddle") |
-| Agenda | What is filled in and sent: the PDF ("Send this huddle's agenda", "Sample agenda") |
+| Agenda | What is filled in and sent: the PDF ("Send this huddle's agenda", "Sample huddle report") |
 | Opening screen | The first screen: the four steps and Send |
 | Covenant Path Report | The report in Member Tools (always "Member Tools", never "Tools") |
 | Assignment | An action item with who will do it and when. **Action item** is only the name of that field |
@@ -233,7 +233,7 @@ Opens to four rows:
   They hold the same data, so what is entered in one meeting shows in the other.
 
 The first two show a count that turns orange when someone is missing a next ordinance.
-Under the rows, once, is "Never add confidential information to this agenda." It is not
+Under the rows, once, is "Never add confidential information to this huddle report." It is not
 repeated on the lists or on a person's screen.
 
 Each list of names shows rows (see Lists of names and a person's screen). **A person's screen is
@@ -475,7 +475,7 @@ link clears both from the address bar.
     PDF, an assignment text or a handoff); to protect the PDF (the sharing rule word for word, and
     delete old copies); and never to enter confidential or sensitive information, because everyone
     who gets the PDF can read it.
-  - **Watch or try:** Take the tour, See a sample agenda, Try a practice week, and Training slides
+  - **Watch or try:** Take the tour, See a sample huddle report, Try a practice week, and Training slides
     ("At your own pace"). The slides open full screen, one at a time: a count ("3 of 33") and a bar at the
     top, the step in its color, a short title and a few sentences, then a picture of the app with a ring
     around what to tap. **Back** and **Next** at the bottom (or a swipe left or right); nothing moves on by
@@ -494,7 +494,7 @@ link clears both from the address bar.
   open, and How to use opens by itself on the first visit; from the Home Screen app every step
   starts closed.
 - **Tour:** 11 stops, about 2 minutes: Welcome, Your ward, the four steps, Before ward council, Ward council
-  (with the warning "Never add confidential information to this agenda."), Huddle Attendees, Return
+  (with the warning "Never add confidential information to this huddle report."), Huddle Attendees, Return
   and Report, a person's screen in the huddle (which also points to **How can we help?**), the
   30-day temple goal, After the huddle, and Send.
   The stops about names show a sample name when New members is empty, which is never saved.

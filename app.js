@@ -16,7 +16,7 @@
   var LAST_SENT_KEY = 'huddle-last-sent';
   var STALE_FLAG = 28, STALE_DROP = 35; // days: ask after 4 weeks untouched, remove after 5
   var WARD_KEY = 'huddle-ward';
-  var DOC_TITLE = 'Weekly Coordination Meeting Agenda';
+  var DOC_TITLE = 'Weekly Huddle Report';
   var MAX_AGE_DAYS = 14;
 
   var ATTENDEES = [
@@ -2638,7 +2638,7 @@
     { k: 'Step 3', t: 'Back in the Huddle, open **Covenant Path Report** and tap **Daniel Rivera**. Add an action item, who will do it, and a date.', done: function () { var a = state.cp.nm[0]; return !!(a && str(a.action).trim() && str(a.assigned).trim() && str(a.when).trim()); } },
     { k: 'Step 3', t: 'On Daniel’s screen, tap **Text this assignment** and send it to yourself.', done: function () { var a = state.cp.nm[0]; return !!(a && a.texted); }, skip: true },
     { k: 'Step 4', t: 'Back on the opening screen, open **After the huddle** and tap **It’s all updated · Mark done**.', done: function () { return !!state.verified.after; } },
-    { k: 'Send', t: 'Tap **Send**, then **Share PDF**. Send the sample to yourself to see what the agenda looks like.', done: function () { return coachFlag('sent'); } },
+    { k: 'Send', t: 'Tap **Send**, then **Share PDF**. Send the sample to yourself to see what the huddle report looks like.', done: function () { return coachFlag('sent'); } },
     { k: 'Hand off', t: 'Try a handoff: tap **Hand off**, then **Send a handoff**, and text it to yourself. Opening it loads it as practice, so nothing is replaced.', done: function () { return coachFlag('handoff'); }, skip: true },
     { k: 'All done', t: 'You’ve practiced a whole week. Tap **Finish** to remove the sample names; your own come back as they were.', end: true }
   ];
@@ -3131,7 +3131,7 @@
         ]),
         h('div', { class: 'agenda-entry-actions' }, [
           h('button', { type: 'button', class: 'btn-small', 'data-action': 'open-agenda', 'data-a': r.id, 'aria-label': 'Open the ' + shortDate(r.date) + ' agenda to edit', text: 'Open to edit' }),
-          h('button', { type: 'button', class: 'btn-small', 'data-action': 'share-agenda', 'data-a': r.id, 'aria-label': 'Share the ' + shortDate(r.date) + ' agenda again', text: 'Share again' })
+          h('button', { type: 'button', class: 'btn-small', 'data-action': 'share-agenda', 'data-a': r.id, 'aria-label': 'Share the ' + shortDate(r.date) + ' huddle report again', text: 'Share again' })
         ])
       ]);
     }).concat([practiceRow]));
@@ -3368,11 +3368,11 @@
 
     /* ----- page 1 header ----- */
     newPage();
-    // Privacy reminder for everyone who receives the agenda.
+    // Privacy reminder for everyone who receives the huddle report.
     var sx = tx(L, 30, 'Keep this PDF secure', F.bold, 8.5, C.hudInk);
     tx(sx, 30, ' and delete it when it’s no longer needed.', F.reg, 8.5, C.gray);
-    tx(L, 62, 'Weekly Coordination', F.bold, 21, C.navy);
-    tx(L, 86, 'Meeting Agenda', F.bold, 21, C.navy);
+    tx(L, 62, 'Weekly', F.bold, 21, C.navy);
+    tx(L, 86, 'Huddle Report', F.bold, 21, C.navy);
     y = 100;
     // Only the people who attended are listed, in the order of the form.
     var attended = ATTENDEES.filter(function (a) { return s.attendees.indexOf(a.id) >= 0; }).map(function (a) { return a.label; }).join(', ');
@@ -3642,7 +3642,7 @@
   var SHARE_HINT = 'Only share via email or text message. Do not share through any other app.';
   function resetSendSheet() {
     sendFile = null; sendPayload = null;
-    $('#send-title').textContent = resending ? 'Share this agenda again' : 'Send this agenda';
+    $('#send-title').textContent = resending ? 'Share this huddle report again' : 'Send this huddle report';
     $('#share-btn').disabled = true; $('#share-btn').textContent = 'Share PDF';
     $('#share-hint').textContent = resending ? 'Only share via email or text message. Do not share through any other app. Your current huddle isn’t changed.' : SHARE_HINT;
     var rc = $('#send-recipients'); rc.hidden = false;
@@ -3700,7 +3700,7 @@
     }
     var agenda = src || state;
     resetSendSheet();
-    $('#send-title').textContent = resending ? 'Share the ' + (monthDay(agenda.date) || 'last') + ' agenda again' : 'Send this huddle’s agenda';
+    $('#send-title').textContent = resending ? 'Share the ' + (monthDay(agenda.date) || 'last') + ' huddle report again' : 'Send this huddle report';
     $('#send-date-row').hidden = resending;
     // Sharing a sent huddle again changes nothing, so its way out is Close, not Keep editing.
     $('#send-sheet [data-action="close-send"]').textContent = resending ? 'Close' : 'Keep editing';
@@ -3710,8 +3710,8 @@
     var name = sample ? fileName(agenda).replace(/^Huddle - /, 'Huddle SAMPLE - ') : fileName(agenda);
     $('#send-filename').textContent = name;
     if (sample) {
-      $('#send-title').textContent = 'Send a sample agenda';
-      $('#send-recipients').textContent = 'This is a practice: sample names, and SAMPLE across every page. Send it to yourself to see what the agenda looks like.';
+      $('#send-title').textContent = 'Send a sample huddle report';
+      $('#send-recipients').textContent = 'This is a practice: sample names, and SAMPLE across every page. Send it to yourself to see what the huddle report looks like.';
     }
     $('#send-status').textContent = 'Making your PDF…';
     openOverlay('#send-sheet', '#send-title');
@@ -3748,7 +3748,7 @@
   // A sample changes nothing: the practice week stays as it was.
   function sampleSent() {
     coachMark('sent');
-    ask({ title: 'Sample sent', success: true, body: 'Open it to see what the weekly agenda looks like. Nothing changed in your practice week, and your own huddle is still set aside.', primary: 'OK' });
+    ask({ title: 'Sample sent', success: true, body: 'Open it to see what the weekly huddle report looks like. Nothing changed in your practice week, and your own huddle is still set aside.', primary: 'OK' });
   }
 
   async function sharePdf() {

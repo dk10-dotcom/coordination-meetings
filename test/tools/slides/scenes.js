@@ -12,7 +12,7 @@ module.exports = [
   { shot: 's09-wc-cp', k: 'Step 2 · Ward council', c: 'blue', title: 'The Covenant Path Report', body: 'New members, returning members, and those being taught, each in its own color.', t: 6 },
   { shot: 's10-wc-person', k: 'Step 2 · Ward council', c: 'blue', title: 'Next ordinance and needs', body: 'Enter them once. They show up in the Huddle, so nothing is typed twice.', t: 7 },
   { shot: 's11-wc-focus-person', k: 'Step 2 · Ward council', c: 'blue', title: 'Up to three focus names', body: 'Ward council chooses them. Give each one a next ordinance and what they need to get there.', t: 7 },
-  { shot: 's12-wc-note', k: 'Step 2 · Ward council', c: 'red', title: 'Never add confidential information', body: 'Everyone who receives the agenda can read it. Keep it to names, ordinances and simple needs.', t: 7 },
+  { shot: 's12-wc-note', k: 'Step 2 · Ward council', c: 'red', title: 'Never add confidential information', body: 'Everyone who receives the huddle report can read it. Keep it to names, ordinances and simple needs.', t: 7 },
   { shot: 's13-start-up3', k: 'Step 3 · The Huddle', c: 'orange', title: 'How and when', body: 'The Huddle is the weekly coordination meeting: brief, focused, and about people.', t: 6 },
   { shot: 's14-huddle', k: 'Step 3 · The Huddle', c: 'orange', title: 'Five sections', body: 'The bar shows how many are done. Work through them in any order.', t: 6 },
   { shot: 's15-attendance', k: 'Step 3 · The Huddle', c: 'orange', title: 'Who came', body: 'In Huddle Attendees, tap everyone who attended. Make an extra effort to involve the youth.', t: 7 },
@@ -30,7 +30,7 @@ module.exports = [
   { shot: 's27-after', k: 'Step 4 · After the huddle', c: 'plum', title: 'Update the Covenant Path Report', body: 'This page lists what happened for each person. Update the report in Member Tools to match.', t: 8 },
   { shot: 's28-after-done', k: 'Step 4 · After the huddle', c: 'plum', title: 'Mark it done', body: 'Tap It’s all updated · Mark done. Then you can send.', t: 6 },
   { shot: 's29-start-ready', k: 'Send', c: 'blue', title: 'All four steps done', body: 'Send turns solid blue. Tap it.', t: 6 },
-  { shot: 's30-send', k: 'Send', c: 'red', title: 'Share the agenda', body: 'Send it to the bishop-approved list, the stake presidency and the full-time missionaries, and include yourself. Only share via email or text message. Do not share through any other app.', t: 10 },
+  { shot: 's30-send', k: 'Send', c: 'red', title: 'Share the huddle report', body: 'Send it to the bishop-approved list, the stake presidency and the full-time missionaries, and include yourself. Only share via email or text message. Do not share through any other app.', t: 10 },
   { shot: 's31-sent', k: 'Send', c: 'green', title: 'Sent', body: 'This week’s assignments move to Return and Report for next time. Names and needs stay for ward council.', t: 8 },
   { shot: 's32-next-week-rr', k: 'During the week', c: 'orange', title: 'Follow up', body: 'As people report back, mark each assignment Yes, Partly or No. Offer help where it’s needed.', t: 8 },
   { shot: 's01-start', kind: 'end', title: 'One by one', sub: '', body: 'Helping each person take the next step on the covenant path, together as a ward.', t: 7 }

@@ -64,7 +64,7 @@ const real = { ward: 'Sample Ward', date: '2026-11-15', conducting: 'wml', atten
   await p.click('.actionbar [data-action="send"]'); await p.waitForTimeout(400);
   if (await p.isVisible('#confirm-sheet')) await p.click('#confirm-primary');
   await p.waitForSelector('#share-btn:not([disabled])');
-  ok((await p.textContent('#send-title')) === 'Send a sample agenda' && /SAMPLE/.test(await p.textContent('#send-filename')) && /Send it to yourself/.test(await p.textContent('#send-recipients')), 'Send offers a sample to send to yourself');
+  ok((await p.textContent('#send-title')) === 'Send a sample huddle report' && /SAMPLE/.test(await p.textContent('#send-filename')) && /Send it to yourself/.test(await p.textContent('#send-recipients')), 'Send offers a sample to send to yourself');
   await p.screenshot({ path: OUT + '/4-send.png' });
   const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#share-btn')]);
   await dl.saveAs(OUT + '/sample.pdf');

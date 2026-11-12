@@ -74,7 +74,7 @@ const seed = {
     // Ward council
     await p.click('.door-wc'); await p.waitForTimeout(350);
     ok(await p.isVisible('#wc-hero') && (await p.textContent('#wc-hero .hero-count')) === '6 of 7 names have a next ordinance' && (await p.$$eval('#wc-rows .row-icon', e => e.length)) === 4 && await fits(), dev + ': Ward council header card and four icons');
-    ok(await p.isVisible('#wc-note') && /Never add confidential information to this agenda\./.test(await p.textContent('#wc-note')), dev + ': the confidential warning is still there');
+    ok(await p.isVisible('#wc-note') && /Never add confidential information to this huddle report\./.test(await p.textContent('#wc-note')), dev + ': the confidential warning is still there');
     await p.click('#mode-bar [data-action="go-start"]'); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(200);
     // Every page fits
     for (const [open, name] of [['#before-box', 'Before ward council'], ['#after-box', 'After the huddle']]) {

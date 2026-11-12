@@ -42,7 +42,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
   ok(await p.locator('[data-a="tn"].step-row.done .step-status.warn').count() === 1, 'a done section with missing actions stays dark orange');
   // Send and save are blocked
   await p.evaluate(async () => { const settle = () => new Promise(r => setTimeout(r, 150)); const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) { g.click(); await settle(); } const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); await settle(); document.querySelector('[data-action="after-done"]').click(); await settle(); } }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#send-sheet:not([hidden])');
-  ok((await p.textContent('#send-title')) === 'Send a sample agenda', 'Send makes a sample during practice');
+  ok((await p.textContent('#send-title')) === 'Send a sample huddle report', 'Send makes a sample during practice');
   await p.click('#send-sheet [data-action="close-send"]'); await p.waitForTimeout(200);
   await p.evaluate(() => document.querySelector('[data-action="handoff"]').click()); await p.waitForTimeout(300);
   ok(await p.isVisible('#handoff-sheet') && /Practice/.test(await p.textContent('#handoff-send-sub')), 'Hand off offers a practice handoff'); await p.click('#handoff-sheet [data-action="close-handoff"]'); await p.waitForTimeout(200);

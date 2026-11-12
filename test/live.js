@@ -108,7 +108,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
 
   // Share again: the sent huddle's PDF, without touching the next huddle
   await p.click('[data-action="share-last"]'); await p.waitForSelector('#share-btn:not([disabled])');
-  ok((await p.textContent('#send-title')).trim() === 'Share the ' + md(today) + ' agenda again', 'Share again opens the sent huddle: ' + await p.textContent('#send-title'));
+  ok((await p.textContent('#send-title')).trim() === 'Share the ' + md(today) + ' huddle report again', 'Share again opens the sent huddle: ' + await p.textContent('#send-title'));
   await p.click('#share-btn'); await p.waitForTimeout(300);
   ok((await p.textContent('#toast')).includes('Shared again') && await p.inputValue('#date') === moved && (await rrRow()).includes('1 of 3 marked'), 'shared again; the next huddle is unchanged');
 

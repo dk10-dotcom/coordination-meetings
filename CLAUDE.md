@@ -16,7 +16,7 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
 - **The PDF is the only thing that leaves the phone,** and only by email or text. Keep this wording
   wherever sharing is offered: "Only share via email or text message. Do not share through any other app."
 - Keep this warning visible in Ward council (once, under its two lists), How to use and the tour:
-  "Never add confidential information to this agenda."
+  "Never add confidential information to this huddle report."
 - Keep both lines in the footer: "Not affiliated with The Church of Jesus Christ of Latter-day Saints."
   and "Darren Kirkham · darrenkirkham@mac.com".
 - **Fake names only** in samples, tests, screenshots and commit messages
@@ -57,7 +57,7 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
 | `styles.css` | Look and layout |
 | `sw.js` | Offline support. `CACHE` must change on every release |
 | `vendor/pdf-lib.min.js` | PDF library |
-| `sample/`, `media/`, `icons/`, `manifest.webmanifest` | Sample agenda images, training slides (`media/slides/`), app icon |
+| `sample/`, `media/`, `icons/`, `manifest.webmanifest` | Sample huddle report images, training slides (`media/slides/`), app icon |
 | `docs/SPEC.md` | How the app behaves |
 | `test/` | Automated checks (Playwright). `test/obsolete/` is old material kept for reference |
 

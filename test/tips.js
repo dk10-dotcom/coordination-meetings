@@ -21,7 +21,7 @@ const res = []; const ok = (l, c, x) => { res.push(c); console.log((c ? 'PASS ' 
     ok('principles no longer at bottom of page', (await p.$$('details.principles')).length === 0);
     await p.evaluate(() => document.querySelector('[data-action="tips"]').click()); await p.waitForSelector('#tips-sheet:not([hidden])');
     ok('Tips opens Principles for Effective Coordination', (await p.textContent('#tips-title')) === 'Principles for Effective Coordination' && (await p.$$('#tips-sheet .principle-list li')).length === 5);
-    ok('Prepare ahead tip is in Tips', (await p.textContent('#tips-sheet')).includes('Open the agenda before the meeting starts; ward council has already updated the names and needs'));
+    ok('Prepare ahead tip is in Tips', (await p.textContent('#tips-sheet')).includes('Open the huddle report before the meeting starts; ward council has already updated the names and needs'));
     await p.waitForTimeout(250); await p.screenshot({ path: `${OUT}/tips.png` });
     await p.click('[data-action="close-tips"]'); ok('Got it closes', await p.isHidden('#tips-sheet'));
     await p.evaluate(() => document.querySelector('[data-action="tips"]').click()); await p.keyboard.press('Escape'); ok('Escape closes', await p.isHidden('#tips-sheet'));
