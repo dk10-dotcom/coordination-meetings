@@ -21,7 +21,7 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
   and "Darren Kirkham · darrenkirkham@mac.com".
 - **Fake names only** in samples, tests, screenshots and commit messages
   (Daniel Rivera, Olivia Chen, Grace Thompson, Marcus Bell, Marcus Hill, Emma Walsh, Samuel Ortiz).
-- **Whenever behavior changes, update How to use (`index.html`) and the tour (`tour.js`) in the same change.**
+- **Whenever behavior changes, update How to use (`index.html`) and the guided tour (the `COACH` steps in `app.js`) in the same change.**
   Update `docs/SPEC.md` and the tests too.
 - **Keep How to use short.** It is a list of steps that open when tapped, at most five short lines
   each, saying what to tap. Updating it usually means changing a line, not adding one: leave out
@@ -53,7 +53,6 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
 | --- | --- |
 | `index.html` | The page: every screen, sheet and the How to use text |
 | `app.js` | All behavior and the PDF builder (one file, plain JavaScript, no build step) |
-| `tour.js` | The guided tour (wording and placement) |
 | `styles.css` | Look and layout |
 | `sw.js` | Offline support. `CACHE` must change on every release |
 | `vendor/pdf-lib.min.js` | PDF library |
@@ -81,7 +80,9 @@ and `huddle-cards-open` (every card open in its list, for tests that fill many c
 Next ordinance is a menu and When is a date (`datesmenu.js`). Older tests type words into them through
 `test/tools/compat-fill.js`, the way a huddle saved before the change holds them; new tests should pick a
 choice (`selectOption`) and type dates as `YYYY-MM-DD`.
-The practice week is guided (`guided.js`): a sample Send (stamped SAMPLE, no data inside, changes nothing) and a
+The guided tour is a practice week (`guided.js`): a black card at the bottom gives one task at a time (the `COACH`
+list in `app.js`), rings what to tap, and moves on once it's done; each step ends with that step's green check.
+Hand off and Send stay above the card. The old passive tour (`tour.js`) is retired. a sample Send (stamped SAMPLE, no data inside, changes nothing) and a
 practice handoff are allowed; nothing from a practice may ever load over or replace a real huddle.
 `howhelp.js` tests the How can we help? panels, the list names' bands and the source links.
 `lively.js` tests the header cards, icons, initials and the Sent celebration. Keep color and motion

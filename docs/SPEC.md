@@ -5,7 +5,7 @@ small letters above the opening screen's title. (The third step is also called t
 opening screen's large title stays "Ward Mission Leader Process" so the two are not confused.)
 
 This describes the behavior of the app as it is today. The code is the final word:
-`app.js` (behavior and PDF), `index.html` (screens and How to use), `tour.js` (the tour).
+`app.js` (behavior and PDF), `index.html` (screens and How to use). The guided tour's steps are the `COACH` list in `app.js`.
 When behavior changes, change this file in the same commit.
 
 ## Words the app uses
@@ -493,26 +493,25 @@ link clears both from the address bar.
   scrolled to the top. In a phone's browser the first-time step (Add Huddle to your Home Screen) starts
   open, and How to use opens by itself on the first visit; from the Home Screen app every step
   starts closed.
-- **Tour:** 11 stops, about 2 minutes: Welcome, Your ward, the four steps, Before ward council, Ward council
-  (with the warning "Never add confidential information to this huddle report."), Huddle Attendees, Return
-  and Report, a person's screen in the huddle (which also points to **How can we help?**), the
-  30-day temple goal, After the huddle, and Send.
-  The stops about names show a sample name when New members is empty, which is never saved.
-  Starts once on its own the first time the app is opened from the Home Screen (or on a computer).
 - **Tips for an effective meeting** (in the Huddle) and **Tips for finding new people to teach**
   (in Find New People to Teach) each end their borrowed text with a source line linking to
   "Ideas for Weekly Missionary Coordination" in *Sharing the Gospel: Resources for Leaders*.
   The first says "Adapted from" (five points condensed from the page's eight principles); the
   second says "From" (quoted). The **Prepare ahead** tip is the app's own and sits below the line.
-- **Practice week (guided):** Try a practice week sets this phone's huddle aside whole and starts a blank
-  week with only sample names (Daniel Rivera, Olivia Chen, Marcus Hill, three focus names, one referral and seven
-  sample assignments in Return and Report). A dark card at the bottom gives one task at a time ("Practice ·
-  Step 1", "3 of 10") and moves on by itself about a second after the task is done; two tasks can be skipped:
-  1. open Before ward council; 2. mark it done; 3. choose Samuel Ortiz's next ordinance in Ward council → Focus
-  names; 4. mark each Return and Report assignment; 5. give Daniel Rivera an action item, who and a date;
-  6. text it (skippable); 7. mark After the huddle done; 8. Send a sample; 9. send a practice handoff
-  (skippable); 10. Finish, which removes the practice and brings the real huddle back. **End practice** asks
-  first. The card hides while a panel is open, and comes back where it was if the app is reopened.
+- **The guided tour (a practice week):** How to use → **Take the guided tour** ("Practice a week with sample
+  names"), a link ending in `#tour`, or, the first time the app is opened from the Home Screen, a "Welcome to
+  Huddle" question offering it. It sets this phone's huddle aside whole and starts a blank week with only sample
+  names. A black card at the bottom gives one task at a time ("Step 3 · Return and Report", "8 of 18"), puts a
+  pulsing gold ring around what to tap, and moves on about a second after the task is done. Hand off and Send
+  sit above the card, never under it; the card hides while a panel is open. Tasks: Start → Step 1 → mark it done →
+  Ward council → choose Samuel Ortiz's next ordinance (with the confidential-information warning) → **Home**, then
+  the Huddle → Huddle Attendees, tapping both youth → in Return and Report one Yes, one Partly, one No → carry the
+  No forward → Mark section done → Daniel Rivera's action item, who and date → text it (skippable) → Mark section
+  done → the other three sections done (Step 3's check) → Home, then After the huddle → mark it done → Send the
+  sample → a practice handoff (skippable) → **Finish**, which removes the practice and brings the real huddle back.
+  **End practice** asks first. If the app is reopened mid-tour, the card comes back where it was.
+- **Home** sits at the right of the top bar on every screen below the four steps (a section, a list, a person):
+  one tap back to the opening screen. On the smallest phones it shows only the house.
   - **Send during practice** makes a sample: the file is "Huddle SAMPLE - …", every page has a large faint
     SAMPLE and a red line "SAMPLE · practice names, not a real huddle" at the top, and the PDF carries no
     huddle data to load. The panel says to send it to yourself. Sending it changes nothing: no "huddle sent",

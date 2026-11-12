@@ -1284,7 +1284,7 @@ body[data-view="start"] .actionbar { background: rgba(243, 245, 249, .72); -webk
 
 /* Guided practice: one task at a time in a card at the bottom; it moves on once the task is done */
 .coach { position: fixed; left: 10px; right: 10px; bottom: max(10px, env(safe-area-inset-bottom, 0px)); z-index: 20; max-width: 520px; margin: 0 auto;
-  display: flex; flex-direction: column; gap: 6px; padding: 12px 14px 12px; border-radius: 16px; background: #1E3A6E; color: #FFFFFF;
+  display: flex; flex-direction: column; gap: 6px; padding: 12px 14px 12px; border-radius: 16px; background: #111111; color: #FFFFFF;
   box-shadow: 0 12px 30px -10px rgba(14, 28, 56, .55); }
 .coach[hidden] { display: none; }
 .coach-top { display: flex; align-items: center; gap: 8px; }
@@ -1298,9 +1298,20 @@ body[data-view="start"] .actionbar { background: rgba(243, 245, 249, .72); -webk
 .coach-btns:has(> :not([hidden])) { margin-top: 2px; }
 .coach-btns > [hidden] { display: none; }
 .coach-skip { color: #FFFFFF; min-height: 36px; }
-.coach-finish { min-height: 44px; padding: 0 22px; background: #FFFFFF; color: #1E3A6E; border-color: #FFFFFF; }
+.coach-finish, .coach-start { min-height: 44px; padding: 0 22px; background: #FFFFFF; color: #111111; border-color: #FFFFFF; }
 body.coaching { padding-bottom: calc(var(--coach-h, 120px) + 24px); }
-body.coaching .actionbar { bottom: calc(var(--coach-h, 120px) + 14px); }
+/* The bottom bar (Hand off, Send) sits above the tour card, never under it */
+body.coaching .actionbar { position: fixed; left: 0; right: 0; margin: 0; bottom: calc(var(--coach-h, 120px) + 14px); z-index: 19; }
+body.coaching[data-view="start"] { padding-bottom: calc(var(--coach-h, 120px) + 110px); }
 
 /* While practicing, messages sit above the practice card instead of over it */
 body.coaching .toast { bottom: calc(var(--coach-h, 120px) + 22px) !important; }
+
+/* The tour's ring around the thing to tap next */
+.coach-target { outline: 3px solid #F2A900 !important; outline-offset: 3px; border-radius: 12px; }
+@media (prefers-reduced-motion: no-preference) { .coach-target { animation: coach-ring 1.4s ease-in-out infinite; } @keyframes coach-ring { 50% { outline-color: rgba(242, 169, 0, .35); } } }
+/* Home: on every screen below the four steps, one tap back to the opening screen */
+.bar-home { grid-column: 3; justify-self: end; display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 4px 0 8px; border: 0; background: none;
+  color: var(--accent); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.bar-home:active { opacity: .45; }
+@media (max-width: 359px) { .bar-home { font-size: 0; gap: 0; } .bar-home svg { width: 22px; height: 22px; } }

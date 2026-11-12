@@ -21,7 +21,7 @@ A phone-friendly app for the ward mission leader's weekly process, built around 
    - Name: `huddle` (or anything you like).
    - Choose **Public**. Free GitHub Pages requires it. Only the page's code is public, never anyone's data.
    - Click **Create repository**.
-3. **Upload the files.** On the new repository page, click **uploading an existing file**. Drag in **everything inside this folder**: `index.html`, `app.js`, `tour.js`, `styles.css`, `sw.js`, `manifest.webmanifest`, `README.md`, and the `icons`, `vendor`, `sample` and `media` folders. (Without `tour.js` or the `sample` folder, the tour and offline use fail.) Click **Commit changes**.
+3. **Upload the files.** On the new repository page, click **uploading an existing file**. Drag in **everything inside this folder**: `index.html`, `app.js`, `styles.css`, `sw.js`, `manifest.webmanifest`, `README.md`, and the `icons`, `vendor`, `sample` and `media` folders. (Without `tour.js` or the `sample` folder, the tour and offline use fail.) Click **Commit changes**.
    - Make sure `index.html` sits at the top level of the repository, not inside another folder.
 4. **Turn on Pages.** Go to **Settings → Pages**. Under **Build and deployment**, set Source to **Deploy from a branch**, Branch to **main**, folder **/ (root)**, then **Save**.
 5. **Wait 1–2 minutes,** then refresh that page. Your link appears at the top, something like `https://yourname.github.io/huddle/`.
@@ -40,7 +40,7 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 ## Built-in instructions
 
 - **How to use** (top of the opening screen) is a short list: a first-time step (Add Huddle to your Home Screen), five numbered steps for every week, six "How do I…" questions, a Privacy and security row, a Sources row, and the tour, a sample agenda, a practice week and the training slides. Tap a row to read it; each step is a few short lines. In a phone's browser it opens by itself the first time, with the first-time step open.
-- **Guided tour:** an 11-stop walk-through (about 2 minutes) that dims the page and explains each part in a bubble (Next / Back / Skip tour). It starts once on its own the first time the app is opened from the Home Screen. Replay it from **Take the tour** in How to use, or send people the site link plus `#tour`. The wording lives in `tour.js`.
+- **Guided tour:** a practice week with sample names. A card at the bottom gives one task at a time, rings what to tap and moves on once it's done; Finish brings the real huddle back. Start it from **Take the guided tour** in How to use, or send people the site link plus `#tour`.
 - **Look:** each of the four steps opens with a header card in its own color (ward, date, what to do there; the Huddle and Ward council also show progress), section rows have colored icons, names have initials, and sending ends with a short celebration.
 - **Tips for an effective meeting** is at the top of the Huddle screen. It opens the Principles for Effective Coordination and the Prepare ahead tip.
 - **How can we help?** is a small link under New members, Returning members and Those being taught in the Covenant Path Report and at the top of Find New People to Teach, in the Huddle and in Ward council. It slides up that section's questions from *Preach My Gospel*, chapter 13. Nothing is typed there and none of it goes on the PDF.
@@ -81,7 +81,6 @@ New members (blue), Returning members (green), Those being taught (purple) and F
 | `app.js` | The app's behavior, PDF creation, Send (closes the huddle), Hand off, Load from a PDF |
 | `vendor/pdf-lib.min.js` | PDF library (pdf-lib 1.17.1, MIT license) |
 | `sw.js` | Lets the page open without a connection after the first visit |
-| `tour.js` | The guided tour |
 | `docs/SPEC.md` | How the app behaves, screen by screen |
 | `CLAUDE.md` | Project rules and release steps |
 | `test/` | Automated checks |

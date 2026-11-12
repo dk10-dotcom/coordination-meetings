@@ -21,7 +21,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
   await p.click('[data-action="go-start"]'); await p.click('.actionbar [data-action="handoff"]'); await p.waitForSelector('#handoff-sheet:not([hidden])');
   ok(await p.isVisible('#handoff-send') && await p.isVisible('#handoff-receive') && await p.locator('#agenda-list, #load-sheet').count() === 0 && (await p.textContent('[data-action="load-other"]')).trim() === 'Load from a PDF', 'Hand off offers Send and Receive; the quiet link is Load from a PDF; no saved-agenda list');
   await p.click('[data-action="close-handoff"]'); await p.waitForTimeout(150); await p.click('[data-action="open-huddle"]');
-  await p.evaluate(() => document.querySelector('[data-action="help"]').click()); await p.waitForTimeout(200); await p.click('#help-sheet [data-action="practice"]'); await p.waitForTimeout(300);
+  await p.evaluate(() => document.querySelector('[data-action="help"]').click()); await p.waitForTimeout(200); await p.click('#help-sheet [data-action="tour"]'); await p.waitForTimeout(300);
   if (await p.isVisible('#confirm-sheet')) await p.click('#confirm-secondary'); // names hint
   ok((await p.textContent('#loaded-banner')).includes('Practice week loaded') && await p.evaluate(() => document.querySelector('#loaded-banner').classList.contains('practice')), 'amber practice banner shows');
   ok(await p.inputValue('#ward').catch(() => '') !== 'Sample Ward' && await p.evaluate(() => !/Sample Ward/.test(localStorage.getItem('huddle-ward') || '')), 'ward name is not changed to Sample Ward');
@@ -57,7 +57,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
   await p.click('[data-action="open-step"][data-a="tn"]');
   // How to use button starts it too
   await p.click('[data-action="steps-home"]'); await p.evaluate(() => document.querySelector('[data-action="help"]').click()); await p.waitForTimeout(200);
-  await p.click('#help-sheet [data-action="practice"]'); await p.waitForTimeout(300);
+  await p.click('#help-sheet [data-action="tour"]'); await p.waitForTimeout(300);
   if (await p.isVisible('#confirm-sheet')) await p.click('#confirm-secondary');
   ok(await p.isHidden('#help-sheet') && (await p.textContent('#loaded-banner')).includes('Practice week loaded'), 'How to use button loads the practice week');
   // Remove via banner

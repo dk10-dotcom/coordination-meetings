@@ -38,7 +38,7 @@ const ok = (l, c) => console.log((c ? 'PASS ' : 'FAIL ') + l);
   const openHelp = async pg => { await pg.evaluate(() => document.querySelector('[data-action="help"]').click()); await pg.waitForSelector('#help-sheet:not([hidden])'); await pg.waitForTimeout(200); };
   const openIds = pg => pg.$$eval('#help-sheet details[open]', d => d.map(x => x.id || x.querySelector('.step-title').textContent).join('|'));
   await openHelp(p);
-  ok('five short lists: 1 first-time step, 5 weekly steps, 6 questions, 2 about the app, 4 ways to watch or try', (await p.$$eval('#help-sheet .help-list', ls => ls.map(l => l.children.length).join())) === '1,5,6,2,4');
+  ok('five short lists: 1 first-time step, 5 weekly steps, 6 questions, 2 about the app, 3 ways to watch or try', (await p.$$eval('#help-sheet .help-list', ls => ls.map(l => l.children.length).join())) === '1,5,6,2,3');
   ok('their headings: First time only, Every week, How do I…, About this app, Watch or try', (await p.$$eval('#help-sheet .help-band', h => h.map(x => x.textContent).join('|'))) === 'First time only|Every week|How do I…|About this app|Watch or try');
   ok('Privacy and security has its own row, saying everything stays on this phone', (await p.textContent('#help-privacy .step-title')) === 'Privacy and security' && (await p.textContent('#help-privacy .step-status')) === 'Everything stays on this phone' && await p.isVisible('#help-privacy summary') && await p.isHidden('#help-privacy .help-body'));
   // Sources: where the questions and tips come from, each linked to its page in the Gospel Library
@@ -95,15 +95,10 @@ const ok = (l, c) => console.log((c ? 'PASS ' : 'FAIL ') + l);
   ok('320 px: nothing wider than the screen with every row open', await q.evaluate(() => { const s = document.querySelector('#help-sheet .sheet'); return document.documentElement.scrollWidth <= window.innerWidth && s.scrollWidth <= s.clientWidth && [...s.querySelectorAll('*')].every(e => e.getBoundingClientRect().right <= window.innerWidth + 0.5); }));
   await app.close();
 
-  // Names reminder: the first time names carry over (practice week), then never again
+  // The guided tour starts from How to use, with no other message in the way
   await p.fill('#ward', 'Riverton 5th Ward');
-  await p.evaluate(() => document.querySelector('[data-action="help"]').click()); await p.waitForTimeout(200); await p.click('#help-sheet [data-action="practice"]'); await p.waitForSelector('#confirm-sheet:not([hidden])');
-  ok('names reminder shown', (await p.textContent('#confirm-title')) === 'Check the names that carried over');
-  await p.waitForTimeout(300); await p.screenshot({ path: OUT + '/names-hint.png' });
-  await p.click('#confirm-secondary'); await p.waitForTimeout(200);
-  await p.click('#loaded-banner [data-action="unload"]'); await p.click('#confirm-primary'); await p.waitForTimeout(300);
-  await p.evaluate(() => document.querySelector('[data-action="help"]').click()); await p.waitForTimeout(200); await p.click('#help-sheet [data-action="practice"]'); await p.waitForTimeout(400);
-  ok('names reminder only once', await p.isHidden('#confirm-sheet'));
+  await p.evaluate(() => document.querySelector('[data-action="help"]').click()); await p.waitForTimeout(200); await p.click('#help-sheet [data-action="tour"]'); await p.waitForTimeout(500);
+  ok('Take the guided tour starts the practice week with its first card', await p.isHidden('#confirm-sheet') && await p.isVisible('.coach') && /sample names/.test(await p.textContent('.coach-t')));
 
   console.log('PROBLEMS:', problems.length ? problems : 'none');
   await browser.close();

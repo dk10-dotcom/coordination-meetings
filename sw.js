@@ -1,5 +1,5 @@
 /* Offline support: caches the page's own files only. It never stores form data. */
-var CACHE = 'huddle-v207';
+var CACHE = 'huddle-v208';
 var FILES = [
   './',
   'index.html',
@@ -9,7 +9,6 @@ var FILES = [
   'sample/page-2.png',
   'sample/page-3.png',
   'sample/page-4.png',
-  'tour.js',
   'vendor/pdf-lib.min.js',
   'manifest.webmanifest',
   'icons/icon-192.png',

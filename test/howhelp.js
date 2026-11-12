@@ -169,7 +169,7 @@ const huddle = {
     ok(await p.isVisible('#help-sources .help-body a') && await noOverflow() && await p.evaluate(() => { const s = document.querySelector('#help-sheet .sheet'); return s.scrollWidth <= s.clientWidth; }), tag + ': the Sources row opens and fits the screen');
     await p.screenshot({ path: `${OUT}/${tag}-5-sources.png` });
     await p.click('#help-done'); await p.waitForTimeout(250);
-    const tourText = await p.evaluate(() => fetch('tour.js').then(r => r.text()));
+    const tourText = await p.evaluate(() => fetch('app.js').then(r => r.text()));
     ok(/tap \*\*How can we help\?\*\*/i.test(tourText), tag + ': the tour mentions the link');
 
     // ----- None of it goes on the PDF -----

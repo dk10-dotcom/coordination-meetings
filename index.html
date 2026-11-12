@@ -16,7 +16,6 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="stylesheet" href="styles.css">
 <script src="vendor/pdf-lib.min.js" defer></script>
-<script src="tour.js" defer></script>
 <script src="app.js" defer></script>
 </head>
 <body>
@@ -42,6 +41,7 @@
       Back
     </button>
     <span class="mode-title bar-title" id="step-title"></span>
+    <button type="button" class="bar-home" data-action="go-home-screen" aria-label="Home: the opening screen"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5L10 3.5l7 6"/><path d="M5 8.5V16.5h10V8.5"/></svg>Home</button>
   </div>
 
   <div class="step-bar" id="mode-bar" hidden>
@@ -713,14 +713,12 @@
     <h3 class="help-band">Watch or try</h3>
     <ul class="steps-list help-list">
       <li><button type="button" class="nav-row" data-action="tour">
-        <span class="step-text"><span class="step-title">Take the tour</span><span class="step-status">A 2-minute walk-through of the app</span></span><span class="step-chev" aria-hidden="true">›</span>
+        <span class="step-text"><span class="step-title">Take the guided tour</span><span class="step-status">Practice a week with sample names</span></span><span class="step-chev" aria-hidden="true">›</span>
       </button></li>
       <li><button type="button" class="nav-row" data-action="sample" aria-haspopup="dialog">
         <span class="step-text"><span class="step-title">See a sample huddle report</span><span class="step-status">What the PDF you send looks like</span></span><span class="step-chev" aria-hidden="true">›</span>
       </button></li>
-      <li><button type="button" class="nav-row" data-action="practice">
-        <span class="step-text"><span class="step-title">Try a practice week</span><span class="step-status">Guided, with sample names</span></span><span class="step-chev" aria-hidden="true">›</span>
-      </button></li>
+
       <li><button type="button" class="nav-row" data-action="slides" aria-haspopup="dialog" id="help-slides-row">
         <span class="step-text"><span class="step-title">Training slides</span><span class="step-status">At your own pace</span></span><span class="step-chev" aria-hidden="true">›</span>
       </button></li>
