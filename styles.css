@@ -1243,3 +1243,9 @@ body[data-view="start"] .actionbar { background: rgba(243, 245, 249, .72); -webk
 .list-panel.rows .list-head + .person-rows { border-radius: 0 0 14px 14px; border: 1px solid var(--list-line); border-top: 0; border-left: 6px solid var(--list-ink); }
 .list-panel.rows .temple-goal { margin-top: 8px; }
 .list-panel.rows + .list-panel.rows { margin-top: 14px; }
+
+/* How can we help?: each question on its own line inside its card, with room between them */
+.howhelp-list li { display: flex; flex-direction: column; gap: 10px; }
+.howhelp-q { display: block; }
+.howhelp-list li.many .howhelp-q + .howhelp-q { padding-top: 10px; border-top: 1px solid rgba(27, 43, 75, .1); }
+.howhelp-list { gap: 14px; }

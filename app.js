@@ -912,7 +912,13 @@
     sheet.className = 'sheet help howhelp g-' + id; // the list's own color
     $('#howhelp-kicker').textContent = q.list;
     $('#howhelp-title').textContent = q.title;
-    list.replaceChildren.apply(list, q.items.map(function (t) { return h('li', { text: t }); }));
+    // Each question on its own line, so a card with three questions doesn't read as one block.
+    // (A space between them keeps the words read aloud and copied as the manual has them.)
+    list.replaceChildren.apply(list, q.items.map(function (t) {
+      var parts = t.split(/(?<=\?)\s+(?=[A-Z])/), kids = [];
+      parts.forEach(function (x, k) { if (k) kids.push(' '); kids.push(h('span', { class: 'howhelp-q', text: x })); });
+      return h('li', { class: parts.length > 1 ? 'many' : null }, kids);
+    }));
     openOverlay('#howhelp-sheet', '.sheet-x'); sheet.scrollTop = 0;
   }
   /* ---------- Name rows: one line per person; tap to open their screen ---------- */

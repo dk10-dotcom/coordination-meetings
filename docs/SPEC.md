@@ -358,7 +358,8 @@ Tapping it slides up a panel with that section's questions and no others:
 | Find New People to Teach | How can we find more people to teach? | 2 |
 
 The headings and questions are the "possible discussion items" in *Preach My Gospel*, chapter 13
-("Participate in the Weekly Coordination Meeting"), word for word. Under them is the line
+("Participate in the Weekly Coordination Meeting"), word for word. Each card holds one item; when an item asks several questions, each
+question sits on its own line with a thin line between, still in the manual's words. Under them is the line
 "From *Preach My Gospel*, chapter 13", a link to the chapter in the Gospel Library.
 
 The panel closes with one tap: the **X** at its top right, or a tap outside it (a swipe down and
