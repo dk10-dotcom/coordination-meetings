@@ -726,22 +726,22 @@ body.touring .actionbar { z-index: 10; }
 .list-panel.rows .list-title::before { content: ''; flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--list-ink); }
 .list-panel.rows .list-count { padding: 0; border: 0; background: none; font-size: 13px; font-weight: 500; color: var(--muted); }
 .list-panel.rows .temple-goal { margin: 0; padding: 0 16px; border: 0; background: none; font-size: 13px; line-height: 1.35; color: var(--muted); }
-/* The three Covenant Path lists (New members, Returning members, Those being taught): each name is large and bold on a
-   band of its own color, so the lists are easy to tell apart on a phone. Focus names and Referrals have a screen each. */
+/* Every list's name is large and bold on a band of the list's own color (the colors the PDF uses), with the count
+   beside it, so the lists are easy to tell apart on a phone. */
 .list-nm { --list-band: #DCE6F6; }
 .list-rm { --list-band: #DBEEE2; }
 .list-bt { --list-band: #EBDDF4; }
-.list-panel.rows.list-nm .list-head, .list-panel.rows.list-rm .list-head, .list-panel.rows.list-bt .list-head {
-  flex-wrap: wrap; gap: 0 10px; padding: 10px 14px 10px 12px; border-radius: 12px; border-left: 6px solid var(--list-ink); background: var(--list-band); }
-.list-panel.rows.list-nm .list-title, .list-panel.rows.list-rm .list-title, .list-panel.rows.list-bt .list-title {
-  font-size: 20px; line-height: 1.2; font-weight: 800; letter-spacing: 0; text-transform: none; color: var(--list-ink); }
-.list-panel.rows.list-nm .list-title::before, .list-panel.rows.list-rm .list-title::before, .list-panel.rows.list-bt .list-title::before { content: none; }
-.list-panel.rows.list-nm .list-count, .list-panel.rows.list-rm .list-count, .list-panel.rows.list-bt .list-count { font-size: 14px; font-weight: 600; color: var(--list-ink); }
+.list-tn { --list-band: #FBEBC2; }
+.list-mr { --list-band: #F6DDE4; }
+.list-fn { --list-band: #D3ECEC; }
+.list-panel.rows .list-head { flex-wrap: wrap; gap: 0 10px; padding: 10px 14px 10px 12px; border-radius: 12px; border-left: 6px solid var(--list-ink); background: var(--list-band); }
+.list-panel.rows .list-title { font-size: 20px; line-height: 1.2; font-weight: 800; letter-spacing: 0; text-transform: none; color: var(--list-ink); }
+.list-panel.rows .list-title::before { content: none; }
+.list-panel.rows .list-count { font-size: 14px; font-weight: 600; color: var(--list-ink); }
 .list-panel.rows + .list-panel.rows { margin-top: 6px; }
-/* On the smallest phones the name is a little smaller, so the count stays beside it on all three bands */
-@media (max-width: 359px) {
-  .list-panel.rows.list-nm .list-title, .list-panel.rows.list-rm .list-title, .list-panel.rows.list-bt .list-title { font-size: 18px; }
-}
+/* On the smallest phones the name is a little smaller, so the count stays beside it */
+@media (max-width: 359px) { .list-panel.rows .list-title { font-size: 18px; } }
+.fn-band { margin-bottom: -6px; }
 
 /* How can we help?: a small link under a list's name in the Huddle. It opens that section's questions to talk through. */
 .how-help { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; margin: 0; padding: 0; border: 0; background: none;
@@ -752,7 +752,6 @@ body.touring .actionbar { z-index: 10; }
 .list-head .how-help { flex: 0 0 100%; }
 .list-panel:not(.rows) .list-head { flex-wrap: wrap; }
 .list-panel.rows .list-head .how-help { min-height: 40px; margin-bottom: -8px; }
-.how-help-fn { align-self: flex-start; color: #0E6E73; margin: -8px 0 -12px; padding: 0 4px; }
 body[data-view="wc-fn"] .how-help-fn { display: none; } /* the Huddle only, not ward council's copy of this page */
 
 /* The panel: a list name, the question the manual asks, and its discussion items. Read-only. */
@@ -1088,3 +1087,93 @@ body.handoff-open main.wrap { display: none; }
 .hd-summary .after-fact.yes { color: #1F6B3A; font-weight: 600; }
 .hd-summary .after-fact.no { color: #9B2C2C; }
 .ref-card { display: flex; flex-direction: column; gap: 10px; }
+
+
+/* ===== A livelier look ===== */
+
+/* The header card at the top of each of the four steps, in the step's own color: step, ward, date, the one line on
+   what to do there and, in the two meetings, how far along things are. */
+.hero { display: flex; flex-direction: column; gap: 2px; padding: 16px 18px 17px; border-radius: 18px; color: #FFFFFF;
+  background: linear-gradient(135deg, var(--hero-a), var(--hero-b)); box-shadow: 0 8px 18px -10px var(--hero-a); }
+.hero[hidden] { display: none; }
+.hero-bw { --hero-a: #414B76; --hero-b: #5F6BA3; }
+.hero-wc { --hero-a: #274A88; --hero-b: #3D6BB4; }
+.hero-hd { --hero-a: #9A4212; --hero-b: #B85A1C; }
+.hero-af { --hero-a: #1B6236; --hero-b: #2A7F4A; }
+.hero p { margin: 0; }
+.hero-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.hero-kicker { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; opacity: .88; }
+.hero-date { flex: none; font-size: 14px; font-weight: 700; opacity: .95; }
+.hero-ward { font-size: 24px; font-weight: 800; line-height: 1.15; overflow-wrap: anywhere; }
+.hero .page-intro { margin-top: 8px; padding: 0; color: #FFFFFF; }
+.hero-progress { display: flex; flex-direction: column; gap: 5px; margin-top: 12px; }
+.hero-progress[hidden] { display: none; }
+.hero-bar { display: block; height: 8px; border-radius: 999px; background: rgba(255, 255, 255, .3); overflow: hidden; }
+.hero-fill { display: block; width: 0; height: 100%; border-radius: 999px; background: #FFFFFF; }
+.hero-count { font-size: 14px; font-weight: 700; }
+.hero-progress.full .hero-count::before { content: '✓ '; }
+@media (prefers-reduced-motion: no-preference) { .hero-fill { transition: width .6s cubic-bezier(.2, .7, .2, 1); } }
+
+/* Section rows start with a white drawing on a tile of the section's color, the way an iPhone's Settings rows do */
+.row-icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 9px; color: #FFFFFF; background: var(--tile, var(--accent)); }
+.row-icon svg { width: 20px; height: 20px; }
+.tile-rr { --tile: #5557B8; }
+.tile-cp { --tile: #2E5597; }
+.tile-tn { --tile: #B5790A; }
+.tile-fn { --tile: #0E7C82; }
+.tile-mr { --tile: #B23A5E; }
+.nav-row:has(.row-icon), .nav-row:has(.avatar) { gap: 12px; }
+.steps-list > li + li:has(.row-icon)::before { margin-left: 60px; }
+
+/* Names start with a circle of initials in their list's color */
+.avatar { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%;
+  font-size: 14px; font-weight: 700; letter-spacing: .02em; color: var(--list-ink, var(--accent)); background: var(--list-band, var(--accent-soft)); }
+.avatar.is-blank { background: none; border: 1.5px dashed #B4BBC8; color: #8B94A5; font-size: 18px; font-weight: 500; }
+.person-rows > li + li:has(.avatar)::before { margin-left: 66px; }
+@media (max-width: 359px) {
+  .avatar { width: 34px; height: 34px; font-size: 13px; }
+  .nav-row:has(.avatar) { gap: 10px; }
+  .person-rows > li + li:has(.avatar)::before { margin-left: 60px; }
+}
+
+/* A person's screen opens with who they are and which list they're on, on a band of that list's color */
+.person-head { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; border-left: 6px solid var(--list-ink); background: var(--list-band); }
+.person-head .avatar { width: 46px; height: 46px; font-size: 16px; background: #FFFFFF; }
+.person-head .avatar.is-blank { border-color: var(--list-ink); color: var(--list-ink); }
+.person-head-text { min-width: 0; }
+.person-head p { margin: 0; }
+.person-head-name { font-size: 20px; font-weight: 800; line-height: 1.2; color: var(--list-ink); overflow-wrap: anywhere; }
+.person-head-list { font-size: 13px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--list-ink); opacity: .85; }
+
+/* A section marked done: its green check pops once */
+@media (prefers-reduced-motion: no-preference) {
+  .step-num.pop { animation: check-pop .6s cubic-bezier(.2, 1.4, .4, 1) both; }
+  @keyframes check-pop { 0% { transform: scale(0); } 60% { transform: scale(1.35); } 100% { transform: scale(1); } }
+}
+
+/* The Sent message: a bigger check, a few specks of color, and one warm line */
+.confirm-cheer { margin: 0; font-size: 17px; font-weight: 700; color: var(--green-ink); text-align: center; }
+.confirm-cheer[hidden], .confetti[hidden] { display: none; }
+.sheet.celebrate .confirm-head { position: relative; flex-direction: column; gap: 14px; padding-top: 10px; text-align: center; }
+.sheet.celebrate .ok-icon { width: 68px; height: 68px; box-shadow: 0 0 0 8px #DDF0E3; }
+.sheet.celebrate .ok-icon svg { width: 36px; height: 36px; }
+.sheet.celebrate .confirm-body { text-align: center; }
+.confetti { position: absolute; top: 44px; left: 50%; width: 0; height: 0; pointer-events: none; }
+.confetti i { position: absolute; top: 0; left: 0; width: 8px; height: 8px; margin: -4px; border-radius: 2px; opacity: 0; }
+.confetti i:nth-child(4n+1) { background: #2E5597; } .confetti i:nth-child(4n+2) { background: #C0561A; }
+.confetti i:nth-child(4n+3) { background: #B5790A; } .confetti i:nth-child(4n) { background: #7A3F9E; border-radius: 50%; }
+/* (They stay inside the panel: no farther than 124px to either side, and not above its top edge.) */
+.confetti i:nth-child(1) { --x: -118px; --y: -18px; } .confetti i:nth-child(2) { --x: -96px; --y: -44px; } .confetti i:nth-child(3) { --x: -84px; --y: 24px; } .confetti i:nth-child(4) { --x: -64px; --y: -40px; } .confetti i:nth-child(5) { --x: 118px; --y: -16px; } .confetti i:nth-child(6) { --x: 98px; --y: -44px; } .confetti i:nth-child(7) { --x: 86px; --y: 26px; } .confetti i:nth-child(8) { --x: 66px; --y: -42px; } .confetti i:nth-child(9) { --x: -124px; --y: 22px; } .confetti i:nth-child(10) { --x: 124px; --y: 24px; } .confetti i:nth-child(11) { --x: -104px; --y: 50px; } .confetti i:nth-child(12) { --x: 106px; --y: 52px; }
+@media (prefers-reduced-motion: no-preference) {
+  .sheet.celebrate .ok-icon { animation: sent-pop .7s cubic-bezier(.2, 1.4, .4, 1) .1s both; }
+  @keyframes sent-pop { 0% { transform: scale(.55); } 60% { transform: scale(1.12); } 100% { transform: scale(1); } }
+  .confetti i { animation: speck 1.1s cubic-bezier(.1, .7, .3, 1) .25s both; }
+  @keyframes speck { 0% { opacity: 0; transform: translate(0, 0) scale(.4) rotate(0); } 15% { opacity: 1; } 70% { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(1) rotate(160deg); } }
+}
+
+.details-line.in-hero { display: none; }
+
+/* After the huddle: each person's list shows in that list's color */
+.after-card .source { background: var(--list-band, var(--accent-soft)); color: var(--list-ink, var(--accent)); }
+.after-card.g-nm { --list-band: #DCE6F6; } .after-card.g-rm { --list-band: #DBEEE2; } .after-card.g-bt { --list-band: #EBDDF4; } .after-card.g-tn { --list-band: #FBEBC2; }

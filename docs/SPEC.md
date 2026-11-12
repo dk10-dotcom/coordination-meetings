@@ -87,11 +87,37 @@ Ward council and the Huddle show names the same way.
 The same row is used for the Huddle's sections, Ward council's lists and Before ward council, so
 every list in the app looks alike. A section marked done shows a green check before its chevron.
 
-**The three Covenant Path lists stand out.** Wherever New members, Returning members and Those
-being taught are listed together (the Huddle, Ward council and Before ward council), each name is
-large and bold on a band of the list's own color (blue, green, purple, the colors the PDF uses),
-with the count beside it. On the smallest phones the name is a little smaller so the count stays
-beside it. Focus names and Missionary Referrals have a screen each and keep the small heading.
+**Every list's name stands out.** New members, Returning members, Those being taught, Focus names,
+Referrals and Find New People to Teach's "This week's plan" each sit on a band of the list's own
+color (blue, green, purple, gold, rose, teal: the colors the PDF uses), large and bold, with the
+count beside it. On the smallest phones the name is a little smaller so the count stays beside it.
+
+**Names have initials.** Each name row starts with a circle of initials ("DR") in its list's color;
+an empty spot shows a dashed circle with a plus. A person's screen opens with a band of their
+list's color: large initials, their name and their list ("New member"). Both follow the name as it
+is typed.
+
+**Section rows have icons.** In the Huddle and Ward council, each section row starts with a white
+drawing on a rounded tile of the section's color, like an iPhone's Settings: Return and Report
+(an arrow coming back, violet), Covenant Path Report (people, blue), Focus names (a star, gold),
+Find New People to Teach (a magnifying glass, teal), Missionary Referrals (a paper plane, rose).
+
+**Each of the four steps starts with a header card** in the step's color (Before ward council slate,
+Ward council blue, Huddle orange, After the huddle green): the step ("Step 3 · How & When") and the
+date on one line, the ward name large (or the step's name when no ward is set), then the step's one
+line on what to do. The Huddle and After the huddle show the huddle's date; the other two show
+today's. The two meetings also show progress:
+- **Huddle:** "2 of 5 sections done", with a bar that fills as sections are marked done.
+- **Ward council:** "6 of 7 names have a next ordinance" (Covenant Path lists and focus names).
+  Hidden while there are no names.
+At the top a full bar reads "✓ All 5 sections done". The ward name is not repeated in Huddle
+Details once it is in the card.
+
+**Small moments.** A section's green check pops once when it is marked done, and the bar slides
+to its new place. Sending opens the Sent message with a larger check, a brief burst of colored
+specks, and a line such as "4 people have a plan this week." (people with an action item; left out
+when there are none). Undo is unchanged. All motion is skipped when the phone is set to reduce motion.
+There is no "needs attention" list: the sections' own orange status lines already say what is missing.
 
 ## Opening screen
 
@@ -287,7 +313,7 @@ called **Focus names** in both meetings; the PDF's heading for it stays "Name Ne
 
 A plan for the week and any number of assignments (who will do what, and when), plus
 **Tips for finding new people to teach**. The same section opens from Ward council.
-In the Huddle it starts with its own **How can we help?** link; Ward council's copy does not have it.
+In the Huddle its "This week's plan" band carries its own **How can we help?** link; Ward council's copy does not have it.
 
 ### How can we help?
 
@@ -425,7 +451,7 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
   scrolled to the top. In a phone's browser the first-time step (Add Huddle to your Home Screen) starts
   open, and How to use opens by itself on the first visit; from the Home Screen app every step
   starts closed.
-- **Tour:** 10 stops, about 2 minutes: Welcome, the four steps, Before ward council, Ward council
+- **Tour:** 10 stops, about 2 minutes (the Huddle Details stop also points out the progress bar): Welcome, the four steps, Before ward council, Ward council
   (with the warning "Never add confidential information to this agenda."), Huddle Details, Return
   and Report, a person's screen in the huddle (which also points to **How can we help?**), the
   30-day temple goal, After the huddle, and Send.

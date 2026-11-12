@@ -75,6 +75,8 @@ Two flags in the phone's storage exist only for tests: `huddle-view-all` (an old
 and `huddle-cards-open` (every card open in its list, for tests that fill many cards).
 `rows.js` and `twodoor.js` test what people see: names as rows and one screen per person.
 `howhelp.js` tests the How can we help? panels, the list names' bands and the source links.
+`lively.js` tests the header cards, icons, initials and the Sent celebration. Keep color and motion
+within those pieces; don't add a "needs attention" list (the user decided it repeats what the sections say).
 
 ## Releasing
 

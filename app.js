@@ -322,6 +322,25 @@
     x: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 5l8 8M13 5l-8 8"/></svg>'
   };
   function icon(name, cls) { var s = h('span', { class: cls || null, 'aria-hidden': 'true' }); s.innerHTML = ICONS[name]; return s; }
+  /* A livelier look: each section's row starts with a white drawing on a tile of that section's own color
+   * (the color its list and its PDF heading use), and each name starts with a circle of initials. */
+  var TILE_SVG = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+  var TILE_ICONS = {
+    rr: '<path d="M7.5 5l-4 4 4 4"/><path d="M3.5 9H12a4.5 4.5 0 0 1 4.5 4.5V15"/>',                                  // an arrow coming back: return and report
+    cp: '<circle cx="7.2" cy="7" r="2.7"/><path d="M2.4 16c0-2.7 2.1-4.6 4.8-4.6S12 13.3 12 16"/><circle cx="14.2" cy="7.8" r="2.1"/><path d="M13.6 11.6c2.3-.2 4.1 1.5 4.1 3.9"/>', // people
+    tn: '<path d="M10 2.9l2.2 4.5 4.9.7-3.6 3.5.9 4.9-4.4-2.3-4.4 2.3.9-4.9L2.9 8.1l4.9-.7z"/>',                    // a star: the names to focus on
+    fn: '<circle cx="8.8" cy="8.8" r="5.3"/><path d="M12.8 12.8l4.2 4.2"/>',                                        // a magnifying glass: finding
+    mr: '<path d="M17 3L3 8.8l5.6 2.6L11.2 17z"/><path d="M17 3l-8.4 8.4"/>'                                        // a paper plane: sent to the missionaries
+  };
+  function tile(name) { var t = h('span', { class: 'row-icon tile-' + name, 'aria-hidden': 'true' }); t.innerHTML = TILE_SVG + TILE_ICONS[name] + '</svg>'; return t; }
+  // "Daniel Rivera" is DR; a single word gives one letter; no name yet gives a plus.
+  function initials(name) {
+    var words = str(name).trim().split(/\s+/).map(function (w) { return w.replace(/^[^A-Za-z\u00C0-\uFFFF]+/, ''); }).filter(Boolean);
+    if (!words.length) return '';
+    return (Array.from(words[0])[0] + (words.length > 1 ? Array.from(words[words.length - 1])[0] : '')).toUpperCase();
+  }
+  function initialsDot(name) { var t = initials(name); return h('span', { class: 'avatar' + (t ? '' : ' is-blank'), 'aria-hidden': 'true', text: t || '+' }); }
+  var LIST_LABEL = { nm: 'New member', rm: 'Returning member', bt: 'Being taught', tn: 'Focus name', mr: 'Missionary referral' };
   function field(label, path, opts) {
     opts = opts || {};
     return h('label', { class: 'field' + (opts.full ? ' full' : '') }, [
@@ -879,6 +898,7 @@
     var title = name || (gid === 'tn' ? 'Focus name ' + (i + 1) : 'No name yet');
     return h('li', {}, [h('button', { type: 'button', class: 'nav-row person-row' + (name ? '' : ' is-blank'), 'data-action': 'open-person', 'data-a': gid, 'data-b': i, 'data-kind': kind,
       'aria-label': title + '. ' + sub }, [
+      initialsDot(name),
       h('span', { class: 'step-text' }, [
         h('span', { class: 'step-title person-name', text: title }),
         h('span', { class: 'step-status' + (warn ? ' warn' : ''), text: sub }),
@@ -895,6 +915,7 @@
     var sub = [by ? 'Referred by ' + by : '', notes].filter(Boolean).join(' · ') || (name ? 'No details yet' : 'Tap to add');
     return h('li', {}, [h('button', { type: 'button', class: 'nav-row person-row' + (name ? '' : ' is-blank'), 'data-action': 'open-person', 'data-a': 'mr', 'data-b': i, 'data-kind': kind,
       'aria-label': (name || 'No name yet') + '. ' + sub }, [
+      initialsDot(name),
       h('span', { class: 'step-text' }, [
         h('span', { class: 'step-title person-name', text: name || 'No name yet' }),
         h('span', { class: 'step-status', text: sub })
@@ -962,7 +983,10 @@
     var done = h('button', { type: 'button', class: 'btn-primary full person-done', 'data-action': 'steps-home' }, ['Done']);
     // Ward council's screen asks the 4-week question too (the huddle's card carries its own).
     var note = (r.kind === 'wc' || r.kind === 'bw') && !isRef ? staleNote(base, a, r.g === 'tn') : null;
-    wrap.replaceChildren(h('section', attrs, [note, card]), done, remove);
+    // The top of the screen is tinted with their list's color: initials, name, and which list they're on.
+    var head = h('div', { class: 'person-head' }, [initialsDot(a.name), h('div', { class: 'person-head-text' }, [
+      h('p', { class: 'person-head-name', text: personTitle(r) }), h('p', { class: 'person-head-list', text: LIST_LABEL[r.g] })])]);
+    wrap.replaceChildren(h('section', attrs, [head, note, card]), done, remove);
     if (r.g === 'nm') updateTemple();
   }
   // Missionary Referrals: one section, shown in the Huddle and in ward council.
@@ -1349,15 +1373,61 @@
     if (!plan && !k) return { text: 'Not started' };
     return { text: (plan ? 'Plan written' : 'No plan yet') + ' · ' + plural(k, 'assignment', 'assignments'), warn: !plan || !k };
   }
+  // Who has an action item (for the Sent message's count).
+  function attention() {
+    var missing = [], named = 0, temple = null;
+    var look = function (g, a, i) { if (!str(a.name).trim()) return; named++; if (!str(a.action).trim()) missing.push({ g: g, i: i, a: a }); };
+    GROUPS.forEach(function (g) { state.cp[g.id].forEach(function (a, i) { look(g.id, a, i); }); });
+    state.tn.forEach(function (a, i) { look('tn', a, i); });
+    state.cp.nm.forEach(function (a, i) {
+      if (!str(a.name).trim() || a.temple) return;
+      var ts = templeStatus(a, state.date);
+      if (ts.left !== undefined && (!temple || ts.left < temple.left)) temple = { g: 'nm', i: i, a: a, left: ts.left };
+    });
+    return { missing: missing, named: named, temple: temple };
+  }
+  /* The header card at the top of each of the four steps: the ward, the date and, in the two meetings, how far along
+   * things are. The Huddle counts sections marked done; ward council counts names that have a next ordinance. */
+  function heroProgress(key) {
+    if (key === 'hd') {
+      var n = STEPS.filter(function (st) { return state.stepsDone[st.id]; }).length;
+      return { done: n, of: STEPS.length, text: n === STEPS.length ? 'All ' + n + ' sections done' : n + ' of ' + STEPS.length + ' sections done' };
+    }
+    if (key !== 'wc') return null;
+    var named = allNames().map(function (x) { return { a: x.a, g: x.gid }; }).concat(state.tn.filter(function (a) { return str(a.name).trim(); }).map(function (a) { return { a: a, g: 'tn' }; }));
+    if (!named.length) return null;
+    var have = named.filter(function (x) { return ordOf(x.a, x.g); }).length, all = have === named.length;
+    return { done: have, of: named.length, text: all ? (have === 1 ? 'The 1 name has a next ordinance' : 'All ' + have + ' names have a next ordinance') : have + ' of ' + named.length + ' names have a next ordinance' };
+  }
+  function renderHeroes() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-hero]'), function (el) {
+      var key = el.getAttribute('data-hero');
+      // The Huddle and After the huddle carry the huddle's own date; the other two happen on the day they're opened.
+      var d = (key === 'hd' || key === 'af') && parseISO(state.date) || new Date();
+      el.querySelector('.hero-ward').textContent = state.ward.trim() || { hd: 'Huddle', wc: 'Ward council', bw: 'Before ward council', af: 'After the huddle' }[key];
+      el.querySelector('.hero-date').textContent = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+      var box = el.querySelector('.hero-progress'); if (!box) return;
+      var pr = heroProgress(key); box.hidden = !pr; if (!pr) return;
+      box.querySelector('.hero-count').textContent = pr.text;
+      box.classList.toggle('full', pr.done === pr.of);
+      var fill = box.querySelector('.hero-fill'), w = Math.round(100 * pr.done / pr.of) + '%';
+      // (Set a moment later, so the bar is seen moving when the page it's on comes back into view.)
+      if (fill.getAttribute('data-w') !== w) { fill.setAttribute('data-w', w); setTimeout(function () { fill.style.width = w; }, 60); }
+    });
+  }
+  var justDone = { id: '', at: 0 }; // the section marked done a moment ago: its check pops once
   // Sections open in any order; a finished one gets a green check.
   function renderSteps() {
     if (!$('#steps-home')) return;
+    renderHeroes();
+    var fc = $('#fn-count'); if (fc) fc.textContent = plural(state.find.items.filter(function (x) { return str(x.task).trim(); }).length, 'assignment', 'assignments');
     var row = function (st) {
       var isDone = !!state.stepsDone[st.id], status = stepStatus(st.id);
       var num = null;
-      if (isDone) { num = h('span', { class: 'step-num', 'aria-hidden': 'true' }); num.appendChild(icon('check')); }
+      if (isDone) { num = h('span', { class: 'step-num' + (justDone && justDone.id === st.id && Date.now() - justDone.at < 1500 ? ' pop' : ''), 'aria-hidden': 'true' }); num.appendChild(icon('check')); }
       return h('li', {}, [h('button', { type: 'button', class: 'nav-row step-row' + (isDone ? ' done' : ''), 'data-action': 'open-step', 'data-a': st.id,
         'aria-label': st.title + (isDone ? ', done' : '') + '. ' + status.text }, [
+        tile(st.id),
         h('span', { class: 'step-text' }, [
           h('span', { class: 'step-title', text: st.title }),
           h('span', { class: 'step-status' + (status.warn ? ' warn' : ''), text: status.text })
@@ -1409,7 +1479,7 @@
     $('#start-home').hidden = !start; $('#wc-view').hidden = !wc && !(!all && isWcNames(view)); $('#mode-bar').hidden = all || !(view === 'home' || wc || bw || af);
     $('#bw-view').hidden = !bw; $('#af-view').hidden = !af;
     $('#mode-title').textContent = wc ? 'Ward council' : bw ? 'Before ward council' : af ? 'After the huddle' : 'Huddle';
-    $('#hd-intro').hidden = all || view !== 'home'; // the Huddle's one line on what to do there
+    $('#hd-hero').hidden = all || view !== 'home'; // the Huddle's header card, with its one line on what to do there
     var stp = STEPS.filter(function (x) { return x.id === view; })[0] || WC_LISTS.filter(function (x) { return 'wc-' + x.id === view; })[0];
     $('#step-title').textContent = person ? personTitle(personRef) : stp ? stp.title : '';
     // Leaving a person's screen: drop a name left empty, then redraw the lists it appears on.
@@ -1501,10 +1571,11 @@
   function renderWC() {
     var wrap = $('#wc-list'), rows = $('#wc-rows'); if (!wrap || !rows) return;
     rows.hidden = !(stepsOn && view === 'wc');
-    var wcIntro = $('#wc-intro'); if (wcIntro) wcIntro.hidden = rows.hidden;
+    var wcHero = $('#wc-hero'); if (wcHero) wcHero.hidden = rows.hidden;
     if (!rows.hidden) rows.replaceChildren.apply(rows, WC_LISTS.map(function (l) {
       var st = wcStatus(l.id);
       return h('li', {}, [h('button', { type: 'button', class: 'nav-row wc-row', 'data-action': 'open-wc-list', 'data-a': l.id, 'aria-label': l.title + '. ' + st.text }, [
+        tile(l.id),
         h('span', { class: 'step-text' }, [
           h('span', { class: 'step-title', text: l.title }),
           h('span', { class: 'step-status' + (st.warn ? ' warn' : ''), text: st.text })
@@ -1628,6 +1699,7 @@
     var doneBtn = full.querySelector('.details-done'); if (doneBtn) doneBtn.hidden = !stepsOn;
     var d = parseISO(state.date);
     $('#details-line').replaceChildren(h('b', { text: state.ward.trim() || 'Ward not set' }));
+    $('#details-line').classList.toggle('in-hero', stepsOn && !!state.ward.trim()); // the header card above already names the ward
     var n = state.attendees.length;
     // Attendance shows in the same dark orange as other steps that still need action, until it's taken.
     $('#details-sub').replaceChildren(conductingLabel(state) ? conductingLabel(state) + ' · ' : '', n ? n + ' attended' : h('span', { class: 'warn', text: 'Attendance not taken yet' }));
@@ -1693,6 +1765,10 @@
     $('#confirm-sheet .ok-icon').hidden = !opts.success;
     $('#confirm-body').textContent = opts.body || '';
     $('#confirm-body').hidden = !opts.body;
+    // Sending the huddle gets a small celebration: a bigger check, a few specks of color, and one warm line.
+    $('#confirm-sheet .sheet').classList.toggle('celebrate', !!opts.celebrate);
+    $('#confirm-sheet .confetti').hidden = !opts.celebrate;
+    var cheer = $('#confirm-cheer'); cheer.textContent = opts.cheer || ''; cheer.hidden = !opts.cheer;
     var cl = $('#confirm-link');
     if (cl) { cl.hidden = !opts.link; if (opts.link) cl.textContent = opts.link; }
     var cmp = $('#confirm-compare');
@@ -1889,7 +1965,7 @@
       case 'step-done': {
         var doneView = view;
         var finish = function () {
-          state.stepsDone[doneView] = true; saveDraft(); goHome();
+          state.stepsDone[doneView] = true; justDone = { id: doneView, at: Date.now() }; saveDraft(); goHome();
           var st = STEPS.filter(function (x) { return x.id === doneView; })[0];
           toast((st ? st.title : 'Section') + ' marked done.', 6000, { label: 'Undo', run: function () { delete state.stepsDone[doneView]; saveDraft(); } });
         };
@@ -2192,10 +2268,12 @@
     var snap = JSON.parse(JSON.stringify(state));
     var prevLast = readJSON('localStorage', LAST_SENT_KEY);
     var sentDate = state.date;
+    var planned = attention(); planned = planned.named - planned.missing.length; // people who leave this huddle with an action item
     writeJSON('localStorage', LAST_SENT_KEY, { date: sentDate, ward: state.ward.trim(), sentAt: new Date().toISOString(), data: makePayload(state) });
     var n = rollForward(todayISO());
     ask({
-      title: downloaded ? 'PDF downloaded' : 'Sent successfully', success: true,
+      title: downloaded ? 'PDF downloaded' : 'Sent successfully', success: true, celebrate: true,
+      cheer: planned ? plural(planned, 'person has', 'people have') + ' a plan this week.' : '',
       body: (downloaded ? 'Attach it to an email or text message to send it. ' : '') +
         'You’re set for your next huddle. ' +
         (n ? 'This huddle’s assignments are now in Return and Report: mark them as people report back. ' : '') +
@@ -3556,6 +3634,11 @@
         $('#step-title').textContent = personTitle(personRef);
         var prm = $('#person-card .person-remove'), pca = personCard(personRef);
         if (prm && pca) prm.hidden = rowBlank(personRef.g, pca);
+        var phd = $('#person-card .person-head');
+        if (phd && pca) { // the name and initials at the top follow along
+          phd.querySelector('.person-head-name').textContent = personTitle(personRef);
+          var pav = phd.querySelector('.avatar'), pin = initials(pca.name); pav.textContent = pin || '+'; pav.classList.toggle('is-blank', !pin);
+        }
       } else if (isPerson(view) && personRef) { var prm2 = $('#person-card .person-remove'), pc2 = personCard(personRef); if (prm2 && pc2) prm2.hidden = rowBlank(personRef.g, pc2); }
       var wcc = e.type === 'change' && (isWcList(view) || view === 'p-wc') && /\.name$/.test(path) ? t.closest('.wc-card') : null;
       if (wcc) {
