@@ -9,6 +9,7 @@
   // Each stop: what to highlight (first visible match) and what to say. No target = a centered message.
   var STEPS = [
     { view: 'start', title: 'Welcome!', text: 'This tour shows how the weekly process works. It takes about 2 minutes. Tap **Start** to begin.' },
+    { target: '.start-ward', view: 'start', title: 'Your ward', text: 'Tap your ward’s name at the top to add it or change it. It goes on every page, the PDF and the texts.' },
     { target: '#start-home', view: 'start', title: 'Four steps, in order', text: '**1. Before ward council:** update each person from the Covenant Path Report.\n**2. Ward council:** who to focus on, and each next ordinance.\n**3. Huddle:** how and when to help.\n**4. After the huddle:** update the Covenant Path Report.\nThen tap **Send**. **Up next** shows where you are.' },
     { target: ['#before-list', '#bw-view'], view: 'bw', sample: true, title: 'Before ward council', text: 'Open the Covenant Path Report in Member Tools, then bring each name up to date here: next ordinance, needs, temple and sacrament attendance. Tap **Add a name** for anyone new. When everyone matches the report, tap **All up to date · Mark done**.' },
     { target: ['#wc-view', '#wc-rows'], view: 'wc', title: 'Ward council', text: 'Ward council decides who and what. **Covenant Path Report** and **Focus names** hold the names: tap a row, then a name, and enter the next ordinance and needs. Ward council chooses the three focus names.',

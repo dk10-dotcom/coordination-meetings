@@ -54,7 +54,7 @@
 
   <header class="top">
     <div class="title-row">
-      <div class="title-text"><p class="app-name">Huddle</p><h1>Ward Mission Leader Process</h1><p class="start-where" id="start-where"><span id="start-ward"></span><span id="start-date"></span></p></div>
+      <div class="title-text"><p class="app-name">Huddle</p><h1>Ward Mission Leader Process</h1><p class="start-where" id="start-where"><button type="button" class="start-ward" data-action="edit-ward" aria-haspopup="dialog"><span id="start-ward"></span><svg class="start-ward-pencil" width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 15l1-4 8.5-8.5a2 2 0 0 1 3 3L7 14z"/><path d="M11 4l3 3"/></svg></button><span id="start-date"></span></p></div>
       <div class="top-buttons">
         <button type="button" class="help-link" data-action="help" aria-haspopup="dialog">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="9" r="7.2"/><path d="M6.9 7a2.1 2.1 0 1 1 3 1.9c-.6.3-.9.8-.9 1.4v.3"/><path d="M9 13v.2"/></svg>
@@ -110,11 +110,6 @@
     <div class="details-head">
       <span class="details-head-title">Huddle Details</span>
       <button type="button" class="btn-collapse" data-action="close-details" aria-label="Close huddle details">Close<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M3.5 10L8 5.5l4.5 4.5"/></svg></button>
-    </div>
-    <div class="grid-2">
-      <label class="field">Ward
-        <input type="text" id="ward" data-bind="ward" placeholder="Ward name" autocomplete="off" autocapitalize="words">
-      </label>
     </div>
     <div class="field conduct-field">
       <span id="conduct-label">Conducting</span>
@@ -425,6 +420,19 @@
   </div>
 </div>
 
+<!-- The ward name: set once, from the opening screen's header card -->
+<div class="overlay" id="ward-sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ward-title">
+    <div class="grab" aria-hidden="true"></div>
+    <h2 id="ward-title">Your ward</h2>
+    <p class="step-hint">It goes at the top of each step, on the PDF and in the texts.</p>
+    <label class="field">Ward name
+      <input type="text" id="ward" data-bind="ward" placeholder="e.g. Riverton 5th Ward" autocomplete="off" autocapitalize="words" enterkeyhint="done">
+    </label>
+    <button type="button" class="btn-primary full" data-action="close-ward">Done</button>
+  </div>
+</div>
+
 <!-- How can we help?: the questions for one section of the Huddle. Nothing is typed here and none of it goes on the PDF. -->
 <div class="overlay" id="howhelp-sheet" hidden>
   <div class="sheet help howhelp" role="dialog" aria-modal="true" aria-labelledby="howhelp-title">
@@ -545,10 +553,11 @@
       <li><details class="help-item" id="help-install">
         <summary class="nav-row"><span class="step-text"><span class="step-title">Add Huddle to your Home Screen</span><span class="step-status" id="help-install-status">Do this once, before you start</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
         <ul class="help-body">
-          <li>Do this before you type anything. On iPhone, what you type in Safari doesn’t carry over to the app.</li>
+          <li>Do this first: on iPhone, what you type in Safari doesn’t carry over to the app.</li>
           <li>Tap <strong>Add to Home Screen</strong> at the top of the opening screen. iPhone: use Safari. Android: use Chrome.</li>
           <li>From then on, open Huddle from its icon.</li>
           <li><strong>Don’t delete the icon.</strong> That erases everything on this phone.</li>
+          <li>Then tap <strong>Tap to add your ward</strong> at the top.</li>
         </ul>
       </details></li>
     </ul>
@@ -608,7 +617,7 @@
         <ul class="help-body">
           <li>The ward mission leader usually conducts. When he’s away, the elders quorum representative does.</li>
           <li>On the opening screen, tap <strong>Hand off</strong>, then <strong>Send a handoff</strong>. Text the link to the leader who will conduct.</li>
-          <li>They tap the link and follow the steps it shows.</li>
+          <li>They tap it and follow the steps.</li>
           <li><strong>Filled in for someone?</strong> After you send the PDF, hand it back the same way, to whoever conducts next week.</li>
         </ul>
       </details></li>
@@ -631,8 +640,7 @@
         <summary class="nav-row"><span class="step-text"><span class="step-title">Get my names back</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
         <ul class="help-body">
           <li>New phone, or the icon was deleted? On the opening screen, tap <strong>Load from a PDF</strong> and choose the last PDF you sent.</li>
-          <li>That’s why you include yourself.</li>
-        </ul>
+                  </ul>
       </details></li>
       <li><details class="help-item">
         <summary class="nav-row"><span class="step-text"><span class="step-title">Add or remove a name</span></span><span class="step-chev" aria-hidden="true">›</span></summary>

@@ -138,8 +138,10 @@ the person picks the missionaries. Turned off during a practice week.
 ## Opening screen
 
 **Look.** At the top, How to use, then a deep blue header card: "Huddle", the title "Ward Mission
-Leader Process", and under a thin line the ward name (or "Set your ward in Huddle Details") and
-today's date. The four steps follow as a timeline: white cards joined by a line on the left, each
+Leader Process", and under a thin line the ward name and today's date. **The ward is set here:** tapping
+the name (it has a small pencil) opens "Your ward" with one box and Done; with no ward yet the card reads
+"Tap to add your ward" in a dashed outline. Huddle Details no longer has a ward box. If Send finds no ward,
+it offers "Add the ward", which opens the same box. The four steps follow as a timeline: white cards joined by a line on the left, each
 with an icon tile in its page's color (Before ward council slate, Ward council blue, Huddle orange,
 After the huddle green). The circle on the line shows the step's number, or a green check once the
 step is done: Before ward council and After the huddle when marked done, Ward council when every
@@ -485,7 +487,7 @@ link clears both from the address bar.
   scrolled to the top. In a phone's browser the first-time step (Add Huddle to your Home Screen) starts
   open, and How to use opens by itself on the first visit; from the Home Screen app every step
   starts closed.
-- **Tour:** 10 stops, about 2 minutes (the Huddle Details stop also points out the progress bar): Welcome, the four steps, Before ward council, Ward council
+- **Tour:** 11 stops, about 2 minutes (the Huddle Details stop also points out the progress bar): Welcome, Your ward, the four steps, Before ward council, Ward council
   (with the warning "Never add confidential information to this agenda."), Huddle Details, Return
   and Report, a person's screen in the huddle (which also points to **How can we help?**), the
   30-day temple goal, After the huddle, and Send.

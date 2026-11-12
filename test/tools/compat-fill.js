@@ -24,6 +24,8 @@ module.exports = async function patch() {
   };
   const pf = Page.fill;
   Page.fill = async function (sel, value, opts) {
+    // The ward name lives in a box that opens from the opening screen; older tests type it in directly.
+    if ((sel === '#ward' || sel === '[data-bind="ward"]') && !(await this.isVisible('#ward').catch(() => false))) return this.locator('#ward').evaluate((el, v) => { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); }, value);
     const loc = this.locator(sel).first();
     if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) { await loc.waitFor({ state: 'attached', timeout: (opts && opts.timeout) || 30000 }).catch(() => {}); if (await special(loc)) return set(loc, value); }
     return pf.call(this, sel, value, opts);

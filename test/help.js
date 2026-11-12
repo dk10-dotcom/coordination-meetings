@@ -59,7 +59,7 @@ const ok = (l, c) => console.log((c ? 'PASS ' : 'FAIL ') + l);
   await p.click('#help-sheet details:has-text("Update the report, then share the PDF") summary');
   ok('tapping it again closes it', await p.isHidden('#help-sheet :text("Send works only after this.")'));
   await p.click('#help-sheet details:has-text("Fix a mistake") summary'); await p.click('#help-sheet details:has-text("Get my names back") summary');
-  ok('How do I rows open the same way', await p.isVisible('#help-sheet :text("Sent too soon?")') && await p.isVisible('#help-sheet :text("That’s why you include yourself.")'));
+  ok('How do I rows open the same way', await p.isVisible('#help-sheet :text("Sent too soon?")') && await p.isVisible('#help-sheet :text("choose the last PDF you sent")'));
   const ho = (await p.textContent('#help-sheet details:has-text("Hand off to someone else")')).replace(/\s+/g, ' ');
   ok('Hand off says the leader who filled in hands it back, not Load from a PDF', ho.includes('Filled in for someone? After you send the PDF, hand it back the same way, to whoever conducts next week.') && !ho.includes('Load from a PDF'));
   await p.click('#help-video-row summary');

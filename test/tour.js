@@ -38,10 +38,10 @@ const res = []; const ok = (l, c, x) => { res.push(c); console.log((c ? 'PASS ' 
       await p.click('.tour-next');
     }
     ok(n + ': every bubble fully on screen', bad.length === 0, bad.join(', '));
-    ok(n + ': the tour has 10 stops', total === 10, String(total));
+    ok(n + ': the tour has 11 stops', total === 11, String(total));
     ok(n + ': the two stops about one person open that person’s screen in the huddle', views.filter(v => v === 'p-hd').length === 2, views.join(','));
-    ok(n + ': the tour covers all four steps: Before ward council, Ward council, the Huddle and After the huddle', views[2] === 'bw' && views[3] === 'wc' && views.includes('home') && views.includes('rr') && titles.includes('Before ward council') && titles.includes('After the huddle'), views.join(',') + ' | ' + titles.join(','));
-    ok(n + ': the stop on the four steps no longer says the boxes turn green', !texts[1].includes('green') && texts[1].includes('Then tap Send.'), texts[1]);
+    ok(n + ': the tour covers all four steps: Before ward council, Ward council, the Huddle and After the huddle', views[3] === 'bw' && views[4] === 'wc' && views.includes('home') && views.includes('rr') && titles.includes('Before ward council') && titles.includes('After the huddle'), views.join(',') + ' | ' + titles.join(','));
+    ok(n + ': the stop on the four steps no longer says the boxes turn green', !texts[2].includes('green') && texts[2].includes('Then tap Send.') && /ward’s name/.test(texts[1]), texts[1] + ' / ' + texts[2]);
     ok(n + ': the tour keeps the confidentiality warning', demos.some(d => d.includes('Never add confidential information to this agenda.')));
     await p.waitForTimeout(500);
     ok(n + ': the sample name the tour shows is never saved', await p.evaluate(() => !(localStorage.getItem('huddle-agenda-v1') || '').includes('Daniel Rivera')));

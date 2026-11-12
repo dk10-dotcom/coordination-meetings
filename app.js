@@ -1723,7 +1723,9 @@
       el.classList.toggle('tl-done', done[i]); el.classList.toggle('tl-next', i === next);
       var t = el.querySelector('[data-tile]'); if (t && !t.firstChild) t.innerHTML = TILE_SVG + TILE_ICONS[t.getAttribute('data-tile')] + '</svg>';
     });
-    $('#start-ward').textContent = state.ward.trim() || 'Set your ward in Huddle Details';
+    $('#start-ward').textContent = state.ward.trim() || 'Tap to add your ward';
+    $('.start-ward').classList.toggle('is-empty', !state.ward.trim());
+    $('.start-ward').setAttribute('aria-label', state.ward.trim() ? 'Ward: ' + state.ward.trim() + '. Tap to change it.' : 'Add your ward');
     $('#start-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
     var send = $('.actionbar [data-action="send"]'); if (send) send.classList.toggle('not-ready', !state.verified.after);
     var names = state.tn.filter(function (a) { return str(a.name).trim(); }).length + GROUPS.reduce(function (n, g) { return n + countNamed(g.id); }, 0);
@@ -2049,7 +2051,9 @@
         if (si >= 0 && STEPS[si + 1]) showView(STEPS[si + 1].id, 'replace');
         break;
       }
-      case 'open-details': openDetails(); var wf = $('#ward'); if (wf && !state.ward.trim()) wf.focus(); break;
+      case 'open-details': openDetails(); break;
+      case 'edit-ward': openOverlay('#ward-sheet', '#ward'); break;
+      case 'close-ward': closeOverlay('#ward-sheet'); renderDoors(); renderSteps(); break;
       case 'close-details': detailsOpen = false; renderDetails(); window.scrollTo(0, 0); break;
       case 'edit-one': {
         state.openOne[a] = +b; rerenderList(a);
@@ -3514,7 +3518,7 @@
       return false;
     }
     if (!state.ward.trim()) {
-      ask({ title: 'Add your ward name first', body: 'The ward name goes on the PDF. It’s in Huddle Details.', primary: 'OK', onPrimary: function () { openDetails(); $('#ward').focus(); } });
+      ask({ title: 'Add your ward name first', body: 'The ward name goes on the PDF.', primary: 'Add the ward', onPrimary: function () { setTimeout(function () { openOverlay('#ward-sheet', '#ward'); }, 50); }, secondary: 'Cancel' });
       return false;
     }
     if (!parseISO(state.date)) {
@@ -3681,7 +3685,7 @@
       }
       setPath(path, val);
       if (t.tagName === 'SELECT') t.classList.toggle('is-empty', !t.value);
-      if (path === 'ward') writeWard(String(val).trim());
+      if (path === 'ward') { writeWard(String(val).trim()); if (view === 'start') renderDoors(); }
       if (path === 'date') { state.dateManual = true; renderDateHint(); }
       // Ward council: once a name is finished being typed, its Details and last assignment follow the new name.
       // (Only those boxes are redrawn, so the field being typed in next keeps its place.)
@@ -3763,12 +3767,13 @@
       if (e.target.id === 'tips-sheet') closeOverlay('#tips-sheet');
       if (e.target.id === 'find-tips-sheet') closeOverlay('#find-tips-sheet');
       if (e.target.id === 'howhelp-sheet') closeOverlay('#howhelp-sheet');
+      if (e.target.id === 'ward-sheet') { closeOverlay('#ward-sheet'); renderDoors(); renderSteps(); }
       if (e.target.id === 'sample-sheet') closeOverlay('#sample-sheet');
       if (e.target.id === 'confirm-sheet' && askSecondary) askSecondary();
     });
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;
-      var top = ['#confirm-sheet', '#sample-sheet', '#handoff-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#find-tips-sheet', '#howhelp-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
+      var top = ['#confirm-sheet', '#sample-sheet', '#handoff-sheet', '#install-sheet', '#help-sheet', '#tips-sheet', '#find-tips-sheet', '#howhelp-sheet', '#ward-sheet', '#send-sheet'].filter(function (id) { return !$(id).hidden; })[0];
       if (top) dismissSheet(top);
     });
     enableSwipeDown();
@@ -3810,6 +3815,9 @@
     var videoRow = $('#help-video-row');
     if (videoRow) videoRow.addEventListener('toggle', function () { if (!videoRow.open) { try { $('#help-video').pause(); } catch (e) { /* ignore */ } } });
     // Enter moves to the next field instead of doing nothing
+    document.addEventListener('keydown', function (e) { // Done on the keyboard closes the ward box
+      if (e.key === 'Enter' && e.target && e.target.id === 'ward') { e.preventDefault(); closeOverlay('#ward-sheet'); renderDoors(); renderSteps(); }
+    });
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter' || !e.target.matches || !e.target.matches('#form input[type="text"], #form textarea')) return;
       e.preventDefault();
