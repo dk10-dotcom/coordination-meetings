@@ -9,7 +9,7 @@
  {
   "kicker": "The opening screen",
   "title": "Four steps, in order",
-  "body": "Before ward council, Ward council, the Huddle, and After the huddle. Up next shows where you are. A finished step gets a green check.",
+  "body": "1. Before ward council\n2. Ward council\n3. The Huddle\n4. After the huddle\nUp next shows where you are. A finished step gets a green check.",
   "color": "#4F5A8C",
   "img": "02.jpg"
  },

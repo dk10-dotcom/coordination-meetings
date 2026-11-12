@@ -2,7 +2,7 @@
 // kicker colors follow the step: 1 slate, 2 blue, 3 orange, 4 green.
 module.exports = [
   { shot: 's01-start', kind: 'title', title: 'Huddle', sub: 'The weekly missionary coordination meeting, step by step', body: 'Each week, ward leaders and missionaries counsel together to help each person take the next step on the covenant path. Huddle keeps that plan in one place, on your phone.', t: 9 },
-  { shot: 's02-start-step1', k: 'The opening screen', c: 'slate', title: 'Four steps, in order', body: 'Before ward council, Ward council, the Huddle, and After the huddle. Up next shows where you are. A finished step gets a green check.', t: 8 },
+  { shot: 's02-start-step1', k: 'The opening screen', c: 'slate', title: 'Four steps, in order', body: '1. Before ward council\n2. Ward council\n3. The Huddle\n4. After the huddle\nUp next shows where you are. A finished step gets a green check.', t: 8 },
   { shot: 's03-bw', k: 'Step 1 · Before ward council', c: 'slate', title: 'Open the Covenant Path Report', body: 'Before ward council, open the report in Member Tools and bring each name up to date.', t: 7 },
   { shot: 's04-bw-list', k: 'Step 1 · Before ward council', c: 'slate', title: 'Tap each name', body: 'Update the next ordinance, needs, temple attendance and sacrament attendance. Add anyone new; remove anyone no longer on the report.', t: 8 },
   { shot: 's05-bw-person', k: 'Step 1 · Before ward council', c: 'slate', title: 'Everything about one person', body: 'Each person has a screen of their own. Done brings you back to the list.', t: 6 },
