@@ -1348,3 +1348,4 @@ body.coaching .actionbar, body.coaching[data-view="start"] .actionbar { bottom: 
 .slide-kicker[data-p="4"] { background: #6E2F7E; } .slide-kicker[data-p="5"] { background: #1F6F78; }
 .slide-kicker:not([data-p]) { padding-left: 0; }
 .slide-part { display: block; margin-top: 2px; font-size: 13px; font-weight: 600; letter-spacing: 0; text-transform: none; opacity: .92; }
+.help-num.help-week svg { display: block; } /* During the week: a calendar instead of a number, like Week on the training slides */

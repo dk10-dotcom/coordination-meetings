@@ -3559,6 +3559,8 @@
     if (install && (isIOS || isAndroid) && !installed) install.open = true;
     var installNote = $('#help-install-status');
     if (installNote) installNote.textContent = installed ? 'Already done on this phone' : 'Do this once, before you start';
+    var wardNote = $('#help-ward-status'), wn = str(state.ward).trim();
+    if (wardNote) wardNote.textContent = wn ? 'Done: ' + wn : 'It goes on the PDF';
     openOverlay('#help-sheet', '#help-title');
     var sheet = $('#help-sheet .sheet'); if (sheet) sheet.scrollTop = 0;
   }

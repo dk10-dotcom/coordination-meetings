@@ -462,22 +462,24 @@ link clears both from the address bar.
 ## Help built into the app
 
 - **How to use** is a short list, not a page of text. It has an intro line, the warning "Never add
-  confidential information to this agenda." (always showing), and five groups of rows:
-  - **First time only:** Add Huddle to your Home Screen. It is set apart and has no step number,
-    because it is done once and is not part of the week. Its one-line summary reads "Do this once,
-    before you start", or "Already done on this phone" when the app is running from the Home Screen.
-  - **Every week:** five numbered steps, each with a one-line summary: Before ward council, Ward
-    council, Huddle, After the huddle, During the week. The first four are the four steps on the
-    opening screen, under the same names.
-  - **How do I…:** Hand off to someone else, Fix a mistake, Share the PDF again, Get my names
-    back, Add or remove a name, New members and those being taught.
+  confidential information to this huddle report." (always showing), and five groups of rows, in this order:
+  - **Start here:** Add Huddle to your Home Screen ("Do this once, before you start", or "Already done on
+    this phone" when the app is running from the Home Screen); Add your ward ("It goes on the PDF", or
+    "Done: Sample Ward" once a ward is set); and Take the guided tour ("Practice a week with sample names").
+    None has a step number, because they are done once and are not part of the week.
+  - **Every week:** Before ward council, Ward council, Huddle, After the huddle (numbered 1 to 4, the four
+    steps on the opening screen under the same names), then During the week, marked with a calendar instead
+    of a number, like "Week" on the training slides. Each starts with "Tap **Home**, then …".
+  - **Watch or read:** Training slides ("At your own pace") and See a sample huddle report.
+  - **How do I…:** most used first: Add or remove a name, New members and those being taught, Hand off to
+    someone else, Fix a mistake, Share the PDF again, Get my names back.
   - **About this app:** Privacy and security ("Everything stays on this phone"). It says that what
     is entered stays on the phone and nothing is saved online; that only what is sent leaves (the
     PDF, an assignment text or a handoff); to protect the PDF (the sharing rule word for word, and
     delete old copies); and never to enter confidential or sensitive information, because everyone
     who gets the PDF can read it.
-  - **Watch or try:** Take the tour, See a sample huddle report, Try a practice week, and Training slides
-    ("At your own pace"). The slides open full screen, one at a time: a count ("3 of 33"); five pills showing
+
+  **Training slides** open full screen, one at a time: a count ("3 of 33"); five pills showing
     where the slide is in the week (1, 2, 3, 4 and Week: the current one filled in its color, earlier ones pale;
     Send belongs to step 4); a solid band in that color naming the part ("Step 3 · The Huddle", with the section,
     such as "New members", on a small second line); a short title and a few sentences, then a picture of the app with a ring
