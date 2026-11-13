@@ -1354,7 +1354,7 @@ body.coaching .actionbar, body.coaching[data-view="start"] .actionbar { bottom: 
 .more-list { margin: 6px 0 14px; }
 .danger-row .step-title { color: #B22A2A; }
 /* A person's Done stays in reach just above the bottom bar; lists end clear of the bar */
-.person-done { position: sticky; bottom: calc(100px + env(safe-area-inset-bottom, 0px)); z-index: 4; box-shadow: 0 6px 18px -6px rgba(20, 30, 50, .35); }
+.person-done { position: sticky; bottom: calc(max(14px, env(safe-area-inset-bottom, 0px)) + 82px); z-index: 4; box-shadow: 0 6px 18px -6px rgba(20, 30, 50, .35); }
 body.typing .person-done, body.coaching .person-done { position: static; box-shadow: none; }
 body { padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
 /* An empty date field says "Pick a date" */
@@ -1413,7 +1413,7 @@ body { padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
 /* Mark done (Before ward council, each Huddle section, After the huddle): pinned just above the bottom bar so it is
    always in view; once done it turns green and says Done with a check, and tapping it again takes the mark off */
 .step-foot { display: contents; }
-.mark-done { position: sticky; bottom: calc(100px + env(safe-area-inset-bottom, 0px)); z-index: 4; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+.mark-done { position: sticky; bottom: calc(max(14px, env(safe-area-inset-bottom, 0px)) + 82px); z-index: 4; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   box-shadow: 0 6px 18px -6px rgba(20, 30, 50, .35); }
 .mark-done .mark-check { display: none; }
 .mark-done.is-done { background: #1F6B3A; border-color: #1F6B3A; color: #FFFFFF; }
