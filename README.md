@@ -50,7 +50,7 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 
 ## How people use it each week
 
-The opening screen is titled **Ward Mission Leader Process** and shows four numbered steps in order. A bar floats at the bottom of every screen: Hand off, a round Home button (hidden on the opening screen) and Send. The full description of every screen and rule is in [`docs/SPEC.md`](docs/SPEC.md).
+The opening screen is titled **Ward Mission Leader Process** and shows four numbered steps in order. A bar floats at the bottom of every screen: Hand off, a round Home button and Send. The full description of every screen and rule is in [`docs/SPEC.md`](docs/SPEC.md).
 
 1. **Before ward council:** tap the first box. It opens the three Covenant Path Report lists, one row per person, with a button that opens the report in Member Tools. Tap a name to update what the report says about them: next ordinance, needs, temple attendance (new members) and sacrament attendance. Tap **Add a name** for anyone new, and open a name to remove someone no longer listed. Tap **All up to date · Mark done** at the bottom when you're finished.
 2. **Ward council:** four rows. **Covenant Path Report** and **Focus names** show one row per name; tap a name to open it. A person's screen has ward council's part on top (name, next ordinance, needs) and the huddle's part under it as a short summary with **Edit**, plus the last huddle's assignment. **Find New People to Teach** and **Missionary Referrals** are the same sections the Huddle has.

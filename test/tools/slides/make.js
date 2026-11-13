@@ -12,7 +12,7 @@ const path = require('path'), fs = require('fs');
 const { chromium } = require('playwright');
 const scenes = require('./scenes.js');
 const WORK = path.join(__dirname, '..', '..', 'out-slides'), OUT = path.join(__dirname, '..', '..', '..', 'media', 'slides');
-const COLORS = { slate: '#4F5A8C', blue: '#2F5DA6', orange: '#B0531A', green: '#237445', plum: '#6E2F7E', red: '#B22A2A' };
+const COLORS = { slate: '#4F5A8C', blue: '#2F5DA6', orange: '#B0531A', green: '#237445', plum: '#6E2F7E', red: '#B22A2A', teal: '#1F6F78' };
 const PH = 640, SCALE = PH / 664, PW = Math.round(390 * SCALE); // the phone screen, drawn 640 px tall
 
 (async () => {

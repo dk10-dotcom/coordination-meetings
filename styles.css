@@ -1325,7 +1325,7 @@ body.coaching .toast { bottom: calc(var(--coach-h, 120px) + 22px) !important; }
 .nav-home { width: 66px; height: 66px; margin: -26px 0 -6px; border-radius: 50%; border: 5px solid #FFFFFF; background: #1E3A6E; color: #FFFFFF;
   display: inline-flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 18px -6px rgba(30, 58, 110, .6); -webkit-tap-highlight-color: transparent; }
 .nav-home:active { transform: scale(.95); }
-.nav-home.is-here { visibility: hidden; } /* not on the opening screen itself; the spot stays so Hand off and Send don't move */
+.nav-home.is-here { box-shadow: 0 0 0 3px rgba(30, 58, 110, .18), 0 8px 18px -6px rgba(20, 30, 50, .45); } /* on the opening screen: same button, it just goes back to the top */
 body { padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
 body.steps-on.typing .actionbar { display: none; } /* the keyboard is up: the bar steps aside (the older one-page layout keeps it) */
 .actionbar-row .nav-side { font-size: 12.5px; padding: 2px 6px; flex: none; }
@@ -1333,3 +1333,18 @@ body.steps-on.typing .actionbar { display: none; } /* the keyboard is up: the ba
 html { scroll-padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
 html:has(body.coaching) { scroll-padding-bottom: calc(var(--coach-h-root, 140px) + 130px); }
 body.coaching .actionbar, body.coaching[data-view="start"] .actionbar { bottom: calc(var(--coach-h, 120px) + 14px); }
+/* Training slides: where in the week this slide is. Five pills (1-4 and Week); the current one is filled in its
+   color, the ones before it are pale, and the label above the title is a solid band in the same color. */
+.slides-steps { list-style: none; margin: 2px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1.6fr; gap: 6px; }
+.slides-steps li { display: flex; align-items: center; justify-content: center; height: 30px; border-radius: 999px; background: #E9EDF3; color: #8C97AB; font-size: 14px; font-weight: 800; }
+.slides-steps li[data-p="1"] { --c: #4F5A8C; --t: #E3E5F0; } .slides-steps li[data-p="2"] { --c: #2F5DA6; --t: #DCE6F5; }
+.slides-steps li[data-p="3"] { --c: #B0531A; --t: #F6E2D5; } .slides-steps li[data-p="4"] { --c: #6E2F7E; --t: #EDDDF1; }
+.slides-steps li[data-p="5"] { --c: #1F6F78; --t: #D6ECEE; }
+.slides-steps li.is-past { background: var(--t); color: var(--c); }
+.slides-steps li.is-now { background: var(--c); color: #FFFFFF; transform: scale(1.08); box-shadow: 0 4px 10px -4px var(--c); }
+.slide-kicker { align-self: stretch; margin-top: 8px; padding: 9px 12px; border-radius: 12px; font-size: 13.5px; line-height: 1.3; }
+.slide-kicker[data-p] { color: #FFFFFF; }
+.slide-kicker[data-p="1"] { background: #4F5A8C; } .slide-kicker[data-p="2"] { background: #2F5DA6; } .slide-kicker[data-p="3"] { background: #B0531A; }
+.slide-kicker[data-p="4"] { background: #6E2F7E; } .slide-kicker[data-p="5"] { background: #1F6F78; }
+.slide-kicker:not([data-p]) { padding-left: 0; }
+.slide-part { display: block; margin-top: 2px; font-size: 13px; font-weight: 600; letter-spacing: 0; text-transform: none; opacity: .92; }

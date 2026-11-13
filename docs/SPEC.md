@@ -477,8 +477,10 @@ link clears both from the address bar.
     delete old copies); and never to enter confidential or sensitive information, because everyone
     who gets the PDF can read it.
   - **Watch or try:** Take the tour, See a sample huddle report, Try a practice week, and Training slides
-    ("At your own pace"). The slides open full screen, one at a time: a count ("3 of 33") and a bar at the
-    top, the step in its color, a short title and a few sentences, then a picture of the app with a ring
+    ("At your own pace"). The slides open full screen, one at a time: a count ("3 of 33"); five pills showing
+    where the slide is in the week (1, 2, 3, 4 and Week: the current one filled in its color, earlier ones pale;
+    Send belongs to step 4); a solid band in that color naming the part ("Step 3 · The Huddle", with the section,
+    such as "New members", on a small second line); a short title and a few sentences, then a picture of the app with a ring
     around what to tap. **Back** and **Next** at the bottom (or a swipe left or right); nothing moves on by
     itself, and the last slide's button is **Done**. The X closes them. The pictures and words are in
     `media/slides/` (fetched from the website, not kept offline) and are made from the app with
@@ -512,8 +514,8 @@ link clears both from the address bar.
   sample → a practice handoff (skippable) → **Finish**, which removes the practice and brings the real huddle back.
   **End practice** asks first. If the app is reopened mid-tour, the card comes back where it was.
 - **The bottom bar** floats on every screen: **Hand off** on the left, a round raised **Home** in the middle and
-  **Send** on the right. Home is one tap back to the opening screen; on the opening screen itself its place stays
-  empty. The bar steps aside while the keyboard is up, and anything scrolled into view stops above it.
+  **Send** on the right. Home is one tap back to the opening screen; on the opening screen itself it scrolls back to
+  the top. The bar steps aside while the keyboard is up, and anything scrolled into view stops above it.
   - **Send during practice** makes a sample: the file is "Huddle SAMPLE - …", every page has a large faint
     SAMPLE and a red line "SAMPLE · practice names, not a real huddle" at the top, and the PDF carries no
     huddle data to load. The panel says to send it to yourself. Sending it changes nothing: no "huddle sent",

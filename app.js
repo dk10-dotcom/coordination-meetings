@@ -945,7 +945,17 @@
     $('#slide-fine').hidden = !s.fine; $('#slide-fine').textContent = s.fine || '';
     img.hidden = false; img.src = 'media/slides/' + s.img; img.alt = 'The app: ' + s.title;
     $('#slides-count').textContent = (slideAt + 1) + ' of ' + slides.length;
-    $('#slides-fill').style.width = Math.round(100 * (slideAt + 1) / slides.length) + '%';
+    // Where this slide is in the week: the four steps (Send belongs to step 4), then During the week
+    var m = /^Step (\d)/.exec(s.kicker || ''), ph = m ? +m[1] : s.kicker === 'Send' ? 4 : s.kicker === 'During the week' ? 5 : 0;
+    Array.prototype.forEach.call(document.querySelectorAll('#slides-steps li'), function (li) {
+      var p = +li.getAttribute('data-p'); li.classList.toggle('is-now', p === ph); li.classList.toggle('is-past', ph > 0 && p < ph);
+      if (p === ph) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+    });
+    // The label above the title names the part of the week in its color, then the section within it
+    var PH = ['', 'Step 1 · Before ward council', 'Step 2 · Ward council', 'Step 3 · The Huddle', 'Step 4 · After the huddle', 'During the week'];
+    var part = ph ? String(s.kicker).replace(/^Step \d · /, '') : '', same = !part || /^(The Huddle|Before ward council|Ward council|After the huddle|During the week)$/.test(part);
+    var kk = $('#slide-kicker'); kk.textContent = ph ? PH[ph] : s.kicker; if (ph && !same) kk.appendChild(h('span', { class: 'slide-part', text: part }));
+    if (ph) { kk.setAttribute('data-p', ph); kk.style.color = ''; } else { kk.removeAttribute('data-p'); kk.style.color = s.color; }
     $('#slide-prev').disabled = slideAt === 0;
     $('#slide-next').textContent = slideAt === slides.length - 1 ? 'Done' : 'Next';
     $('#slides-sheet .sheet').scrollTop = 0;
@@ -1578,7 +1588,7 @@
     $('#steps-home').hidden = all || view !== 'home';
     $('#step-bar').hidden = all || home || start || wc || bw || af; $('#step-foot').hidden = all || home || start || wc || wcSub || person || bw || af;
     var bar = $('.actionbar'); if (bar) bar.hidden = false; // Hand off, Home and Send: on every screen (Home itself only away from the opening screen)
-    var hb = $('.nav-home'); if (hb) hb.classList.toggle('is-here', start || all);
+    var hb = $('.nav-home'); if (hb) hb.classList.toggle('is-here', start || all); // shown everywhere; on the opening screen it scrolls back to the top
     Array.prototype.forEach.call(document.querySelectorAll('[data-step]'), function (el) { el.hidden = !all && el.getAttribute('data-step') !== stepShown; });
     Array.prototype.forEach.call(document.querySelectorAll('.week-band'), function (el) { el.hidden = !all; });
     renderDetails(); renderSteps();
@@ -1994,7 +2004,7 @@
       case 'convert-nm': convertToNewMember(+a); break;
       case 'list-done': listDone(a); break;
       case 'tour': closeHelp(); startPractice(); break; // the guided tour is a practice week with sample names
-      case 'go-home-screen': if (isPerson(view)) cleanupPerson(); showView('start', 'replace'); break;
+      case 'go-home-screen': if (stepsOn && view === 'start') { window.scrollTo({ top: 0, behavior: 'smooth' }); break; } if (isPerson(view)) cleanupPerson(); showView('start', 'replace'); break;
       case 'add-hneed': {
         var zone = btn.closest('.card-zone');
         var hf = zone && zone.querySelector('[data-bind$=".hneed"]');

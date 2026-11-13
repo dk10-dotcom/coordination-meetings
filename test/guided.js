@@ -33,7 +33,9 @@ const real = { ward: 'Sample Ward', date: '2026-11-15', conducting: 'wml', atten
   ok(await p.evaluate(() => { window.dispatchEvent(new Event('pagehide')); const s = JSON.parse(localStorage.getItem('huddle-agenda-v1')); return !JSON.stringify(s.cp).includes('Emma Walsh') && s.practiceSnapshot.cp.nm[0].name === 'Emma Walsh'; }), 'the practice has only sample names; the real ones are set aside');
   await p.screenshot({ path: OUT + '/1-start.png' });
   await p.click('.coach-start'); ok(await waitCoach(1) && await p.waitForTimeout(600).then(() => true) && /before-box/.test(await ringed()), 'Start: task 1 rings Step 1');
-  ok(await p.evaluate(() => getComputedStyle(document.querySelector('.nav-home')).visibility === 'hidden'), 'no Home button on the opening screen itself');
+  ok(await p.isVisible('.nav-home'), 'Home shows on the opening screen too');
+  await p.evaluate(() => scrollTo(0, 600)); await p.click('.nav-home'); await p.waitForTimeout(700);
+  ok(await p.evaluate(() => document.body.dataset.view === 'start' && scrollY < 5), 'on the opening screen, Home goes back to the top');
   const barOK = await p.evaluate(() => { const a = document.querySelector('.actionbar').getBoundingClientRect(), c = document.querySelector('.coach').getBoundingClientRect(); return a.bottom <= c.top + 1; });
   ok(barOK, 'Hand off and Send sit above the tour card, not under it');
   await p.click('#before-box'); ok(await waitCoach(2), 'opening Before ward council moves to task 2');

@@ -72,7 +72,11 @@ const ok = (l, c) => console.log((c ? 'PASS ' : 'FAIL ') + l);
   ok('Next shows the next slide with its picture', (await p.textContent('#slides-count')).startsWith('2 of ') && await p.evaluate(() => { const i = document.querySelector('#slide-img'); return i.complete && i.naturalWidth > 0 || true; }) && /slides\/02\.jpg$/.test(await p.getAttribute('#slide-img', 'src')));
   await p.click('#slide-prev'); await p.waitForTimeout(200);
   ok('Back goes back', (await p.textContent('#slides-count')).startsWith('1 of '));
-  for (let k = 1; k < total; k++) await p.click('#slide-next');
+  // The five-part tracker names where each slide is in the week
+  const now = () => p.evaluate(() => { const l = document.querySelector('#slides-steps li.is-now'); return l ? l.getAttribute('aria-label') : ''; });
+  const seen = [];
+  for (let k = 1; k < total; k++) { await p.click('#slide-next'); const n = await now(); if (n && seen[seen.length - 1] !== n) seen.push(n); }
+  ok('the slides show which part of the week they are in, in order', seen.join(' > ') === 'Step 1, Before ward council > Step 2, Ward council > Step 3, The Huddle > Step 4, After the huddle > During the week', seen.join(' > '));
   ok('the last slide’s button says Done', (await p.textContent('#slide-next')) === 'Done' && (await p.textContent('#slides-count')) === total + ' of ' + total && await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   await p.click('#slide-next'); await p.waitForTimeout(200);
   ok('Done closes them', await p.isHidden('#slides-sheet'));

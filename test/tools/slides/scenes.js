@@ -32,6 +32,6 @@ module.exports = [
   { shot: 's29-start-ready', k: 'Send', c: 'blue', title: 'All four steps done', body: 'Send turns solid blue. Tap it.', t: 6 },
   { shot: 's30-send', k: 'Send', c: 'red', title: 'Share the huddle report', body: 'Send it to the bishop-approved list, the stake presidency and the full-time missionaries, and include yourself. Only share via email or text message. Do not share through any other app.', t: 10 },
   { shot: 's31-sent', k: 'Send', c: 'green', title: 'Sent', body: 'This week’s assignments move to Return and Report for next time. Names and needs stay for ward council.', t: 8 },
-  { shot: 's32-next-week-rr', k: 'During the week', c: 'orange', title: 'Follow up', body: 'As people report back, mark each assignment Yes, Partly or No. Offer help where it’s needed.', t: 8 },
+  { shot: 's32-next-week-rr', k: 'During the week', c: 'teal', title: 'Follow up', body: 'As people report back, mark each assignment Yes, Partly or No. Offer help where it’s needed.', t: 8 },
   { shot: 's01-start', kind: 'end', title: 'One by one', sub: '', body: 'Helping each person take the next step on the covenant path, together as a ward.', t: 7 }
 ];
