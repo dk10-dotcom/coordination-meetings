@@ -347,7 +347,9 @@
   var LIST_LABEL = { nm: 'New member', rm: 'Returning member', bt: 'Being taught', tn: 'Focus name', mr: 'Missionary referral' };
   function field(label, path, opts) {
     opts = opts || {};
-    return h('label', { class: 'field' + (opts.full ? ' full' : '') }, [
+    // An empty date says "Pick a date" (the phone's own empty date box is blank or shows mm/dd/yyyy)
+    var isDate = opts.type === 'date', hasV = !!str(getPath(path)).trim();
+    return h('label', { class: 'field' + (opts.full ? ' full' : '') + (isDate ? ' date-field' + (hasV ? '' : ' date-empty') : '') }, [
       opts.tag ? h('span', { class: 'label-row' }, [h('span', { class: 'label-text', text: label }), opts.tag]) : label,
       opts.multi ? h('textarea', {
         'data-bind': path, value: str(getPath(path)), placeholder: opts.placeholder || '', rows: opts.rows || '2',
@@ -355,9 +357,15 @@
       }) : h('input', {
         type: opts.type || 'text', 'data-bind': path, value: str(getPath(path)), placeholder: opts.placeholder || '',
         autocomplete: 'off', autocapitalize: opts.cap || 'sentences', enterkeyhint: 'next', maxlength: '300'
-      })
+      }),
+      isDate ? h('span', { class: 'date-ph', 'aria-hidden': 'true', text: 'Pick a date' }) : null
     ]);
   }
+  function markDateEmpty(e) {
+    var t = e.target; if (!t || t.type !== 'date') return;
+    var f = t.closest && t.closest('.date-field'); if (f) f.classList.toggle('date-empty', !t.value);
+  }
+  document.addEventListener('input', markDateEmpty, true); document.addEventListener('change', markDateEmpty, true);
   /* Next ordinance is chosen from a list. A name typed in before the list existed keeps its wording as one more choice. */
   var ORDINANCES = ['Baptism', 'Sacrament', 'Baptisms for the dead', 'Priesthood advancement', 'Endowment', 'Sealing'];
   function ordField(label, path, opts) {
@@ -815,14 +823,14 @@
   }
   function renderLoadState() {
     renderRRFrom();
-    // Load from a PDF is a quiet link under the four steps. (Receiving a handoff is under Hand off.)
+    // More (Load from a PDF, Erase everything) is a quiet link under the four steps. (Receiving a handoff is under Hand off.)
     var practice = !!(state.loaded && state.loaded.practice);
     var live = !isEmpty(state) && !practice;
     var nw = $('#newweek-panel');
     if (nw) {
       nw.hidden = !live;
     }
-    if (nw) nw.hidden = practice;
+    if (nw) nw.hidden = false; // More stays: in a practice week it offers only Erase everything
     $('#load-panel').hidden = true;
     $('#loaded-banner').hidden = !state.loaded;
     $('#loaded-banner').classList.toggle('practice', !!(state.loaded && state.loaded.practice));
@@ -1565,7 +1573,7 @@
     // A person's screen needs a person; anything else (a stale Back, a removed name) falls back to their list.
     if (!all && isPerson(view) && !personOk(personRef)) { view = personRef ? personListView(personRef) : 'home'; personRef = null; return applyView(); }
     var person = !all && isPerson(view);
-    // Erase everything and the footer sit on the opening screen only.
+    // More (with Erase everything) and the footer sit on the opening screen only.
     $('header.top').hidden = !home && !start; $('.start-here').hidden = !home && !start; $('.fine-notes').hidden = !all && !start;
     $('#person-view').hidden = !person;
     // Find New People to Teach and Missionary Referrals are one section each, shown in the Huddle and in ward council.
@@ -2129,8 +2137,10 @@
         break;
       }
       // Load from a PDF goes straight to choosing the file; what it will do is asked once the PDF is read.
+      case 'more': $('#more-load-row').hidden = !!(state.loaded && state.loaded.practice); openOverlay('#more-sheet', '#more-title'); break;
+      case 'close-more': closeOverlay('#more-sheet'); break;
       case 'load-other':
-      case 'load': pickFile(); break;
+      case 'load': if (!$('#more-sheet').hidden) closeOverlay('#more-sheet'); pickFile(); break;
       case 'handoff': startHandoff(); break;
       case 'handoff-send': sendHandoff(); break;
       case 'handoff-receive': closeOverlay('#handoff-sheet'); pasteHandoff(); break;
@@ -2247,6 +2257,7 @@
         break;
       }
       case 'clear':
+        if (!$('#more-sheet').hidden) closeOverlay('#more-sheet');
         if (isEmpty(state)) { toast('There’s nothing to erase.'); break; }
         ask({
           title: 'Erase everything?',
@@ -2568,7 +2579,7 @@
       if (isIOS && !isStandalone()) showHandoffPage(code, s);
       else confirmApplyAgenda(s, 'handoff');
     }, function () {
-      ask({ title: 'This handoff link didn’t work', body: 'Ask for the link again, or tap Load from a PDF and choose the last PDF that was sent.', primary: 'OK' });
+      ask({ title: 'This handoff link didn’t work', body: 'Ask for the link again, or tap More, then Load from a PDF, and choose the last PDF that was sent.', primary: 'OK' });
     });
   }
   function pasteHandoff() {
@@ -2579,7 +2590,7 @@
     var useText = function (text, typed) {
       var m = /handoff=([A-Za-z0-9_-]+)/.exec(text || '');
       if (!m) { if (typed) ask({ title: 'That isn’t a handoff link', body: 'Copy the whole link from the text, then try again.', primary: 'OK' }); else manual('There’s no handoff link on the clipboard. Paste it here:'); return; }
-      unpackHandoff(m[1]).then(function (s) { confirmApplyAgenda(s, 'handoff'); }, function () { ask({ title: 'This handoff link didn’t work', body: 'Ask for the link again, or tap Load from a PDF and choose the last PDF that was sent.', primary: 'OK' }); });
+      unpackHandoff(m[1]).then(function (s) { confirmApplyAgenda(s, 'handoff'); }, function () { ask({ title: 'This handoff link didn’t work', body: 'Ask for the link again, or tap More, then Load from a PDF, and choose the last PDF that was sent.', primary: 'OK' }); });
     };
     if (navigator.clipboard && navigator.clipboard.readText) navigator.clipboard.readText().then(function (t) { useText(t, false); }, function () { manual(); });
     else manual();

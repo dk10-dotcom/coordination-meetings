@@ -38,6 +38,9 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
 - **The PDF is read on phones.** Its pages are phone-shaped (360 × 780 points) with one short block
   per person: no tables, no small print. When its look changes, remake the sample agenda pictures
   with `node test/tools/make-sample.js` and look at them.
+- **Dark mode comes from `dark.css`, made from `styles.css`.** After changing any color in `styles.css`,
+  run `python3 test/tools/make-dark.py` and look at the changed screen with the phone in dark mode.
+  Hand-tuned dark rules live in that script (`TUNED`), not in `dark.css`.
 - The people who use this are not technical. Prefer fewer screens, fewer taps and plain words.
   Check every screen on a small iPhone (320 px wide): nothing may make the page wider than the screen.
 - **Each of the four steps opens a screen of its own** (Back at the top, the step's name beside it),
@@ -54,6 +57,7 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
 | `index.html` | The page: every screen, sheet and the How to use text |
 | `app.js` | All behavior and the PDF builder (one file, plain JavaScript, no build step) |
 | `styles.css` | Look and layout |
+| `dark.css` | Dark mode, made from `styles.css` by `test/tools/make-dark.py` |
 | `sw.js` | Offline support. `CACHE` must change on every release |
 | `vendor/pdf-lib.min.js` | PDF library |
 | `sample/`, `media/`, `icons/`, `manifest.webmanifest` | Sample huddle report images, training slides (`media/slides/`), app icon |
@@ -69,6 +73,8 @@ python3 -m http.server 8765          # from the top folder; the tests expect thi
 node test/twodoor.js                 # one test
 bash test/run-all.sh                 # every test, with a summary (about 20 minutes)
 node test/tools/make-sample.js       # remakes sample/page-*.png (the sample agenda) from the current PDF
+python3 test/tools/make-dark.py      # remakes dark.css (dark mode) from styles.css
+node test/tools/make-launch.js       # remakes the launch screens (icons/launch/) and prints their <link> lines
 node test/tools/slides/make.js       # remakes the training slides (media/slides/) from the app as it is now
 ```
 

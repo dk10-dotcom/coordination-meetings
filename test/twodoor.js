@@ -28,18 +28,20 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     // Opening screen
     ok(await vis('.door-wc') && await vis('.door-hd') && await vis('.actionbar [data-action="send"]'), tag + ': opens to Ward council, Huddle and Send');
     ok(!(await vis('#steps-home')) && !(await vis('#details-summary')) && !(await vis('.info-pair')), tag + ': no date, sections or details on the opening screen');
-    ok(await vis('[data-action="help"]') && await vis('[data-action="load-other"]') && !(await vis('[data-action="tips"]')), tag + ': How to use and the quiet Load link are there; Tips is not');
+    ok(await vis('[data-action="help"]') && await vis('.more-link') && !(await vis('[data-action="load-other"]')) && !(await vis('.clear-link')) && !(await vis('[data-action="tips"]')), tag + ': How to use and the quiet More link are there (Load and Erase are inside it); Tips is not');
     ok(await noOverflow(), tag + ': opening screen fits the phone');
     ok(await vis('#before-box') && await vis('#after-box') && (await p.textContent('h1')).trim() === 'Ward Mission Leader Process', tag + ': title is Ward Mission Leader Process, with the two Covenant Path Report boxes');
     ok((await p.textContent('.app-name')).trim() === 'Huddle' && await p.title() === 'Huddle', tag + ': the app is named Huddle, on the page and in the browser');
     ok(await p.locator('#start-home input[type="checkbox"]').count() === 0 && await p.evaluate(() => ['before', 'after'].every(w => document.querySelector('#' + w + '-box').tagName === 'BUTTON')) && !(await vis('#before-box .tl-check')), tag + ': the two boxes have no check box to tap; each is one button');
-    ok(await vis('.clear-link') && await vis('.fine-notes .credit-name'), tag + ': Erase everything and the footer are on the opening screen');
+    ok(await vis('.fine-notes .credit-name'), tag + ': the footer is on the opening screen');
     // Hand off holds both ends of a handoff; the quiet link under the steps is for a PDF only
     await p.click('.actionbar [data-action="handoff"]'); await p.waitForSelector('#handoff-sheet:not([hidden])');
     ok(await p.locator('#handoff-sheet .nav-row').count() === 2 && (await p.textContent('#handoff-send')).includes('Send a handoff') && (await p.textContent('#handoff-receive')).includes('Receive a handoff') && await noOverflow(), tag + ': Hand off offers Send a handoff and Receive a handoff');
     await p.click('[data-action="close-handoff"]'); await p.waitForTimeout(200);
-    ok(await p.isHidden('#handoff-sheet') && (await p.textContent('[data-action="load-other"]')).trim() === 'Load from a PDF', tag + ': Cancel closes it; the quiet link reads Load from a PDF');
-    const [chooser] = await Promise.all([p.waitForEvent('filechooser'), p.click('[data-action="load-other"]')]);
+    ok(await p.isHidden('#handoff-sheet') && (await p.textContent('.more-link')).trim() === 'More', tag + ': Cancel closes it; the quiet link reads More');
+    await p.click('.more-link'); await p.waitForSelector('#more-sheet:not([hidden])'); await p.waitForTimeout(250);
+    ok((await p.$$eval('#more-sheet .step-title', t => t.map(x => x.textContent).join('|'))) === 'Load from a PDF|Erase everything and start over' && await noOverflow(), tag + ': More offers Load from a PDF and Erase everything');
+    const [chooser] = await Promise.all([p.waitForEvent('filechooser'), p.click('#more-sheet [data-action="load-other"]')]);
     ok(!!chooser && await p.locator('.overlay:not([hidden])').count() === 0, tag + ': Load from a PDF goes straight to choosing the file');
     // Each of the four steps opens a page of its own (none slides up as a sheet), and each page starts with one line saying what to do there
     const pages = [['#before-box', '#bw-view', '#bw-view .page-intro', 'Before ward council', 'Update each person from the Covenant Path Report: next ordinance, needs, temple attendance and sacrament attendance.'],
@@ -259,7 +261,7 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     await back(); await back();
     await p.screenshot({ path: `${OUT}/${tag}-huddle.png` });
     ok(await vis('.actionbar .btn-handoff') && await vis('.actionbar .nav-send') && await vis('.actionbar .nav-home') && !(await vis('[data-action="help"]')) && await vis('#steps-home [data-action="tips"]'), tag + ': Huddle screen has Tips at the top, the bottom bar (Hand off, Home, Send), no How to use');
-    ok(!(await vis('.clear-link')) && !(await vis('.fine-notes')), tag + ': no Erase everything or footer on the Huddle screen');
+    ok(!(await vis('.more-link')) && !(await vis('.fine-notes')), tag + ': no More or footer on the Huddle screen');
     ok(await p.locator('#steps-home .step-row').count() === 5 && await p.locator('#steps-home .step-row .step-num').count() === 0 && await p.locator('#steps-home .nav-row .step-chev').count() === 5, tag + ': the five sections are plain rows with a chevron (a check only once done)');
     // Send lives on the opening screen and waits for the after-huddle check
     await p.evaluate(() => { navigator.canShare = () => true; navigator.share = () => Promise.resolve(); });

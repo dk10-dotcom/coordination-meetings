@@ -1349,3 +1349,18 @@ body.coaching .actionbar, body.coaching[data-view="start"] .actionbar { bottom: 
 .slide-kicker:not([data-p]) { padding-left: 0; }
 .slide-part { display: block; margin-top: 2px; font-size: 13px; font-weight: 600; letter-spacing: 0; text-transform: none; opacity: .92; }
 .help-num.help-week svg { display: block; } /* During the week: a calendar instead of a number, like Week on the training slides */
+/* More: a quiet link under the four steps opens Load from a PDF and Erase everything */
+.more-link { align-self: center; min-height: 40px; font-size: 15px; font-weight: 600; color: var(--muted); text-decoration: none; }
+.more-list { margin: 6px 0 14px; }
+.danger-row .step-title { color: #B22A2A; }
+/* A person's Done stays in reach just above the bottom bar; lists end clear of the bar */
+.person-done { position: sticky; bottom: calc(100px + env(safe-area-inset-bottom, 0px)); z-index: 4; box-shadow: 0 6px 18px -6px rgba(20, 30, 50, .35); }
+body.typing .person-done, body.coaching .person-done { position: static; box-shadow: none; }
+body { padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
+/* An empty date field says "Pick a date" */
+.date-field { position: relative; }
+.date-ph { display: none; position: absolute; left: 13px; bottom: 0; height: 44px; align-items: center; font-size: 16px; font-weight: 400; color: #8A93A3; pointer-events: none; }
+.date-field.date-empty .date-ph { display: flex; }
+.date-field.date-empty input[type="date"]::-webkit-datetime-edit { color: transparent; }
+.date-field.date-empty input[type="date"]:focus::-webkit-datetime-edit { color: inherit; }
+.date-field.date-empty input[type="date"]:focus + .date-ph { display: none; }

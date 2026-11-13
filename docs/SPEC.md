@@ -126,7 +126,17 @@ before the menu existed ("Aaronic Priesthood") stays chosen and is listed as one
 **When is a date** (the huddle's action items and Find New People to Teach's assignments). Rows and the
 PDF show it as "Thu, Nov 19"; the assignment text writes it out ("When: Thursday, November 19"). A When
 typed before ("Sat", "tomorrow") becomes that date when the app opens; one that isn't a day ("this week")
-stays as typed, in a text box. Return and Report keeps last week's wording as it was.
+stays as typed, in a text box. Return and Report keeps last week's wording as it was. An empty date
+field says "Pick a date" in gray, in place of the phone's blank box or "mm/dd/yyyy".
+
+**Dark mode** follows the phone's setting. Light surfaces turn dark gray, dark text turns light, and the
+step colors, buttons and header cards keep their colors. It comes from `dark.css`, which
+`python3 test/tools/make-dark.py` makes from `styles.css`; run it after changing colors in `styles.css`.
+The PDF, the sample report and the training slides stay light.
+
+**Launch screen.** Opening Huddle from the Home Screen shows the app icon on navy with "Huddle" and
+"Ward Mission Leader Process" under it (`icons/launch/`, made by `node test/tools/make-launch.js`),
+instead of a white flash.
 
 **A list's band and its names are one card:** the band is the card's top and the names hang right under
 it, edged in the list's color.
@@ -163,8 +173,10 @@ From top to bottom:
 
   All four read the same way: "Step N" in small letters, the step's name, then one line saying
   what to do (or where it stands).
-- **Load from a PDF** (a quiet link that goes straight to choosing the file).
-- **Erase everything and start over**, then the footer. Both appear on this screen only.
+- **More** (a quiet gray link). It opens a short sheet with two rows: **Load from a PDF** ("New phone? Choose
+  the last PDF you sent"; it goes straight to choosing the file, and is left out during a practice week) and
+  **Erase everything and start over** in red ("Clears this phone. The ward name stays."), then Cancel.
+- The footer. More and the footer appear on this screen only.
 - Fixed at the bottom: **Hand off** and **Send**. These appear on this screen only.
 
 The two boxes have no check box to tap. Each is one button that opens its step's screen. The only
@@ -255,7 +267,7 @@ the mirror of the Huddle's:**
 
 Top to bottom: the one line saying what to do, **Huddle Attendees**, **Tips for an effective meeting**,
 then five sections as rows.
-There is no Erase everything, footer, Send or Hand off on this screen.
+There is no More or footer on this screen.
 A section's name sits beside **Back** when it is open. **Mark section done** gives a section a
 green check; it is optional, never blocks Send, and clears when the huddle is sent. A section whose
 status is orange is still missing something.
@@ -454,7 +466,7 @@ link clears both from the address bar.
   (the Home Screen app won't have it, and the phone can erase it after about a week without a
   visit). **Not now** closes the page and loads nothing. On a first visit, How to use and the tour
   wait until the next visit so nothing covers this page.
-- **Load from a PDF** (the quiet link under the four steps) reads the data embedded in a sent PDF
+- **Load from a PDF** (More, under the four steps) reads the data embedded in a sent PDF
   and sets up the next huddle from it, the same way sending does. It restores a phone that lost its
   data, and it is the fallback if a leader who filled in did not hand the huddle back.
 - Both ask first and can be undone right after.
@@ -517,7 +529,9 @@ link clears both from the address bar.
   **End practice** asks first. If the app is reopened mid-tour, the card comes back where it was.
 - **The bottom bar** floats on every screen: **Hand off** on the left, a round raised **Home** in the middle and
   **Send** on the right. Home is one tap back to the opening screen; on the opening screen itself it scrolls back to
-  the top. The bar steps aside while the keyboard is up, and anything scrolled into view stops above it.
+  the top. The bar steps aside while the keyboard is up, and anything scrolled into view stops above it. On a
+  person's screen, **Done** stays just above the bar as you scroll, so Done and Home are both always in reach; every
+  list ends with enough room for its last row to clear the bar.
   - **Send during practice** makes a sample: the file is "Huddle SAMPLE - …", every page has a large faint
     SAMPLE and a red line "SAMPLE · practice names, not a real huddle" at the top, and the PDF carries no
     huddle data to load. The panel says to send it to yourself. Sending it changes nothing: no "huddle sent",

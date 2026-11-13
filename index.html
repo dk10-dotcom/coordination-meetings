@@ -7,6 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#1B2B4B">
+<meta name="color-scheme" content="light dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Huddle">
@@ -14,7 +15,22 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<!-- Launch screens (made by test/tools/make-launch.js): the icon on navy while the Home Screen app opens -->
+<link rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="icons/launch/launch-640x1136.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="icons/launch/launch-750x1334.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1242x2208.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1125x2436.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="icons/launch/launch-828x1792.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1242x2688.png">
+<link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1170x2532.png">
+<link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1284x2778.png">
+<link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1179x2556.png">
+<link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1290x2796.png">
+<link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1206x2622.png">
+<link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1320x2868.png">
+<link rel="apple-touch-startup-image" media="(device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1260x2736.png">
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="dark.css">
 <script src="vendor/pdf-lib.min.js" defer></script>
 <script src="app.js" defer></script>
 </head>
@@ -155,7 +171,7 @@
       <span class="step-chev" aria-hidden="true">›</span>
     </button>
     <div class="newweek-panel" id="newweek-panel">
-      <button type="button" class="btn-link newweek-load" data-action="load-other">Load from a PDF</button>
+      <button type="button" class="btn-link more-link" data-action="more" aria-haspopup="dialog">More</button>
     </div>
   </section>
 
@@ -314,7 +330,6 @@
   </div>
 
   <div class="fine-notes">
-    <button type="button" class="btn-link danger clear-link" data-action="clear">Erase everything and start over</button>
     <p class="credit">Not affiliated with The Church of Jesus Christ of Latter-day Saints.</p>
     <p class="credit credit-name">Darren Kirkham · <a href="mailto:darrenkirkham@mac.com">darrenkirkham@mac.com</a></p>
   </div>
@@ -468,6 +483,23 @@
       <input type="text" id="ward" data-bind="ward" placeholder="e.g. Riverton 5th Ward" autocomplete="off" autocapitalize="words" enterkeyhint="done">
     </label>
     <button type="button" class="btn-primary full" data-action="close-ward">Done</button>
+  </div>
+</div>
+
+<!-- More: the two things done rarely, kept off the opening screen -->
+<div class="overlay" id="more-sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="more-title">
+    <div class="grab" aria-hidden="true"></div>
+    <h2 id="more-title">More</h2>
+    <ul class="steps-list more-list">
+      <li id="more-load-row"><button type="button" class="nav-row" data-action="load-other">
+        <span class="step-text"><span class="step-title">Load from a PDF</span><span class="step-status">New phone? Choose the last PDF you sent</span></span><span class="step-chev" aria-hidden="true">›</span>
+      </button></li>
+      <li><button type="button" class="nav-row danger-row clear-link" data-action="clear">
+        <span class="step-text"><span class="step-title">Erase everything and start over</span><span class="step-status">Clears this phone. The ward name stays.</span></span><span class="step-chev" aria-hidden="true">›</span>
+      </button></li>
+    </ul>
+    <button type="button" class="btn-secondary full" data-action="close-more">Cancel</button>
   </div>
 </div>
 
@@ -711,7 +743,7 @@
       <li><details class="help-item">
         <summary class="nav-row"><span class="step-text"><span class="step-title">Get my names back</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
         <ul class="help-body">
-          <li>New phone, or the icon was deleted? On the opening screen, tap <strong>Load from a PDF</strong> and choose the last PDF you sent.</li>
+          <li>New phone, or the icon was deleted? On the opening screen, tap <strong>More</strong>, then <strong>Load from a PDF</strong>, and choose the last PDF you sent.</li>
         </ul>
       </details></li>
     </ul>

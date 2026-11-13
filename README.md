@@ -21,7 +21,7 @@ A phone-friendly app for the ward mission leader's weekly process, built around 
    - Name: `huddle` (or anything you like).
    - Choose **Public**. Free GitHub Pages requires it. Only the page's code is public, never anyone's data.
    - Click **Create repository**.
-3. **Upload the files.** On the new repository page, click **uploading an existing file**. Drag in **everything inside this folder**: `index.html`, `app.js`, `styles.css`, `sw.js`, `manifest.webmanifest`, `README.md`, and the `icons`, `vendor`, `sample` and `media` folders. (Without `tour.js` or the `sample` folder, the tour and offline use fail.) Click **Commit changes**.
+3. **Upload the files.** On the new repository page, click **uploading an existing file**. Drag in **everything inside this folder**: `index.html`, `app.js`, `styles.css`, `dark.css`, `sw.js`, `manifest.webmanifest`, `README.md`, and the `icons`, `vendor`, `sample` and `media` folders. (Without `tour.js` or the `sample` folder, the tour and offline use fail.) Click **Commit changes**.
    - Make sure `index.html` sits at the top level of the repository, not inside another folder.
 4. **Turn on Pages.** Go to **Settings → Pages**. Under **Build and deployment**, set Source to **Deploy from a branch**, Branch to **main**, folder **/ (root)**, then **Save**.
 5. **Wait 1–2 minutes,** then refresh that page. Your link appears at the top, something like `https://yourname.github.io/huddle/`.
@@ -78,6 +78,7 @@ New members (blue), Returning members (green), Those being taught (purple) and F
 | --- | --- |
 | `index.html` | The page: every screen and the How to use text |
 | `styles.css` | Look and layout (phone first) |
+| `dark.css` | Dark mode, made from `styles.css` by `test/tools/make-dark.py` |
 | `app.js` | The app's behavior, PDF creation, Send (closes the huddle), Hand off, Load from a PDF |
 | `vendor/pdf-lib.min.js` | PDF library (pdf-lib 1.17.1, MIT license) |
 | `sw.js` | Lets the page open without a connection after the first visit |

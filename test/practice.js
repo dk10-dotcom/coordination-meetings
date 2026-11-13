@@ -19,7 +19,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
   await p.click('[data-action="toggle-att"][data-a="rs"]'); await p.click('[data-action="close-details"]');
   // Hand off offers Send and Receive; Load from a PDF is its own quiet link; the practice week lives in How to use
   await p.click('[data-action="go-start"]'); await p.click('.actionbar [data-action="handoff"]'); await p.waitForSelector('#handoff-sheet:not([hidden])');
-  ok(await p.isVisible('#handoff-send') && await p.isVisible('#handoff-receive') && await p.locator('#agenda-list, #load-sheet').count() === 0 && (await p.textContent('[data-action="load-other"]')).trim() === 'Load from a PDF', 'Hand off offers Send and Receive; the quiet link is Load from a PDF; no saved-agenda list');
+  ok(await p.isVisible('#handoff-send') && await p.isVisible('#handoff-receive') && await p.locator('#agenda-list, #load-sheet').count() === 0 && (await p.textContent('#more-sheet [data-action="load-other"] .step-title')).trim() === 'Load from a PDF', 'Hand off offers Send and Receive; Load from a PDF is under More; no saved-agenda list');
   await p.click('[data-action="close-handoff"]'); await p.waitForTimeout(150); await p.click('[data-action="open-huddle"]');
   await p.evaluate(() => document.querySelector('[data-action="help"]').click()); await p.waitForTimeout(200); await p.click('#help-sheet [data-action="tour"]'); await p.waitForTimeout(300);
   if (await p.isVisible('#confirm-sheet')) await p.click('#confirm-secondary'); // names hint
