@@ -57,10 +57,10 @@ module.exports = (async () => {
   await p.selectOption('#person-card [data-bind$=".ordinance"]', 'Baptism'); await p.fill('#person-card [data-bind$=".need"]', 'Someone to sit with at church'); await wait(200);
   await shot('s11-wc-focus-person', '#person-card [data-bind$=".ordinance"]');
   await back(); await back();
-  await shot('s12-wc-note', '#wc-note', { scroll: false });
+  await shot('s12-wc-note', '#wc-note', { block: 'center' });
   await start();
   // Step 3
-  await shot('s13-start-up3', '.door-hd', { scroll: false });
+  await shot('s13-start-up3', '.door-hd', { block: 'center' });
   await p.click('.door-hd'); await p.waitForSelector('#steps-home:not([hidden])'); await wait(500);
   await shot('s14-huddle', '#hd-hero .hero-progress', { scroll: false });
   await p.click('#details-summary'); await wait(400);

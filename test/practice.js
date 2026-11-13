@@ -23,6 +23,8 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
   await p.click('[data-action="close-handoff"]'); await p.waitForTimeout(150); await p.click('[data-action="open-huddle"]');
   await p.evaluate(() => document.querySelector('[data-action="help"]').click()); await p.waitForTimeout(200); await p.click('#help-sheet [data-action="tour"]'); await p.waitForTimeout(300);
   if (await p.isVisible('#confirm-sheet')) await p.click('#confirm-secondary'); // names hint
+  await p.click('.coach-start'); await p.waitForTimeout(300); await p.click('.coach [data-action="coach-end"]'); await p.waitForTimeout(200); await p.click('#confirm-secondary'); await p.waitForTimeout(200); // keep the practice week; the tour card stays out of the way below
+  await p.click('.nav-home'); await p.waitForTimeout(300); await p.click('.door-hd'); await p.waitForTimeout(300);
   ok((await p.textContent('#loaded-banner')).includes('Practice week loaded') && await p.evaluate(() => document.querySelector('#loaded-banner').classList.contains('practice')), 'amber practice banner shows');
   ok(await p.inputValue('#ward').catch(() => '') !== 'Sample Ward' && await p.evaluate(() => !/Sample Ward/.test(localStorage.getItem('huddle-ward') || '')), 'ward name is not changed to Sample Ward');
   await p.click('[data-action="open-step"][data-a="rr"]');

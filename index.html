@@ -41,7 +41,6 @@
       Back
     </button>
     <span class="mode-title bar-title" id="step-title"></span>
-    <button type="button" class="bar-home" data-action="go-home-screen" aria-label="Home: the opening screen"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5L10 3.5l7 6"/><path d="M5 8.5V16.5h10V8.5"/></svg>Home</button>
   </div>
 
   <div class="step-bar" id="mode-bar" hidden>
@@ -320,17 +319,21 @@
     <p class="credit credit-name">Darren Kirkham · <a href="mailto:darrenkirkham@mac.com">darrenkirkham@mac.com</a></p>
   </div>
 
-  <div class="actionbar">
+  <nav class="actionbar" aria-label="Hand off, Home and Send">
     <div class="actionbar-row">
-      <button type="button" class="btn-secondary btn-handoff" data-action="handoff">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 9h10"/><path d="M9.5 5.5L13 9l-3.5 3.5"/><path d="M15.5 3.5v11"/></svg>
-        Hand off
+      <button type="button" class="nav-side btn-handoff" data-action="handoff">
+        <svg width="22" height="22" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 9h10"/><path d="M9.5 5.5L13 9l-3.5 3.5"/><path d="M15.5 3.5v11"/></svg>
+        <span>Hand off</span>
       </button>
-      <button type="button" class="btn-primary" data-action="send">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11.5V2.5M5.5 6L9 2.5 12.5 6"/><path d="M3.5 9.5v5h11v-5"/></svg>
+      <button type="button" class="nav-home" data-action="go-home-screen" aria-label="Home">
+        <svg width="28" height="28" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2.6l7.6 6.5a.8.8 0 0 1-1 1.2l-.6-.5V16a1.5 1.5 0 0 1-1.5 1.5h-2.6v-4.3H8.1v4.3H5.5A1.5 1.5 0 0 1 4 16V9.8l-.6.5a.8.8 0 0 1-1-1.2z"/></svg>
+      </button>
+      <button type="button" class="nav-side nav-send" data-action="send">
+        <svg width="22" height="22" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11.5V2.5M5.5 6L9 2.5 12.5 6"/><path d="M3.5 9.5v5h11v-5"/></svg>
         <span id="send-label">Send</span>
       </button>
     </div>
+  </nav>
   </div>
 </main>
 
@@ -362,7 +365,7 @@
         <span class="hp-num" aria-hidden="true">3</span>
         <div class="hp-step-body">
           <p class="hp-step-title">Tap Hand off, then Receive a handoff</p>
-          <p class="hp-step-sub">Hand off is at the bottom of the opening screen, beside Send. If your phone asks, tap <strong>Paste</strong>.</p>
+          <p class="hp-step-sub">Hand off is in the bar at the bottom, beside Home. If your phone asks, tap <strong>Paste</strong>.</p>
         </div>
       </li>
     </ol>
@@ -645,7 +648,7 @@
         <summary class="nav-row"><span class="step-text"><span class="step-title">Hand off to someone else</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
         <ul class="help-body">
           <li>The ward mission leader usually conducts. When he’s away, the elders quorum representative does.</li>
-          <li>On the opening screen, tap <strong>Hand off</strong>, then <strong>Send a handoff</strong>. Text the link to the leader who will conduct.</li>
+          <li>Tap <strong>Hand off</strong> at the bottom, then <strong>Send a handoff</strong>. Text the link to the leader who will conduct.</li>
           <li>They tap it and follow the steps.</li>
           <li><strong>Filled in for someone?</strong> After you send the PDF, hand it back the same way, to whoever conducts next week.</li>
         </ul>

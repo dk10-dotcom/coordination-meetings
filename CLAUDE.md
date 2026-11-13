@@ -82,7 +82,7 @@ Next ordinance is a menu and When is a date (`datesmenu.js`). Older tests type w
 choice (`selectOption`) and type dates as `YYYY-MM-DD`.
 The guided tour is a practice week (`guided.js`): a black card at the bottom gives one task at a time (the `COACH`
 list in `app.js`), rings what to tap, and moves on once it's done; each step ends with that step's green check.
-Hand off and Send stay above the card. The old passive tour (`tour.js`) is retired. a sample Send (stamped SAMPLE, no data inside, changes nothing) and a
+The bottom bar (Hand off, a round Home in the middle, Send) floats on every screen; Home is hidden on the opening screen. The bar stays above the card. The old passive tour (`tour.js`) is retired. a sample Send (stamped SAMPLE, no data inside, changes nothing) and a
 practice handoff are allowed; nothing from a practice may ever load over or replace a real huddle.
 `howhelp.js` tests the How can we help? panels, the list names' bands and the source links.
 `lively.js` tests the header cards, icons, initials and the Sent celebration. Keep color and motion

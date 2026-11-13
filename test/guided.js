@@ -23,7 +23,7 @@ const real = { ward: 'Sample Ward', date: '2026-11-15', conducting: 'wml', atten
   const waitCoach = async n => { for (let k = 0; k < 30; k++) { if ((await coach()).startsWith(n + ' of')) return true; await p.waitForTimeout(150); } return false; };
   const home = async () => { await p.click('#mode-bar [data-action="go-start"]'); await p.waitForTimeout(350); };
   const fits = () => p.evaluate(() => document.documentElement.scrollWidth <= innerWidth);
-  const homeBtn = async () => { await p.click('#step-bar:not([hidden]) .bar-home, #mode-bar:not([hidden]) .step-back'); await p.waitForTimeout(350); };
+  const homeBtn = async () => { await p.click('.nav-home'); await p.waitForTimeout(350); };
   const ringed = () => p.evaluate(() => { const e = document.querySelector('.coach-target'); return e ? (e.id || e.className) : ''; });
   // Start from How to use
   await p.click('[data-action="help"]'); await p.waitForTimeout(300); await p.click('#help-sheet [data-action="tour"]'); await p.waitForTimeout(500);
@@ -33,6 +33,7 @@ const real = { ward: 'Sample Ward', date: '2026-11-15', conducting: 'wml', atten
   ok(await p.evaluate(() => { window.dispatchEvent(new Event('pagehide')); const s = JSON.parse(localStorage.getItem('huddle-agenda-v1')); return !JSON.stringify(s.cp).includes('Emma Walsh') && s.practiceSnapshot.cp.nm[0].name === 'Emma Walsh'; }), 'the practice has only sample names; the real ones are set aside');
   await p.screenshot({ path: OUT + '/1-start.png' });
   await p.click('.coach-start'); ok(await waitCoach(1) && await p.waitForTimeout(600).then(() => true) && /before-box/.test(await ringed()), 'Start: task 1 rings Step 1');
+  ok(await p.evaluate(() => getComputedStyle(document.querySelector('.nav-home')).visibility === 'hidden'), 'no Home button on the opening screen itself');
   const barOK = await p.evaluate(() => { const a = document.querySelector('.actionbar').getBoundingClientRect(), c = document.querySelector('.coach').getBoundingClientRect(); return a.bottom <= c.top + 1; });
   ok(barOK, 'Hand off and Send sit above the tour card, not under it');
   await p.click('#before-box'); ok(await waitCoach(2), 'opening Before ward council moves to task 2');
@@ -44,8 +45,8 @@ const real = { ward: 'Sample Ward', date: '2026-11-15', conducting: 'wml', atten
   await p.click('[data-wc="tn"] [data-action="open-person"][data-b="1"]'); await p.waitForTimeout(400);
   await p.selectOption('#person-card select[data-bind$=".ordinance"]', 'Priesthood advancement');
   ok(await waitCoach(5), 'choosing Samuel Ortiz’s next ordinance moves to task 5');
-  await p.waitForTimeout(600); ok(await p.isVisible('#step-bar .bar-home') && /bar-home/.test(await ringed()), 'Home is at the top of a person’s screen, and ringed');
-  await p.click('#step-bar .bar-home'); await p.waitForTimeout(400);
+  await p.waitForTimeout(600); ok(await p.isVisible('.nav-home') && /nav-home/.test(await ringed()), 'Home is in the bottom bar of a person’s screen, and ringed');
+  await p.click('.nav-home'); await p.waitForTimeout(400);
   ok(await p.isVisible('#start-home') && await p.evaluate(() => document.querySelector('[data-tl="2"]').classList.contains('tl-done')), 'Home goes straight to the opening screen, and Step 2 has its check');
   await p.click('.door-hd'); ok(await waitCoach(6), 'opening the Huddle moves to task 6 (attendees)');
   await p.click('#details-summary'); await p.waitForTimeout(300);

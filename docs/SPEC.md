@@ -16,7 +16,7 @@ One word for each thing, on every screen, in How to use and in the tour:
 | --- | --- |
 | Huddle | The app, the weekly coordination meeting, and that meeting's plan on the phone ("Text this huddle", "Sending finishes the huddle") |
 | Agenda | What is filled in and sent: the PDF ("Send this huddle's agenda", "Sample huddle report") |
-| Opening screen | The first screen: the four steps and Send |
+| Opening screen | The first screen: the four steps (Hand off, Home and Send float at the bottom of every screen) |
 | Covenant Path Report | The report in Member Tools (always "Member Tools", never "Tools") |
 | Assignment | An action item with who will do it and when. **Action item** is only the name of that field |
 | Focus names | The three names ward council chooses. The PDF heads them "Name Next Ordinance" |
@@ -147,7 +147,8 @@ After the huddle plum; green is kept for "done" only). The circle on the line sh
 step is done: Before ward council and After the huddle when marked done, Ward council when every
 name has a next ordinance, the Huddle when all five sections are marked done. The first step not
 done is **Up next**: outlined in its color, a little larger, with an "Up next" tag. The bottom bar
-(Hand off, Send) is frosted; Send is pale until After the huddle is done, then solid blue.
+(Hand off, Home, Send) is a frosted pill floating at the bottom of every screen; Send is pale until After the huddle
+is done, then solid blue.
 
 Title: "Ward Mission Leader Process" with the app's name, Huddle, in small letters above it, and
 **How to use** beside it.
@@ -510,8 +511,9 @@ link clears both from the address bar.
   done → the other three sections done (Step 3's check) → Home, then After the huddle → mark it done → Send the
   sample → a practice handoff (skippable) → **Finish**, which removes the practice and brings the real huddle back.
   **End practice** asks first. If the app is reopened mid-tour, the card comes back where it was.
-- **Home** sits at the right of the top bar on every screen below the four steps (a section, a list, a person):
-  one tap back to the opening screen. On the smallest phones it shows only the house.
+- **The bottom bar** floats on every screen: **Hand off** on the left, a round raised **Home** in the middle and
+  **Send** on the right. Home is one tap back to the opening screen; on the opening screen itself its place stays
+  empty. The bar steps aside while the keyboard is up, and anything scrolled into view stops above it.
   - **Send during practice** makes a sample: the file is "Huddle SAMPLE - …", every page has a large faint
     SAMPLE and a red line "SAMPLE · practice names, not a real huddle" at the top, and the PDF carries no
     huddle data to load. The panel says to send it to yourself. Sending it changes nothing: no "huddle sent",

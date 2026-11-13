@@ -39,7 +39,7 @@ const PH = 640, SCALE = PH / 664, PW = Math.round(390 * SCALE); // the phone scr
     slides.push(sc.kind === 'title'
       ? { kicker: 'Huddle', title: 'Ward Mission Leader Process', body: sc.sub + '. ' + sc.body, color: '#2F5DA6', img: file }
       : sc.kind === 'end'
-      ? { kicker: 'Huddle', title: sc.title, body: sc.body, fine: 'Never add confidential information to this agenda.', color: '#2F5DA6', img: file }
+      ? { kicker: 'Huddle', title: sc.title, body: sc.body, fine: 'Never add confidential information to this huddle report.', color: '#2F5DA6', img: file }
       : { kicker: sc.k, title: sc.title, body: sc.body, color: col, img: file });
   }
   await b.close();

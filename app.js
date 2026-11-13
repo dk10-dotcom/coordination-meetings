@@ -1546,6 +1546,9 @@
   }
   function applyView() {
     var all = !stepsOn;
+    // A new screen: a field left open on the last one no longer hides the bottom bar
+    var fa = document.activeElement; if (fa && fa.matches && fa.matches('#form input, #form textarea') && !(fa.offsetParent)) fa.blur();
+    if (!(document.activeElement && document.activeElement.offsetParent && document.activeElement.matches('#form input[type="text"], #form input[type="date"], #form textarea'))) document.body.classList.remove('typing');
     document.body.classList.toggle('steps-on', !all);
     document.body.setAttribute('data-view', all ? 'all' : view);
     var home = all || view === 'home', start = !all && view === 'start', wc = !all && view === 'wc', wcSub = !all && isWcList(view), bw = !all && view === 'bw', af = !all && view === 'af';
@@ -1574,8 +1577,8 @@
     if (start) renderDoors();
     $('#steps-home').hidden = all || view !== 'home';
     $('#step-bar').hidden = all || home || start || wc || bw || af; $('#step-foot').hidden = all || home || start || wc || wcSub || person || bw || af;
-    // Hand off and Send live on the opening screen and the huddle's list; inside a section they're hidden.
-    var bar = $('.actionbar'); if (bar) bar.hidden = !all && !start;
+    var bar = $('.actionbar'); if (bar) bar.hidden = false; // Hand off, Home and Send: on every screen (Home itself only away from the opening screen)
+    var hb = $('.nav-home'); if (hb) hb.classList.toggle('is-here', start || all);
     Array.prototype.forEach.call(document.querySelectorAll('[data-step]'), function (el) { el.hidden = !all && el.getAttribute('data-step') !== stepShown; });
     Array.prototype.forEach.call(document.querySelectorAll('.week-band'), function (el) { el.hidden = !all; });
     renderDetails(); renderSteps();
@@ -2634,7 +2637,7 @@
     { k: 'Step 1 · Before ward council', t: 'Before ward council, bring each name up to date from the Covenant Path Report. Tap a name to see what’s there, then tap **All up to date · Mark done** at the bottom.', target: '#before-done-btn', done: function () { return !!state.verified.before; } },
     { k: 'Step 2 · Ward council', t: 'Step 1 has its green check. Now tap **Step 2 · Ward council**.', target: '.door-wc', done: function () { return view === 'wc' || isWcList(view) || view === 'p-wc'; } },
     { k: 'Step 2 · Ward council', t: 'Ward council decides who to focus on and each next ordinance. Tap **Focus names**, then **Samuel Ortiz**, and choose his next ordinance. Never add confidential information to this huddle report.', target: ['[data-wc="tn"] [data-b="1"]', '[data-action="open-wc-list"][data-a="tn"]', '#person-card select'], done: function () { var a = state.tn[1]; return !!(a && ORDINANCES.indexOf(str(a.ordinance)) >= 0); } },
-    { k: 'Step 3 · Huddle', t: 'Every name has a next ordinance, so Step 2 is done. Tap **Home** at the top, then **Step 3 · Huddle**.', target: ['.bar-home', '#mode-bar .step-back', '.door-hd'], done: function () { return view === 'home'; } },
+    { k: 'Step 3 · Huddle', t: 'Every name has a next ordinance, so Step 2 is done. Tap **Home** at the bottom, then **Step 3 · Huddle**.', target: ['.nav-home:not(.is-here)', '.door-hd'], done: function () { return view === 'home'; } },
     { k: 'Step 3 · Huddle', t: 'Tap **Huddle Attendees** and tap who came. Tap **both youth**, the priests quorum assistant and the Gatherers of Light representative: including the youth matters.', target: ['#attendee-list', '#details-summary'], done: function () { return state.attendees.indexOf('pqa') >= 0 && state.attendees.indexOf('gol') >= 0; } },
     { k: 'Step 3 · Return and Report', t: 'Tap **Done**, then **Return and Report**. Mark one assignment **Yes**, one **Partly** and one **No**.', target: ['[data-action="open-step"][data-a="rr"]', '#rr-list'], done: function () { var h = state.rr.map(function (r) { return r.happened; }); return h.indexOf('Yes') >= 0 && h.indexOf('Partly') >= 0 && h.indexOf('No') >= 0; } },
     { k: 'Step 3 · Return and Report', t: 'On the one marked **No**, tap **Carry forward to this huddle**. It moves onto this week’s plan, so it isn’t forgotten.', target: '.btn-carry', done: function () { return state.rr.some(function (r) { return r.carriedFwd; }); } },
@@ -2643,10 +2646,10 @@
     { k: 'Step 3 · Covenant Path Report', t: 'Tap **Text this assignment** and send it to yourself. In a real huddle, text each person before everyone leaves.', target: '#person-card [data-action="text-assign"]', done: function () { var a = state.cp.nm[0]; return !!(a && a.texted); }, skip: true },
     { k: 'Step 3 · Covenant Path Report', t: 'Tap **Done**, then **Mark section done**. Tip 👆 not sure what to plan? Tap **How can we help?** under a list’s name.', target: ['#person-view .person-done', '[data-action="step-done"]'], done: function () { return !!state.stepsDone.cp; } },
     { k: 'Step 3 · Huddle', t: 'Open **Focus names**, **Find New People to Teach** and **Missionary Referrals**, and tap **Mark section done** on each.', target: ['[data-action="step-done"]', '#steps-this'], done: function () { return STEPS.every(function (x) { return state.stepsDone[x.id]; }); } },
-    { k: 'Step 4 · After the huddle', t: 'All five sections are done, so Step 3 is too. Tap **Home** at the top, then **Step 4 · After the huddle**.', target: ['.bar-home', '#mode-bar .step-back', '#after-box'], done: function () { return view === 'af' || state.verified.after; } },
+    { k: 'Step 4 · After the huddle', t: 'All five sections are done, so Step 3 is too. Tap **Home** at the bottom, then **Step 4 · After the huddle**.', target: ['.nav-home:not(.is-here)', '#after-box'], done: function () { return view === 'af' || state.verified.after; } },
     { k: 'Step 4 · After the huddle', t: 'This page lists what happened for each person. Update the Covenant Path Report in Member Tools to match, then tap **It’s all updated · Mark done**.', target: '#after-done-btn', done: function () { return !!state.verified.after; } },
-    { k: 'Send', t: 'All four steps have green checks. Tap **Send**, then **Share PDF**, and send the sample to yourself.', target: '.actionbar [data-action="send"]', done: function () { return coachFlag('sent'); } },
-    { k: 'Hand off', t: 'When someone else will conduct, you hand the huddle off. Try it: tap **Hand off**, then **Send a handoff**, and text it to yourself.', target: '.actionbar [data-action="handoff"]', done: function () { return coachFlag('handoff'); }, skip: true },
+    { k: 'Send', t: 'All four steps have green checks. Tap **Send**, then **Share PDF**, and send the sample to yourself.', target: '.nav-send', done: function () { return coachFlag('sent'); } },
+    { k: 'Hand off', t: 'When someone else will conduct, you hand the huddle off. Try it: tap **Hand off**, then **Send a handoff**, and text it to yourself.', target: '.btn-handoff', done: function () { return coachFlag('handoff'); }, skip: true },
     { k: 'All done', t: 'You’ve practiced a whole week. Tap **Finish** to remove the sample names; anything you had before comes back as it was.', end: true }
   ];
   var coachAt = -1, coachEl = null, coachTimer = null, coachMoving = false, coachFlags = {};
@@ -2681,7 +2684,7 @@
     coachEl.querySelector('.coach-end').hidden = !!c.end;
     sizeCoach();
   }
-  function sizeCoach() { if (coachEl) document.body.style.setProperty('--coach-h', coachEl.offsetHeight + 'px'); }
+  function sizeCoach() { if (coachEl) { document.body.style.setProperty('--coach-h', coachEl.offsetHeight + 'px'); document.documentElement.style.setProperty('--coach-h-root', coachEl.offsetHeight + 'px'); } }
   function coachTick() {
     if (coachAt < 0 || !coachEl) return;
     if (!isPractice()) { stopCoach(); return; }

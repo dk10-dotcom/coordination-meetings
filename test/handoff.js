@@ -55,7 +55,7 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   ok(!(await q.isVisible('#form')) && !(await q.isVisible('.actionbar')) && !(await q.isVisible('#confirm-sheet')) && !(await q.isVisible('#install-banner')), 'nothing of the app shows behind it, and no sheet is over it');
   ok(!/handoff=/.test(await q.evaluate(() => location.href)), 'the link is cleared from the address bar');
   ok(await q.locator('.hp-step').count() === 3 && await q.locator('#handoff-page .btn-primary:visible').count() === 1 && (await q.textContent('#hp-copy')).trim() === 'Copy handoff' && await q.locator('#hp-step-1.now').count() === 1, 'three steps, with one main button: Copy handoff');
-  ok((await q.textContent('#hp-step-2')).includes('Open Huddle from your Home Screen') && (await q.textContent('#hp-step-3')).includes('Tap Hand off, then Receive a handoff') && (await q.textContent('#hp-step-3')).includes('beside Send'), 'steps 2 and 3 say where to go in the app');
+  ok((await q.textContent('#hp-step-2')).includes('Open Huddle from your Home Screen') && (await q.textContent('#hp-step-3')).includes('Tap Hand off, then Receive a handoff') && (await q.textContent('#hp-step-3')).includes('in the bar at the bottom'), 'steps 2 and 3 say where to go in the app');
   ok(await fits(q), 'the handoff page fits the phone');
   await q.screenshot({ path: `${OUT}/safari.png`, fullPage: true });
   await q.click('#hp-copy'); await q.waitForTimeout(250);
