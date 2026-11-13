@@ -1386,3 +1386,11 @@ body { padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
 .actionbar-row .nav-side, .actionbar-row .nav-side span, .list-count, .row-tag { font-size: 13px; }
 #person-view .zone-label, .person-hd .zone-label { font-size: 13px; }
 .tl-step .cpr-step-k, .tl-step .door-kicker, .tl-step.tl-next .up-next { font-size: 13px; }
+
+/* The step card at the top of each step: compact, so the first rows show sooner */
+.hero { padding: 11px 16px 12px; border-radius: 16px; }
+.hero-ward { font-size: 19px; }
+.hero-date { font-size: 13px; }
+.hero .page-intro { margin-top: 3px; font-size: 15px; line-height: 1.35; }
+.hero-progress { margin-top: 8px; gap: 4px; }
+.hero-bar { height: 6px; }

@@ -138,6 +138,9 @@ The PDF, the sample report and the training slides stay light.
 Huddle's how and when) is one white panel on the gray background, with color only in its small label;
 fields are light gray boxes with no border. The red Temple attendance box keeps its color.
 
+**The step card is compact:** the colored card at the top of each step keeps its words (step, ward, date, the one
+line saying what to do, and progress) in less height, so the first rows show without scrolling.
+
 **Nothing is smaller than 13 pt:** the small capital labels ("STEP 1", "UP NEXT"), tags, the bottom
 bar's words and the footer included.
 
