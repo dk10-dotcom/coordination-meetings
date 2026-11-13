@@ -2,15 +2,15 @@
 
 The app is named **Huddle**. That is the name under its Home Screen icon, in the browser tab and in
 small letters above the opening screen's title. (The third step is also called the Huddle; the
-opening screen's large title stays "Ward Mission Leader Process" so the two are not confused.)
+opening screen's large title stays "Weekly Ward Mission Process" so the two are not confused.)
 
 This describes the behavior of the app as it is today. The code is the final word:
-`app.js` (behavior and PDF), `index.html` (screens and How to use). The guided tour's steps are the `COACH` list in `app.js`.
+`app.js` (behavior and PDF), `index.html` (screens and Help & training). The guided tour's steps are the `COACH` list in `app.js`.
 When behavior changes, change this file in the same commit.
 
 ## Words the app uses
 
-One word for each thing, on every screen, in How to use and in the tour:
+One word for each thing, on every screen, in Help & training and in the tour:
 
 | Word | Means |
 | --- | --- |
@@ -129,7 +129,7 @@ typed before ("Sat", "tomorrow") becomes that date when the app opens; one that 
 stays as typed, in a text box. Return and Report keeps last week's wording as it was. An empty date
 field says "Pick a date" in gray, in place of the phone's blank box or "mm/dd/yyyy".
 
-**Dark mode** follows the phone's setting. Light surfaces turn dark gray, dark text turns light, and the
+**Dark mode** follows the phone's setting, or Settings → Appearance (Automatic, Light, Dark). Light surfaces turn dark gray, dark text turns light, and the
 step colors, buttons and header cards keep their colors. It comes from `dark.css`, which
 `python3 test/tools/make-dark.py` makes from `styles.css`; run it after changing colors in `styles.css`.
 The PDF, the sample report and the training slides stay light.
@@ -145,7 +145,7 @@ line saying what to do, and progress) in less height, so the first rows show wit
 bar's words and the footer included.
 
 **Launch screen.** Opening Huddle from the Home Screen shows the app icon on navy with "Huddle" and
-"Ward Mission Leader Process" under it (`icons/launch/`, made by `node test/tools/make-launch.js`),
+"Weekly Ward Mission Process" under it (`icons/launch/`, made by `node test/tools/make-launch.js`),
 instead of a white flash.
 
 **A list's band and its names are one card:** the band is the card's top and the names hang right under
@@ -157,8 +157,8 @@ the person picks the missionaries. Turned off during a practice week.
 
 ## Opening screen
 
-**Look.** At the top, How to use, then a deep blue header card: "Huddle", the title "Ward Mission
-Leader Process", and under a thin line the ward name and today's date. **The ward is set here:** tapping
+**Look.** At the top, **Help & training**, then a deep blue header card: "Huddle", the title "Weekly Ward
+Mission Process", and under a thin line the ward name and today's date. **The ward is set here:** tapping
 the name (it has a small pencil) opens "Your ward" with one box and Done; with no ward yet the card reads
 "Tap to add your ward" in a dashed outline. Huddle Attendees no longer has a ward box. If Send finds no ward,
 it offers "Add the ward", which opens the same box. The four steps follow as a timeline: white cards joined by a line on the left, each
@@ -170,8 +170,8 @@ done is **Up next**: outlined in its color, a little larger, with an "Up next" t
 (Hand off, Home, Send) is a frosted pill floating at the bottom of every screen; Send is pale until After the huddle
 is done, then solid blue.
 
-Title: "Ward Mission Leader Process" with the app's name, Huddle, in small letters above it, and
-**How to use** beside it.
+Title: "Weekly Ward Mission Process" with the app's name, Huddle, in small letters above it, and
+**Help & training** beside it.
 
 From top to bottom:
 
@@ -183,16 +183,18 @@ From top to bottom:
 
   All four read the same way: "Step N" in small letters, the step's name, then one line saying
   what to do (or where it stands).
-- **More** (a quiet gray link). It opens a short sheet with two rows: **Load from a PDF** ("New phone? Choose
-  the last PDF you sent"; it goes straight to choosing the file, and is left out during a practice week) and
-  **Erase everything and start over** in red ("Clears this phone. The ward name stays."), then Cancel.
-- The footer. More and the footer appear on this screen only.
-- Fixed at the bottom: **Hand off** and **Send**. These appear on this screen only.
+- One line: "Not an official app of The Church of Jesus Christ of Latter-day Saints." It appears on this
+  screen only. Who made the app, with an email link, is at the end of Help & training.
+- Load from a PDF and Erase everything are under **Settings** in Help & training.
 
 The two boxes have no check box to tap. Each is one button that opens its step's screen. The only
-way to mark one done is the **Mark done** button at the bottom of that screen, which also returns
-to the opening screen. Opening one that is already done shows **✓ Marked done**, **Done · Back**
-and **Marked by mistake? Mark as not done**. Both clear after a send.
+way to mark one done is the **Mark done** button on that screen, which also returns to the opening
+screen. Opening one that is already done shows the button green, reading **Done** with a check;
+tapping it takes the mark off (with Undo in the message). Both clear after a send.
+
+**Mark done is the same everywhere** (Before ward council, each Huddle section, After the huddle): one
+label, pinned just above the bottom bar so it stays in view on a long list, green with a check once done,
+and tapped again to take the mark off.
 
 **Each of the four steps opens a screen of its own**, with **Back** at the top and the step's name
 beside it. None of them slides up as a sheet. **Each screen starts with one line saying what to do
@@ -221,8 +223,8 @@ The screen has:
   ordinance" in orange and "No needs listed" when those are missing); and tags for attendance: a
   new member's temple status ("Temple: 18 days left" in red, or "✓ Temple") and "✓ Sacrament".
   Each list ends in **Add a name**. Focus names are not shown here.
-- **All up to date · Mark done**, which marks the box done and returns to the opening
-  screen. Once done it reads **Done · Back**, with **Marked by mistake? Mark as not done** under it.
+- **Mark done** (pinned above the bottom bar), which marks the box done and returns to the opening
+  screen, and remembers how each person looks at that moment, so After the huddle can show what changed.
 
 **Tapping a name opens that person on their own screen**, one amber card labeled Covenant Path
 Report: Name, Baptism date (new members), Next ordinance (fixed to Baptism for those being
@@ -240,8 +242,15 @@ Opens from the second box as a screen of its own, like Before ward council. The 
 Path Report, then send". Read-only. For each person on the three Covenant Path Report lists it
 shows what to carry into the report: sacrament attendance, temple attendance (new members),
 baptism commitment (those being taught), next ordinance, needs, how the last assignment went
-(with any note), the new assignment, and huddle notes. It has the same report button and, at the
-bottom, **It's all updated · Mark done**.
+(with any note), the new assignment, and huddle notes. It has the same report button and **Mark done**.
+
+**What changed since step 1 is marked.** Marking Before ward council done remembers each person's
+sacrament attendance, temple attendance, baptism commitment and date, next ordinance and needs. Here,
+anyone different since then (changed in ward council or the huddle) comes first, with a gold
+**Changed** tag and each changed line highlighted and marked **Updated**; a name added since is
+**New since step 1**. A line at the top says how many changed ("1 person changed since step 1…" or
+"Nothing changed since step 1."). Without step 1 marked done, nothing is marked. A new week starts
+without it.
 
 **Send is blocked until this box is marked done.** Tapping Send early explains why and offers to
 open this screen.
@@ -256,8 +265,14 @@ Opens to four rows:
   They hold the same data, so what is entered in one meeting shows in the other.
 
 The first two show a count that turns orange when someone is missing a next ordinance.
-Under the rows, once, is "Never add confidential information to this huddle report." It is not
-repeated on the lists or on a person's screen.
+Right under the step card, once, is "Never add confidential information to this huddle report." as one
+small gray line with a red "!" (the Huddle has the same line in the same place). It is not repeated on the
+lists or on a person's screen. New members' rows show the same temple countdown as in the Huddle
+("Temple: 14 days left" in red), so the 30-day goal is in front of both meetings.
+
+**A person's name header is a button.** On every person's screen (Before ward council, Ward council, the
+Huddle), tapping the name or the initials (which carry a small pencil) opens the name box to edit,
+scrolling to it and placing the cursor there.
 
 Each list of names shows rows (see Lists of names and a person's screen). **A person's screen is
 the mirror of the Huddle's:**
@@ -277,8 +292,9 @@ the mirror of the Huddle's:**
 
 Top to bottom: the one line saying what to do, **Huddle Attendees**, **Tips for an effective meeting**,
 then five sections as rows.
-There is no More or footer on this screen.
-A section's name sits beside **Back** when it is open. **Mark section done** gives a section a
+The confidential reminder sits right under the step card, as in Ward council.
+There is no disclaimer line on this screen.
+A section's name sits beside **Back** when it is open. **Mark done** gives a section a
 green check; it is optional, never blocks Send, and clears when the huddle is sent. A section whose
 status is orange is still missing something.
 
@@ -461,7 +477,7 @@ link clears both from the address bar.
 - **A leader who filled in hands the huddle back.** After sending the PDF (which finishes that
   huddle and sets up the next one), they tap **Hand off**, then **Send a handoff**, and text it to
   whoever conducts next week. That leader then has the next huddle, with the last assignments in
-  Return and Report. The Hand off sheet and How to use both say this.
+  Return and Report. The Hand off sheet and Help & training both say this.
 - The data rides in the part of the link after `#`, which browsers never send to the website.
   On Android (and on a computer) opening the link asks "Load this handoff?" right away.
 - **On iPhone the link opens in Safari, never in the Home Screen app,** and the two keep their data
@@ -474,25 +490,26 @@ link clears both from the address bar.
   Under the steps, **Don't have Huddle on your Home Screen?** opens to **Show me how to add it**
   and, as a last resort, **Use it in Safari this once** with a warning that it stays in Safari
   (the Home Screen app won't have it, and the phone can erase it after about a week without a
-  visit). **Not now** closes the page and loads nothing. On a first visit, How to use and the tour
+  visit). **Not now** closes the page and loads nothing. On a first visit, Help & training and the tour
   wait until the next visit so nothing covers this page.
-- **Load from a PDF** (More, under the four steps) reads the data embedded in a sent PDF
+- **Load from a PDF** (Help & training → Settings) reads the data embedded in a sent PDF
   and sets up the next huddle from it, the same way sending does. It restores a phone that lost its
   data, and it is the fallback if a leader who filled in did not hand the huddle back.
 - Both ask first and can be undone right after.
 
 ## Help built into the app
 
-- **How to use** is a short list, not a page of text. It has an intro line, the warning "Never add
-  confidential information to this huddle report." (always showing), and five groups of rows, in this order:
+- **Help & training** (the button at the top of the opening screen) is a short list, not a page of text. Its
+  title and **Close** stay at the top while it scrolls (swiping down closes it too). It has an intro line,
+  the warning "Never add confidential information to this huddle report." (always showing), and five groups
+  of rows, in this order:
   - **Start here:** Add Huddle to your Home Screen ("Do this once, before you start", or "Already done on
-    this phone" when the app is running from the Home Screen); Add your ward ("It goes on the PDF", or
-    "Done: Sample Ward" once a ward is set); and Take the guided tour ("Practice a week with sample names").
-    None has a step number, because they are done once and are not part of the week.
+    this phone" when the app is running from the Home Screen); Take the guided tour ("Practice a week with
+    sample names"); Training slides ("At your own pace"); and See a sample huddle report. None has a step
+    number, because they are not part of the week. (The ward is set from the opening screen's header.)
   - **Every week:** Before ward council, Ward council, Huddle, After the huddle (numbered 1 to 4, the four
     steps on the opening screen under the same names), then During the week, marked with a calendar instead
     of a number, like "Week" on the training slides. Each starts with "Tap **Home**, then …".
-  - **Watch or read:** Training slides ("At your own pace") and See a sample huddle report.
   - **How do I…:** most used first: Add or remove a name, New members and those being taught, Hand off to
     someone else, Fix a mistake, Share the PDF again, Get my names back.
   - **About this app:** Privacy and security ("Everything stays on this phone"). It says that what
@@ -500,6 +517,14 @@ link clears both from the address bar.
     PDF, an assignment text or a handoff); to protect the PDF (the sharing rule word for word, and
     delete old copies); and never to enter confidential or sensitive information, because everyone
     who gets the PDF can read it.
+  - **Settings** (between How do I… and About this app): **Appearance**, three choices: Automatic (follows
+    the phone), Light and Dark; the choice is kept on this phone (`huddle-theme`), and `theme.js` applies it
+    before the page draws. **Load from a PDF** ("New phone? Choose the last PDF you sent"; left out during a
+    practice week) and **Erase everything and start over** in red ("Clears this phone. The ward name
+    stays."). Either closes Help & training first.
+
+  At the end: "Not an official app of The Church of Jesus Christ of Latter-day Saints." and "Made by
+  Darren Kirkham · darrenkirkham@mac.com" (an email link).
 
   **Training slides** open full screen, one at a time: a count ("3 of 33"); five pills showing
     where the slide is in the week (1, 2, 3, 4 and Week: the current one filled in its color, earlier ones pale;
@@ -516,16 +541,16 @@ link clears both from the address bar.
 
   Tapping a step or question opens it in place, and tapping it again closes it. A step is at most
   five short lines that say what to tap; what a screen already explains is left out. The After the
-  huddle step carries the sharing rule word for word. Every time How to use opens it is the short list again,
+  huddle step carries the sharing rule word for word. Every time Help & training opens it is the short list again,
   scrolled to the top. In a phone's browser the first-time step (Add Huddle to your Home Screen) starts
-  open, and How to use opens by itself on the first visit; from the Home Screen app every step
+  open, and Help & training opens by itself on the first visit; from the Home Screen app every step
   starts closed.
 - **Tips for an effective meeting** (in the Huddle) and **Tips for finding new people to teach**
   (in Find New People to Teach) each end their borrowed text with a source line linking to
   "Ideas for Weekly Missionary Coordination" in *Sharing the Gospel: Resources for Leaders*.
   The first says "Adapted from" (five points condensed from the page's eight principles); the
   second says "From" (quoted). The **Prepare ahead** tip is the app's own and sits below the line.
-- **The guided tour (a practice week):** How to use → **Take the guided tour** ("Practice a week with sample
+- **The guided tour (a practice week):** Help & training → **Take the guided tour** ("Practice a week with sample
   names"), a link ending in `#tour`, or, the first time the app is opened from the Home Screen, a "Welcome to
   Huddle" question offering it. It sets this phone's huddle aside whole and starts a blank week with only sample
   names. A black card at the bottom gives one task at a time ("Step 3 · Return and Report", "8 of 18"), puts a
@@ -533,7 +558,7 @@ link clears both from the address bar.
   sit above the card, never under it; the card hides while a panel is open. Tasks: Start → Step 1 → mark it done →
   Ward council → choose Samuel Ortiz's next ordinance (with the confidential-information warning) → **Home**, then
   the Huddle → Huddle Attendees, tapping both youth → in Return and Report one Yes, one Partly, one No → carry the
-  No forward → Mark section done → Daniel Rivera's action item, who and date → text it (skippable) → Mark section
+  No forward → Mark done → Daniel Rivera's action item, who and date → text it (skippable) → Mark
   done → the other three sections done (Step 3's check) → Home, then After the huddle → mark it done → Send the
   sample → a practice handoff (skippable) → **Finish**, which removes the practice and brings the real huddle back.
   **End practice** asks first. If the app is reopened mid-tour, the card comes back where it was.
@@ -563,7 +588,7 @@ Erases every name, need and assignment and the last sent huddle. The ward name i
 | Link ending | What it does |
 | --- | --- |
 | `#huddle` | Opens straight to the Huddle screen (used by the tests) |
-| `#help` | Opens How to use |
+| `#help` | Opens Help & training |
 | `#tour` | Starts the tour |
 | `#handoff=…` | Offers to load a handed-off huddle |
 
@@ -579,7 +604,7 @@ one is the only time these pages are contacted, and the app itself still makes n
 | Tips for an effective meeting | Adapted from "Ideas for Weekly Missionary Coordination," *Sharing the Gospel: Resources for Leaders* | `…/sharing-the-gospel-resources-for-leaders/02-effective-coordination-with-missionaries` |
 | Tips for finding new people to teach | From the same page | the same page |
 | Huddle Attendees: temple and family history invitation | General Handbook 25.2.3 (quoted) | `…/general-handbook/25-temple-and-family-history-work` |
-| How to use: Sources | The two above, and General Handbook 23.4 (who conducts and who is invited) | `…/general-handbook/23-sharing-the-gospel-and-strengthening-new-and-returning-members` |
+| Help & training: Sources | The two above, and General Handbook 23.4 (who conducts and who is invited) | `…/general-handbook/23-sharing-the-gospel-and-strengthening-new-and-returning-members` |
 
 Not from these sources, and so not cited: the 30-day temple goal, the Who & What / How & When
 labels, the Prepare ahead tip, and the three attendee choices General Handbook 23.4 does not list
@@ -636,7 +661,7 @@ width with nothing to zoom. On letter paper a page prints as a narrow column at 
   but only where there is room: an empty referral section never starts a page by itself.
 - Every page ends with the ward, the date and, when there is more than one page, "Page 1 of 3".
 
-The sample agenda in How to use (`sample/page-1.png` to `page-4.png`) is this PDF made from a
+The sample agenda in Help & training (`sample/page-1.png` to `page-4.png`) is this PDF made from a
 made-up huddle. Remake it with `node test/tools/make-sample.js` whenever the PDF's look changes.
 
 A copy of the huddle's data is stored inside the PDF (the `HuddleData` entry of its information

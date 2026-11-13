@@ -1,4 +1,4 @@
-# Huddle: the Ward Mission Leader Process app
+# Huddle: the Weekly Ward Mission Process app
 
 A phone-friendly app for the ward mission leader's weekly process, built around the weekly coordination meeting (the huddle). It opens to four numbered steps and **Send**: **Before ward council** (update each person from the Covenant Path Report), **Ward council** (every name with its next ordinance and need), **Huddle** (attendance, Return and Report, and this huddle's assignments) and **After the huddle** (update the Covenant Path Report). Sending finishes the huddle: its assignments move into Return and Report for next time, and names and needs stay. There is no date to set; the PDF is dated the day it's sent.
 
@@ -21,7 +21,7 @@ A phone-friendly app for the ward mission leader's weekly process, built around 
    - Name: `huddle` (or anything you like).
    - Choose **Public**. Free GitHub Pages requires it. Only the page's code is public, never anyone's data.
    - Click **Create repository**.
-3. **Upload the files.** On the new repository page, click **uploading an existing file**. Drag in **everything inside this folder**: `index.html`, `app.js`, `styles.css`, `dark.css`, `sw.js`, `manifest.webmanifest`, `README.md`, and the `icons`, `vendor`, `sample` and `media` folders. (Without `tour.js` or the `sample` folder, the tour and offline use fail.) Click **Commit changes**.
+3. **Upload the files.** On the new repository page, click **uploading an existing file**. Drag in **everything inside this folder**: `index.html`, `app.js`, `styles.css`, `dark.css`, `theme.js`, `sw.js`, `manifest.webmanifest`, `README.md`, and the `icons`, `vendor`, `sample` and `media` folders. (Without the `sample` folder, offline use fails.) Click **Commit changes**.
    - Make sure `index.html` sits at the top level of the repository, not inside another folder.
 4. **Turn on Pages.** Go to **Settings → Pages**. Under **Build and deployment**, set Source to **Deploy from a branch**, Branch to **main**, folder **/ (root)**, then **Save**.
 5. **Wait 1–2 minutes,** then refresh that page. Your link appears at the top, something like `https://yourname.github.io/huddle/`.
@@ -39,18 +39,18 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 
 ## Built-in instructions
 
-- **How to use** (top of the opening screen) is a short list: a first-time step (Add Huddle to your Home Screen), five numbered steps for every week, six "How do I…" questions, a Privacy and security row, a Sources row, and the tour, a sample agenda, a practice week and the training slides. Tap a row to read it; each step is a few short lines. In a phone's browser it opens by itself the first time, with the first-time step open.
-- **Guided tour:** a practice week with sample names. A card at the bottom gives one task at a time, rings what to tap and moves on once it's done; Finish brings the real huddle back. Start it from **Take the guided tour** in How to use, or send people the site link plus `#tour`.
+- **Help & training** (top of the opening screen) is a short list: Start here (Add Huddle to your Home Screen, the guided tour, the training slides and a sample huddle report), the steps for every week, six "How do I…" questions, Settings (Appearance, Load from a PDF, Erase everything), and About this app (Privacy and security, Sources, who made it). Tap a row to read it; each step is a few short lines. In a phone's browser it opens by itself the first time, with the first-time step open.
+- **Guided tour:** a practice week with sample names. A card at the bottom gives one task at a time, rings what to tap and moves on once it's done; Finish brings the real huddle back. Start it from **Take the guided tour** in Help & training, or send people the site link plus `#tour`.
 - **Look:** each of the four steps opens with a header card in its own color (ward, date, what to do there; the Huddle and Ward council also show progress), section rows have colored icons, names have initials, and sending ends with a short celebration.
 - **Tips for an effective meeting** is at the top of the Huddle screen. It opens the Principles for Effective Coordination and the Prepare ahead tip.
 - **How can we help?** is a small link under New members, Returning members and Those being taught in the Covenant Path Report and at the top of Find New People to Teach, in the Huddle and in Ward council. It slides up that section's questions from *Preach My Gospel*, chapter 13. Nothing is typed there and none of it goes on the PDF.
 - **Sources:** whatever the app quotes or adapts names its source in one small line, linked to that page in the Gospel Library: *Preach My Gospel*, chapter 13 (the questions), "Ideas for Weekly Missionary Coordination" in *Sharing the Gospel: Resources for Leaders* (both lists of tips), and General Handbook 23.4 (who conducts and who is invited). All three are listed under **Sources** in How to use.
 - Send people straight to the instructions with the site link plus `#help` (for example `https://dk10-dotcom.github.io/coordination-meetings/#help`).
-- The How to use wording lives in `index.html`.
+- The Help & training wording lives in `index.html`.
 
 ## How people use it each week
 
-The opening screen is titled **Ward Mission Leader Process** and shows four numbered steps in order. A bar floats at the bottom of every screen: Hand off, a round Home button and Send. The full description of every screen and rule is in [`docs/SPEC.md`](docs/SPEC.md).
+The opening screen is titled **Weekly Ward Mission Process** and shows four numbered steps in order. A bar floats at the bottom of every screen: Hand off, a round Home button and Send. The full description of every screen and rule is in [`docs/SPEC.md`](docs/SPEC.md).
 
 1. **Before ward council:** tap the first box. It opens the three Covenant Path Report lists, one row per person, with a button that opens the report in Member Tools. Tap a name to update what the report says about them: next ordinance, needs, temple attendance (new members) and sacrament attendance. Tap **Add a name** for anyone new, and open a name to remove someone no longer listed. Tap **All up to date · Mark done** at the bottom when you're finished.
 2. **Ward council:** four rows. **Covenant Path Report** and **Focus names** show one row per name; tap a name to open it. A person's screen has ward council's part on top (name, next ordinance, needs) and the huddle's part under it as a short summary with **Edit**, plus the last huddle's assignment. **Find New People to Teach** and **Missionary Referrals** are the same sections the Huddle has.
@@ -76,9 +76,10 @@ New members (blue), Returning members (green), Those being taught (purple) and F
 
 | File | What it does |
 | --- | --- |
-| `index.html` | The page: every screen and the How to use text |
+| `index.html` | The page: every screen and the Help & training text |
 | `styles.css` | Look and layout (phone first) |
 | `dark.css` | Dark mode, made from `styles.css` by `test/tools/make-dark.py` |
+| `theme.js` | Picks light or dark before the page draws (Settings → Appearance) |
 | `app.js` | The app's behavior, PDF creation, Send (closes the huddle), Hand off, Load from a PDF |
 | `vendor/pdf-lib.min.js` | PDF library (pdf-lib 1.17.1, MIT license) |
 | `sw.js` | Lets the page open without a connection after the first visit |

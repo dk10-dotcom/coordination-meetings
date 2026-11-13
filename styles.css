@@ -1394,3 +1394,54 @@ body { padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
 .hero .page-intro { margin-top: 3px; font-size: 15px; line-height: 1.35; }
 .hero-progress { margin-top: 8px; gap: 4px; }
 .hero-bar { height: 6px; }
+
+/* Help & training: the title with Close at the top right (it stays in view while the page scrolls) */
+.help-head { position: sticky; top: -1px; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin: -4px -4px 0; padding: 6px 4px 8px; background: var(--card); }
+.help-head h2 { margin: 0; }
+.help-close { flex: none; min-height: 40px; padding: 0 14px; border: none; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font: inherit; font-size: 16px; font-weight: 700; cursor: pointer; }
+/* Settings → Appearance: one row with three choices */
+.nav-row.appearance { cursor: default; flex-wrap: wrap; gap: 10px; }
+.appearance-seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin-left: auto; border: 1px solid var(--field-line); border-radius: 10px; overflow: hidden; }
+.appearance-seg button { min-height: 36px; padding: 0 10px; border: none; border-left: 1px solid var(--field-line); background: var(--card); color: var(--ink); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.appearance-seg button:first-child { border-left: none; }
+.appearance-seg button[aria-pressed="true"] { background: var(--accent); color: #FFFFFF; }
+/* Who made it, at the end of Help & training */
+.help-credits { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; text-align: center; font-size: 13px; color: var(--muted); }
+.help-credits a { color: inherit; }
+
+/* Mark done (Before ward council, each Huddle section, After the huddle): pinned just above the bottom bar so it is
+   always in view; once done it turns green and says Done with a check, and tapping it again takes the mark off */
+.step-foot { display: contents; }
+.mark-done { position: sticky; bottom: calc(100px + env(safe-area-inset-bottom, 0px)); z-index: 4; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 6px 18px -6px rgba(20, 30, 50, .35); }
+.mark-done .mark-check { display: none; }
+.mark-done.is-done { background: #1F6B3A; border-color: #1F6B3A; color: #FFFFFF; }
+.mark-done.is-done .mark-check { display: block; }
+body.typing .mark-done, body.coaching .mark-done { position: static; box-shadow: none; }
+.step-foot .step-nav { margin-top: 6px; }
+
+/* A person's name header is a button: tap it (or the pencil on the initials) to edit the name */
+button.person-head { width: 100%; border: none; font: inherit; text-align: left; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+button.person-head:active { opacity: .75; }
+.person-head .avatar { position: relative; overflow: visible; }
+.avatar-pencil { position: absolute; right: -3px; bottom: -3px; display: flex; align-items: center; justify-content: center; width: 20px; height: 20px;
+  border-radius: 50%; background: var(--accent); color: #FFFFFF; border: 2px solid var(--ground); }
+.avatar-pencil svg { display: block; }
+/* The confidential reminder: one small line right under the step card in Ward council and the Huddle */
+.wc-note { margin: 2px 6px 0; color: var(--muted); font-size: 13.5px; }
+.wc-note .help-warning-icon { flex: none; }
+
+/* After the huddle: what changed since step 1 was marked done */
+.after-summary { margin: 0 4px; font-size: 14.5px; color: var(--muted); }
+.after-summary.has-change { color: #7A5200; font-weight: 600; }
+.after-card.has-change { border-color: #EBCB7A; box-shadow: 0 0 0 1px #EBCB7A inset; }
+.after-changed { padding: 2px 9px; border-radius: 999px; background: #FFF2D6; color: #7A5200; font-size: 13px; font-weight: 800; }
+.after-fact.is-upd { background: #FFF8E6; margin: 1px -6px; padding: 2px 6px; border-radius: 6px; }
+.after-upd { margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: #FBEBC2; color: #7A5200; font-size: 13px; font-weight: 800; white-space: nowrap; }
+.nav-row.appearance { flex-direction: column; align-items: stretch; }
+.nav-row.appearance .appearance-seg { margin-left: 0; }
+.appearance-seg button { min-height: 40px; font-size: 15px; }
+/* Messages pop up above the bottom bar and above a pinned Done or Mark done button */
+.toast { bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + 170px); }
+@media (max-width: 359px) { .appearance-seg button { padding: 0 4px; font-size: 14px; } }

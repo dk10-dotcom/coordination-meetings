@@ -17,7 +17,7 @@ const res = []; const ok = (l, c, x) => { res.push(c); console.log((c ? 'PASS ' 
     await p.goto('http://127.0.0.1:8765/#huddle'); await p.waitForSelector('.chip'); await p.click('[data-action="dismiss-install"]').catch(() => {});
     await p.evaluate(() => scrollTo(0, 0)); await p.screenshot({ path: `${OUT}/${n}-top.png`, clip: { x: 0, y: 0, width: devices[d].viewport.width, height: 260 } });
     if (n === 'se') { ok('SE: one Tips button, on the Huddle screen (placement is checked in twodoor.js)', await p.locator('#steps-home .huddle-tips').count() === 1 && await p.locator('.top-buttons [data-action="tips"]').count() === 0); await ctx.close(); continue; }
-    ok('Tips lives on the Huddle screen; How to use is the only button at the top', await p.locator('#steps-home .huddle-tips').count() === 1 && (await p.$$eval('.top-buttons .help-link', bs => bs.map(x => x.textContent.trim()))).join('|') === 'How to use');
+    ok('Tips lives on the Huddle screen; Help & training is the only button at the top', await p.locator('#steps-home .huddle-tips').count() === 1 && (await p.$$eval('.top-buttons .help-link', bs => bs.map(x => x.textContent.trim()))).join('|') === 'Help & training');
     ok('principles no longer at bottom of page', (await p.$$('details.principles')).length === 0);
     await p.evaluate(() => document.querySelector('[data-action="tips"]').click()); await p.waitForSelector('#tips-sheet:not([hidden])');
     ok('Tips opens Principles for Effective Coordination', (await p.textContent('#tips-title')) === 'Principles for Effective Coordination' && (await p.$$('#tips-sheet .principle-list li')).length === 5);

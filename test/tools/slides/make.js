@@ -37,7 +37,7 @@ const PH = 640, SCALE = PH / 664, PW = Math.round(390 * SCALE); // the phone scr
     const file = String(i + 1).padStart(2, '0') + '.jpg';
     await p.screenshot({ path: path.join(OUT, file), type: 'jpeg', quality: 78, omitBackground: true });
     slides.push(sc.kind === 'title'
-      ? { kicker: 'Huddle', title: 'Ward Mission Leader Process', body: sc.sub + '. ' + sc.body, color: '#2F5DA6', img: file }
+      ? { kicker: 'Huddle', title: 'Weekly Ward Mission Process', body: sc.sub + '. ' + sc.body, color: '#2F5DA6', img: file }
       : sc.kind === 'end'
       ? { kicker: 'Huddle', title: sc.title, body: sc.body, fine: 'Never add confidential information to this huddle report.', color: '#2F5DA6', img: file }
       : { kicker: sc.k, title: sc.title, body: sc.body, color: col, img: file });

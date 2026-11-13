@@ -1,7 +1,7 @@
 {
   "name": "coordination-meetings-tests",
   "private": true,
-  "description": "Automated checks for the Ward Mission Leader Process web app. Fake names only.",
+  "description": "Automated checks for the Weekly Ward Mission Process web app. Fake names only.",
   "scripts": {
     "all": "bash run-all.sh"
   },

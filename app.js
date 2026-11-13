@@ -1,4 +1,4 @@
-/* Huddle: the Ward Mission Leader Process app (the weekly coordination meeting agenda)
+/* Huddle: the Weekly Ward Mission Process app (the weekly coordination meeting agenda)
  * Everything runs on the device. Nothing is sent to a server.
  * - The agenda on this phone (localStorage) is always the next huddle. Send shares the PDF and closes
  *   the huddle: its actions move into Return and Report for the next one, names and needs stay, and one
@@ -166,7 +166,7 @@
       find: blankFind(), referrals: [],
       practiceSnapshot: null,
       sentAt: '', sentSig: '', rolledFrom: '', dateManual: false, verified: { before: false, after: false },
-      ftDone: false
+      ftDone: false, bwSnap: null
     };
   }
   function cleanList(list, maker, keys) {
@@ -215,6 +215,7 @@
     // A practice week remembers the form as it was, so removing it puts everything back.
     f.practiceSnapshot = f.loaded && f.loaded.practice && s.practiceSnapshot && typeof s.practiceSnapshot === 'object' ? s.practiceSnapshot : null;
     f.cpDone = !!s.cpDone; f.tnDone = !!s.tnDone; f.ftDone = !!s.ftDone;
+    f.bwSnap = s.bwSnap && typeof s.bwSnap === 'object' && !Array.isArray(s.bwSnap) ? s.bwSnap : null;
     f.dateManual = !!s.dateManual; f.verified = { before: !!(s.verified && s.verified.before), after: !!(s.verified && s.verified.after) }; f.sentAt = str(s.sentAt); f.sentSig = str(s.sentSig); f.rolledFrom = parseISO(str(s.rolledFrom)) ? str(s.rolledFrom) : '';
     // Lists marked Done stay folded only within the draft; a saved agenda always opens fully.
     var sd = s.stepsDone && typeof s.stepsDone === 'object' ? s.stepsDone : {};
@@ -315,6 +316,7 @@
     return el;
   }
   var ICONS = {
+    pencil: '<svg width="11" height="11" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M3 15l1-4 8.5-8.5a2 2 0 0 1 3 3L7 14z"/></svg>',
     circle: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="5.6"/></svg>',
     chat: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4.5h12v7.5H8l-3.5 3v-3H3z"/></svg>',
     check: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>',
@@ -823,14 +825,7 @@
   }
   function renderLoadState() {
     renderRRFrom();
-    // More (Load from a PDF, Erase everything) is a quiet link under the four steps. (Receiving a handoff is under Hand off.)
-    var practice = !!(state.loaded && state.loaded.practice);
-    var live = !isEmpty(state) && !practice;
-    var nw = $('#newweek-panel');
-    if (nw) {
-      nw.hidden = !live;
-    }
-    if (nw) nw.hidden = false; // More stays: in a practice week it offers only Erase everything
+    // Load from a PDF and Erase everything are under Settings in Help & training. (Receiving a handoff is under Hand off.)
     $('#load-panel').hidden = true;
     $('#loaded-banner').hidden = !state.loaded;
     $('#loaded-banner').classList.toggle('practice', !!(state.loaded && state.loaded.practice));
@@ -988,6 +983,8 @@
       if (a.sac) tags.push(rowTag('✓ Sacrament', 'ok'));
       if (name) { sub = (bord ? 'Next: ' + bord : 'Needs a next ordinance') + ' · ' + (bneed ? 'Needs: ' + bneed : 'No needs listed'); warn = !bord; }
     } else {
+      // Ward council: the same temple countdown as the Huddle, so the 30-day goal is in front of both meetings.
+      if (gid === 'nm' && name) { var wts = templeStatus(a, state.date); if (!wts.done) tags.push(rowTag('Temple: ' + wts.short, 'due')); }
       var ord = ordOf(a, gid);
       sub = ord ? 'Next: ' + ord : '';
       if (!sub && name) { sub = 'Needs a next ordinance'; warn = true; }
@@ -1083,7 +1080,9 @@
     // Ward council's screen asks the 4-week question too (the huddle's card carries its own).
     var note = (r.kind === 'wc' || r.kind === 'bw') && !isRef ? staleNote(base, a, r.g === 'tn') : null;
     // The top of the screen is tinted with their list's color: initials, name, and which list they're on.
-    var head = h('div', { class: 'person-head' }, [initialsDot(a.name), h('div', { class: 'person-head-text' }, [
+    // Tapping the name (or the pencil on the initials) opens the name to edit, on every screen.
+    var dot = initialsDot(a.name); dot.appendChild(h('span', { class: 'avatar-pencil', 'aria-hidden': 'true' }, [icon('pencil')]));
+    var head = h('button', { type: 'button', class: 'person-head', 'data-action': 'edit-name', 'aria-label': 'Edit the name: ' + personTitle(r) }, [dot, h('div', { class: 'person-head-text' }, [
       h('p', { class: 'person-head-name', text: personTitle(r) }), h('p', { class: 'person-head-list', text: LIST_LABEL[r.g] })])]);
     wrap.replaceChildren(h('section', attrs, [head, note, card]), done, remove);
     if (r.g === 'nm') updateTemple();
@@ -1543,8 +1542,7 @@
     var i = STEPS.findIndex(function (st) { return st.id === view; });
     if (i < 0) return;
     var nxt = STEPS[i + 1], prv = STEPS[i - 1];
-    $('#step-done-label').textContent = state.stepsDone[view] ? 'Section done · Back' : 'Mark section done';
-    var und = $('.step-undone'); if (und) und.hidden = !state.stepsDone[view];
+    markDoneBtn($('#step-done-btn'), !!state.stepsDone[view], state.stepsDone[view] ? 'step-undone' : 'step-done');
     var sn = $('#step-next'), sp = $('#step-prev');
     sn.hidden = !nxt; sp.hidden = !prv;
     // A quiet shortcut line, not steps: "‹ Return and Report · Name Next Ordinance ›"
@@ -1573,7 +1571,7 @@
     // A person's screen needs a person; anything else (a stale Back, a removed name) falls back to their list.
     if (!all && isPerson(view) && !personOk(personRef)) { view = personRef ? personListView(personRef) : 'home'; personRef = null; return applyView(); }
     var person = !all && isPerson(view);
-    // More (with Erase everything) and the footer sit on the opening screen only.
+    // The one-line disclaimer sits on the opening screen only.
     $('header.top').hidden = !home && !start; $('.start-here').hidden = !home && !start; $('.fine-notes').hidden = !all && !start;
     $('#person-view').hidden = !person;
     // Find New People to Teach and Missionary Referrals are one section each, shown in the Huddle and in ward council.
@@ -1582,6 +1580,7 @@
     $('#bw-view').hidden = !bw; $('#af-view').hidden = !af;
     $('#mode-title').textContent = wc ? 'Ward council' : bw ? 'Before ward council' : af ? 'After the huddle' : 'Huddle';
     $('#hd-hero').hidden = all || view !== 'home'; // the Huddle's header card, with its one line on what to do there
+    $('#hd-note').hidden = all || view !== 'home'; // and the confidential reminder right under it, as in Ward council
     var stp = STEPS.filter(function (x) { return x.id === view; })[0] || WC_LISTS.filter(function (x) { return 'wc-' + x.id === view; })[0];
     $('#step-title').textContent = person ? personTitle(personRef) : stp ? stp.title : '';
     // Leaving a person's screen: drop a name left empty, then redraw the lists it appears on.
@@ -1715,18 +1714,27 @@
       var on = !!state.verified[c[0]], box = $('#' + c[0] + '-box'); if (!box) return;
       box.classList.toggle('done', on); $('#' + c[0] + '-sub').textContent = on ? c[2] : c[1];
       box.setAttribute('aria-label', $('#' + c[0] + '-box .cpr-step-k').textContent + ': ' + $('#' + c[0] + '-box .check-line').textContent + (on ? '. Done.' : '. Not done yet.'));
-      // On the step's own screen: mark it done at the bottom, or take the mark back off.
-      var doneBtn = $('#' + c[0] + '-done-btn'), otherBtn = $('#' + c[0] + '-other-btn');
-      // Once it's done, the main button just goes back; taking the mark off is the quieter choice under it.
-      // ("Not yet" is the Back button at the top of the screen.)
-      if (!doneBtn.getAttribute('data-label')) doneBtn.setAttribute('data-label', doneBtn.textContent);
-      doneBtn.textContent = on ? 'Done · Back' : doneBtn.getAttribute('data-label');
-      doneBtn.setAttribute('data-action', on ? 'close-' + c[0] : c[0] + '-done');
-      otherBtn.hidden = !on;
-      $('#' + c[0] + '-state').hidden = !on;
+      // On the step's own screen: Mark done, pinned above the bottom bar. Once done it is green and says Done;
+      // tapping it again takes the mark off.
+      markDoneBtn($('#' + c[0] + '-done-btn'), on, on ? c[0] + '-undo' : c[0] + '-done');
     });
   }
-  function setVerified(which, on) { state.verified[which] = !!on; renderChecks(); saveDraft(); }
+  function markDoneBtn(btn, on, action) {
+    if (!btn) return;
+    btn.classList.toggle('is-done', on); btn.setAttribute('data-action', action);
+    btn.querySelector('.mark-label').textContent = on ? 'Done' : 'Mark done';
+    btn.setAttribute('aria-label', on ? 'Done. Tap to mark as not done.' : 'Mark done');
+  }
+  function setVerified(which, on) { if (which === 'before' && on) takeBwSnap(); state.verified[which] = !!on; renderChecks(); saveDraft(); }
+  // Step 1 done: remember how each person looked, so step 4 can show what changed since (in ward council or the
+  // huddle) and needs updating in the Covenant Path Report. Kept on this phone only; a new week starts without it.
+  var SNAP_KEYS = ['sac', 'temple', 'committed', 'bap', 'ordinance', 'need'];
+  function snapOf(a) { var o = {}; SNAP_KEYS.forEach(function (k) { o[k] = typeof a[k] === 'boolean' ? a[k] : str(a[k]).trim(); }); return o; }
+  function takeBwSnap() {
+    var snap = {};
+    allNames().forEach(function (x) { snap[x.gid + '|' + norm(x.a.name)] = snapOf(x.a); });
+    state.bwSnap = snap;
+  }
   // Before ward council: the three Covenant Path Report lists, one row per person. Tap a name to bring it
   // up to date from the report. (Focus names aren't here: ward council chooses those, not the report.)
   function renderBefore() {
@@ -1739,24 +1747,36 @@
     var wrap = $('#after-list'); if (!wrap) return;
     var names = allNames();
     var label = { tn: 'Focus name', nm: 'New member', rm: 'Returning member', bt: 'Being taught' };
+    var snap = state.bwSnap, changedCount = 0;
     var rows = names.map(function (x) {
       var a = x.a, r = null;
+      // What changed since step 1 was marked done gets an "Updated" tag; those people come first.
+      var was = snap ? snap[x.gid + '|' + norm(a.name)] : null, now = snapOf(a), isNew = !!snap && !was;
+      var moved = function (k) { return !!was && (k === 'bap' ? str(was.bap) !== str(now.bap) || !!was.committed !== !!now.committed : (typeof now[k] === 'boolean' ? !!was[k] !== now[k] : str(was[k]) !== str(now[k]))); };
+      var changed = isNew || SNAP_KEYS.some(moved);
+      var upd = function (k) { return moved(k) ? h('span', { class: 'after-upd', text: 'Updated' }) : null; };
       for (var i = 0; i < state.rr.length; i++) { var q = state.rr[i]; if (q.prefilled && groupOf(q) === x.gid && norm(rrPerson(q)) === norm(a.name) && str(q.action).trim()) { r = q; break; } }
-      var fact = function (k, v, cls) { return h('p', { class: 'after-fact' + (cls ? ' ' + cls : '') }, [h('span', { class: 'after-k', text: k }), v]); };
+      var fact = function (k, v, cls, tag) { return h('p', { class: 'after-fact' + (cls ? ' ' + cls : '') + (tag ? ' is-upd' : '') }, [h('span', { class: 'after-k', text: k }), v, tag || null]); };
       var who = [str(a.assigned).trim(), whenShow(a.when)].filter(Boolean).join(' · ');
-      return h('div', { class: 'card after-card g-' + x.gid }, [
-        h('p', { class: 'after-name' }, [a.name.trim(), h('span', { class: 'source', text: label[x.gid] })]),
-        fact('Sacrament', a.sac ? 'Attended' : 'Not marked', a.sac ? 'yes' : ''),
-        x.gid === 'nm' ? fact('Temple', a.temple ? 'Attended' : 'Not yet', a.temple ? 'yes' : '') : null,
-        x.gid === 'bt' && a.committed ? fact('Baptism', 'Committed' + (monthDay(a.bap) ? ' · ' + monthDay(a.bap) : ''), 'yes') : null,
-        str(a.ordinance).trim() ? fact('Next ordinance', a.ordinance.trim()) : null,
-        str(a.need).trim() ? fact('Needs', a.need.trim()) : null,
+      if (changed) changedCount++;
+      var card = h('div', { class: 'card after-card g-' + x.gid + (changed ? ' has-change' : '') }, [
+        h('p', { class: 'after-name' }, [a.name.trim(), h('span', { class: 'source', text: label[x.gid] }),
+          changed ? h('span', { class: 'after-changed', text: isNew ? 'New since step 1' : 'Changed' }) : null]),
+        fact('Sacrament', a.sac ? 'Attended' : 'Not marked', a.sac ? 'yes' : '', upd('sac')),
+        x.gid === 'nm' ? fact('Temple', a.temple ? 'Attended' : 'Not yet', a.temple ? 'yes' : '', upd('temple')) : null,
+        x.gid === 'bt' && a.committed ? fact('Baptism', 'Committed' + (monthDay(a.bap) ? ' · ' + monthDay(a.bap) : ''), 'yes', upd('bap')) : null,
+        str(a.ordinance).trim() ? fact('Next ordinance', a.ordinance.trim(), '', upd('ordinance')) : null,
+        str(a.need).trim() ? fact('Needs', a.need.trim(), '', upd('need')) : null,
         r ? fact('Reported back', (str(r.action).trim()) + ': ' + ({ Yes: 'Done', Partly: 'Partly done', No: 'Not done' }[r.happened] || 'Pending') + (str(r.notes).trim() ? ' · ' + r.notes.trim() : ''), statusOf(r.happened)) : null,
         str(a.action).trim() ? fact('New assignment', a.action.trim() + (who ? ' (' + who + ')' : '')) : null,
         str(a.hneed).trim() ? fact('Huddle notes', a.hneed.trim()) : null
       ]);
+      return { el: card, changed: changed };
     });
-    wrap.replaceChildren.apply(wrap, rows.length ? rows : [h('p', { class: 'quick-none', text: 'No one is on the Covenant Path Report lists yet.' })]);
+    // Changed first, then everyone else, each group in the usual order
+    var els = rows.filter(function (x) { return x.changed; }).concat(rows.filter(function (x) { return !x.changed; })).map(function (x) { return x.el; });
+    if (snap && rows.length) els.unshift(h('p', { class: 'after-summary' + (changedCount ? ' has-change' : '') , text: changedCount ? plural(changedCount, 'person changed', 'people changed') + ' since step 1. They’re first, with each change marked Updated.' : 'Nothing changed since step 1.' }));
+    wrap.replaceChildren.apply(wrap, els.length ? els : [h('p', { class: 'quick-none', text: 'No one is on the Covenant Path Report lists yet.' })]);
   }
 
   // The two doors on the opening screen say where things stand.
@@ -2031,8 +2051,15 @@
       case 'open-after': showView('af', 'push'); break;
       case 'close-after': goStart(); break;
       case 'after-done': setVerified('after', true); goStart(); toast('Covenant Path Report updated. You can send.'); break;
-      case 'before-undo': setVerified('before', false); toast('Before ward council: marked as not done.'); break;
-      case 'after-undo': setVerified('after', false); toast('Marked as not done. Send waits until it’s done.'); break;
+      case 'before-undo': setVerified('before', false); toast('Before ward council: marked as not done.', 6000, { label: 'Undo', run: function () { setVerified('before', true); } }); break;
+      case 'after-undo': setVerified('after', false); toast('Marked as not done. Send waits until it’s done.', 6000, { label: 'Undo', run: function () { setVerified('after', true); } }); break;
+      case 'edit-name': {
+        var nameIn = function () { var c = document.querySelectorAll('#person-view .card-name-input, #person-view input[data-bind$=".name"]'); for (var k = 0; k < c.length; k++) if (c[k].offsetParent) return c[k]; return null; };
+        var ni = nameIn();
+        if (!ni && document.querySelector('#person-card [data-action="wc-edit-toggle"]')) { personWcOpen = true; renderPerson(); ni = nameIn(); }
+        if (ni) { ni.scrollIntoView({ block: 'center', behavior: 'smooth' }); ni.focus({ preventScroll: true }); try { ni.setSelectionRange(ni.value.length, ni.value.length); } catch (e) { /* not a text box */ } }
+        break;
+      }
       case 'wc-edit-toggle': {
         personWcOpen = !personWcOpen; renderPerson();
         var wt = document.querySelector('#person-card ' + (personWcOpen ? '.card-name-input' : '.zone-toggle'));
@@ -2089,7 +2116,7 @@
         finish();
         break;
       }
-      case 'step-undone': delete state.stepsDone[view]; saveDraft(); renderStepFoot(); toast('Marked as not done.'); break;
+      case 'step-undone': { var uv = view; delete state.stepsDone[uv]; saveDraft(); renderStepFoot(); toast('Marked as not done.', 6000, { label: 'Undo', run: function () { state.stepsDone[uv] = true; saveDraft(); if (view === uv) renderStepFoot(); } }); break; }
       case 'step-prev': {
         var pi = STEPS.findIndex(function (st) { return st.id === view; });
         if (pi > 0) showView(STEPS[pi - 1].id, 'replace');
@@ -2137,10 +2164,9 @@
         break;
       }
       // Load from a PDF goes straight to choosing the file; what it will do is asked once the PDF is read.
-      case 'more': $('#more-load-row').hidden = !!(state.loaded && state.loaded.practice); openOverlay('#more-sheet', '#more-title'); break;
-      case 'close-more': closeOverlay('#more-sheet'); break;
+      case 'theme': if (window.huddleTheme) window.huddleTheme.set(a); markTheme(); break;
       case 'load-other':
-      case 'load': if (!$('#more-sheet').hidden) closeOverlay('#more-sheet'); pickFile(); break;
+      case 'load': if (!$('#help-sheet').hidden) closeHelp(); pickFile(); break;
       case 'handoff': startHandoff(); break;
       case 'handoff-send': sendHandoff(); break;
       case 'handoff-receive': closeOverlay('#handoff-sheet'); pasteHandoff(); break;
@@ -2257,7 +2283,7 @@
         break;
       }
       case 'clear':
-        if (!$('#more-sheet').hidden) closeOverlay('#more-sheet');
+        if (!$('#help-sheet').hidden) closeHelp();
         if (isEmpty(state)) { toast('There’s nothing to erase.'); break; }
         ask({
           title: 'Erase everything?',
@@ -2579,7 +2605,7 @@
       if (isIOS && !isStandalone()) showHandoffPage(code, s);
       else confirmApplyAgenda(s, 'handoff');
     }, function () {
-      ask({ title: 'This handoff link didn’t work', body: 'Ask for the link again, or tap More, then Load from a PDF, and choose the last PDF that was sent.', primary: 'OK' });
+      ask({ title: 'This handoff link didn’t work', body: 'Ask for the link again, or open Help & training, then Settings, Load from a PDF, and choose the last PDF that was sent.', primary: 'OK' });
     });
   }
   function pasteHandoff() {
@@ -2590,7 +2616,7 @@
     var useText = function (text, typed) {
       var m = /handoff=([A-Za-z0-9_-]+)/.exec(text || '');
       if (!m) { if (typed) ask({ title: 'That isn’t a handoff link', body: 'Copy the whole link from the text, then try again.', primary: 'OK' }); else manual('There’s no handoff link on the clipboard. Paste it here:'); return; }
-      unpackHandoff(m[1]).then(function (s) { confirmApplyAgenda(s, 'handoff'); }, function () { ask({ title: 'This handoff link didn’t work', body: 'Ask for the link again, or tap More, then Load from a PDF, and choose the last PDF that was sent.', primary: 'OK' }); });
+      unpackHandoff(m[1]).then(function (s) { confirmApplyAgenda(s, 'handoff'); }, function () { ask({ title: 'This handoff link didn’t work', body: 'Ask for the link again, or open Help & training, then Settings, Load from a PDF, and choose the last PDF that was sent.', primary: 'OK' }); });
     };
     if (navigator.clipboard && navigator.clipboard.readText) navigator.clipboard.readText().then(function (t) { useText(t, false); }, function () { manual(); });
     else manual();
@@ -2655,20 +2681,20 @@
   var COACH = [
     { k: 'Welcome', t: 'This tour walks you through one week with **sample names**. Each card gives one thing to do and moves on once it’s done. Anything already on this phone is set aside and comes back at the end.', start: true },
     { k: 'Step 1 · Before ward council', t: 'The opening screen has four steps, in order. Tap **Step 1 · Before ward council**.', target: '#before-box', done: function () { return view === 'bw' || state.verified.before; } },
-    { k: 'Step 1 · Before ward council', t: 'Before ward council, bring each name up to date from the Covenant Path Report. Tap a name to see what’s there, then tap **All up to date · Mark done** at the bottom.', target: '#before-done-btn', done: function () { return !!state.verified.before; } },
+    { k: 'Step 1 · Before ward council', t: 'Before ward council, bring each name up to date from the Covenant Path Report. Tap a name to see what’s there, then tap **Mark done** at the bottom.', target: '#before-done-btn', done: function () { return !!state.verified.before; } },
     { k: 'Step 2 · Ward council', t: 'Step 1 has its green check. Now tap **Step 2 · Ward council**.', target: '.door-wc', done: function () { return view === 'wc' || isWcList(view) || view === 'p-wc'; } },
     { k: 'Step 2 · Ward council', t: 'Ward council decides who to focus on and each next ordinance. Tap **Focus names**, then **Samuel Ortiz**, and choose his next ordinance. Never add confidential information to this huddle report.', target: ['[data-wc="tn"] [data-b="1"]', '[data-action="open-wc-list"][data-a="tn"]', '#person-card select'], done: function () { var a = state.tn[1]; return !!(a && ORDINANCES.indexOf(str(a.ordinance)) >= 0); } },
     { k: 'Step 3 · Huddle', t: 'Every name has a next ordinance, so Step 2 is done. Tap **Home** at the bottom, then **Step 3 · Huddle**.', target: ['.nav-home:not(.is-here)', '.door-hd'], done: function () { return view === 'home'; } },
     { k: 'Step 3 · Huddle', t: 'Tap **Huddle Attendees** and tap who came. Tap **both youth**, the priests quorum assistant and the Gatherers of Light representative: including the youth matters.', target: ['#attendee-list', '#details-summary'], done: function () { return state.attendees.indexOf('pqa') >= 0 && state.attendees.indexOf('gol') >= 0; } },
     { k: 'Step 3 · Return and Report', t: 'Tap **Done**, then **Return and Report**. Mark one assignment **Yes**, one **Partly** and one **No**.', target: ['[data-action="open-step"][data-a="rr"]', '#rr-list'], done: function () { var h = state.rr.map(function (r) { return r.happened; }); return h.indexOf('Yes') >= 0 && h.indexOf('Partly') >= 0 && h.indexOf('No') >= 0; } },
     { k: 'Step 3 · Return and Report', t: 'On the one marked **No**, tap **Carry forward to this huddle**. It moves onto this week’s plan, so it isn’t forgotten.', target: '.btn-carry', done: function () { return state.rr.some(function (r) { return r.carriedFwd; }); } },
-    { k: 'Step 3 · Return and Report', t: 'Scroll down and tap **Mark section done**.', target: '[data-action="step-done"]', done: function () { return !!state.stepsDone.rr; } },
+    { k: 'Step 3 · Return and Report', t: 'Tap **Mark done** at the bottom. It turns green once it’s done.', target: '[data-action="step-done"]', done: function () { return !!state.stepsDone.rr; } },
     { k: 'Step 3 · Covenant Path Report', t: 'Tap **Covenant Path Report**, then **Daniel Rivera**. Check **Attended sacrament**, then add an action item, who will do it, and a date.', target: ['[data-action="open-step"][data-a="cp"]', '[data-group="nm"] [data-b="0"]', '#person-card .zone-hd-wrap'], done: function () { var a = state.cp.nm[0]; return !!(a && str(a.action).trim() && str(a.assigned).trim() && str(a.when).trim()); } },
     { k: 'Step 3 · Covenant Path Report', t: 'Tap **Text this assignment** and send it to yourself. In a real huddle, text each person before everyone leaves.', target: '#person-card [data-action="text-assign"]', done: function () { var a = state.cp.nm[0]; return !!(a && a.texted); }, skip: true },
-    { k: 'Step 3 · Covenant Path Report', t: 'Tap **Done**, then **Mark section done**. Tip 👆 not sure what to plan? Tap **How can we help?** under a list’s name.', target: ['#person-view .person-done', '[data-action="step-done"]'], done: function () { return !!state.stepsDone.cp; } },
-    { k: 'Step 3 · Huddle', t: 'Open **Focus names**, **Find New People to Teach** and **Missionary Referrals**, and tap **Mark section done** on each.', target: ['[data-action="step-done"]', '#steps-this'], done: function () { return STEPS.every(function (x) { return state.stepsDone[x.id]; }); } },
+    { k: 'Step 3 · Covenant Path Report', t: 'Tap **Done**, then **Mark done**. Tip 👆 not sure what to plan? Tap **How can we help?** under a list’s name.', target: ['#person-view .person-done', '[data-action="step-done"]'], done: function () { return !!state.stepsDone.cp; } },
+    { k: 'Step 3 · Huddle', t: 'Open **Focus names**, **Find New People to Teach** and **Missionary Referrals**, and tap **Mark done** on each.', target: ['[data-action="step-done"]', '#steps-this'], done: function () { return STEPS.every(function (x) { return state.stepsDone[x.id]; }); } },
     { k: 'Step 4 · After the huddle', t: 'All five sections are done, so Step 3 is too. Tap **Home** at the bottom, then **Step 4 · After the huddle**.', target: ['.nav-home:not(.is-here)', '#after-box'], done: function () { return view === 'af' || state.verified.after; } },
-    { k: 'Step 4 · After the huddle', t: 'This page lists what happened for each person. Update the Covenant Path Report in Member Tools to match, then tap **It’s all updated · Mark done**.', target: '#after-done-btn', done: function () { return !!state.verified.after; } },
+    { k: 'Step 4 · After the huddle', t: 'This page lists what happened for each person. Update the Covenant Path Report in Member Tools to match, then tap **Mark done**. Anyone marked **Changed** has updates since Step 1.', target: '#after-done-btn', done: function () { return !!state.verified.after; } },
     { k: 'Send', t: 'All four steps have green checks. Tap **Send**, then **Share PDF**, and send the sample to yourself.', target: '.nav-send', done: function () { return coachFlag('sent'); } },
     { k: 'Hand off', t: 'When someone else will conduct, you hand the huddle off. Try it: tap **Hand off**, then **Send a handoff**, and text it to yourself.', target: '.btn-handoff', done: function () { return coachFlag('handoff'); }, skip: true },
     { k: 'All done', t: 'You’ve practiced a whole week. Tap **Finish** to remove the sample names; anything you had before comes back as it was.', end: true }
@@ -3556,13 +3582,13 @@
   var isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   var isAndroid = /Android/i.test(navigator.userAgent);
 
-  /* ---------- How to use ---------- */
+  /* ---------- Help & training ---------- */
   // Flags remember only that someone has seen a message on this device; no agenda data.
   var HELP_KEY = 'huddle-help-seen', NAMES_HINT_KEY = 'huddle-names-hint-seen';
   function readFlag(k) { try { var s = getStore('localStorage'); return !!(s && s.getItem(k)); } catch (e) { return false; } }
   function writeFlag(k) { try { var s = getStore('localStorage'); if (s) s.setItem(k, '1'); } catch (e) { /* ignore */ } }
   function openHelp() {
-    // How to use always opens as the short list of steps. Adding Huddle to the Home Screen is done once, so it
+    // Help & training always opens as the short list of steps. Adding Huddle to the Home Screen is done once, so it
     // sits apart from the weekly steps: in a phone's browser it starts open, since that is the thing to do next,
     // and from the Home Screen app it says it's already done.
     Array.prototype.forEach.call(document.querySelectorAll('#help-sheet details'), function (d) { d.open = false; });
@@ -3570,10 +3596,14 @@
     if (install && (isIOS || isAndroid) && !installed) install.open = true;
     var installNote = $('#help-install-status');
     if (installNote) installNote.textContent = installed ? 'Already done on this phone' : 'Do this once, before you start';
-    var wardNote = $('#help-ward-status'), wn = str(state.ward).trim();
-    if (wardNote) wardNote.textContent = wn ? 'Done: ' + wn : 'It goes on the PDF';
+    markTheme(); $('#more-load-row').hidden = !!(state.loaded && state.loaded.practice); // a practice week has no PDF to load
     openOverlay('#help-sheet', '#help-title');
     var sheet = $('#help-sheet .sheet'); if (sheet) sheet.scrollTop = 0;
+  }
+  // Settings → Appearance: Automatic follows the phone; Light or Dark stays as chosen on this phone (theme.js)
+  function markTheme() {
+    var cur = window.huddleTheme ? window.huddleTheme.get() : 'auto';
+    Array.prototype.forEach.call(document.querySelectorAll('[data-action="theme"]'), function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-a') === cur)); });
   }
   function closeHelp() {
     writeFlag(HELP_KEY);
@@ -4009,7 +4039,7 @@
     listAgendas();
 
     // Instructions: open on the first visit on this device, or when the link ends in #help.
-    // First visit on a device: in a phone's browser, How to use opens (it starts with Add to Home Screen).
+    // First visit on a device: in a phone’s browser, Help & training opens (it starts with Add to Home Screen).
     // Everywhere else, including the Home Screen app, the guided tour starts once.
     if (location.hash === '#help') openHelp();
     else if (location.hash === '#tour') startPractice();

@@ -1,7 +1,7 @@
 [
  {
   "kicker": "Huddle",
-  "title": "Ward Mission Leader Process",
+  "title": "Weekly Ward Mission Process",
   "body": "The weekly missionary coordination meeting, step by step. Each week, ward leaders and missionaries counsel together to help each person take the next step on the covenant path. Huddle keeps that plan in one place, on your phone.",
   "color": "#2F5DA6",
   "img": "01.jpg"
@@ -37,7 +37,7 @@
  {
   "kicker": "Step 1 · Before ward council",
   "title": "Mark it done",
-  "body": "When the names match the report, tap All up to date · Mark done.",
+  "body": "When the names match the report, tap Mark done. It stays at the bottom of the screen.",
   "color": "#4F5A8C",
   "img": "06.jpg"
  },
@@ -191,7 +191,7 @@
  {
   "kicker": "Step 4 · After the huddle",
   "title": "Mark it done",
-  "body": "Tap It’s all updated · Mark done. Then you can send.",
+  "body": "Anyone marked Changed has updates since step 1. Update the report, then tap Mark done.",
   "color": "#6E2F7E",
   "img": "28.jpg"
  },

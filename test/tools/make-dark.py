@@ -5,8 +5,10 @@
 
 It copies every declaration in styles.css that names a color, in the same order and inside the same @media
 blocks, and turns light surfaces dark and dark text light; colors in between (the step colors, buttons) stay.
-The page loads dark.css after styles.css, and every rule in it sits inside @media (prefers-color-scheme: dark),
-so it does nothing when the phone is in light mode. Hand-tuned dark rules go in the TUNED block at the end.
+The page loads dark.css after styles.css. Every rule in it applies only while the page has the class `theme-dark`
+(theme.js sets it before the page draws: from Settings → Appearance, or from the phone when that is Automatic).
+The prefix is wrapped in :where(), so it adds nothing to a rule's weight and the rules keep the same order and
+strength as in styles.css. Hand-tuned dark rules go in the TUNED block at the end.
 """
 import colorsys, os, re
 
@@ -38,6 +40,8 @@ ROOT_VARS = """  --ink: #E8ECF3;
 TUNED = """
   .actionbar, body[data-view="start"] .actionbar { background: rgba(26, 30, 38, .92); border-color: rgba(255, 255, 255, .08); }
   .nav-home { border-color: #1A1E26; }
+  .toast { background: #2C3340; color: #FFFFFF; }
+  .avatar-pencil { border-color: #0F1218; }
   .ss-bar { background: #2C3340; }
   .slides-steps li { background: #222833; color: #7D889B; }
   .slide-img { border-radius: 14px; }
@@ -131,7 +135,27 @@ def blocks(s):
         i = k
 
 
-def walk(css, indent='  '):
+PRE = ':where(:root.theme-dark) '
+
+
+def scope(selectors):
+    """Prefixes each selector in a list so it applies only in dark mode."""
+    parts, depth, cur = [], 0, ''
+    for ch in selectors:
+        if ch in '([': depth += 1
+        if ch in ')]': depth -= 1
+        if ch == ',' and depth == 0: parts.append(cur); cur = ''
+        else: cur += ch
+    parts.append(cur)
+    out = []
+    for p in (x.strip() for x in parts):
+        if p.startswith(':root'): out.append(':root.theme-dark' + p[5:])
+        elif p.startswith('html'): out.append('html.theme-dark' + p[4:])
+        else: out.append(PRE + p)
+    return ', '.join(out)
+
+
+def walk(css, indent=''):
     lines = []
     for pre, body in blocks(css):
         if pre.startswith('@keyframes') or pre.startswith('@font-face') or 'print' in pre: continue
@@ -141,7 +165,7 @@ def walk(css, indent='  '):
             continue
         if pre.startswith(':root') and pre.strip() == ':root': continue
         decls = convert_decls(body)
-        if decls: lines.append(f'{indent}{pre} {{ ' + '; '.join(decls) + '; }')
+        if decls: lines.append(f'{indent}{scope(pre)} {{ ' + '; '.join(decls) + '; }')
     return lines
 
 
@@ -150,8 +174,8 @@ def main():
     rules = walk(css)
     text = ('/* Huddle in dark mode. Made by test/tools/make-dark.py from styles.css: do not edit by hand,\n'
             '   except the hand-tuned rules, which are kept in that script. */\n'
-            '@media (prefers-color-scheme: dark) {\n  :root {\n' + ROOT_VARS + '\n  }\n'
-            + '\n'.join(rules) + '\n  /* hand-tuned */' + TUNED + '}\n')
+            ':root.theme-dark {\n' + ROOT_VARS + '\n}\n'
+            + '\n'.join(rules) + '\n/* hand-tuned */\n' + '\n'.join(scope(r.split('{')[0]) + ' {' + r.split('{', 1)[1] for r in TUNED.strip().splitlines()) + '\n')
     open(OUT, 'w', encoding='utf-8').write(text)
     print(f'Wrote dark.css: {len(rules)} rules.')
 

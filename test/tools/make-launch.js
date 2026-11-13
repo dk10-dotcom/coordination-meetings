@@ -16,7 +16,7 @@ const SIZES = [[320, 568, 2], [375, 667, 2], [414, 736, 3], [375, 812, 3], [414,
     await p.setContent(`<!doctype html><html><body style="margin:0;height:100vh;background:#1B2B4B;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;font-family:-apple-system,'Helvetica Neue',Arial,sans-serif">
       <img src="${icon}" style="width:112px;height:112px;border-radius:26px;box-shadow:0 10px 30px rgba(0,0,0,.35)">
       <div style="color:#FFFFFF;font-size:26px;font-weight:700;letter-spacing:.01em">Huddle</div>
-      <div style="color:#AFC0DE;font-size:14px;font-weight:600">Ward Mission Leader Process</div></body></html>`);
+      <div style="color:#AFC0DE;font-size:14px;font-weight:600">Weekly Ward Mission Process</div></body></html>`);
     const file = `launch-${w * d}x${hgt * d}.png`;
     await p.screenshot({ path: path.join(OUT, file) }); await p.close();
     lines.push(`<link rel="apple-touch-startup-image" media="(device-width: ${w}px) and (device-height: ${hgt}px) and (-webkit-device-pixel-ratio: ${d}) and (orientation: portrait)" href="icons/launch/${file}">`);

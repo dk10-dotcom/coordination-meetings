@@ -1,7 +1,7 @@
-# Huddle: the Ward Mission Leader Process app (weekly coordination meeting agenda)
+# Huddle: the Weekly Ward Mission Process app (weekly coordination meeting agenda)
 
 The app's name is **Huddle** (Home Screen icon, browser tab, and small letters above the opening
-screen's title, which stays "Ward Mission Leader Process").
+screen's title, which stays "Weekly Ward Mission Process").
 
 A phone-first web app that a ward mission leader uses every week. It is live at
 https://dk10-dotcom.github.io/coordination-meetings/ and used by nine wards.
@@ -15,15 +15,15 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
   The page's security settings block outside connections; keep it that way.
 - **The PDF is the only thing that leaves the phone,** and only by email or text. Keep this wording
   wherever sharing is offered: "Only share via email or text message. Do not share through any other app."
-- Keep this warning visible in Ward council (once, under its two lists), How to use and the tour:
-  "Never add confidential information to this huddle report."
-- Keep both lines in the footer: "Not affiliated with The Church of Jesus Christ of Latter-day Saints."
-  and "Darren Kirkham · darrenkirkham@mac.com".
+- Keep this warning visible right under the step card in Ward council and the Huddle, in Help & training
+  and in the tour: "Never add confidential information to this huddle report."
+- Keep the disclaimer on the opening screen: "Not an official app of The Church of Jesus Christ of
+  Latter-day Saints." Keep "Made by Darren Kirkham · darrenkirkham@mac.com" at the end of Help & training.
 - **Fake names only** in samples, tests, screenshots and commit messages
   (Daniel Rivera, Olivia Chen, Grace Thompson, Marcus Bell, Marcus Hill, Emma Walsh, Samuel Ortiz).
-- **Whenever behavior changes, update How to use (`index.html`) and the guided tour (the `COACH` steps in `app.js`) in the same change.**
+- **Whenever behavior changes, update Help & training (`index.html`) and the guided tour (the `COACH` steps in `app.js`) in the same change.**
   Update `docs/SPEC.md` and the tests too.
-- **Keep How to use short.** It is a list of steps that open when tapped, at most five short lines
+- **Keep Help & training short.** It is a list of steps that open when tapped, at most five short lines
   each, saying what to tap. Updating it usually means changing a line, not adding one: leave out
   anything the screen already explains. `test/help.js` fails if it grows past 900 words.
 - **Name the source of anything quoted or adapted** from *Preach My Gospel*, the General Handbook or
@@ -34,7 +34,7 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
   so an older PDF or link still loads.
 - **The training slides are made from the app itself.** When the look or the steps change, run
   `node test/tools/slides/make.js` (the words are in `test/tools/slides/scenes.js`) and look through them in
-  How to use → Training slides. People tap Next when ready; don't make them advance on their own.
+  Help & training → Training slides. People tap Next when ready; don't make them advance on their own.
 - **The PDF is read on phones.** Its pages are phone-shaped (360 × 780 points) with one short block
   per person: no tables, no small print. When its look changes, remake the sample agenda pictures
   with `node test/tools/make-sample.js` and look at them.
@@ -54,10 +54,11 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
 
 | Path | What it is |
 | --- | --- |
-| `index.html` | The page: every screen, sheet and the How to use text |
+| `index.html` | The page: every screen, sheet and the Help & training text |
 | `app.js` | All behavior and the PDF builder (one file, plain JavaScript, no build step) |
 | `styles.css` | Look and layout |
-| `dark.css` | Dark mode, made from `styles.css` by `test/tools/make-dark.py` |
+| `dark.css` | Dark mode, made from `styles.css` by `test/tools/make-dark.py`; applies while the page has `theme-dark` |
+| `theme.js` | Sets `theme-dark` before the page draws (Settings → Appearance: Automatic, Light or Dark) |
 | `sw.js` | Offline support. `CACHE` must change on every release |
 | `vendor/pdf-lib.min.js` | PDF library |
 | `sample/`, `media/`, `icons/`, `manifest.webmanifest` | Sample huddle report images, training slides (`media/slides/`), app icon |
@@ -88,7 +89,7 @@ Next ordinance is a menu and When is a date (`datesmenu.js`). Older tests type w
 choice (`selectOption`) and type dates as `YYYY-MM-DD`.
 The guided tour is a practice week (`guided.js`): a black card at the bottom gives one task at a time (the `COACH`
 list in `app.js`), rings what to tap, and moves on once it's done; each step ends with that step's green check.
-The bottom bar (Hand off, a round Home in the middle, Send) floats on every screen; on the opening screen Home scrolls back to the top. Each training slide shows which part of the week it is in (1-4 and Week). The bar stays above the card. The old passive tour (`tour.js`) is retired. a sample Send (stamped SAMPLE, no data inside, changes nothing) and a
+The bottom bar (Hand off, a round Home in the middle, Send) floats on every screen. Mark done (step 1, each Huddle section, step 4) is pinned just above it, green with a check once done, tapped again to undo; on the opening screen Home scrolls back to the top. Each training slide shows which part of the week it is in (1-4 and Week). The bar stays above the card. The old passive tour (`tour.js`) is retired. a sample Send (stamped SAMPLE, no data inside, changes nothing) and a
 practice handoff are allowed; nothing from a practice may ever load over or replace a real huddle.
 `howhelp.js` tests the How can we help? panels, the list names' bands and the source links.
 `lively.js` tests the header cards, icons, initials and the Sent celebration. Keep color and motion
@@ -111,7 +112,7 @@ within those pieces; don't add a "needs attention" list (the user decided it rep
 
 ## Open items
 
-- First run: a phone browser opens How to use (with Add to Home Screen first); the Home Screen app
+- First run: a phone browser opens Help & training (with Add to Home Screen first); the Home Screen app
   then starts the tour once. These could be combined into one short welcome.
 - `test/obsolete/` holds tests for removed features (saved agendas, Send & Clear). Do not revive them.
 - `app.js` still carries unused code from saved agendas (`open-agenda`, `share-agenda`, `pick-agenda`,

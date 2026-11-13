@@ -59,9 +59,9 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     await p.click('[data-action="open-step"][data-a="cp"]'); await p.click('[data-action="step-done"]'); await p.waitForTimeout(200);
     if (await p.isVisible('#confirm-sheet')) { await p.click('#confirm-primary'); await p.waitForTimeout(200); }
     await p.click('[data-action="open-step"][data-a="cp"]');
-    ok(await vis('.step-undone') && (await p.textContent('#step-done-label')).includes('Section done'), 'a done section offers Mark as not done');
-    await p.click('.step-undone'); await p.waitForTimeout(150);
-    ok(!(await vis('.step-undone')) && (await p.textContent('#step-done-label')).includes('Mark section done'), 'Mark as not done clears it');
+    ok((await p.getAttribute('#step-done-btn', 'class')).includes('is-done') && (await p.textContent('#step-done-label')) === 'Done', 'a done section shows a green Done');
+    await p.click('#step-done-btn'); await p.waitForTimeout(150);
+    ok(!(await p.getAttribute('#step-done-btn', 'class')).includes('is-done') && (await p.textContent('#step-done-label')) === 'Mark done', 'tapping the green Done takes the mark off');
     await p.click('[data-action="step-done"]'); await p.waitForTimeout(200); if (await p.isVisible('#confirm-sheet')) { await p.click('#confirm-primary'); await p.waitForTimeout(200); }
     ok(await p.locator('[data-a="cp"].step-row.done').count() === 1 && await p.locator('.step-row.done').count() === 1, 'section gets a green check');
     // Next step link
@@ -73,7 +73,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     await p.click('#step-next');
     ok(await vis('[data-step="mr"]') && !(await p.isVisible('#step-next')) && (await p.textContent('#step-title')) === 'Missionary Referrals', 'went to the last section; no next link');
     await p.click('#step-prev');
-    await p.locator('#step-foot').screenshot({ path: `${OUT}/${tag}-foot.png` });
+    await p.locator('#step-done-btn').screenshot({ path: `${OUT}/${tag}-foot.png` });
     await p.click('#step-prev');
     ok(await vis('[data-step="tn"]'), 'Back goes to the previous step');
     await p.click('#step-next');
