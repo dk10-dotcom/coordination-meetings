@@ -134,6 +134,13 @@ step colors, buttons and header cards keep their colors. It comes from `dark.css
 `python3 test/tools/make-dark.py` makes from `styles.css`; run it after changing colors in `styles.css`.
 The PDF, the sample report and the training slides stay light.
 
+**A person's screen is flat:** each part (what ward council decided, the Covenant Path Report, the
+Huddle's how and when) is one white panel on the gray background, with color only in its small label;
+fields are light gray boxes with no border. The red Temple attendance box keeps its color.
+
+**Nothing is smaller than 13 pt:** the small capital labels ("STEP 1", "UP NEXT"), tags, the bottom
+bar's words and the footer included.
+
 **Launch screen.** Opening Huddle from the Home Screen shows the app icon on navy with "Huddle" and
 "Ward Mission Leader Process" under it (`icons/launch/`, made by `node test/tools/make-launch.js`),
 instead of a white flash.
@@ -275,7 +282,7 @@ status is orange is still missing something.
 ### Huddle Attendees
 
 Ward name (remembered on the phone), who is conducting (Ward mission leader, Elders Quorum, or
-Other with a name), and attendance. Attendees, with the two youth roles first: Priests quorum
+Other with a name; a short list with a check beside the one chosen, like a choice in iPhone Settings), and attendance. Attendees, with the two youth roles first: Priests quorum
 assistant, Gatherers of Light rep, Relief Society, Elders Quorum, Primary presidency, Ward
 missionaries, Full-time missionaries, Ward mission leader, TFH leader, TFH consultants, High
 Councilor. Until attendance is taken the summary says so in orange.

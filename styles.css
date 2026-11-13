@@ -1364,3 +1364,25 @@ body { padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
 .date-field.date-empty input[type="date"]::-webkit-datetime-edit { color: transparent; }
 .date-field.date-empty input[type="date"]:focus::-webkit-datetime-edit { color: inherit; }
 .date-field.date-empty input[type="date"]:focus + .date-ph { display: none; }
+
+/* Who's conducting: a short list with a check by the one chosen, like a choice in iPhone Settings */
+.seg.conduct-seg { grid-template-columns: minmax(0, 1fr); gap: 0; border: 1px solid var(--card-line); border-radius: 12px; overflow: hidden; background: var(--card); }
+.seg.conduct-seg button { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 46px; padding: 0 16px;
+  border: none; border-bottom: 1px solid var(--card-line); border-radius: 0; background: var(--card); color: var(--ink); text-align: left; font-size: 16px; font-weight: 600; }
+.seg.conduct-seg button:last-child { border-bottom: none; }
+.seg.conduct-seg button[aria-pressed="true"] { background: var(--card); color: var(--ink); }
+.seg.conduct-seg button[aria-pressed="true"]::after { content: ''; flex: none; width: 7px; height: 13px; margin: -3px 4px 0 0; border: solid var(--accent); border-width: 0 2.6px 2.6px 0; transform: rotate(45deg); }
+
+/* A person's screen: flat white groups on the gray background, color only in each group's small label */
+#person-view .card { background: transparent; border: none; box-shadow: none; padding: 0; }
+#person-view .wc-summary, #person-view .card-zone { background: var(--card); border: none; border-radius: 12px; box-shadow: none; padding: 14px 16px; margin-top: 14px; }
+#person-view .person-head { background: transparent; border-left: none; padding: 2px 2px 0; }
+#person-view .person-head .avatar { background: var(--card); }
+#person-view .field input, #person-view .field textarea, #person-view .field select { background: var(--ground); border-color: transparent; }
+#person-view .sac-toggle { background: var(--ground); border-color: transparent; }
+
+/* Nothing smaller than 13 pt: the small capitals labels, tags, the bottom bar's words and the footer */
+.up-next, .cpr-step-k, .door-kicker, .hero-kicker, .fold-tag, .zone-label, .md-kicker, .credit, .credit a,
+.actionbar-row .nav-side, .actionbar-row .nav-side span, .list-count, .row-tag { font-size: 13px; }
+#person-view .zone-label, .person-hd .zone-label { font-size: 13px; }
+.tl-step .cpr-step-k, .tl-step .door-kicker, .tl-step.tl-next .up-next { font-size: 13px; }
