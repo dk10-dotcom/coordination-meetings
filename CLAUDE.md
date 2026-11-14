@@ -35,7 +35,7 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
   so an older PDF or link still loads.
 - **The training slides are made from the app itself.** When the look or the steps change, run
   `node test/tools/slides/make.js` (the words are in `test/tools/slides/scenes.js`) and look through them in
-  Help & training → Training slides. People tap Next when ready; don't make them advance on their own.
+  Help & training → Step-by-step guide. People tap Next when ready; don't make them advance on their own.
 - **The PDF is read on phones.** Its pages are phone-shaped (360 × 780 points) with one short block
   per person: no tables, no small print. When its look changes, remake the sample agenda pictures
   with `node test/tools/make-sample.js` and look at them.

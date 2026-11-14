@@ -508,7 +508,7 @@ link clears both from the address bar.
   their step cards, and Privacy and security says it here):
   - **Start here:** Add Huddle to your Home Screen ("Do this once, before you start", or "Already done on
     this phone" when the app is running from the Home Screen); Take the guided tour ("Practice a week with
-    sample names"); Training slides ("At your own pace"); and See a sample huddle report. None has a step
+    sample names"); Step-by-step guide ("Read through at your own pace"; the training slides); and See a sample huddle report. None has a step
     number, because they are not part of the week. (The ward is set from the opening screen's header.)
   - **Every week:** Before ward council, Ward council, Huddle, After the huddle (numbered 1 to 4, the four
     steps on the opening screen under the same names), then During the week, marked with a calendar instead
@@ -530,7 +530,7 @@ link clears both from the address bar.
   At the end: "Not an official app of The Church of Jesus Christ of Latter-day Saints." and "Made by
   Darren Kirkham · darrenkirkham@mac.com" (an email link).
 
-  **Training slides** open full screen, one at a time: a count ("3 of 33"); five pills showing
+  **The Step-by-step guide** (the training slides) opens full screen, one at a time: a count ("3 of 33"); five pills showing
     where the slide is in the week (1, 2, 3, 4 and Week: the current one filled in its color, earlier ones pale;
     Send belongs to step 4); a solid band in that color naming the part ("Step 3 · The Huddle", with the section,
     such as "New members", on a small second line); a short title and a few sentences, then a picture of the app with a ring
