@@ -59,7 +59,7 @@ const ok = (l, c) => console.log((c ? 'PASS ' : 'FAIL ') + l);
   ok('the weekly steps are numbered 1 to 4, then a calendar for During the week', (await p.$$eval('#help-sheet .help-num', n => n.map(x => x.textContent).join(''))) === '1234' && (await p.locator('#help-sheet .help-num.help-week svg').count()) === 1);
   ok('weekly step names, in order', (await p.$$eval('#help-sheet .help-list >> nth=1 >> .step-title', t => t.map(x => x.textContent).join('|'))) === 'Before ward council|Ward council|Huddle|After the huddle|During the week');
   ok('in a phone browser only the first-time step (Add to Home Screen) starts open', (await openIds(p)) === 'help-install');
-  ok('the confidentiality warning shows without opening anything', await p.isVisible('#help-sheet .help-warning') && (await p.textContent('#help-sheet .help-warning strong')) === 'Never add confidential information to this huddle report.');
+  ok('no confidential banner here (Ward council and the Huddle carry it; Privacy and security says it)', await p.locator('#help-sheet .help-warning').count() === 0 && (await p.textContent('#help-privacy .help-body')).includes('Never enter confidential or sensitive information.'));
   ok('a closed step shows its one-line summary, not its text', await p.isVisible('#help-sheet .step-status:has-text("Update the report, then share the PDF")') && await p.isHidden('#help-sheet :text("Update the report, then tap")'));
   await p.click('#help-sheet details:has-text("Update the report, then share the PDF") summary');
   ok('tapping a step opens it in place', await p.isVisible('#help-sheet :text("Update the report, then tap")'));

@@ -15,8 +15,9 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
   The page's security settings block outside connections; keep it that way.
 - **The PDF is the only thing that leaves the phone,** and only by email or text. Keep this wording
   wherever sharing is offered: "Only share via email or text message. Do not share through any other app."
-- Keep this warning visible right under the step card in Ward council and the Huddle, in Help & training
-  and in the tour: "Never add confidential information to this huddle report."
+- Keep this warning visible right under the step card in Ward council and the Huddle, and in the tour:
+  "Never add confidential information to this huddle report." (Help & training says it in Privacy and
+  security; the user decided it needs no banner there.)
 - Keep the disclaimer on the opening screen: "Not an official app of The Church of Jesus Christ of
   Latter-day Saints." Keep "Made by Darren Kirkham · darrenkirkham@mac.com" at the end of Help & training.
 - **Fake names only** in samples, tests, screenshots and commit messages

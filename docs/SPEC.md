@@ -500,9 +500,9 @@ link clears both from the address bar.
 ## Help built into the app
 
 - **Help & training** (the button at the top of the opening screen) is a short list, not a page of text. Its
-  title and **Close** stay at the top while it scrolls (swiping down closes it too). It has an intro line,
-  the warning "Never add confidential information to this huddle report." (always showing), and five groups
-  of rows, in this order:
+  title and **Close** stay at the top while it scrolls (swiping down closes it too). It has an intro line
+  and five groups of rows, in this order (no confidential banner: Ward council and the Huddle carry it under
+  their step cards, and Privacy and security says it here):
   - **Start here:** Add Huddle to your Home Screen ("Do this once, before you start", or "Already done on
     this phone" when the app is running from the Home Screen); Take the guided tour ("Practice a week with
     sample names"); Training slides ("At your own pace"); and See a sample huddle report. None has a step
