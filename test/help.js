@@ -73,7 +73,7 @@ const ok = (l, c) => console.log((c ? 'PASS ' : 'FAIL ') + l);
   // Training slides: one at a time, Next when ready, nothing moves on by itself
   await p.click('#help-slides-row'); await p.waitForSelector('#slides-sheet:not([hidden])'); await p.waitForFunction(() => /of/.test(document.querySelector('#slides-count').textContent));
   const total = +(await p.textContent('#slides-count')).split(' of ')[1];
-  ok('the training slides open on the first slide, Back off', (await p.textContent('#slides-count')).startsWith('1 of ') && total > 20 && await p.isDisabled('#slide-prev') && (await p.textContent('#slide-title')) === 'Weekly Ward Mission Process');
+  ok('the training slides open on the first slide, Back off', (await p.textContent('#slides-count')).startsWith('1 of ') && total > 20 && await p.isDisabled('#slide-prev') && (await p.textContent('#slide-title')) === 'One by One');
   await p.waitForTimeout(2500);
   ok('they wait: nothing moves on by itself', (await p.textContent('#slides-count')).startsWith('1 of '));
   await p.click('#slide-next'); await p.waitForTimeout(200);

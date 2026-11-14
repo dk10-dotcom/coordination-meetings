@@ -1,7 +1,8 @@
-# Huddle: the Weekly Ward Mission Process app (weekly coordination meeting agenda)
+# Huddle: the One by One app (weekly coordination meeting agenda)
 
 The app's name is **Huddle** (Home Screen icon, browser tab, and small letters above the opening
-screen's title, which stays "Weekly Ward Mission Process").
+screen's title, which is "One by One", with "Joyfully gathering Israel one by one in Christ" under it.
+The user decided that line needs no source line: it is the Area Presidency's directive, already known in the stake.)
 
 A phone-first web app that a ward mission leader uses every week. It is live at
 https://dk10-dotcom.github.io/coordination-meetings/ and used by nine wards.

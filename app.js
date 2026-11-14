@@ -1,4 +1,4 @@
-/* Huddle: the Weekly Ward Mission Process app (the weekly coordination meeting agenda)
+/* Huddle: the One by One app (the weekly coordination meeting agenda)
  * Everything runs on the device. Nothing is sent to a server.
  * - The agenda on this phone (localStorage) is always the next huddle. Send shares the PDF and closes
  *   the huddle: its actions move into Return and Report for the next one, names and needs stay, and one

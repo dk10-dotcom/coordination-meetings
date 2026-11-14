@@ -2,7 +2,7 @@
 
 The app is named **Huddle**. That is the name under its Home Screen icon, in the browser tab and in
 small letters above the opening screen's title. (The third step is also called the Huddle; the
-opening screen's large title stays "Weekly Ward Mission Process" so the two are not confused.)
+opening screen's large title is "One by One" so the two are not confused.)
 
 This describes the behavior of the app as it is today. The code is the final word:
 `app.js` (behavior and PDF), `index.html` (screens and Help & training). The guided tour's steps are the `COACH` list in `app.js`.
@@ -145,7 +145,7 @@ line saying what to do, and progress) in less height, so the first rows show wit
 bar's words and the footer included.
 
 **Launch screen.** Opening Huddle from the Home Screen shows the app icon on navy with "Huddle" and
-"Weekly Ward Mission Process" under it (`icons/launch/`, made by `node test/tools/make-launch.js`),
+"Joyfully gathering Israel one by one in Christ" under it (`icons/launch/`, made by `node test/tools/make-launch.js`),
 instead of a white flash.
 
 **A list's band and its names are one card:** the band is the card's top and the names hang right under
@@ -170,8 +170,9 @@ done is **Up next**: outlined in its color, a little larger, with an "Up next" t
 (Hand off, Home, Send) is a frosted pill floating at the bottom of every screen; Send is pale until After the huddle
 is done, then solid blue.
 
-Title: "Weekly Ward Mission Process" with the app's name, Huddle, in small letters above it, and
-**Help & training** beside it.
+Title: "One by One", with the app's name, Huddle, in small letters above it and, under it in smaller
+type, "Joyfully gathering Israel one by one in Christ" (the Area Presidency's directive; no source line, by the user's
+decision, since it is already established in the stake). **Help & training** sits beside it.
 
 From top to bottom:
 

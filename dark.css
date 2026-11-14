@@ -244,6 +244,7 @@
 :where(:root.theme-dark) .after-changed { background: #392F1B; color: #F2D9A5; }
 :where(:root.theme-dark) .after-fact.is-upd { background: #332B18; }
 :where(:root.theme-dark) .after-upd { background: #413820; color: #F2D9A5; }
+:where(:root.theme-dark) body[data-view="start"] .title-text .title-sub { color: #FFFFFF; }
 /* hand-tuned */
 :where(:root.theme-dark) .actionbar, :where(:root.theme-dark) body[data-view="start"] .actionbar { background: rgba(26, 30, 38, .92); border-color: rgba(255, 255, 255, .08); }
 :where(:root.theme-dark) .nav-home { border-color: #1A1E26; }

@@ -1450,3 +1450,6 @@ body.typing .mark-done, body.coaching .mark-done { position: static; box-shadow:
 /* Messages pop up above the bottom bar and above a pinned Done or Mark done button */
 .toast { bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + 170px); }
 @media (max-width: 359px) { .appearance-seg button { padding: 0 4px; font-size: 14px; } }
+/* Under the opening screen's title: the Area Presidency's directive, in smaller type */
+.title-sub { margin: 3px 0 0; font-size: 15px; line-height: 1.3; font-weight: 600; font-style: italic; color: var(--muted); }
+body[data-view="start"] .title-text .title-sub { color: #FFFFFF; opacity: .88; }
