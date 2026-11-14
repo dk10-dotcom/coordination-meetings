@@ -1422,8 +1422,13 @@ body.typing .mark-done, body.coaching .mark-done { position: static; box-shadow:
 .step-foot .step-nav { margin-top: 6px; }
 
 /* A person's name header is a button: tap it (or the pencil on the initials) to edit the name */
-button.person-head { width: 100%; border: none; font: inherit; text-align: left; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-button.person-head:active { opacity: .75; }
+/* The name is edited right in the header: tapping it swaps the name for a text box in the same place */
+.person-head[data-action] { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.person-head-input { display: none; flex: 1; min-width: 0; min-height: 46px; padding: 0 12px; border: 1.5px solid var(--accent); border-radius: 10px;
+  background: var(--card); color: var(--ink); font: inherit; font-size: 20px; font-weight: 800; -webkit-appearance: none; appearance: none; }
+.person-head.editing .person-head-text { display: none; }
+.person-head.editing .person-head-input { display: block; }
+.person-head.editing .avatar-pencil { display: none; }
 .person-head .avatar { position: relative; overflow: visible; }
 .avatar-pencil { position: absolute; right: -3px; bottom: -3px; display: flex; align-items: center; justify-content: center; width: 20px; height: 20px;
   border-radius: 50%; background: var(--accent); color: #FFFFFF; border: 2px solid var(--ground); }

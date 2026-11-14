@@ -2,6 +2,7 @@
 // became a menu and a date. A word typed into the menu becomes one more choice (the app keeps such a choice the
 // same way); a word typed into a date box is stored as typed (the app keeps a When that isn't a date the same way).
 // test/datesmenu.js tests the menu and the date boxes the way people use them.
+// It also taps a person's header before typing their name, since the name box lives there now.
 const { chromium } = require('playwright');
 let done = false;
 module.exports = async function patch() {
@@ -17,8 +18,11 @@ module.exports = async function patch() {
     el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true }));
   }, value);
   const special = loc => loc.evaluate(el => el.tagName === 'SELECT' || (el.tagName === 'INPUT' && el.type === 'date' && /\.when$/.test(el.getAttribute('data-bind') || ''))).catch(() => false);
+  // A person's name is edited in the header at the top of their screen: the box shows once the header is tapped.
+  const openHeader = loc => loc.evaluate(el => { if (el.classList.contains('person-head-input') && !el.offsetParent) { const hd = el.closest('.person-head'); if (hd) hd.click(); } }).catch(() => {});
   const lf = Locator.fill;
   Locator.fill = async function (value, opts) {
+    await openHeader(this.first());
     if (!/^\d{4}-\d{2}-\d{2}$/.test(value) && await special(this.first())) return set(this.first(), value);
     return lf.call(this, value, opts);
   };
@@ -27,6 +31,7 @@ module.exports = async function patch() {
     // The ward name lives in a box that opens from the opening screen; older tests type it in directly.
     if ((sel === '#ward' || sel === '[data-bind="ward"]') && !(await this.isVisible('#ward').catch(() => false))) return this.locator('#ward').evaluate((el, v) => { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); }, value);
     const loc = this.locator(sel).first();
+    await openHeader(loc);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) { await loc.waitFor({ state: 'attached', timeout: (opts && opts.timeout) || 30000 }).catch(() => {}); if (await special(loc)) return set(loc, value); }
     return pf.call(this, sel, value, opts);
   };

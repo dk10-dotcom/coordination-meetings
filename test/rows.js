@@ -143,7 +143,7 @@ const seed = () => ({
     ok((await refNames()).join('|') === 'Marcus Bell|Samuel Ortiz' && (await refSubs()).join('|') === 'Referred by Olivia Chen · Friend from work|No details yet' && (await p.textContent('#mr-list .list-count')) === '2 referrals', tag + ': referrals saved with the huddle are listed after the app is reopened: ' + (await refSubs()).join('|'));
     ok(await p.locator('#mr-list input, #mr-list textarea').count() === 0 && await noOverflow(), tag + ': no fields are open in the referral list, and it fits the phone');
     await p.click(row('#mr-list', 'mr', 1)); await p.waitForSelector('#person-view:not([hidden])'); await p.waitForTimeout(250);
-    ok((await p.textContent('#step-title')) === 'Samuel Ortiz' && await p.locator('#person-card .ref-card [data-bind="referrals.1.name"]').count() === 1, tag + ': a referral opens on its own screen');
+    ok((await p.textContent('#step-title')) === 'Samuel Ortiz' && await p.locator('#person-card .person-head-input[data-bind="referrals.1.name"]').count() === 1, tag + ': a referral opens on its own screen');
     await p.click('#person-card .person-remove'); await p.waitForSelector('#confirm-sheet:not([hidden])');
     ok((await p.textContent('#confirm-title')).includes('Remove Samuel Ortiz?'), tag + ': removing a referral asks first');
     await p.click('#confirm-primary'); await p.waitForTimeout(450);

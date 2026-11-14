@@ -697,7 +697,7 @@
     if (r.g === 'nm') facts.push(['Baptized', bap || 'No date yet', !bap]);
     return h('div', { class: 'wc-summary' }, [
       h('div', { class: 'zone-label-row' }, [zoneLabel('wc', 'Ward Council · Who & What'),
-        h('button', { type: 'button', class: 'zone-toggle', 'data-action': 'wc-edit-toggle', 'aria-label': 'Edit the name, next ordinance and needs', 'aria-expanded': 'false', text: 'Edit' })])
+        h('button', { type: 'button', class: 'zone-toggle', 'data-action': 'wc-edit-toggle', 'aria-label': 'Edit the next ordinance and needs', 'aria-expanded': 'false', text: 'Edit' })])
     ].concat(facts.map(function (f) {
       return h('p', { class: 'after-fact' + (f[2] ? ' unset' : '') }, [h('span', { class: 'after-k', text: f[0] }), f[1]]);
     })));
@@ -706,10 +706,9 @@
     var g = r.g, isTn = g === 'tn', base = isTn ? 'tn.' + r.i + '.' : 'cp.' + g + '.' + r.i + '.';
     var named = !!str(a.name).trim(), top;
     if (personWcOpen) {
-      var tools = named ? h('button', { type: 'button', class: 'zone-toggle', 'data-action': 'wc-edit-toggle', 'aria-label': 'Hide the name, next ordinance and needs', 'aria-expanded': 'true', text: 'Hide' }) : null;
+      var tools = named ? h('button', { type: 'button', class: 'zone-toggle', 'data-action': 'wc-edit-toggle', 'aria-label': 'Hide the next ordinance and needs', 'aria-expanded': 'true', text: 'Hide' }) : null;
       top = h('div', { class: 'wc-edit' }, [
-        h('div', { class: 'card-head name-head' }, [h('div', { class: 'card-title' }, [avatar(), nameInput(base + 'name', isTn ? 'Focus name ' + (r.i + 1) : 'Name')])]),
-        // A new member's baptism date is ward council's; a scheduled baptism sits with Committed to baptism, below.
+        // (The name is edited in the header at the top of the screen.) A new member's baptism date is ward council's; a scheduled baptism sits with Committed to baptism, below.
         wcZone(base, tools, g === 'nm' ? 'Baptism date' : '', isTn ? 'e.g. A ride to the temple' : 'Tap their name in the Covenant Path Report to identify needs', isTn ? 'e.g. Sacrament' : '', FIXED_ORD[g])
       ]);
     } else top = wcSummary(r, a);
@@ -771,7 +770,6 @@
     var wc = h('div', { class: 'card-zone zone-wc-wrap' }, [
       zoneLabel('wc', 'Ward Council · Who & What'),
       h('div', { class: 'card-grid' }, [
-        field(isTn ? 'Focus name' : 'Name', base + 'name', { full: true, placeholder: isTn ? 'Focus name' : 'From the Covenant Path Report', cap: 'words' }),
         g === 'nm' ? field('Baptism date', base + 'bap', { type: 'date', full: true }) : null,
         FIXED_ORD[g] ? h('div', { class: 'field full' }, ['Next ordinance', h('p', { class: 'fixed-value', text: FIXED_ORD[g] })])
           : ordField('Next ordinance', base + 'ordinance', { full: true }),
@@ -797,7 +795,6 @@
       h('div', { class: 'card-zone zone-bw-wrap' }, [
         zoneLabel('bw', 'Covenant Path Report'),
         h('div', { class: 'card-grid' }, [
-          field('Name', base + 'name', { full: true, placeholder: 'From the Covenant Path Report', cap: 'words' }),
           g === 'nm' ? field('Baptism date', base + 'bap', { type: 'date', full: true }) : null,
           FIXED_ORD[g] ? h('div', { class: 'field full' }, ['Next ordinance', h('p', { class: 'fixed-value', text: FIXED_ORD[g] })])
             : ordField('Next ordinance', base + 'ordinance', { full: true }),
@@ -1054,10 +1051,10 @@
     return h('section', attrs, kids);
   }
   // A referral's fields: the same in the Huddle and in ward council.
-  function referralFields(i) {
+  function referralFields(i, nameInHeader) {
     var base = 'referrals.' + i + '.';
     return h('div', { class: 'card-grid' }, [
-      field('Name', base + 'name', { full: true, placeholder: 'Who is being referred', cap: 'words' }),
+      nameInHeader ? null : field('Name', base + 'name', { full: true, placeholder: 'Who is being referred', cap: 'words' }),
       field('Referred by', base + 'by', { full: true, placeholder: 'Who gave the referral', cap: 'words' }),
       field('Notes', base + 'notes', { full: true, multi: true, placeholder: 'Anything that helps the missionaries' }),
       h('div', { class: 'assign-actions' }, [h('button', { type: 'button', class: 'btn-text-assign', 'data-action': 'text-referral', 'data-a': i }, [icon('chat'), h('span', { class: 'bta-label', text: 'Text this referral to the missionaries' })])])
@@ -1070,7 +1067,7 @@
     if (!a) { wrap.replaceChildren(); return; }
     var isRef = r.g === 'mr';
     var base = r.g === 'tn' ? 'tn.' + r.i + '.' : 'cp.' + r.g + '.' + r.i + '.';
-    var card = isRef ? h('div', { class: 'card ref-card' }, [referralFields(r.i)]) : r.kind === 'wc' ? wcPersonCard(r, a) : r.kind === 'bw' ? bwPersonCard(r, a) : hdPersonCard(r, a);
+    var card = isRef ? h('div', { class: 'card ref-card' }, [referralFields(r.i, true)]) : r.kind === 'wc' ? wcPersonCard(r, a) : r.kind === 'bw' ? bwPersonCard(r, a) : hdPersonCard(r, a);
     var remove = h('button', { type: 'button', class: 'btn-link danger person-remove', 'data-action': r.g === 'tn' ? 'quick-remove-tn' : isRef ? 'remove-mr' : 'remove-cp',
       'data-a': r.g === 'tn' || isRef ? r.i : r.g, 'data-b': r.g === 'tn' || isRef ? '' : r.i,
       hidden: rowBlank(r.g, a) }, [r.g === 'tn' ? 'Clear this focus name' : 'Remove from the list']);
@@ -1080,10 +1077,15 @@
     // Ward council's screen asks the 4-week question too (the huddle's card carries its own).
     var note = (r.kind === 'wc' || r.kind === 'bw') && !isRef ? staleNote(base, a, r.g === 'tn') : null;
     // The top of the screen is tinted with their list's color: initials, name, and which list they're on.
-    // Tapping the name (or the pencil on the initials) opens the name to edit, on every screen.
+    // The name is edited right in the header: tap it (or the pencil on the initials) and it becomes a text box.
+    // It is the only place the name is edited, on every person's screen.
     var dot = initialsDot(a.name); dot.appendChild(h('span', { class: 'avatar-pencil', 'aria-hidden': 'true' }, [icon('pencil')]));
-    var head = h('button', { type: 'button', class: 'person-head', 'data-action': 'edit-name', 'aria-label': 'Edit the name: ' + personTitle(r) }, [dot, h('div', { class: 'person-head-text' }, [
-      h('p', { class: 'person-head-name', text: personTitle(r) }), h('p', { class: 'person-head-list', text: LIST_LABEL[r.g] })])]);
+    var namePath = isRef ? 'referrals.' + r.i + '.name' : base + 'name';
+    var nameBox = h('input', { type: 'text', class: 'person-head-input', 'data-bind': namePath, value: str(a.name), 'aria-label': 'Name',
+      placeholder: r.g === 'tn' ? 'Focus name' : isRef ? 'Who is being referred' : 'Name, as in the Covenant Path Report',
+      autocomplete: 'off', autocapitalize: 'words', enterkeyhint: 'done', maxlength: '300' });
+    var head = h('div', { class: 'person-head', 'data-action': 'edit-name', role: 'button', tabindex: '0', 'aria-label': 'Edit the name: ' + personTitle(r) }, [dot, h('div', { class: 'person-head-text' }, [
+      h('p', { class: 'person-head-name', text: personTitle(r) }), h('p', { class: 'person-head-list', text: LIST_LABEL[r.g] })]), nameBox]);
     wrap.replaceChildren(h('section', attrs, [head, note, card]), done, remove);
     if (r.g === 'nm') updateTemple();
   }
@@ -1420,10 +1422,25 @@
   }
   function cardBlank(a) { return !a.sac && !a.temple && !a.committed && !hasText(a, CARD_KEYS); }
   function rowBlank(g, a) { return g === 'mr' ? refBlank(a) : cardBlank(a); }
+  // The name in a person's header becomes a text box; Done on the keyboard, or tapping elsewhere, puts it back.
+  function startNameEdit() {
+    var hd = $('#person-card .person-head'), box = hd && hd.querySelector('.person-head-input'); if (!box) return;
+    if (hd.classList.contains('editing')) return;
+    hd.classList.add('editing'); box._nameWas = str(box.value).trim();
+    box.focus({ preventScroll: true }); try { box.setSelectionRange(box.value.length, box.value.length); } catch (e) { /* ignore */ }
+    var end = function () {
+      box.removeEventListener('blur', end); box.removeEventListener('keydown', key); hd.classList.remove('editing');
+      // A changed name: redraw the screen so the parts that follow the name (last huddle's assignment) catch up,
+      // unless another box on the screen was just tapped.
+      if (norm(box.value) !== norm(box._nameWas || '')) setTimeout(function () { var ae = document.activeElement; if (!(ae && $('#person-card').contains(ae) && ae.matches('input, textarea, select'))) renderPerson(); }, 0);
+    };
+    var key = function (e) { if (e.key === 'Enter') { e.preventDefault(); box.blur(); } };
+    box.addEventListener('blur', end); box.addEventListener('keydown', key);
+  }
   function openPerson(kind, g, i, focusName) {
     personRef = { kind: kind, g: g, i: +i }; personWcOpen = wcOpenDefault(personRef); personHdOpen = false;
     showView(kind === 'wc' ? 'p-wc' : kind === 'bw' ? 'p-bw' : 'p-hd', 'push');
-    if (focusName) setTimeout(function () { var f = document.querySelector('#person-card input[data-bind$=".name"]'); if (f) f.focus(); }, 60);
+    if (focusName) setTimeout(startNameEdit, 60); // a new name: the header is ready to type in
   }
   // Back from a person to the list they're on.
   function leavePerson() {
@@ -2053,16 +2070,10 @@
       case 'after-done': setVerified('after', true); goStart(); toast('Covenant Path Report updated. You can send.'); break;
       case 'before-undo': setVerified('before', false); toast('Before ward council: marked as not done.', 6000, { label: 'Undo', run: function () { setVerified('before', true); } }); break;
       case 'after-undo': setVerified('after', false); toast('Marked as not done. Send waits until it’s done.', 6000, { label: 'Undo', run: function () { setVerified('after', true); } }); break;
-      case 'edit-name': {
-        var nameIn = function () { var c = document.querySelectorAll('#person-view .card-name-input, #person-view input[data-bind$=".name"]'); for (var k = 0; k < c.length; k++) if (c[k].offsetParent) return c[k]; return null; };
-        var ni = nameIn();
-        if (!ni && document.querySelector('#person-card [data-action="wc-edit-toggle"]')) { personWcOpen = true; renderPerson(); ni = nameIn(); }
-        if (ni) { ni.scrollIntoView({ block: 'center', behavior: 'smooth' }); ni.focus({ preventScroll: true }); try { ni.setSelectionRange(ni.value.length, ni.value.length); } catch (e) { /* not a text box */ } }
-        break;
-      }
+      case 'edit-name': startNameEdit(); break;
       case 'wc-edit-toggle': {
         personWcOpen = !personWcOpen; renderPerson();
-        var wt = document.querySelector('#person-card ' + (personWcOpen ? '.card-name-input' : '.zone-toggle'));
+        var wt = document.querySelector('#person-card .zone-toggle');
         if (wt) wt.focus({ preventScroll: true });
         break;
       }
@@ -3954,7 +3965,8 @@
         var phd = $('#person-card .person-head');
         if (phd && pca) { // the name and initials at the top follow along
           phd.querySelector('.person-head-name').textContent = personTitle(personRef);
-          var pav = phd.querySelector('.avatar'), pin = initials(pca.name); pav.textContent = pin || '+'; pav.classList.toggle('is-blank', !pin);
+          var pav = phd.querySelector('.avatar'), pin = initials(pca.name), pen = pav.querySelector('.avatar-pencil');
+          pav.textContent = pin || '+'; if (pen) pav.appendChild(pen); pav.classList.toggle('is-blank', !pin);
         }
       } else if (isPerson(view) && personRef) { var prm2 = $('#person-card .person-remove'), pc2 = personCard(personRef); if (prm2 && pc2) prm2.hidden = rowBlank(personRef.g, pc2); }
       var wcc = e.type === 'change' && (isWcList(view) || view === 'p-wc') && /\.name$/.test(path) ? t.closest('.wc-card') : null;

@@ -227,7 +227,7 @@ The screen has:
   screen, and remembers how each person looks at that moment, so After the huddle can show what changed.
 
 **Tapping a name opens that person on their own screen**, one amber card labeled Covenant Path
-Report: Name, Baptism date (new members), Next ordinance (fixed to Baptism for those being
+Report: Baptism date (new members), Next ordinance (fixed to Baptism for those being
 taught), Needs, **Temple attendance** (new members) and **Attended sacrament**. Nothing else is on
 it. These are the same fields ward council and the huddle show, so nothing is entered twice.
 Checking attendance here does not show the "remember to update the Covenant Path Report" reminder,
@@ -270,9 +270,12 @@ small gray line with a red "!" (the Huddle has the same line in the same place).
 lists or on a person's screen. New members' rows show the same temple countdown as in the Huddle
 ("Temple: 14 days left" in red), so the 30-day goal is in front of both meetings.
 
-**A person's name header is a button.** On every person's screen (Before ward council, Ward council, the
-Huddle), tapping the name or the initials (which carry a small pencil) opens the name box to edit,
-scrolling to it and placing the cursor there.
+**The name is edited in the header, and only there.** On every person's screen (Before ward council, Ward
+council, the Huddle, a missionary referral), tapping the name or the initials (which carry a small pencil)
+turns the name into a text box in the same place, with the cursor at the end. Done on the keyboard, or
+tapping anywhere else, turns it back. No section below has a Name box. A new name opens with the header box
+ready to type in. The duplicate check ("… is already on this list.") and "Is this the same person?" work as
+before.
 
 Each list of names shows rows (see Lists of names and a person's screen). **A person's screen is
 the mirror of the Huddle's:**
