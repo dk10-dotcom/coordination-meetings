@@ -171,7 +171,7 @@ done is **Up next**: outlined in its color, a little larger, with an "Up next" t
 is done, then solid blue.
 
 Title: "One by One", with the app's name, Huddle, in small letters above it and, under it in smaller
-type, "Joyfully gathering Israel one by one in Christ" (the Area Presidency's directive; no source line, by the user's
+type and in quotation marks, “Joyfully gathering Israel one by one in Christ” (the Area Presidency's directive; no source line, by the user's
 decision, since it is already established in the stake). **Help & training** sits beside it.
 
 From top to bottom:
