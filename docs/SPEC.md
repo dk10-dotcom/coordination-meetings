@@ -513,14 +513,15 @@ link clears both from the address bar.
   - **Every week:** Before ward council, Ward council, Huddle, After the huddle (numbered 1 to 4, the four
     steps on the opening screen under the same names), then During the week, marked with a calendar instead
     of a number, like "Week" on the training slides. Each starts with "Tap **Home**, then …".
-  - **How do I…:** most used first: Add or remove a name, New members and those being taught, Hand off to
-    someone else, Fix a mistake, Share the PDF again, Get my names back.
+  - **FAQ:** each a question, most used first: How do I add or remove a name? How do I track baptisms and
+    the temple? What if someone else conducts? How do I fix a mistake? How do I share the PDF again? New
+    phone? How do I get my names back?
   - **About this app:** Privacy and security ("Everything stays on this phone"). It says that what
     is entered stays on the phone and nothing is saved online; that only what is sent leaves (the
     PDF, an assignment text or a handoff); to protect the PDF (the sharing rule word for word, and
     delete old copies); and never to enter confidential or sensitive information, because everyone
     who gets the PDF can read it.
-  - **Settings** (between How do I… and About this app): **Appearance**, three choices: Automatic (follows
+  - **Settings** (between FAQ and About this app): **Appearance**, three choices: Automatic (follows
     the phone), Light and Dark; the choice is kept on this phone (`huddle-theme`), and `theme.js` applies it
     before the page draws. **Load from a PDF** ("New phone? Choose the last PDF you sent"; left out during a
     practice week) and **Erase everything and start over** in red ("Clears this phone. The ward name
