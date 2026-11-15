@@ -35,6 +35,22 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.click('#before-done-btn'); await p.waitForSelector('#start-home:not([hidden])'); await w(300);
   ok(await p.evaluate(() => !!JSON.parse(localStorage.getItem('huddle-agenda-v1')).bwSnap), 'marking step 1 done remembers how each person looked');
 
+  // Those being taught (step 1): a baptism date marks them committed; the next missionary appointment shows on the row
+  await p.click('#before-box'); await w(500);
+  await p.locator('[data-bw="bt"] [data-action="open-person"]').first().click(); await w(500);
+  const soon = (() => { const d = new Date(); d.setDate(d.getDate() + 3); return iso(d); })();
+  ok(await p.isVisible('[data-bind="cp.bt.0.bap"]') && await p.isVisible('[data-bind="cp.bt.0.appt"]'), 'step 1, someone being taught: a committed-to-baptism date and a next appointment');
+  await p.fill('[data-bind="cp.bt.0.bap"]', ago(-20)); await p.fill('[data-bind="cp.bt.0.appt"]', soon); await p.evaluate(() => document.activeElement.blur()); await w(300);
+  ok(await p.evaluate(() => JSON.parse(localStorage.getItem('huddle-agenda-v1')).cp.bt[0].committed === true), 'entering the baptism date marks them committed');
+  await p.goBack(); await w(500);
+  const btRow = await p.textContent('[data-bw="bt"]');
+  ok(btRow.includes('Committed to baptism') && btRow.includes('Appointment:'), 'the row shows Committed to baptism and the appointment');
+  await p.locator('[data-bw="bt"] [data-action="open-person"]').first().click(); await w(500);
+  await p.fill('[data-bind="cp.bt.0.bap"]', ''); await p.evaluate(() => document.activeElement.blur()); await w(300);
+  ok(await p.evaluate(() => JSON.parse(localStorage.getItem('huddle-agenda-v1')).cp.bt[0].committed === false), 'clearing the date takes Committed off');
+  await p.fill('[data-bind="cp.bt.0.appt"]', ''); await p.evaluate(() => document.activeElement.blur()); await w(300);
+  await p.click('.nav-home'); await w(400);
+
   // Ward council: confidential line under the step card, and the temple countdown on new members
   await p.click('.door-wc'); await w(500);
   ok(await p.evaluate(() => { const h = document.querySelector('#wc-hero'), n = document.querySelector('#wc-note'); return !n.hidden && h.nextElementSibling === n; }), 'Ward council: the confidential reminder sits right under the step card');

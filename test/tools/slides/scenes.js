@@ -24,7 +24,7 @@ module.exports = [
   { shot: 's21-person-temple', k: 'Step 3 · New members', c: 'orange', title: 'The 30-day temple goal', body: 'Every new member attends the temple for baptisms for the dead within 30 days of baptism. The box counts down until it’s checked.', t: 8 },
   { shot: 's22-person-text', k: 'Step 3 · Before everyone leaves', c: 'orange', title: 'Text this assignment', body: 'Send each assignment by text, so the person asked to help knows exactly what, for whom, and when.', t: 8 },
   { shot: 's23-hd-cp-done', k: 'Step 3 · Covenant Path Report', c: 'orange', title: 'A plan for every name', body: 'Each name now shows its action item, who, and when.', t: 6 },
-  { shot: 's24-fn', k: 'Step 3 · Find New People to Teach', c: 'orange', title: 'Love, share, invite', body: 'Write the ward’s plan for the week and who will do what. How can we help? and the tips are there for ideas.', t: 8 },
+  { shot: 's24-fn', k: 'Step 3 · Find New People to Teach', c: 'orange', title: 'Love, share, invite', body: 'List the upcoming opportunities to invite friends, and who will do what. How can we help? and the tips are there for ideas.', t: 8 },
   { shot: 's25-huddle-all', k: 'Step 3 · The Huddle', c: 'orange', title: 'All five sections done', body: 'Mark each section done as you go. The bar fills in.', t: 6 },
   { shot: 's26-start-up4', k: 'Step 4 · After the huddle', c: 'plum', title: 'Up next: After the huddle', body: 'Three green checks. One step left before you send.', t: 6 },
   { shot: 's27-after', k: 'Step 4 · After the huddle', c: 'plum', title: 'Update the Covenant Path Report', body: 'This page lists what happened for each person. Update the report in Member Tools to match.', t: 8 },

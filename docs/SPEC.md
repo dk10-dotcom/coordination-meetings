@@ -219,7 +219,9 @@ The screen has:
 - One line saying what to update for each person: next ordinance, needs, temple attendance and
   sacrament attendance.
 - **Open the Covenant Path Report** (opens Member Tools; see Links).
-- The three Covenant Path Report lists, as the same rows every other list uses. A row shows the
+- The three Covenant Path Report lists, as the same rows every other list uses. Those being taught show
+  "Committed to baptism · Dec 5" and "Appointment: Wed, Nov 18" (an appointment shows until its day has
+  passed, here, in Ward council, in the Huddle and on the PDF; it carries to next week until then). A row shows the
   name; one status line ("Next: Baptisms for the dead · Needs: A ride to the temple", with "Needs a next
   ordinance" in orange and "No needs listed" when those are missing); and tags for attendance: a
   new member's temple status ("Temple: 18 days left" in red, or "✓ Temple") and "✓ Sacrament".
@@ -229,7 +231,9 @@ The screen has:
 
 **Tapping a name opens that person on their own screen**, one amber card labeled Covenant Path
 Report: Baptism date (new members), Next ordinance (fixed to Baptism for those being
-taught), Needs, **Temple attendance** (new members) and **Attended sacrament**. Nothing else is on
+taught); for those being taught, **Committed to baptism: date** (left blank until they commit; entering a
+date marks them committed, clearing it takes that off, so no yes/no is needed) and **Next appointment with
+the missionaries** (a date); Needs, **Temple attendance** (new members) and **Attended sacrament**. Nothing else is on
 it. These are the same fields ward council and the huddle show, so nothing is entered twice.
 Checking attendance here does not show the "remember to update the Covenant Path Report" reminder,
 because here it is being copied from the report. **Done**, **Back** and the phone's Back return to
@@ -384,7 +388,9 @@ called **Focus names** in both meetings; the PDF's heading for it stays "Name Ne
 
 ### Find New People to Teach
 
-A plan for the week and any number of assignments (who will do what, and when), plus
+**Upcoming opportunities** (activities, service or events coming up where members can invite friends;
+the row reads "Opportunities listed" once it has words) and any number of assignments (who will do what,
+and when), plus
 **Tips for finding new people to teach**. The same section opens from Ward council.
 Its "This week's plan" band carries its own **How can we help?** link, in the Huddle and in Ward council.
 
@@ -661,7 +667,7 @@ width with nothing to zoom. On letter paper a page prints as a narrow column at 
   **Needs**, **Action item** (who and when in gray, "Carried forward from {date}" in italics; "None
   yet" when there is no action item) and **Huddle notes**. Empty parts are left out. An empty list
   prints "No one on the Covenant Path Report this week" when confirmed, otherwise "Not reviewed".
-- **Plans to Find New People to Teach:** the plan, then each assignment with its when.
+- **Plans to Find New People to Teach:** the upcoming opportunities (labeled "Opportunities" to fit), then each assignment with its when.
 - **Missionary Referrals:** name, referred by, notes. With no referrals it prints "None listed",
   but only where there is room: an empty referral section never starts a page by itself.
 - Every page ends with the ward, the date and, when there is more than one page, "Page 1 of 3".

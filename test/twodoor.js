@@ -121,7 +121,7 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     await bwDone();
     ok((await bwNames('rm')).join('|') === 'Marcus Bell', tag + ': so no one is listed twice');
     await p.click('#before-list [data-action="add-person"][data-a="bt"]'); await p.waitForSelector('#person-view:not([hidden])'); await p.waitForTimeout(250);
-    ok((await p.$$eval('#person-card [data-bind]', e => e.map(x => x.getAttribute('data-bind').split('.').pop()).join('|'))) === 'name|need|sac' && (await p.textContent('#person-card .fixed-value')).trim() === 'Baptism', tag + ': someone being taught has Baptism as the next ordinance, needs and sacrament attendance');
+    ok((await p.$$eval('#person-card [data-bind]', e => e.map(x => x.getAttribute('data-bind').split('.').pop()).join('|'))) === 'name|bap|appt|need|sac' && (await p.textContent('#person-card .fixed-value')).trim() === 'Baptism', tag + ': someone being taught has Baptism as the next ordinance, a committed-to-baptism date, the next appointment, needs and sacrament attendance');
     await bwDone();
     ok((await bwNames('bt')).length === 0, tag + ': a name added and left empty does not stay on the list');
     // Mark done sits at the bottom of the screen
@@ -195,7 +195,7 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     await p.click('[data-action="open-wc-list"][data-a="fn"]'); await p.waitForTimeout(300);
     ok((await p.textContent('#step-title')) === 'Find New People to Teach' && await vis('#fn-list [data-bind="find.plan"]') && !(await vis('#step-foot')) && !(await vis('#wc-rows')) && !(await vis('#wc-note')) && await noOverflow(), tag + ': Find New People to Teach opens in ward council with the plan and assignments (no Mark section done)');
     await fill('find.plan', 'Invite friends to the ward party'); await back();
-    ok(await vis('#wc-rows') && (await rowText('fn')).includes('Plan written'), tag + ': Back returns to ward council, and the row shows the plan is written');
+    ok(await vis('#wc-rows') && (await rowText('fn')).includes('Opportunities listed'), tag + ': Back returns to ward council, and the row shows the plan is written');
     await p.click('[data-action="open-wc-list"][data-a="mr"]'); await p.waitForTimeout(300);
     ok((await p.textContent('#step-title')) === 'Missionary Referrals' && await p.locator('#mr-list .person-row').count() === 0 && await vis('#mr-list [data-action="add-person"]') && (await p.textContent('#mr-list .list-count')) === '0 referrals' && !(await vis('#step-foot')), tag + ': Missionary Referrals opens with Add a referral');
     await p.click('#mr-list [data-action="add-person"]'); await p.waitForSelector('#person-view:not([hidden])'); await p.waitForTimeout(250);

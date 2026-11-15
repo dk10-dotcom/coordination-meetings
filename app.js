@@ -112,11 +112,13 @@
   /* ---------- state ---------- */
   function blankRR() { return { plan: '', happened: '', notes: '' }; }
   // Every name card (Covenant Path lists and Name Next Ordinance) has the same fields.
-  var CARD_KEYS = ['name', 'bap', 'ordinance', 'need', 'hneed', 'action', 'assigned', 'when'];
+  var CARD_KEYS = ['name', 'bap', 'ordinance', 'need', 'hneed', 'action', 'assigned', 'when', 'appt']; // appt: next appointment with the missionaries (those being taught)
   var REF_KEYS = ['name', 'by', 'notes']; // a missionary referral (set up here, before the saved huddle is read)
-  function blankAction() { return { name: '', sac: false, bap: '', temple: false, committed: false, ordinance: '', need: '', hneed: '', action: '', assigned: '', when: '' }; }
+  function blankAction() { return { name: '', sac: false, bap: '', temple: false, committed: false, ordinance: '', need: '', hneed: '', action: '', assigned: '', when: '', appt: '' }; }
   function shortDay(iso) { var d = parseISO(iso); return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''; }
   // Those being taught: "Committed to baptism" and the baptism date, in a few words.
+  // Next appointment with the missionaries, while it is today or later: "Appointment: Thu, Nov 19"
+  function apptNote(a) { var d = parseISO(str(a.appt)), t = parseISO(todayISO()); return d && t && d >= t ? 'Appointment: ' + whenShow(a.appt) : ''; }
   function baptismNote(a) {
     var d = shortDay(str(a.bap));
     if (a.committed) return 'Committed to baptism' + (d ? ' · ' + d : '');
@@ -695,6 +697,7 @@
     var ord = ordOf(a, r.g), need = str(a.need).trim(), bap = monthDay(a.bap);
     var facts = [['Next ordinance', ord || 'Not set yet', !ord], ['Needs', need || 'None listed yet', !need]];
     if (r.g === 'nm') facts.push(['Baptized', bap || 'No date yet', !bap]);
+    if (r.g === 'bt' && apptNote(a)) facts.push(['Appointment', whenShow(a.appt)]);
     return h('div', { class: 'wc-summary' }, [
       h('div', { class: 'zone-label-row' }, [zoneLabel('wc', 'Ward Council · Who & What'),
         h('button', { type: 'button', class: 'zone-toggle', 'data-action': 'wc-edit-toggle', 'aria-label': 'Edit the next ordinance and needs', 'aria-expanded': 'false', text: 'Edit' })])
@@ -725,7 +728,8 @@
       sacToggle(base + 'sac', a.sac),
       g === 'nm' ? templeBox(base, i, a) : null,
       g === 'bt' ? committedBox(base, a) : null,
-      g === 'bt' ? field('Scheduled baptism date', base + 'bap', { type: 'date', full: true }) : null
+      g === 'bt' ? field('Scheduled baptism date', base + 'bap', { type: 'date', full: true }) : null,
+      g === 'bt' ? field('Next appointment with the missionaries', base + 'appt', { type: 'date', full: true }) : null
     ]);
   }
   /* ---------- Ward council's screen for one person: the mirror of the Huddle's ----------
@@ -798,6 +802,9 @@
           g === 'nm' ? field('Baptism date', base + 'bap', { type: 'date', full: true }) : null,
           FIXED_ORD[g] ? h('div', { class: 'field full' }, ['Next ordinance', h('p', { class: 'fixed-value', text: FIXED_ORD[g] })])
             : ordField('Next ordinance', base + 'ordinance', { full: true }),
+          // Those being taught: a baptism date means they're committed (left blank until they are)
+          g === 'bt' ? field('Committed to baptism: date', base + 'bap', { type: 'date', full: true }) : null,
+          g === 'bt' ? field('Next appointment with the missionaries', base + 'appt', { type: 'date', full: true }) : null,
           field('Needs', base + 'need', { full: true, multi: true, rows: '3', placeholder: 'Tap their name in the Covenant Path Report to identify needs' })
         ]),
         h('div', { class: 'hd-checks' }, [g === 'nm' ? templeBox(base, r.i, a) : null, sacToggle(base + 'sac', a.sac)])
@@ -969,6 +976,7 @@
     if (kind === 'hd') {
       if (gid === 'nm' && name) { var ts = templeStatus(a, state.date); if (!ts.done) tags.push(rowTag('Temple: ' + ts.short, 'due')); }
       if (gid === 'bt' && a.committed) tags.push(rowTag(baptismNote(a)));
+      if (gid === 'bt' && apptNote(a)) tags.push(rowTag(apptNote(a)));
       if (a.sac) tags.push(rowTag('✓ Sacrament', 'ok'));
       if (a.actionCarried && str(a.action).trim()) tags.push(rowTag('Carried forward', 'carried'));
       sub = [str(a.action).trim(), str(a.assigned).trim(), whenShow(a.when)].filter(Boolean).join(' · ');
@@ -977,11 +985,14 @@
       // Before ward council: what the Covenant Path Report says about them, at a glance.
       var bord = ordOf(a, gid), bneed = str(a.need).trim();
       if (gid === 'nm' && name) { var bts = templeStatus(a, state.date); tags.push(bts.done ? rowTag('✓ Temple', 'ok') : rowTag('Temple: ' + bts.short, 'due')); }
+      if (gid === 'bt' && baptismNote(a)) tags.push(rowTag(baptismNote(a)));
+      if (gid === 'bt' && apptNote(a)) tags.push(rowTag(apptNote(a)));
       if (a.sac) tags.push(rowTag('✓ Sacrament', 'ok'));
       if (name) { sub = (bord ? 'Next: ' + bord : 'Needs a next ordinance') + ' · ' + (bneed ? 'Needs: ' + bneed : 'No needs listed'); warn = !bord; }
     } else {
       // Ward council: the same temple countdown as the Huddle, so the 30-day goal is in front of both meetings.
       if (gid === 'nm' && name) { var wts = templeStatus(a, state.date); if (!wts.done) tags.push(rowTag('Temple: ' + wts.short, 'due')); }
+      if (gid === 'bt' && apptNote(a)) tags.push(rowTag(apptNote(a)));
       var ord = ordOf(a, gid);
       sub = ord ? 'Next: ' + ord : '';
       if (!sub && name) { sub = 'Needs a next ordinance'; warn = true; }
@@ -1259,7 +1270,7 @@
     });
     wrap.replaceChildren(h('section', { class: 'list-panel list-fn', 'aria-label': 'Plans to find new people to teach' }, [
       h('div', { class: 'card fn-card' }, [
-        h('div', { class: 'card-grid' }, [field('Plan', 'find.plan', { full: true, multi: true, placeholder: 'What will the ward do this week to find new people to teach?' })]),
+        h('div', { class: 'card-grid' }, [field('Upcoming opportunities', 'find.plan', { full: true, multi: true, placeholder: 'Activities, service or events coming up where members can invite friends' })]),
         h('p', { class: 'fn-assign-title', text: 'Assignments' })
       ].concat(rows).concat([h('div', { class: 'list-foot' }, [addButton('add-fn', '', 'Add an assignment')])]))
     ]));
@@ -1486,7 +1497,7 @@
     if (id === 'mr') { var nr = cleanReferrals(state.referrals).length; return { text: nr ? plural(nr, 'referral', 'referrals') : 'None listed' }; }
     var plan = str(state.find.plan).trim(), k = state.find.items.filter(function (x) { return str(x.task).trim(); }).length;
     if (!plan && !k) return { text: 'Not started' };
-    return { text: (plan ? 'Plan written' : 'No plan yet') + ' · ' + plural(k, 'assignment', 'assignments'), warn: !plan || !k };
+    return { text: (plan ? 'Opportunities listed' : 'No opportunities yet') + ' · ' + plural(k, 'assignment', 'assignments'), warn: !plan || !k };
   }
   // Who has an action item (for the Sent message's count).
   function attention() {
@@ -1745,7 +1756,7 @@
   function setVerified(which, on) { if (which === 'before' && on) takeBwSnap(); state.verified[which] = !!on; renderChecks(); saveDraft(); }
   // Step 1 done: remember how each person looked, so step 4 can show what changed since (in ward council or the
   // huddle) and needs updating in the Covenant Path Report. Kept on this phone only; a new week starts without it.
-  var SNAP_KEYS = ['sac', 'temple', 'committed', 'bap', 'ordinance', 'need'];
+  var SNAP_KEYS = ['sac', 'temple', 'committed', 'bap', 'ordinance', 'need', 'appt'];
   function snapOf(a) { var o = {}; SNAP_KEYS.forEach(function (k) { o[k] = typeof a[k] === 'boolean' ? a[k] : str(a[k]).trim(); }); return o; }
   function takeBwSnap() {
     var snap = {};
@@ -1782,6 +1793,7 @@
         fact('Sacrament', a.sac ? 'Attended' : 'Not marked', a.sac ? 'yes' : '', upd('sac')),
         x.gid === 'nm' ? fact('Temple', a.temple ? 'Attended' : 'Not yet', a.temple ? 'yes' : '', upd('temple')) : null,
         x.gid === 'bt' && a.committed ? fact('Baptism', 'Committed' + (monthDay(a.bap) ? ' · ' + monthDay(a.bap) : ''), 'yes', upd('bap')) : null,
+        x.gid === 'bt' && str(a.appt).trim() ? fact('Appointment', whenShow(a.appt), '', upd('appt')) : null,
         str(a.ordinance).trim() ? fact('Next ordinance', a.ordinance.trim(), '', upd('ordinance')) : null,
         str(a.need).trim() ? fact('Needs', a.need.trim(), '', upd('need')) : null,
         r ? fact('Reported back', (str(r.action).trim()) + ': ' + ({ Yes: 'Done', Partly: 'Partly done', No: 'Not done' }[r.happened] || 'Pending') + (str(r.notes).trim() ? ' · ' + r.notes.trim() : ''), statusOf(r.happened)) : null,
@@ -2405,7 +2417,7 @@
     GROUPS.forEach(function (g) { if (listEmpty(g.id) && !noneConfirmed(g.id)) out.push({ text: g.title + ': not reviewed', go: go('cp') }); });
     var tnN = needs(state.tn);
     if (tnN) out.push({ text: 'Focus names: ' + tnN + (tnN === 1 ? ' person needs' : ' people need') + ' an action item', go: go('tn') });
-    if (!str(state.find.plan).trim()) out.push({ text: 'Find New People to Teach: no plan yet', go: go('fn') });
+    if (!str(state.find.plan).trim()) out.push({ text: 'Find New People to Teach: no upcoming opportunities yet', go: go('fn') });
     return out;
   }
 
@@ -2840,7 +2852,7 @@
       var names = [], info = {};
       (Array.isArray(cp[g.id]) ? cp[g.id] : []).forEach(function (a) {
         var n = a && str(a.name).trim();
-        if (n && names.every(function (x) { return norm(x) !== norm(n); })) { names.push(n); info[norm(n)] = { ordinance: str(a.ordinance).trim(), need: str(a.need).trim(), hneed: str(a.hneed).trim(), bap: str(a.bap), temple: !!a.temple, committed: !!a.committed, sac: !!a.sac, touched: parseISO(str(a.touched)) ? str(a.touched) : '' }; }
+        if (n && names.every(function (x) { return norm(x) !== norm(n); })) { names.push(n); info[norm(n)] = { ordinance: str(a.ordinance).trim(), need: str(a.need).trim(), hneed: str(a.hneed).trim(), bap: str(a.bap), appt: str(a.appt), temple: !!a.temple, committed: !!a.committed, sac: !!a.sac, touched: parseISO(str(a.touched)) ? str(a.touched) : '' }; }
       });
       if (!names.length) return;
       var cur = state.cp[g.id].filter(function (a) { return a.sac || hasText(a, CARD_KEYS); });
@@ -2848,7 +2860,7 @@
         if (cur.some(function (a) { return norm(a.name) === norm(n); })) return;
         var c = blankAction(); c.name = n; c.ordinance = info[norm(n)].ordinance; c.need = info[norm(n)].need; c.hneed = info[norm(n)].hneed; c.carried = true; c.touched = info[norm(n)].touched; c.lastSac = info[norm(n)].sac;
         if (g.id === 'nm') { c.bap = info[norm(n)].bap; c.temple = info[norm(n)].temple; }
-        if (g.id === 'bt') { c.bap = info[norm(n)].bap; c.committed = info[norm(n)].committed; }
+        if (g.id === 'bt') { c.bap = info[norm(n)].bap; c.committed = info[norm(n)].committed; c.appt = apptNote({ appt: info[norm(n)].appt }) ? info[norm(n)].appt : ''; }
         cur.push(c);
         added++;
       });
@@ -3439,6 +3451,7 @@
         var d = shortDay(str(a.bap));
         tags.push({ text: a.committed ? 'Committed' + (d ? ' · ' + d : '') : 'Scheduled: ' + d, color: GROUP_PDF.bt.ink });
       }
+      if (gid === 'bt' && apptNote(a)) tags.push({ text: apptNote(a), color: GROUP_PDF.bt.ink });
       if (a.sac) tags.push({ text: 'Attended sacrament meeting', color: STATUS_PDF.Yes, check: true });
       var ord = ordOf(a, gid), need = str(a.need).trim(), act = str(a.action).trim(), note = str(a.hneed).trim();
       var who = [str(a.assigned).trim(), whenShow(a.when)].filter(Boolean).join(' · ');
@@ -3521,7 +3534,7 @@
     var fPlan = str(s.find.plan).trim();
     var fItems = s.find.items.filter(assignHasText);
     if (!fPlan && !fItems.length) emptyRow('None this week');
-    if (fPlan) block(field('Plan', fPlan), GROUP_PDF.fn.ink);
+    if (fPlan) block(field('Opportunities', fPlan), GROUP_PDF.fn.ink); // 'Upcoming opportunities' on screen; shorter to fit the label column
     if (fPlan && !fItems.length) block(field('Assignment', 'No assignments yet', null, true), GROUP_PDF.fn.ink);
     fItems.forEach(function (x) {
       var t = str(x.task).trim();
@@ -3935,6 +3948,9 @@
       if (t.tagName === 'SELECT') t.classList.toggle('is-empty', !t.value);
       if (path === 'ward') { writeWard(String(val).trim()); if (view === 'start') renderDoors(); }
       if (path === 'date') { state.dateManual = true; renderDateHint(); }
+      // Before ward council: a baptism date for someone being taught means they're committed; clearing it takes that off
+      var cb = view === 'p-bw' ? /^cp\.bt\.(\d+)\.bap$/.exec(path) : null;
+      if (cb && state.cp.bt[+cb[1]]) state.cp.bt[+cb[1]].committed = !!String(val).trim();
       // Ward council: once a name is finished being typed, its Details and last assignment follow the new name.
       // (Only those boxes are redrawn, so the field being typed in next keeps its place.)
       var rn = e.type === 'change' ? /^(?:cp\.(\w+)|(tn))\.\d+\.name$/.exec(path) : null;
