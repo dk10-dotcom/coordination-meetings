@@ -3530,7 +3530,7 @@
     tnItems.forEach(function (n) { cardBlock(n, 'tn'); });
 
     /* ----- Plans to find new people to teach ----- */
-    heading('Plans to Find New People to Teach');
+    heading('Find New People to Teach', 'Huddle action plan');
     var fPlan = str(s.find.plan).trim();
     var fItems = s.find.items.filter(assignHasText);
     if (!fPlan && !fItems.length) emptyRow('None this week');

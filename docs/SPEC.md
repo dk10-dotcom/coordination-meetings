@@ -88,7 +88,7 @@ The same row is used for the Huddle's sections, Ward council's lists and Before 
 every list in the app looks alike. A section marked done shows a green check before its chevron.
 
 **Every list's name stands out.** New members, Returning members, Those being taught, Focus names,
-Referrals and Find New People to Teach's "This week's plan" each sit on a band of the list's own
+Referrals and Find New People to Teach's "Huddle action plan" each sit on a band of the list's own
 color (blue, green, purple, gold, rose, teal: the colors the PDF uses), large and bold, with the
 count beside it. On the smallest phones the name is a little smaller so the count stays beside it.
 
@@ -392,7 +392,7 @@ called **Focus names** in both meetings; the PDF's heading for it stays "Name Ne
 the row reads "Opportunities listed" once it has words) and any number of assignments (who will do what,
 and when), plus
 **Tips for finding new people to teach**. The same section opens from Ward council.
-Its "This week's plan" band carries its own **How can we help?** link, in the Huddle and in Ward council.
+Its "Huddle action plan" band carries its own **How can we help?** link, in the Huddle and in Ward council.
 
 ### How can we help?
 
@@ -667,7 +667,7 @@ width with nothing to zoom. On letter paper a page prints as a narrow column at 
   **Needs**, **Action item** (who and when in gray, "Carried forward from {date}" in italics; "None
   yet" when there is no action item) and **Huddle notes**. Empty parts are left out. An empty list
   prints "No one on the Covenant Path Report this week" when confirmed, otherwise "Not reviewed".
-- **Plans to Find New People to Teach:** the upcoming opportunities (labeled "Opportunities" to fit), then each assignment with its when.
+- **Find New People to Teach** *Huddle action plan*: the upcoming opportunities (labeled "Opportunities" to fit), then each assignment with its when.
 - **Missionary Referrals:** name, referred by, notes. With no referrals it prints "None listed",
   but only where there is room: an empty referral section never starts a page by itself.
 - Every page ends with the ward, the date and, when there is more than one page, "Page 1 of 3".

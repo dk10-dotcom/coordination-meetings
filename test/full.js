@@ -95,7 +95,7 @@ function words(v) { return v.replace(/[“”]/g, '').split(/\s+/).filter(Boolea
     ok('only the people who attended are listed', att === ATT.filter(a => s.attendees.includes(a)).join(', '), att);
     // Fixed agenda text
     const fixed = ['Keep this PDF secure', 'Weekly', 'Huddle Report', 'Return and Report', 'FROM THE LAST HUDDLE', 'Did it happen?', 'NOV 1 HUDDLE PLAN',
-      'Covenant Path Report Review', 'Name Next Ordinance', 'Ward council focus names', 'Plans to Find New People to Teach', 'Missionary Referrals', 'Referred by',
+      'Covenant Path Report Review', 'Name Next Ordinance', 'Ward council focus names', 'Find New People to Teach', 'Huddle action plan', 'Missionary Referrals', 'Referred by',
       'NEW MEMBERS', 'RETURNING MEMBERS', 'THOSE BEING TAUGHT', 'Next ordinance', 'Action item'];
     const fixedMissing = fixed.filter(f => !text.includes(f));
     ok('all section headings printed', fixedMissing.length === 0, fixedMissing.join(' | '));
