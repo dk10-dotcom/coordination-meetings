@@ -270,6 +270,11 @@ Opens to four rows:
   They hold the same data, so what is entered in one meeting shows in the other.
 
 The first two show a count that turns orange when someone is missing a next ordinance.
+Under the four rows is **Open Part-Member Families**, the same outlined button as Open the Covenant Path
+Report, with "In Leader and Clerk Resources, on the web" under it. It opens the Part-Member Families report
+in Leader and Clerk Resources (`https://lcr.churchofjesuschrist.org/mlt/report/part-member-households?lang=eng`)
+outside the app (`target="_blank"`), for finding names to discuss. Member Tools has no link to this report, so
+it always opens the web page. It shows on the four-row screen only, not on the lists of names.
 Right under the step card, once, is "Never add confidential information to this huddle report." as one
 small gray line with a red "!" (the Huddle has the same line in the same place). It is not repeated on the
 lists or on a person's screen. New members' rows show the same temple countdown as in the Huddle

@@ -1713,6 +1713,7 @@
       ])]);
     }));
     $('#wc-note').hidden = rows.hidden;
+    var pmf = $('#wc-pmf'); if (pmf) pmf.hidden = rows.hidden; // Part-Member Families: on the four-row screen only
     if (rows.hidden) rows.replaceChildren();
     if (rowsOn) { // one row per name; the fields are on the person's own screen
       if (!isWcNames(view)) { wrap.replaceChildren(); return; }
@@ -2706,7 +2707,7 @@
     { k: 'Step 1 · Before ward council', t: 'The opening screen has four steps, in order. Tap **Step 1 · Before ward council**.', target: '#before-box', done: function () { return view === 'bw' || state.verified.before; } },
     { k: 'Step 1 · Before ward council', t: 'Before ward council, bring each name up to date from the Covenant Path Report. Tap a name to see what’s there, then tap **Mark done** at the bottom.', target: '#before-done-btn', done: function () { return !!state.verified.before; } },
     { k: 'Step 2 · Ward council', t: 'Step 1 has its green check. Now tap **Step 2 · Ward council**.', target: '.door-wc', done: function () { return view === 'wc' || isWcList(view) || view === 'p-wc'; } },
-    { k: 'Step 2 · Ward council', t: 'Ward council decides who to focus on and each next ordinance. Tap **Focus names**, then **Samuel Ortiz**, and choose his next ordinance. Never add confidential information to this huddle report.', target: ['[data-wc="tn"] [data-b="1"]', '[data-action="open-wc-list"][data-a="tn"]', '#person-card select'], done: function () { var a = state.tn[1]; return !!(a && ORDINANCES.indexOf(str(a.ordinance)) >= 0); } },
+    { k: 'Step 2 · Ward council', t: 'Ward council decides who to focus on and each next ordinance; **Open Part-Member Families** can help find names. Tap **Focus names**, then **Samuel Ortiz**, and choose his next ordinance. Never add confidential information to this huddle report.', target: ['[data-wc="tn"] [data-b="1"]', '[data-action="open-wc-list"][data-a="tn"]', '#person-card select'], done: function () { var a = state.tn[1]; return !!(a && ORDINANCES.indexOf(str(a.ordinance)) >= 0); } },
     { k: 'Step 3 · Huddle', t: 'Every name has a next ordinance, so Step 2 is done. Tap **Home** at the bottom, then **Step 3 · Huddle**.', target: ['.nav-home:not(.is-here)', '.door-hd'], done: function () { return view === 'home'; } },
     { k: 'Step 3 · Huddle', t: 'Tap **Huddle Attendees** and tap who came. Tap **both youth**, the priests quorum assistant and the Gatherers of Light representative: including the youth matters.', target: ['#attendee-list', '#details-summary'], done: function () { return state.attendees.indexOf('pqa') >= 0 && state.attendees.indexOf('gol') >= 0; } },
     { k: 'Step 3 · Return and Report', t: 'Tap **Done**, then **Return and Report**. Mark one assignment **Yes**, one **Partly** and one **No**.', target: ['[data-action="open-step"][data-a="rr"]', '#rr-list'], done: function () { var h = state.rr.map(function (r) { return r.happened; }); return h.indexOf('Yes') >= 0 && h.indexOf('Partly') >= 0 && h.indexOf('No') >= 0; } },

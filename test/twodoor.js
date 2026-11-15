@@ -324,7 +324,7 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     ok(await p.locator('#person-card .wc-last:not(.wc-details)').count() === 0, tag + ': a name with no assignment shows no assignment line');
     ok((await p.getAttribute('[data-bind="cp.nm.1.need"]', 'placeholder')).includes('Tap their name in the Covenant Path Report'), tag + ': empty Needs says to tap the name in the Covenant Path Report');
     await back();
-    ok(await p.locator('#wc-view .cpr-step, #wc-view .btn-tools, #wc-view .muted').count() === 0 && !(await vis('#wc-note')), tag + ': the lists have no intro text, reminder box or report button, and the confidentiality reminder isn’t repeated');
+    ok(await p.locator('#wc-view .cpr-step, #wc-view .btn-tools:not(#wc-pmf), #wc-view .muted').count() === 0 && !(await vis('#wc-note')) && !(await vis('#wc-pmf')), tag + ': the lists have no intro text, reminder box or report button, and the confidentiality reminder isn’t repeated');
     await p.click('[data-action="steps-home"]'); await p.click('#mode-bar [data-action="go-start"]'); await p.click('.door-hd'); await p.click('[data-action="open-step"][data-a="rr"]');
     await p.click('[data-action="happened"][data-a="0"][data-b="Yes"]');
     await p.goBack(); await p.waitForTimeout(300); await p.goBack(); await p.waitForTimeout(300); await p.click('.door-wc'); await p.click('[data-action="open-wc-list"][data-a="cp"]'); await p.waitForTimeout(250);

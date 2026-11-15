@@ -1452,3 +1452,7 @@ body.typing .mark-done, body.coaching .mark-done { position: static; box-shadow:
 /* Under the opening screen's title: the Area Presidency's directive, in smaller type */
 .title-sub { margin: 3px 0 0; font-size: 15px; line-height: 1.3; font-weight: 600; font-style: italic; color: var(--muted); }
 body[data-view="start"] .title-text .title-sub { color: #FFFFFF; opacity: .88; }
+
+/* Ward council: Open Part-Member Families, under the four rows */
+.wc-pmf { margin: 4px 0 0; }
+.wc-pmf[hidden] { display: none; }
