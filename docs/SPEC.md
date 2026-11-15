@@ -309,7 +309,7 @@ status is orange is still missing something.
 ### Huddle Attendees
 
 Ward name (remembered on the phone), who is conducting (Ward mission leader, Elders Quorum, or
-Other with a name; a short list with a check beside the one chosen, like a choice in iPhone Settings), and attendance. Attendees, with the two youth roles first: Priests quorum
+Other with a name; a short list; the one chosen is filled in blue), and attendance. Attendees, with the two youth roles first: Priests quorum
 assistant, Gatherers of Light rep, Relief Society, Elders Quorum, Primary presidency, Ward
 missionaries, Full-time missionaries, Ward mission leader, TFH leader, TFH consultants, High
 Councilor. Until attendance is taken the summary says so in orange.

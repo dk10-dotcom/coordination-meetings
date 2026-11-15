@@ -1370,8 +1370,7 @@ body { padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
 .seg.conduct-seg button { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 46px; padding: 0 16px;
   border: none; border-bottom: 1px solid var(--card-line); border-radius: 0; background: var(--card); color: var(--ink); text-align: left; font-size: 16px; font-weight: 600; }
 .seg.conduct-seg button:last-child { border-bottom: none; }
-.seg.conduct-seg button[aria-pressed="true"] { background: var(--card); color: var(--ink); }
-.seg.conduct-seg button[aria-pressed="true"]::after { content: ''; flex: none; width: 7px; height: 13px; margin: -3px 4px 0 0; border: solid var(--accent); border-width: 0 2.6px 2.6px 0; transform: rotate(45deg); }
+.seg.conduct-seg button[aria-pressed="true"] { background: var(--accent); color: #FFFFFF; } /* the one conducting: filled in color, no check */
 
 /* A person's screen: flat white groups on the gray background, color only in each group's small label */
 #person-view .card { background: transparent; border: none; box-shadow: none; padding: 0; }

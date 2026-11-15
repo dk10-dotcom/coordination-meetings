@@ -235,6 +235,7 @@
 :where(:root.theme-dark) .danger-row .step-title { color: #D58C8C; }
 :where(:root.theme-dark) .person-done { box-shadow: 0 6px 18px -6px rgba(143, 160, 195, .35); }
 :where(:root.theme-dark) .date-ph { color: #8A93A3; }
+:where(:root.theme-dark) .seg.conduct-seg button[aria-pressed="true"] { color: #FFFFFF; }
 :where(:root.theme-dark) .appearance-seg button[aria-pressed="true"] { color: #FFFFFF; }
 :where(:root.theme-dark) .mark-done { box-shadow: 0 6px 18px -6px rgba(143, 160, 195, .35); }
 :where(:root.theme-dark) .mark-done.is-done { background: #1F6B3A; border-color: #59B57A; color: #FFFFFF; }
