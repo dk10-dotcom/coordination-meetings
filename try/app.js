@@ -160,6 +160,13 @@
   // Plans to find new people to teach: one plan, and assignments that each have their own when.
   function blankAssign() { return { task: '', when: '' }; }
   function blankFind() { return { plan: '', items: [blankAssign()], opps: [] }; }
+  // (Test copy) Focus names keep no blank spots between names: the names first, then empty spots up to three.
+  function tnBlank(n) { return !n.sac && !hasText(n, CARD_KEYS); }
+  function packTn(list) {
+    var out = list.filter(function (n) { return !tnBlank(n); });
+    while (out.length < 3) out.push(blankName());
+    return out;
+  }
   function oppId() { return 'o' + Math.random().toString(36).slice(2, 9); }
   function assignHasText(x) { return hasText(x, ['task', 'when']); }
   // The meeting date defaults to the next day matching the weekday of the last saved agenda (today if none).
@@ -255,7 +262,7 @@
     var tn = cleanList(s.tn, blankName, CARD_KEYS);
     tn.forEach(function (a, i) { if (Array.isArray(s.tn) && s.tn[i] && s.tn[i].carried) a.carried = true; });
     while (tn.length < 3) tn.push(blankName());
-    f.tn = tn.slice(0, 12); // (test copy) pressing names can take focus names past three
+    f.tn = packTn(tn.slice(0, 12)); // (test copy) pressing names can take focus names past three; no blank spots between names
     var fd = s.find && typeof s.find === 'object' ? s.find : {};
     f.find.plan = str(fd.plan);
     var fi = Array.isArray(fd.items) ? fd.items.filter(function (x) { return x && typeof x === 'object'; }).map(function (x) { return { task: str(x.task), when: str(x.when), carried: !!x.carried, doneMid: !!x.doneMid, opp: str(x.opp) }; }) : [];
@@ -1476,12 +1483,12 @@
   // Swipe a focus name left to take it off Focus names (Ward council and the Huddle). They stay on the Covenant Path Report.
   function removeFocus(i) {
     var old = state.tn[i]; if (!old || !str(old.name).trim()) return;
-    var copy = JSON.parse(JSON.stringify(old)), was = state.tn.length;
-    if (i >= 3) state.tn.splice(i, 1); else state.tn[i] = blankName();
+    var copy = JSON.parse(JSON.stringify(old));
+    state.tn.splice(i, 1); state.tn = packTn(state.tn); // the spot goes too
     var redraw = function () { renderTN(); renderWC(); renderBefore(); renderDoors(); renderCP(); renderSA(); renderSteps(); saveDraft(); };
     redraw();
     toast(str(copy.name).trim() + ' is off Focus names.', 5000, { label: 'Undo', run: function () {
-      if (state.tn.length < was && i >= 3) state.tn.splice(i, 0, copy); else state.tn[i] = copy;
+      state.tn.splice(Math.min(i, state.tn.length), 0, copy); state.tn = packTn(state.tn);
       redraw();
     } });
   }
@@ -2302,7 +2309,7 @@
         break;
       }
       case 'quick-remove-tn': {
-        var qn = state.tn[+a], qdo = function () { state.tn[+a] = blankName(); renderTN(); renderBefore(); renderDoors(); saveDraft(); if (isPerson(view)) { toast('Focus name cleared.'); leavePerson(); } };
+        var qn = state.tn[+a], qdo = function () { state.tn.splice(+a, 1); state.tn = packTn(state.tn); renderTN(); renderBefore(); renderDoors(); saveDraft(); if (isPerson(view)) { toast('Focus name cleared.'); leavePerson(); } };
         if (qn && hasText(qn, CARD_KEYS.filter(function (k) { return k !== 'name'; }))) confirmRemove('Remove ' + qn.name.trim() + '?', qdo); else qdo();
         break;
       }

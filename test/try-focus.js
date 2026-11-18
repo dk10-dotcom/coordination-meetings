@@ -85,6 +85,13 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   ok(!st.tn.some(t => t.name === 'Samuel Ortiz') && st.cp.bt.some(a => a.name === 'Samuel Ortiz'), 'Remove takes Samuel off Focus names; he stays on the Covenant Path Report');
   await p.click('#toast .toast-action'); await w(300);
   ok((await saved()).tn.some(t => t.name === 'Samuel Ortiz'), 'Undo brings him back');
+  // Removing a name in the middle leaves no blank spot behind
+  await p.evaluate(() => [...document.querySelectorAll('#wc-list .swipe-li')].find(li => /Marcus Hill/.test(li.textContent)).querySelector('.swipe-del').click()); await w(300);
+  await p.click('#confirm-primary'); await w(400);
+  const rowsNow = await p.$$eval('#wc-list [data-wc="tn"] .person-name', els => els.map(e => e.textContent));
+  ok(rowsNow.join('|') === 'Grace Thompson|Emma Walsh|Samuel Ortiz', 'after removing Marcus Hill the names close up, with no blank spot: ' + rowsNow.join('|'));
+  await p.click('#toast .toast-action'); await w(300);
+  ok((await saved()).tn.map(t => t.name).join('|') === 'Grace Thompson|Marcus Hill|Emma Walsh|Samuel Ortiz', 'Undo puts Marcus Hill back in his place');
 
   // Ward council: an upcoming opportunity
   await p.click('.step-back'); await w(400); await p.click('[data-action="open-wc-list"][data-a="fn"]'); await w(400);

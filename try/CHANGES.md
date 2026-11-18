@@ -12,6 +12,8 @@ Everything here is in `try/` only. When it's ready, these all move to the live a
    Their next ordinance and needs come along. An action item already on their card moves with them.
 3. **Swipe left to remove a focus name**, in Ward council and the Huddle. Tap **Remove**, then confirm
    ("Remove … from Focus names?"); **Undo** in the message brings it back. They stay on the Covenant Path Report.
+   The list closes up: names stay together with no blank spot between them (empty spots only fill out to three,
+   at the end). A huddle saved with a gap closes up when it opens.
 4. **Carry forward** in Return and Report brings an unfinished assignment back as a focus name.
 
 ## The Huddle screen
