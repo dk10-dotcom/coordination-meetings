@@ -3231,6 +3231,8 @@
     }
     state.rr = items.map(function (it) { return rrFromItem(it, ''); });
     state.loaded = { fileName: fileName, ward: str(data.ward), date: str(data.date), count: items.length, practice: !!opts.practice };
+    // (Test copy) the practice week has an upcoming opportunity from ward council, ready for the huddle's assignments
+    if (opts.practice && !state.find.opps.length) state.find.opps.push({ id: oppId(), title: 'Ward Christmas devotional', date: isoShift(14) });
     state.practiceSnapshot = snap;
     if (!opts.practice && !state.ward.trim() && data.ward) { state.ward = str(data.ward); $('#ward').value = state.ward; writeWard(state.ward); }
     var carried = carryNames(data);
