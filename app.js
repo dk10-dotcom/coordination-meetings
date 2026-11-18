@@ -769,6 +769,10 @@
     Array.prototype.forEach.call(card.querySelectorAll('.wc-last'), function (x) { x.remove(); });
     (card.classList.contains('person-wc') ? [wcLast(gid, a)].filter(Boolean) : wcExtras(gid, a)).forEach(function (x) { card.appendChild(x); });
   }
+  // Under Needs on a ward council name: the same reminder that sits under the step card.
+  function confNote() {
+    return h('p', { class: 'wc-note need-note full' }, [h('span', { class: 'help-warning-icon', 'aria-hidden': 'true', text: '!' }), h('span', { text: 'Never add confidential information to this huddle report.' })]);
+  }
   function wcPersonCard(r, a) {
     var g = r.g, isTn = g === 'tn', base = isTn ? 'tn.' + r.i + '.' : 'cp.' + g + '.' + r.i + '.';
     var wc = h('div', { class: 'card-zone zone-wc-wrap' }, [
@@ -777,7 +781,8 @@
         g === 'nm' ? field('Baptism date', base + 'bap', { type: 'date', full: true }) : null,
         FIXED_ORD[g] ? h('div', { class: 'field full' }, ['Next ordinance', h('p', { class: 'fixed-value', text: FIXED_ORD[g] })])
           : ordField('Next ordinance', base + 'ordinance', { full: true }),
-        field('Needs', base + 'need', { full: true, multi: true, rows: isTn ? '2' : '3', placeholder: isTn ? 'What do they need to get there?' : 'Tap their name in the Covenant Path Report to identify needs' })
+        field('Needs', base + 'need', { full: true, multi: true, rows: isTn ? '2' : '3', placeholder: isTn ? 'What do they need to get there?' : 'Tap their name in the Covenant Path Report to identify needs' }),
+        confNote()
       ])
     ]);
     var hd = personHdOpen
@@ -1678,7 +1683,8 @@
       gid === 'nm' ? field('Baptism date', base + 'bap', { type: 'date' }) : null,
       FIXED_ORD[gid] ? h('div', { class: 'field' }, ['Next ordinance', h('p', { class: 'fixed-value', text: FIXED_ORD[gid] })])
         : ordField('Next ordinance', base + 'ordinance'),
-      field('Needs', base + 'need', { multi: true, rows: gid === 'tn' ? '2' : '3', placeholder: gid === 'tn' ? 'What do they need to get there?' : 'Tap their name in the Covenant Path Report to identify needs' })
+      field('Needs', base + 'need', { multi: true, rows: gid === 'tn' ? '2' : '3', placeholder: gid === 'tn' ? 'What do they need to get there?' : 'Tap their name in the Covenant Path Report to identify needs' }),
+      confNote()
     ].concat(extras));
   }
   // Ward council opens to its two lists, rolled up like the huddle's sections; tap one for its names.

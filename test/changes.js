@@ -60,6 +60,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   // A person's name header opens the name to edit
   await p.locator('[data-action="open-person"]').first().click(); await w(500);
   ok(await p.isVisible('#person-view .avatar-pencil'), 'the initials carry a small pencil');
+  ok(await p.evaluate(() => { const n = document.querySelector('#person-card .need-note'), f = n && n.previousElementSibling; return !!n && /Never add confidential information to this huddle report\./.test(n.textContent) && !!f && !!f.querySelector('[data-bind$=".need"]'); }), 'Ward council: the confidential reminder sits right under Needs on a name');
   await p.click('.person-head'); await w(600);
   ok(await p.evaluate(() => { const a = document.activeElement; return !!a && a.tagName === 'INPUT' && /\.name$/.test(a.getAttribute('data-bind') || '') && a.value === 'Daniel Rivera'; }), 'tapping the name header puts the cursor in the name box');
   await p.evaluate(() => document.activeElement.blur()); await w(600);

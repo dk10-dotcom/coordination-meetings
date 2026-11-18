@@ -1456,3 +1456,6 @@ body[data-view="start"] .title-text .title-sub { color: #FFFFFF; opacity: .88; }
 /* Ward council: Open Part-Member Families, under the four rows */
 .wc-pmf { margin: 4px 0 0; }
 .wc-pmf[hidden] { display: none; }
+
+/* Ward council: the confidential reminder right under a name's Needs box */
+.need-note { grid-column: 1 / -1; margin: -4px 0 0; }
