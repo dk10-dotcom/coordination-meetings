@@ -10,8 +10,8 @@ Everything here is in `try/` only. When it's ready, these all move to the live a
    Returning members are never suggested; ward council can still choose them.
 2. **Make focus name.** On a Covenant Path name's Ward council screen. Fills an open spot, or adds one past three.
    Their next ordinance and needs come along. An action item already on their card moves with them.
-3. **Swipe left to remove a focus name**, in Ward council and the Huddle. Tap **Remove**; **Undo** in the message
-   brings it back. They stay on the Covenant Path Report.
+3. **Swipe left to remove a focus name**, in Ward council and the Huddle. Tap **Remove**, then confirm
+   ("Remove … from Focus names?"); **Undo** in the message brings it back. They stay on the Covenant Path Report.
 4. **Carry forward** in Return and Report brings an unfinished assignment back as a focus name.
 
 ## The Huddle screen

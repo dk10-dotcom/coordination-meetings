@@ -1488,6 +1488,7 @@
   function enableSwipeRemove() {
     var row = null, x0 = 0, y0 = 0, dx = 0, moving = false;
     document.addEventListener('touchstart', function (e) {
+      if (e.target.closest && e.target.closest('.swipe-del')) { row = null; return; } // tapping Remove: leave the row open
       var b = e.target.closest && e.target.closest('.swipe-li .person-row');
       Array.prototype.forEach.call(document.querySelectorAll('.swipe-li.is-open'), function (li) { if (!b || li !== b.parentNode) li.classList.remove('is-open'); });
       if (!b || e.touches.length !== 1) { row = null; return; }
@@ -2236,7 +2237,14 @@
         focusLast('[data-group="' + a + '"] input[data-bind$=".name"]'); break;
       case 'convert-nm': convertToNewMember(+a); break;
       case 'make-focus': makeFocus(a, +b); break;
-      case 'swipe-remove-tn': removeFocus(+a); break;
+      case 'swipe-remove-tn': {
+        var sn = state.tn[+a], sname = sn ? str(sn.name).trim() : '';
+        if (!sname) break;
+        ask({ title: 'Remove ' + sname + ' from Focus names?', body: 'Their action item for this huddle is removed too. If they’re on the Covenant Path Report, they stay there.',
+          primary: 'Remove', onPrimary: function () { removeFocus(+a); }, secondary: 'Cancel',
+          onSecondary: function () { Array.prototype.forEach.call(document.querySelectorAll('.swipe-li.is-open'), function (li) { li.classList.remove('is-open'); }); } });
+        break;
+      }
       case 'sa-toggle': setSac(a, +b, !(a === 'tn' ? state.tn[+b] : state.cp[a][+b]).sac); renderSA(); renderSteps(); renderCP(); renderTN(); saveDraft(); break;
       case 'list-done': listDone(a); break;
       case 'tour': closeHelp(); startPractice(); break; // the guided tour is a practice week with sample names

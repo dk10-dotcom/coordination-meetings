@@ -78,7 +78,9 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   });
   ok(swiped, 'swiping a focus name left shows Remove');
   await p.screenshot({ path: OUT + '/wc-swipe.png' });
-  await p.click('#wc-list .swipe-li.is-open .swipe-del'); await w(400);
+  await p.tap('#wc-list .swipe-li.is-open .swipe-del'); await w(400); // a real tap: touches first, then the click
+  ok(await p.isVisible('#confirm-sheet') && /Remove Samuel Ortiz from Focus names\?/.test(await p.textContent('#confirm-title')) && !(await p.isVisible('#person-view')), 'tapping Remove asks first, and does not open the name');
+  await p.click('#confirm-primary'); await w(400);
   st = await saved();
   ok(!st.tn.some(t => t.name === 'Samuel Ortiz') && st.cp.bt.some(a => a.name === 'Samuel Ortiz'), 'Remove takes Samuel off Focus names; he stays on the Covenant Path Report');
   await p.click('#toast .toast-action'); await w(300);
