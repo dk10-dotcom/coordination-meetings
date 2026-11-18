@@ -93,8 +93,16 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.click('#toast .toast-action'); await w(300);
   ok((await saved()).tn.map(t => t.name).join('|') === 'Grace Thompson|Marcus Hill|Emma Walsh|Samuel Ortiz', 'Undo puts Marcus Hill back in his place');
 
-  // Ward council: an upcoming opportunity
-  await p.click('.step-back'); await w(400); await p.click('[data-action="open-wc-list"][data-a="fn"]'); await w(400);
+  // Ward council: Opportunities to invite. With none yet it says so, with starter ideas; a tip of the week sits on top.
+  await p.click('.step-back'); await w(400);
+  ok(/Opportunities to invite/.test(await p.textContent('#wc-rows')), 'Ward council’s row is called Opportunities to invite');
+  await p.click('[data-action="open-wc-list"][data-a="fn"]'); await w(400);
+  ok(/Ward council hasn’t listed any opportunities yet/.test(await p.textContent('#fn-list')) && await p.locator('#fn-list [data-action="opp-starter"]').count() >= 5, 'no opportunities yet: it says so, with starter ideas');
+  ok((await p.textContent('#tip-week')).length > 40 && await p.isVisible('#tip-week-source'), 'a tip of the week from the tips, with its source');
+  ok(!(await p.locator('#fn-list details.other-ways').getAttribute('open')), 'Other ways to invite starts closed');
+  await p.click('#fn-list [data-action="opp-starter"][data-b="Ward activity"]'); await w(300);
+  ok((await saved()).find.opps.map(o => o.title).join('|') === 'Ward activity', 'tapping a starter idea adds that opportunity');
+  await p.click('#fn-list [data-action="remove-opp"]'); await w(300); if (await p.isVisible('#confirm-sheet')) { await p.click('#confirm-primary'); await w(300); }
   await p.click('[data-action="add-opp"]'); await w(300);
   await p.fill('[data-bind="find.opps.0.title"]', 'Christmas sacrament meeting');
   await p.fill('[data-bind="find.opps.0.date"]', shift(30)); await p.evaluate(() => document.activeElement && document.activeElement.blur()); await w(200);
@@ -105,6 +113,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const last = await p.$$eval('#steps-last [data-action="open-step"]', els => els.map(e => e.getAttribute('data-a')));
   const plan = await p.$$eval('#steps-this [data-action="open-step"]', els => els.map(e => e.getAttribute('data-a')));
   ok(last.join(',') === 'rr,sa' && plan.join(',') === 'tn,fn', 'the Huddle: rr,sa then tn,fn: ' + last + ' / ' + plan);
+  ok(/Christmas sacrament meeting · 1 needs an assignment/.test(await p.textContent('#steps-this')), 'the Huddle row names the opportunity and what still needs an assignment');
   ok(!(await p.isVisible('#band-rr')) && (await p.textContent('#band-plan')).trim() === 'Huddle action plan', 'no “From the last huddle” heading; “Huddle action plan” over the plan');
   await p.screenshot({ path: OUT + '/huddle.png' });
 
@@ -127,6 +136,9 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.fill(`[data-bind="find.items.${ti}.task"]`, 'Each family invites one friend'); await p.evaluate(() => document.activeElement && document.activeElement.blur()); await w(300);
   st = await saved();
   ok(st.find.items[ti].opp === opp.id && st.find.items[ti].task === 'Each family invites one friend', 'the assignment sits under the opportunity');
+  await p.click(`[data-opp="${opp.id}"] [data-action="invite-idea"][data-b="Speakers invite someone to come hear them"]`); await w(300);
+  st = await saved();
+  ok(st.find.items.some(x => x.opp === opp.id && x.task === 'Speakers invite someone to come hear them'), 'tapping an invite idea adds it as an assignment under the opportunity');
   await p.screenshot({ path: OUT + '/opportunity.png', fullPage: true });
 
   // Return and Report: Daniel's partly-done assignment comes back as a focus name

@@ -1,6 +1,8 @@
 /* Light or dark, set before the page draws so it never flashes the wrong color.
  * Settings → Appearance stores 'light' or 'dark' on this phone; anything else (Automatic) follows the phone. */
 (function () {
+  // Automated checks skip the opening picture, so it never covers what they look at.
+  if (navigator.webdriver) document.documentElement.classList.add('no-splash');
   var pref = 'auto';
   try { pref = localStorage.getItem('huddletest-theme') || 'auto'; } catch (e) { /* storage off: follow the phone */ }
   var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;

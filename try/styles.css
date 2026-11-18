@@ -1488,3 +1488,27 @@ body[data-view="start"] .title-text .title-sub { color: #FFFFFF; opacity: .88; }
 .btn-add-opp { margin-top: 4px; }
 .wc-report-link { margin-bottom: 4px; }
 .opp-card .fn-fields { grid-template-columns: minmax(0, 1fr); }
+/* (Test copy) Opportunities to invite: tip of the week, idea chips, Other ways to invite */
+.tip-week { padding-bottom: 12px; }
+.tip-week-text { margin: 4px 16px 0; font-size: 15px; line-height: 1.45; color: var(--text); }
+.tip-week-links { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 10px 16px 0; }
+.tip-week .source-line { margin: 8px 16px 0; }
+.idea-k { margin: 0 0 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.idea-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.idea-chip { border: 1.5px solid var(--card-line); background: var(--card); color: var(--text); border-radius: 999px; padding: 7px 12px; font: inherit; font-size: 14px; line-height: 1.25; text-align: left; }
+.idea-chip:active { background: var(--accent-soft); }
+.invite-ideas .source-line, .opp-card .source-line, .opp-empty .source-line { margin: 6px 0 0; }
+.opp-empty { display: flex; flex-direction: column; gap: 8px; }
+.opp-empty-text { margin: 0; font-size: 16px; font-weight: 700; color: var(--text); }
+.other-ways > summary { list-style: none; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; cursor: pointer; }
+.other-ways > summary::-webkit-details-marker { display: none; }
+.other-ways > summary::after { content: '›'; color: var(--muted); font-size: 20px; transform: rotate(90deg); }
+.other-ways[open] > summary::after { transform: rotate(-90deg); }
+/* The opening picture: the same as the phone's launch screen, held a moment longer */
+.splash { position: fixed; inset: 0; z-index: 10000; background: #1B2B4B; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 0 24px; pointer-events: none; transition: opacity .45s ease; }
+.splash.out { opacity: 0; }
+html.no-splash .splash { display: none; }
+.splash-icon { width: 128px; height: 128px; border-radius: 30px; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35); }
+.splash-name { margin: 18px 0 0; color: #FFFFFF; font-size: 38px; font-weight: 700; letter-spacing: -0.01em; }
+.splash-sub { margin: 4px 0 0; color: #B9C7E2; font-size: min(16px, 4vw); line-height: 1.4; text-align: center; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .splash { transition: none; } }

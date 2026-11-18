@@ -29,6 +29,23 @@ Everything here is in `try/` only. When it's ready, these all move to the live a
 ## Ward council
 10. **Open the Covenant Path Report** button at the top of Ward council's Covenant Path Report list.
 
+## Opportunities to invite (was Find New People to Teach)
+- Renamed everywhere: Ward council, the Huddle, the PDF, Help and the tour.
+- The Huddle row names what's coming up: "Christmas sacrament meeting · 1 needs an assignment".
+- Ward council's opportunities come first. With none yet: "Ward council hasn't listed any opportunities yet,"
+  with starter ideas to tap (special sacrament meeting, ward activity, dinner or home evening, baptismal service,
+  sports night, self-reliance or other classes, service project).
+- Under each opportunity, invite ideas to tap (members invite friends and neighbors, speakers invite someone to come
+  hear them, members go on a visit with the missionaries, share it on the ward's activity page); each becomes an
+  assignment, and the huddle adds when.
+- **Tip of the week** at the top: one of the 15 ideas from the tips, a different one each week, with All the tips
+  and How can we help? beside it. Starter ideas, invite ideas and the tip name their source.
+- **Other ways to invite** (assignments not tied to an event) sits at the bottom, closed until tapped.
+
+## Opening picture
+- The launch picture (icon, Huddle, "Joyfully gathering Israel one by one in Christ") stays about a second
+  longer, then fades.
+
 ## Upcoming opportunities
 11. In **Find New People to Teach**, ward council taps **Add an upcoming opportunity**: what's coming up and its
     date (for example, Christmas sacrament meeting, Dec 20). In the huddle, **Add an assignment** sits under
