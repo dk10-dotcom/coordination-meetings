@@ -120,3 +120,15 @@ within those pieces; don't add a "needs attention" list (the user decided it rep
 - `test/obsolete/` holds tests for removed features (saved agendas, Send & Clear). Do not revive them.
 - `app.js` still carries unused code from saved agendas (`open-agenda`, `share-agenda`, `pick-agenda`,
   `delete-all`, `openLoad`). Nothing on the page calls it; remove it in a cleanup.
+
+## The test copy (`try/`)
+
+`try/` is a separate copy of the app at https://dk10-dotcom.github.io/coordination-meetings/try/ for trying ideas
+before they reach the nine wards. It is named "Huddle Test" (red TEST band on its icon, "Test version" on the
+opening screen), keeps its own storage keys (`huddletest-…`) and its own offline cache (`huddle-test-vN`), so it
+never reads or replaces a real huddle. Each service worker deletes only its own old caches.
+It currently tries **focus names filtering the huddle**: pressing Covenant Path names (temple countdown, a baptism
+within three weeks, an upcoming appointment) are marked "Suggested focus name"; ward council taps **Make focus
+name** (past three when needed); the huddle plans action items for focus names only, and the other Covenant Path
+names are for reference; a carried-forward assignment comes back as a focus name; the PDF leads with focus names.
+`test/try-focus.js` covers it. Changes to `try/` don't need a live `CACHE` bump; bump `try/sw.js` instead.

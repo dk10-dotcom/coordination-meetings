@@ -1,0 +1,48 @@
+/* Offline support: caches the page's own files only. It never stores form data. */
+var CACHE = 'huddle-test-v1';
+var FILES = [
+  './',
+  'index.html',
+  'styles.css',
+  'dark.css',
+  'theme.js',
+  'app.js',
+  'sample/page-1.png',
+  'sample/page-2.png',
+  'sample/page-3.png',
+  'sample/page-4.png',
+  'vendor/pdf-lib.min.js',
+  'manifest.webmanifest',
+  'icons/icon-192.png',
+  'icons/icon-512.png',
+  'icons/apple-touch-icon.png'
+];
+
+self.addEventListener('install', function (e) {
+  e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(FILES); }).then(function () { return self.skipWaiting(); }));
+});
+
+self.addEventListener('activate', function (e) {
+  e.waitUntil(caches.keys().then(function (keys) {
+    // Only the test copy's own old caches: the live app keeps its own (huddle-v…).
+    return Promise.all(keys.filter(function (k) { return k !== CACHE && /^huddle-test-v\d+$/.test(k); }).map(function (k) { return caches.delete(k); }));
+  }).then(function () { return self.clients.claim(); }));
+});
+
+// Network first, so updates show up right away; fall back to the cache when offline.
+// cache: 'no-cache' makes the phone check with the website every time instead of
+// reusing a copy for up to 10 minutes.
+self.addEventListener('fetch', function (e) {
+  if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
+  // The training video streams straight from the website: it's too big to keep offline, and phones request it in pieces.
+  if (new URL(e.request.url).pathname.indexOf('/media/') >= 0) return;
+  e.respondWith(
+    fetch(e.request, { cache: 'no-cache' }).then(function (res) {
+      var copy = res.clone();
+      caches.open(CACHE).then(function (c) { c.put(e.request, copy); });
+      return res;
+    }).catch(function () {
+      return caches.match(e.request).then(function (hit) { return hit || caches.match('index.html'); });
+    })
+  );
+});

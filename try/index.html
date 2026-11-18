@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1B2B4B">
+<meta name="color-scheme" content="light dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Huddle Test">
+<title>Huddle Test</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<!-- Launch screens (made by test/tools/make-launch.js): the icon on navy while the Home Screen app opens -->
+<link rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="icons/launch/launch-640x1136.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="icons/launch/launch-750x1334.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1242x2208.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1125x2436.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="icons/launch/launch-828x1792.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1242x2688.png">
+<link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1170x2532.png">
+<link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1284x2778.png">
+<link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1179x2556.png">
+<link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1290x2796.png">
+<link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1206x2622.png">
+<link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1320x2868.png">
+<link rel="apple-touch-startup-image" media="(device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/launch/launch-1260x2736.png">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="dark.css">
+<script src="vendor/pdf-lib.min.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<main class="wrap" id="form">
+
+  <div class="install-banner" id="install-banner" role="note" hidden>
+    <div class="install-text">
+      <p class="install-title">Add Huddle to your Home Screen</p>
+      <p class="install-body">It opens like an app and keeps your names and assignments safe on this phone.</p>
+    </div>
+    <div class="install-actions">
+      <button type="button" class="btn-primary btn-install" data-action="install">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="12" height="12" rx="3"/><path d="M9 6.2v5.6M6.2 9h5.6"/></svg>
+        Add to Home Screen
+      </button>
+      <button type="button" class="btn-link" data-action="dismiss-install">Not now</button>
+    </div>
+  </div>
+
+  <div class="step-bar" id="step-bar" hidden>
+    <button type="button" class="step-back" data-action="steps-home" aria-label="Back">
+      <svg width="20" height="20" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M11 3.5L5.5 9l5.5 5.5"/></svg>
+      Back
+    </button>
+    <span class="mode-title bar-title" id="step-title"></span>
+  </div>
+
+  <div class="step-bar" id="mode-bar" hidden>
+    <button type="button" class="step-back" data-action="go-start" aria-label="Back to the start">
+      <svg width="20" height="20" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M11 3.5L5.5 9l5.5 5.5"/></svg>
+      Back
+    </button>
+    <span class="mode-title" id="mode-title">Huddle</span>
+  </div>
+
+  <header class="top">
+    <div class="title-row">
+      <div class="title-text"><p class="app-name">Huddle · <span class="test-tag">Test version</span></p><h1>One by One</h1><p class="title-sub">“Joyfully gathering Israel one by one in Christ”</p><p class="start-where" id="start-where"><button type="button" class="start-ward" data-action="edit-ward" aria-haspopup="dialog"><span id="start-ward"></span><svg class="start-ward-pencil" width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 15l1-4 8.5-8.5a2 2 0 0 1 3 3L7 14z"/><path d="M11 4l3 3"/></svg></button><span id="start-date"></span></p></div>
+      <div class="top-buttons">
+        <button type="button" class="help-link" data-action="help" aria-haspopup="dialog">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="9" r="7.2"/><path d="M6.9 7a2.1 2.1 0 1 1 3 1.9c-.6.3-.9.8-.9 1.4v.3"/><path d="M9 13v.2"/></svg>
+          <span class="help-link-text">Help &amp; training</span>
+        </button>
+      </div>
+    </div>
+    <label class="meeting-date" id="meeting-date" aria-hidden="true">
+      <span class="md-kicker">Huddle date</span>
+      <span class="md-row"><span class="md-text">Set the date</span><svg class="md-pencil" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 15l1-4 8.5-8.5a2 2 0 0 1 3 3L7 14z"/><path d="M11 4l3 3"/></svg></span>
+      <input type="date" id="date" class="md-input" data-bind="date" aria-label="Huddle date" tabindex="-1">
+    </label>
+    <p class="sent-line" id="sent-line" hidden><span id="sent-line-text"></span><span class="sent-sep" aria-hidden="true">·</span><button type="button" class="sent-share" data-action="share-last">Share again</button></p>
+    <p class="meeting-time">About 15 minutes</p>
+    <section class="start-here" aria-label="Practice week">
+      <div class="load-panel" id="load-panel">
+          <button type="button" class="btn-outline" data-action="load">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5h6l3 3v10h-9z"/><path d="M10.5 2.5v3h3"/><path d="M9 8v5M6.8 10.8L9 13l2.2-2.2"/></svg>
+            Load from a PDF
+          </button>
+          <p class="hint center">Need to set up from a PDF that was sent? Otherwise, just start filling it in.</p>
+        </div>
+
+        <div class="loaded-banner" id="loaded-banner" hidden>
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#1F6B3A" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="9"/><path d="M7 11.5l2.6 2.5L15 8.5"/></svg>
+          <div class="loaded-text">
+            <p class="loaded-title">Practice week loaded</p>
+            <p class="loaded-sub" id="loaded-sub"></p>
+          </div>
+          <button type="button" class="btn-small green" data-action="unload">Remove</button>
+        </div>
+
+        <p class="load-reminder">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="9" r="7.2"/><path d="M9 8.2v4.3M9 5.6v.2"/></svg>
+          <span><strong>Reminder:</strong> These names should match the Covenant Path Report. Add new names and remove any no longer listed.</span>
+        </p>
+      </section>
+    <div class="hero hero-hd" data-hero="hd" id="hd-hero" hidden>
+      <p class="hero-top"><span class="hero-kicker">Step 3 · How &amp; When</span><span class="hero-date"></span></p>
+      <p class="hero-ward"></p>
+      <p class="page-intro" id="hd-intro">Report back on the last huddle, take attendance, and plan one assignment for each person: what, who and when.</p>
+      <div class="hero-progress" hidden><span class="hero-bar" aria-hidden="true"><span class="hero-fill"></span></span><span class="hero-count"></span></div>
+    </div>
+    <button type="button" class="details-summary" id="details-summary" data-action="open-details" hidden>
+      <span class="details-summary-text">
+        <span class="details-title">Huddle Attendees</span>
+        <span class="details-line" id="details-line"></span>
+        <span class="details-sub" id="details-sub"></span>
+      </span>
+      <span class="step-chev" aria-hidden="true">›</span>
+    </button>
+    <div class="details-full" id="details-full">
+    <div class="details-head">
+      <span class="details-head-title">Huddle Attendees</span>
+      <button type="button" class="btn-collapse" data-action="close-details" aria-label="Close huddle details">Close<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M3.5 10L8 5.5l4.5 4.5"/></svg></button>
+    </div>
+    <div class="field conduct-field">
+      <span id="conduct-label">Conducting</span>
+      <div class="seg conduct-seg" role="group" aria-labelledby="conduct-label" id="conduct-seg">
+        <button type="button" data-action="conducting" data-a="wml" aria-pressed="false">Ward mission leader</button>
+        <button type="button" data-action="conducting" data-a="eq" aria-pressed="false">Elders Quorum</button>
+        <button type="button" data-action="conducting" data-a="other" aria-pressed="false">Other</button>
+      </div>
+      <input type="text" id="conducting-other" data-bind="conductingOther" placeholder="Who is conducting?" autocomplete="off" autocapitalize="words" aria-label="Who is conducting" hidden>
+    </div>
+
+    <div class="field attendees-field" role="group" aria-labelledby="h-attendees">
+      <span id="h-attendees">Attendees</span>
+      <span class="attendees-hint">Make an extra effort to involve the youth.</span>
+      <details class="tfh-invite">
+        <summary><span>Invite the temple and family history leader and consultants</span><span class="info-i" aria-label="Why">i</span></summary>
+        <p>“Work with the ward mission leader and the missionaries to help those learning the gospel, new members, and returning members engage in temple and family history work.”</p>
+        <p class="source-line"><a href="https://www.churchofjesuschrist.org/study/manual/general-handbook/25-temple-and-family-history-work?lang=eng" target="_blank" rel="noopener noreferrer">General Handbook 25.2.3</a></p>
+      </details>
+      <div class="chips" id="attendee-list"></div>
+    </div>
+    <button type="button" class="btn-outline full details-done" data-action="close-details" hidden>Done</button>
+    </div>
+  </header>
+
+
+  <section class="start-home" id="start-home" aria-label="Where to start" hidden>
+    <button type="button" class="check-box tl-step" id="before-box" data-action="open-before" data-tl="1">
+      <span class="tl-mark" aria-hidden="true"><span class="tl-num">1</span><svg class="tl-check" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><span class="row-icon tile-step1" aria-hidden="true" data-tile="bw"></span><span class="up-next" aria-hidden="true">Up next</span><span class="check-text"><span class="cpr-step-k">Step 1</span><span class="check-line">Before ward council</span><span class="check-sub" id="before-sub">Update each person from the Covenant Path Report</span></span>
+      <span class="check-tick" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span>
+      <span class="step-chev" aria-hidden="true">›</span>
+    </button>
+    <button type="button" class="door door-wc tl-step" data-action="open-wc" data-tl="2">
+      <span class="tl-mark" aria-hidden="true"><span class="tl-num">2</span><svg class="tl-check" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><span class="row-icon tile-step2" aria-hidden="true" data-tile="cp"></span><span class="up-next" aria-hidden="true">Up next</span><span class="door-text"><span class="door-kicker">Step 2 · Who &amp; What</span><span class="door-title">Ward council</span><span class="door-sub" id="door-wc-sub">Names, next ordinances and needs</span></span>
+      <span class="step-chev" aria-hidden="true">›</span>
+    </button>
+    <button type="button" class="door door-hd tl-step" data-action="open-huddle" data-tl="3">
+      <span class="tl-mark" aria-hidden="true"><span class="tl-num">3</span><svg class="tl-check" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><span class="row-icon tile-step3" aria-hidden="true" data-tile="hd"></span><span class="up-next" aria-hidden="true">Up next</span><span class="door-text"><span class="door-kicker">Step 3 · How &amp; When</span><span class="door-title">Huddle</span><span class="door-sub" id="door-hd-sub">Report back, take attendance, plan the assignments</span></span>
+      <span class="step-chev" aria-hidden="true">›</span>
+    </button>
+    <button type="button" class="check-box tl-step" id="after-box" data-action="open-after" data-tl="4">
+      <span class="tl-mark" aria-hidden="true"><span class="tl-num">4</span><svg class="tl-check" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><span class="row-icon tile-step4" aria-hidden="true" data-tile="af"></span><span class="up-next" aria-hidden="true">Up next</span><span class="check-text"><span class="cpr-step-k">Step 4</span><span class="check-line">After the huddle</span><span class="check-sub" id="after-sub">Update the Covenant Path Report, then send</span></span>
+      <span class="check-tick" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span>
+      <span class="step-chev" aria-hidden="true">›</span>
+    </button>
+
+  </section>
+
+  <section class="wc-view" id="wc-view" aria-labelledby="h-wc" hidden>
+    <h2 id="h-wc">Ward council</h2>
+    <div class="hero hero-wc" data-hero="wc" id="wc-hero" hidden>
+      <p class="hero-top"><span class="hero-kicker">Step 2 · Who &amp; What</span><span class="hero-date"></span></p>
+      <p class="hero-ward"></p>
+      <p class="page-intro" id="wc-intro">Decide who to focus on, each person’s next ordinance, and what they need.</p>
+      <div class="hero-progress" hidden><span class="hero-bar" aria-hidden="true"><span class="hero-fill"></span></span><span class="hero-count"></span></div>
+    </div>
+    <a class="btn-tools wc-pmf" id="wc-pmf" href="https://lcr.churchofjesuschrist.org/mlt/report/part-member-households?lang=eng" target="_blank" rel="noopener noreferrer" hidden>
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 3h6v6"/><path d="M17 3l-8 8"/><path d="M15 12v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4"/></svg>
+        <span class="btn-tools-text">Open Part-Member Families<span class="btn-tools-sub">In Leader and Clerk Resources, on the web</span></span>
+      </a>
+    <ul class="steps-list" id="wc-rows" hidden></ul>
+    <div class="stack" id="wc-list"></div>
+  </section>
+
+  <!-- Before ward council: bring each person up to date from the Covenant Path Report -->
+  <section class="bw-view" id="bw-view" aria-label="Before ward council" hidden>
+    <div class="hero hero-bw" data-hero="bw" id="bw-hero">
+      <p class="hero-top"><span class="hero-kicker">Step 1</span><span class="hero-date"></span></p>
+      <p class="hero-ward"></p>
+      <p class="page-intro bw-intro" id="bw-intro">Update each person from the Covenant Path Report: next ordinance, needs, temple attendance and sacrament attendance.</p>
+    </div>
+    <a class="btn-tools" data-tools-link href="https://lcr.churchofjesuschrist.org/one-work/progress-record?lang=eng">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 3h6v6"/><path d="M17 3l-8 8"/><path d="M15 12v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4"/></svg>
+        <span class="btn-tools-text">Open the Covenant Path Report<span class="btn-tools-sub">In Member Tools: Reports → Covenant Path Progress</span></span>
+      </a>
+    <div class="stack" id="before-list"></div>
+    <p class="bw-note">Add anyone new, and open a name to remove someone no longer listed. Focus names aren’t here: ward council chooses those.</p>
+    <button type="button" class="btn-primary full mark-done" data-action="before-done" id="before-done-btn"><svg class="mark-check" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M3.5 9.5l3.5 3.3L14.5 5"/></svg><span class="mark-label">Mark done</span></button>
+  </section>
+
+  <!-- After the huddle: what to update in the Covenant Path Report, person by person -->
+  <section class="bw-view" id="af-view" aria-label="After the huddle" hidden>
+    <div class="hero hero-af" data-hero="af" id="af-hero">
+      <p class="hero-top"><span class="hero-kicker">Step 4</span><span class="hero-date"></span></p>
+      <p class="hero-ward"></p>
+      <p class="page-intro" id="af-intro">Update the Covenant Path Report with what happened, then mark it done so you can send.</p>
+    </div>
+    <a class="btn-tools" data-tools-link href="https://lcr.churchofjesuschrist.org/one-work/progress-record?lang=eng">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 3h6v6"/><path d="M17 3l-8 8"/><path d="M15 12v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4"/></svg>
+        <span class="btn-tools-text">Open the Covenant Path Report<span class="btn-tools-sub">In Member Tools: Reports → Covenant Path Progress</span></span>
+      </a>
+    <div class="stack" id="after-list"></div>
+    <button type="button" class="btn-primary full mark-done" data-action="after-done" id="after-done-btn"><svg class="mark-check" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M3.5 9.5l3.5 3.3L14.5 5"/></svg><span class="mark-label">Mark done</span></button>
+  </section>
+
+  <section class="person-view" id="person-view" aria-label="One person" hidden>
+    <div class="stack" id="person-card"></div>
+  </section>
+
+  <section class="steps-home" id="steps-home" aria-label="Huddle sections" hidden>
+    <button type="button" class="help-link huddle-tips" data-action="tips" aria-haspopup="dialog">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 2.2a4.8 4.8 0 0 0-2.9 8.6c.5.4.8 1 .8 1.6v.4h4.2v-.4c0-.6.3-1.2.8-1.6A4.8 4.8 0 0 0 9 2.2z"/><path d="M7.2 15.6h3.6"/></svg>
+      Tips for an effective meeting
+    </button>
+    <p class="steps-band" id="band-rr">From the last huddle</p>
+    <ul class="steps-list" id="steps-last"></ul>
+    <p class="steps-band" id="band-plan">This huddle’s plan</p>
+    <ul class="steps-list" id="steps-this"></ul>
+  </section>
+
+  <div class="week-band" role="presentation"><span class="week-label" id="week-rr">From the last huddle</span><span class="week-sub">Did it happen?</span></div>
+  <section class="section" aria-labelledby="h-rr" data-step="rr">
+    <div class="section-head">
+      <div class="head-line"><h2 id="h-rr">Return and Report</h2></div>
+      <p class="muted">Mark each assignment from the last huddle as people report back. If one isn’t finished, tap <strong class="ink">Carry forward to this huddle</strong>.</p>
+      <p class="rr-from" id="rr-from" hidden></p>
+    </div>
+
+    <div class="stack" id="rr-list"></div>
+    <div class="list-foot rr-foot" id="rr-foot">
+      <button type="button" class="btn-add" data-action="add-rr">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>
+        Add an item
+      </button>
+      <button type="button" class="btn-done" data-action="list-done" data-a="rr" aria-label="Done with Return and Report">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>
+        Done
+      </button>
+    </div>
+  </section>
+
+  <div class="week-band" role="presentation"><span class="week-label" id="week-plan">This huddle’s plan</span><span class="week-sub">Ward council: who &amp; what · Huddle: how &amp; when</span></div>
+  <section class="section plan" aria-labelledby="h-plan" data-step="cp">
+    <div class="section-head">
+      <h2 id="h-plan">Covenant Path Report</h2>
+      <a class="btn-tools" data-tools-link href="https://lcr.churchofjesuschrist.org/one-work/progress-record?lang=eng">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 3h6v6"/><path d="M17 3l-8 8"/><path d="M15 12v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4"/></svg>
+        <span class="btn-tools-text">Open the Covenant Path Report<span class="btn-tools-sub">In Member Tools: Reports → Covenant Path Progress</span></span>
+      </a>
+      <a class="tools-web" href="https://lcr.churchofjesuschrist.org/one-work/progress-record?lang=eng">Or open it on the web</a>
+    </div>
+
+    <div class="stack">
+      <div class="stack" id="cp-groups"></div>
+    </div>
+
+  </section>
+
+  <section class="section plan" aria-labelledby="h-tn" data-step="tn">
+    <div class="section-head">
+      <h2 id="h-tn">Focus names</h2>
+    </div>
+
+    <div class="stack">
+      <div class="stack" id="tn-list"></div>
+    </div>
+
+  </section>
+
+  <section class="section plan" aria-labelledby="h-fn" data-step="fn">
+    <div class="section-head">
+      <h2 id="h-fn">Find New People to Teach</h2>
+    </div>
+
+    <div class="list-panel rows list-fn fn-band">
+      <div class="list-head">
+        <h3 class="list-title">Huddle action plan</h3>
+        <span class="list-count" id="fn-count"></span>
+        <button type="button" class="how-help how-help-fn" data-action="how-help" data-a="fn" aria-haspopup="dialog"><span>How can we help?</span><span class="how-help-chev" aria-hidden="true">›</span></button>
+      </div>
+    </div>
+
+    <button type="button" class="btn-find-tips" data-action="find-tips" aria-haspopup="dialog">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 2.2a4.8 4.8 0 0 0-2.9 8.6c.5.4.8 1 .8 1.6v.4h4.2v-.4c0-.6.3-1.2.8-1.6A4.8 4.8 0 0 0 9 2.2z"/><path d="M7.2 15.6h3.6"/></svg>
+      Tips for finding new people to teach
+    </button>
+
+    <div class="stack" id="fn-list"></div>
+  </section>
+
+  <section class="section plan" aria-labelledby="h-mr" data-step="mr">
+    <div class="section-head">
+      <h2 id="h-mr">Missionary Referrals</h2>
+      <p class="muted">People referred to the full-time missionaries. A referral stays on this list until you remove it.</p>
+    </div>
+
+    <div class="stack" id="mr-list"></div>
+  </section>
+
+  <div class="step-foot" id="step-foot" hidden>
+    <button type="button" class="btn-primary full mark-done" data-action="step-done" id="step-done-btn"><svg class="mark-check" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M3.5 9.5l3.5 3.3L14.5 5"/></svg><span class="mark-label" id="step-done-label">Mark done</span></button>
+    <div class="step-nav">
+      <button type="button" class="step-nav-btn prev" data-action="step-prev" id="step-prev"></button>
+      <button type="button" class="step-nav-btn next" data-action="step-next" id="step-next"></button>
+    </div>
+  </div>
+
+  <div class="fine-notes">
+    <p class="credit">Not an official app of The Church of Jesus Christ of Latter-day Saints.</p>
+  </div>
+
+  <nav class="actionbar" aria-label="Hand off, Home and Send">
+    <div class="actionbar-row">
+      <button type="button" class="nav-side btn-handoff" data-action="handoff">
+        <svg width="22" height="22" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 9h10"/><path d="M9.5 5.5L13 9l-3.5 3.5"/><path d="M15.5 3.5v11"/></svg>
+        <span>Hand off</span>
+      </button>
+      <button type="button" class="nav-home" data-action="go-home-screen" aria-label="Home">
+        <svg width="28" height="28" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2.6l7.6 6.5a.8.8 0 0 1-1 1.2l-.6-.5V16a1.5 1.5 0 0 1-1.5 1.5h-2.6v-4.3H8.1v4.3H5.5A1.5 1.5 0 0 1 4 16V9.8l-.6.5a.8.8 0 0 1-1-1.2z"/></svg>
+      </button>
+      <button type="button" class="nav-side nav-send" data-action="send">
+        <svg width="22" height="22" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11.5V2.5M5.5 6L9 2.5 12.5 6"/><path d="M3.5 9.5v5h11v-5"/></svg>
+        <span id="send-label">Send</span>
+      </button>
+    </div>
+  </nav>
+  </div>
+</main>
+
+<!-- A handoff link opened in an iPhone's browser: a page of its own, with nothing of the app behind it.
+     iPhone opens links in Safari, never in the Home Screen app, so the handoff is carried across by copy and paste. -->
+<section class="handoff-page" id="handoff-page" aria-labelledby="hp-title" hidden>
+  <div class="hp-wrap">
+    <div class="title-text"><p class="app-name">Huddle</p><h1 id="hp-title" tabindex="-1">You’ve been handed a huddle</h1></div>
+    <p class="hp-what" id="hp-what"></p>
+    <p class="hp-why">Links open in Safari, not in the Huddle app. These three steps carry the handoff into the app.</p>
+    <ol class="hp-steps">
+      <li class="hp-step now" id="hp-step-1">
+        <span class="hp-num" aria-hidden="true">1</span>
+        <div class="hp-step-body">
+          <p class="hp-step-title">Copy the handoff</p>
+          <button type="button" class="btn-primary full" data-action="hp-copy" id="hp-copy">Copy handoff</button>
+          <p class="hp-copied" id="hp-copied" role="status" hidden>✓ Copied. Now go to step 2.</p>
+          <p class="hp-copy-failed" id="hp-copy-failed" role="status" hidden>Couldn’t copy from here. Go back to the text message, press and hold it, and tap <strong>Copy</strong>. Then go to step 2.</p>
+        </div>
+      </li>
+      <li class="hp-step" id="hp-step-2">
+        <span class="hp-num" aria-hidden="true">2</span>
+        <div class="hp-step-body">
+          <p class="hp-step-title">Open Huddle from your Home Screen</p>
+          <p class="hp-icon-row"><img src="icons/icon-192.png" width="44" height="44" alt=""><span>Look for this icon.</span></p>
+        </div>
+      </li>
+      <li class="hp-step" id="hp-step-3">
+        <span class="hp-num" aria-hidden="true">3</span>
+        <div class="hp-step-body">
+          <p class="hp-step-title">Tap Hand off, then Receive a handoff</p>
+          <p class="hp-step-sub">Hand off is in the bar at the bottom, beside Home. If your phone asks, tap <strong>Paste</strong>.</p>
+        </div>
+      </li>
+    </ol>
+    <details class="hp-noapp" id="hp-noapp">
+      <summary>Don’t have Huddle on your Home Screen?</summary>
+      <div class="hp-noapp-body">
+        <p>Add it first, then do the three steps above. It takes about a minute.</p>
+        <button type="button" class="btn-outline full" data-action="hp-install">Show me how to add it</button>
+        <p class="hp-or">No time before the meeting?</p>
+        <button type="button" class="btn-secondary full" data-action="hp-safari">Use it in Safari this once</button>
+        <p class="hp-warn">It works for this huddle. But it stays in Safari: the Home Screen app won’t have it, and the phone can erase it after about a week without a visit.</p>
+      </div>
+    </details>
+    <button type="button" class="btn-link hp-close" data-action="hp-close">Not now</button>
+  </div>
+</section>
+
+<input type="file" id="file-input" accept="application/pdf,.pdf" hidden>
+
+<!-- Send sheet -->
+<div class="overlay" id="send-sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="send-title">
+    <div class="grab" aria-hidden="true"></div>
+    <h2 id="send-title">Send this huddle report</h2>
+    <div class="file-tile">
+      <div class="file-icon" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="file-meta">
+        <p class="file-name" id="send-filename">Preparing…</p>
+        <p class="file-sub" id="send-status">Making your PDF…</p>
+      </div>
+    </div>
+
+    <label class="send-date" id="send-date-row"><span>Dated <strong id="send-date-text"></strong></span><span class="send-date-change">Change date</span><input type="date" id="send-date" aria-label="Change the huddle date"></label>
+    <p class="send-recipients" id="send-recipients"><strong>Send to the bishop-approved list, the stake presidency and the full-time missionaries.</strong> Include the elders quorum representative and yourself, so you keep a copy.</p>
+    <p class="step-hint share-rule" id="share-hint">Only share via email or text message. Do not share through any other app.</p>
+    <button type="button" class="btn-primary full" data-action="share" id="share-btn" disabled>Share PDF</button>
+
+    <button type="button" class="btn-secondary full" data-action="close-send">Keep editing</button>
+    <p class="fine center"><strong>Private by design:</strong> everything stays on this phone, and nothing is saved online. The only copy that leaves is the PDF you choose to share.</p>
+  </div>
+</div>
+
+<!-- Load last week: agendas saved on this phone -->
+<div class="overlay" id="handoff-sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="handoff-title">
+    <div class="grab" aria-hidden="true"></div>
+    <h2 id="handoff-title" tabindex="-1">Hand off</h2>
+    <p class="step-hint">Send a handoff only to the leader who conducts next. Filled in for someone? After you send the PDF, hand it back the same way.</p>
+    <ul class="steps-list">
+      <li><button type="button" class="nav-row" data-action="handoff-send" id="handoff-send">
+        <span class="step-text"><span class="step-title">Send a handoff</span><span class="step-status" id="handoff-send-sub">Text this huddle to the leader who conducts next</span></span>
+        <span class="step-chev" aria-hidden="true">›</span>
+      </button></li>
+      <li><button type="button" class="nav-row" data-action="handoff-receive" id="handoff-receive">
+        <span class="step-text"><span class="step-title">Receive a handoff</span><span class="step-status">Paste the handoff you copied</span></span>
+        <span class="step-chev" aria-hidden="true">›</span>
+      </button></li>
+    </ul>
+    <button type="button" class="btn-secondary full" data-action="close-handoff">Cancel</button>
+  </div>
+</div>
+
+<!-- Step-by-step guide (the training slides): one at a time; Next when ready. Pictures and words are in media/slides (made by test/tools/slides/make.js). -->
+<div class="overlay" id="slides-sheet" hidden>
+  <div class="sheet slides" role="dialog" aria-modal="true" aria-labelledby="slide-title">
+    <div class="slides-top">
+      <span class="slides-count" id="slides-count"></span>
+      <button type="button" class="sheet-x" data-action="close-slides" aria-label="Close the slides">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4.5 4.5l9 9M13.5 4.5l-9 9"/></svg>
+      </button>
+    </div>
+    <ol class="slides-steps" id="slides-steps" aria-label="Where this slide is in the week">
+      <li data-p="1" aria-label="Step 1, Before ward council">1</li>
+      <li data-p="2" aria-label="Step 2, Ward council">2</li>
+      <li data-p="3" aria-label="Step 3, The Huddle">3</li>
+      <li data-p="4" aria-label="Step 4, After the huddle">4</li>
+      <li data-p="5" aria-label="During the week">Week</li>
+    </ol>
+    <div class="slide" id="slide" aria-live="polite">
+      <p class="slide-kicker" id="slide-kicker"></p>
+      <h2 id="slide-title"></h2>
+      <p class="slide-body" id="slide-body"></p>
+      <p class="slide-fine" id="slide-fine" hidden></p>
+      <img class="slide-img" id="slide-img" alt="">
+    </div>
+    <div class="slides-nav">
+      <button type="button" class="btn-secondary" data-action="slide-prev" id="slide-prev">Back</button>
+      <button type="button" class="btn-primary" data-action="slide-next" id="slide-next">Next</button>
+    </div>
+  </div>
+</div>
+
+<!-- The ward name: set once, from the opening screen's header card -->
+<div class="overlay" id="ward-sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ward-title">
+    <div class="grab" aria-hidden="true"></div>
+    <h2 id="ward-title">Your ward</h2>
+    <p class="step-hint">It goes at the top of each step, on the PDF and in the texts.</p>
+    <label class="field">Ward name
+      <input type="text" id="ward" data-bind="ward" placeholder="e.g. Riverton 5th Ward" autocomplete="off" autocapitalize="words" enterkeyhint="done">
+    </label>
+    <button type="button" class="btn-primary full" data-action="close-ward">Done</button>
+  </div>
+</div>
+
+<!-- How can we help?: the questions for one section of the Huddle. Nothing is typed here and none of it goes on the PDF. -->
+<div class="overlay" id="howhelp-sheet" hidden>
+  <div class="sheet help howhelp" role="dialog" aria-modal="true" aria-labelledby="howhelp-title">
+    <div class="grab" aria-hidden="true"></div>
+    <div class="howhelp-head">
+      <div class="howhelp-heading">
+        <p class="howhelp-kicker" id="howhelp-kicker"></p>
+        <h2 id="howhelp-title"></h2>
+      </div>
+      <button type="button" class="sheet-x" data-action="close-how-help" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4.5 4.5l9 9M13.5 4.5l-9 9"/></svg>
+      </button>
+    </div>
+    <ul class="howhelp-list" id="howhelp-list"></ul>
+    <p class="source-line" id="howhelp-source">From <a href="https://www.churchofjesuschrist.org/study/manual/preach-my-gospel-2023/21-chapter-13?lang=eng" target="_blank" rel="noopener noreferrer"><em>Preach My Gospel</em>, chapter 13</a></p>
+  </div>
+</div>
+
+<!-- Tips -->
+<div class="overlay" id="tips-sheet" hidden>
+  <div class="sheet help" role="dialog" aria-modal="true" aria-labelledby="tips-title">
+    <div class="grab" aria-hidden="true"></div>
+    <h2 id="tips-title">Principles for Effective Coordination</h2>
+
+    <ul class="principle-list">
+      <li><strong>Meet weekly &amp; stay connected:</strong> Brief weekly meetings; use chats between meetings.</li>
+      <li><strong>Take notes &amp; make specific plans:</strong> Record assignments and concrete weekly steps.</li>
+      <li><strong>Follow up &amp; act beyond meetings:</strong> Regularly check progress and fulfill commitments during the week.</li>
+      <li><strong>Involve youth:</strong> Give youth responsibilities; coordinate with ward council, temple, &amp; family history leaders.</li>
+      <li><strong>Share experiences:</strong> Share inspiring stories and blessings.</li>
+    </ul>
+    <p class="source-line" id="tips-source">Adapted from <a href="https://www.churchofjesuschrist.org/study/manual/sharing-the-gospel-resources-for-leaders/02-effective-coordination-with-missionaries?lang=eng" target="_blank" rel="noopener noreferrer">“Ideas for Weekly Missionary Coordination,” <em>Sharing the Gospel: Resources for Leaders</em></a></p>
+
+    <div class="help-tip">
+      <p class="help-h">Prepare ahead</p>
+      <p><strong>Keep the meeting quick.</strong> Open the huddle report before the meeting starts; ward council has already updated the names and needs. Come already thinking about who is on the huddle report and what each person needs, so the meeting is spent planning, not typing.</p>
+    </div>
+
+    <button type="button" class="btn-primary full" data-action="close-tips">Got it</button>
+  </div>
+</div>
+
+<!-- Tips for finding new people to teach -->
+<div class="overlay" id="find-tips-sheet" hidden>
+  <div class="sheet help" role="dialog" aria-modal="true" aria-labelledby="find-tips-title">
+    <div class="grab" aria-hidden="true"></div>
+    <h2 id="find-tips-title">Tips for Finding New People to Teach</h2>
+
+    <ul class="principle-list find-list">
+      <li><strong>Consider part-member families</strong> you can serve and help. The bishopric, ward clerk, or others on the ward council can help provide lists of these families and individuals that you could visit, serve, and invite to participate.</li>
+      <li><strong>Look at upcoming activities, meetings, and classes that the ward could invite people to attend.</strong> Consider publishing those activities on your ward web page, where available (see “Share Ward Activities”), and encourage members to invite those who are less familiar with the Church to attend.</li>
+      <li><strong>Plan which members or ward organizations you could encourage</strong> to follow Christ by living the principles of love, share, and invite (see <em>Preach My Gospel</em>, 168). Plan how to and who can share those principles with them and how to follow up and continually support them (see “Ways to Love, Share, and Invite”).</li>
+      <li><strong>Encourage members to simply invite people to attend church</strong> with us.</li>
+    </ul>
+
+    <p class="find-note">Avoid turning the principles of love, share, and invite into a program. Find ways to encourage members to make those principles an ongoing part of how they live because of their love and discipleship of the Savior. More ideas on how to do this are included below.</p>
+
+    <div class="help-tip find-ideas">
+      <p class="help-h">15 Ideas to Encourage Your Ward or Branch to Share the Gospel</p>
+      <p>Here are 15 ideas that the weekly coordination group could do to encourage members to love, share, and invite. Use them for inspiration, or apply what would work best for your ward!</p>
+      <ol class="idea-list">
+        <li><strong>Visit a Class:</strong> Take a few minutes to visit a class, quorum, or organization at the beginning of the second hour to highlight upcoming opportunities to love, share, and invite. Consider sharing a brief experience where living those principles blessed those who are not familiar with the Church.</li>
+        <li><strong>Reach Out:</strong> Send messages to members expressing love and appreciation. Ask them if anyone has come to their mind recently that might need to feel their love or join them for an activity in their home or at the church. Whether they have someone in mind or not, continue to encourage them to pray and look for opportunities to love, share, and invite.</li>
+        <li><strong>Know the Calendar:</strong> Remind members of any upcoming opportunities to share with friends and neighbors (for example, a special sacrament meeting like the Primary program, a ward activity, a dinner or home evening at your house, a baptismal service, a sports night, self-reliance or other classes, and so on).</li>
+        <li><strong>Help Speakers Invite Friends:</strong> Contact the members who have been asked to speak in sacrament meeting, and encourage them to invite someone less familiar with the Church to come hear them.</li>
+        <li><strong>Plan Visits:</strong> Each week in the coordination meeting you could decide which members you could visit to discuss love, share, and invite and ask them to think about the opportunities they have to live those principles and share the gospel. Ensure in the coordination meeting that you have planned who will follow up with those families!</li>
+        <li><strong>Assist the Missionaries:</strong> Help members go out on a visit with the missionaries! While you’re together, drop by to say hi to a neighbor or friend.</li>
+        <li><strong>Share Activities:</strong> If your ward is using the activity web page (see the Activity Sharing page), ensure members are aware of it and that the bishopric announces often that activities are found on that page that we can invite friends and neighbors to attend.</li>
+        <li><strong>Social Media:</strong> Encourage members who use social media to include aspects of the gospel that are part of their day-to-day lives and start conversations with those who like and comment on the posts.</li>
+        <li><strong>Love Your Neighbor:</strong> Encourage members to be aware of any neighbors who have had a significant life event (for example, recently married, had a child, recently moved in, and so forth). Make a simple plan to serve and show love to them.</li>
+        <li><strong>New Move-Ins:</strong> Encourage members to share with the ward mission leader those people who are moving in and new housing developments that are being built. Coordinate inviting members to welcome these people to the area, offer help, and share information about the neighborhood, Sunday meetings, and ward activities (see Activity Sharing). Involve the missionaries.</li>
+        <li><strong>Be Welcoming:</strong> Introduce yourself to people you don’t know at church or who are coming for the first time. Help them feel welcomed and loved! Encourage the ward to do the same.</li>
+        <li><strong>Stay in Touch:</strong> Encourage members to stay in touch with those that live far away. If they ever have a need the missionaries can help with, members can introduce them to the missionaries with this online tool.</li>
+        <li><strong>Service Projects:</strong> Organize a service project and invite neighbors and friends. Include a prayer and a quick spiritual thought at some point! You could do the same with an ongoing sports night.</li>
+        <li><strong>Daily Routine:</strong> Encourage members to think about people they have contact with because of their daily routine. Brainstorm how they could live the principles of love, share, and invite with those people.</li>
+        <li><strong>Phone or Social Contacts:</strong> Encourage members to open their list of phone contacts or social media friends and see if they can help someone feel loved with a brief message or share anything that they would appreciate. In some cases, they might want to invite them to an activity in their home or at church.</li>
+      </ol>
+    </div>
+
+    <p class="source-line" id="find-tips-source">From <a href="https://www.churchofjesuschrist.org/study/manual/sharing-the-gospel-resources-for-leaders/02-effective-coordination-with-missionaries?lang=eng" target="_blank" rel="noopener noreferrer">“Ideas for Weekly Missionary Coordination,” <em>Sharing the Gospel: Resources for Leaders</em></a></p>
+
+    <button type="button" class="btn-primary full" data-action="close-find-tips">Got it</button>
+  </div>
+</div>
+
+<!-- Sample huddle report: shown inside the app so there's always a way back -->
+<div class="overlay" id="sample-sheet" hidden>
+  <div class="sheet sample-view" role="dialog" aria-modal="true" aria-labelledby="sample-title">
+    <div class="grab" aria-hidden="true"></div>
+    <div class="sample-head">
+      <h2 id="sample-title">Sample huddle report</h2>
+      <button type="button" class="sample-close" data-action="close-sample" aria-label="Close the sample huddle report">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 5l8 8M13 5l-8 8"/></svg>
+        Close
+      </button>
+    </div>
+    <p class="sample-note">Made-up names in a made-up ward. This is what the PDF you send each week looks like. Its pages are the shape of a phone screen, with one short block for each person.</p>
+    <img class="sample-page" src="sample/page-1.png" width="900" height="1950" alt="Sample huddle report, page 1: ward, date, who attended, and the start of Return and Report" loading="lazy">
+    <img class="sample-page" src="sample/page-2.png" width="900" height="1950" alt="Sample huddle report, page 2: the rest of Return and Report, and new members in Covenant Path Report Review" loading="lazy">
+    <img class="sample-page" src="sample/page-3.png" width="900" height="1950" alt="Sample huddle report, page 3: returning members, those being taught, Name Next Ordinance, and the plan to find new people to teach" loading="lazy">
+    <img class="sample-page" src="sample/page-4.png" width="900" height="1950" alt="Sample huddle report, page 4: assignments to find new people to teach, and Missionary Referrals" loading="lazy">
+    <button type="button" class="btn-primary full" data-action="close-sample">Back to Help &amp; training</button>
+  </div>
+</div>
+
+<!-- Help & training -->
+<div class="overlay" id="help-sheet" hidden>
+  <div class="sheet help" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <div class="grab" aria-hidden="true"></div>
+    <div class="help-head"><h2 id="help-title">Help &amp; training</h2><button type="button" class="help-close" data-action="close-help" id="help-done">Close</button></div>
+
+
+    <h3 class="help-band">Start here</h3>
+    <ul class="steps-list help-list">
+      <li><details class="help-item" id="help-install">
+        <summary class="nav-row"><span class="step-text"><span class="step-title">Add Huddle to your Home Screen</span><span class="step-status" id="help-install-status">Do this once, before you start</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <ul class="help-body">
+          <li>Do this first: on iPhone, what you type in Safari doesn’t carry over to the app.</li>
+          <li>Tap <strong>Add to Home Screen</strong> at the top of the opening screen. iPhone: use Safari. Android: use Chrome.</li>
+          <li>From then on, open Huddle from its icon.</li>
+          <li><strong>Don’t delete the icon.</strong> That erases everything on this phone.</li>
+        </ul>
+      </details></li>
+      <li><button type="button" class="nav-row" data-action="tour">
+        <span class="step-text"><span class="step-title">Take the guided tour</span><span class="step-status">Practice a week with sample names</span></span><span class="step-chev" aria-hidden="true">›</span>
+      </button></li>
+      <li><button type="button" class="nav-row" data-action="slides" aria-haspopup="dialog" id="help-slides-row">
+        <span class="step-text"><span class="step-title">Step-by-step guide</span><span class="step-status">Read through at your own pace</span></span><span class="step-chev" aria-hidden="true">›</span>
+      </button></li>
+      <li><button type="button" class="nav-row" data-action="sample" aria-haspopup="dialog">
+        <span class="step-text"><span class="step-title">See a sample huddle report</span><span class="step-status">What the PDF you send looks like</span></span><span class="step-chev" aria-hidden="true">›</span>
+      </button></li>
+    </ul>
+
+    <h3 class="help-band">Every week</h3>
+    <ul class="steps-list help-list">
+      <li><details class="help-item">
+        <summary class="nav-row"><span class="help-num" aria-hidden="true">1</span><span class="step-text"><span class="step-title">Before ward council</span><span class="step-status">Update each person from the Covenant Path Report</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <ul class="help-body">
+          <li>Tap <strong>Home</strong> at the bottom, then <strong>Before ward council</strong>, then <strong>Open the Covenant Path Report</strong>.</li>
+          <li>Tap each name and update what changed, including a baptism date or appointment.</li>
+          <li>Add anyone new. Remove anyone no longer listed.</li>
+          <li>Tap <strong>Mark done</strong>.</li>
+        </ul>
+      </details></li>
+      <li><details class="help-item">
+        <summary class="nav-row"><span class="help-num" aria-hidden="true">2</span><span class="step-text"><span class="step-title">Ward council</span><span class="step-status">Who to focus on, and each next ordinance</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <ul class="help-body">
+          <li>Tap <strong>Home</strong>, then <strong>Ward council</strong>, then <strong>Covenant Path Report</strong> or <strong>Focus names</strong>.</li>
+          <li>Tap a name, or <strong>Add a name</strong>. Choose the next ordinance; add what they need.</li>
+          <li>Names marked <strong>Suggested focus name</strong> are pressing. Tap the name, then <strong>Make focus name</strong>.</li>
+          <li>For ideas, tap <strong>How can we help?</strong> It all shows in the Huddle.</li>
+          <li>Tap <strong>Open Part-Member Families</strong> to find names.</li>
+        </ul>
+      </details></li>
+      <li><details class="help-item">
+        <summary class="nav-row"><span class="help-num" aria-hidden="true">3</span><span class="step-text"><span class="step-title">Huddle</span><span class="step-status">How and when to help</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <ul class="help-body">
+          <li>Tap <strong>Home</strong>, then <strong>Huddle</strong>. The bar shows sections done. In <strong>Huddle Attendees</strong>, choose who’s conducting and tap who attended.</li>
+          <li><strong>Return and Report:</strong> mark each assignment <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>. To keep an unfinished one on the plan, tap <strong>Carry forward to this huddle</strong>.</li>
+          <li><strong>Focus names:</strong> tap a name. Check <strong>Attended sacrament</strong> if they came. Add one action item, who will do it and when.</li>
+          <li><strong>Covenant Path Report</strong> is the rest of the report, for reference. Tap a name to mark sacrament, or <strong>Make focus name</strong>.</li>
+          <li><strong>Find New People to Teach:</strong> add the plan and assignments. <strong>Missionary Referrals:</strong> open one to text it to the missionaries.</li>
+          <li>Before everyone leaves, tap <strong>Text this assignment</strong> on each person’s screen.</li>
+        </ul>
+      </details></li>
+      <li><details class="help-item">
+        <summary class="nav-row"><span class="help-num" aria-hidden="true">4</span><span class="step-text"><span class="step-title">After the huddle</span><span class="step-status">Update the report, then share the PDF</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <ul class="help-body">
+          <li>Tap <strong>Home</strong>, then <strong>After the huddle</strong>. It lists what to update; <strong>Changed</strong> means updated since step 1.</li>
+          <li>Update the report, then tap <strong>Mark done</strong>.</li>
+          <li>Tap <strong>Send</strong>, then <strong>Share PDF</strong>. <strong>Only share via email or text message. Do not share through any other app.</strong></li>
+          <li>Send it to the bishop-approved list, the stake presidency and the full-time missionaries. Include the elders quorum representative and yourself.</li>
+          <li>Sending finishes the huddle. Its assignments move to Return and Report for next time. Names and needs stay.</li>
+        </ul>
+      </details></li>
+      <li><details class="help-item">
+        <summary class="nav-row"><span class="help-num help-week" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3"/></svg></span><span class="step-text"><span class="step-title">During the week</span><span class="step-status">Mark assignments as people report back</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <ul class="help-body">
+          <li>As people report back, tap <strong>Home</strong>, then <strong>Huddle</strong>, then <strong>Return and Report</strong>, and mark <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>.</li>
+          <li>Keep names, needs and the Covenant Path Report up to date.</li>
+        </ul>
+      </details></li>
+    </ul>
+
+    <h3 class="help-band">FAQ</h3>
+    <ul class="steps-list help-list">
+      <li><details class="help-item">
+        <summary class="nav-row"><span class="step-text"><span class="step-title">How do I add or remove a name?</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <ul class="help-body">
+          <li><strong>Add:</strong> open a list and tap <strong>Add a name</strong>. <strong>Fix a name:</strong> tap it at the top.</li>
+          <li><strong>Remove:</strong> open the person and tap <strong>Remove from the list</strong> at the bottom. A focus name has <strong>Clear this focus name</strong>.</li>
+          <li><strong>No one on a list this week?</strong> In the Huddle’s <strong>Covenant Path Report</strong> section, tap <strong>Confirm none this week</strong>. The PDF then shows the list was reviewed.</li>
+          <li>A name nobody has updated in 4 weeks shows <strong>Not updated in 4 weeks</strong>. Open it and tap <strong>Keep</strong> or <strong>Remove</strong>. After 5 weeks it is removed automatically.</li>
+        </ul>
+      </details></li>
+      <li><details class="help-item">
+        <summary class="nav-row"><span class="step-text"><span class="step-title">How do I track baptisms and the temple?</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <ul class="help-body">
+          <li><strong>New member:</strong> enter the baptism date. The red <strong>Temple attendance</strong> box counts down 30 days to baptisms for the dead. Check it once they’ve gone.</li>
+          <li><strong>Being taught:</strong> check <strong>Committed to baptism</strong> and enter the date. After the baptism, tap <strong>Move to New members</strong>.</li>
+        </ul>
+      </details></li>
+      <li><details class="help-item">
+        <summary class="nav-row"><span class="step-text"><span class="step-title">What if someone else conducts?</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <ul class="help-body">
+          <li>The ward mission leader usually conducts. When he’s away, the elders quorum representative does.</li>
+          <li>Tap <strong>Hand off</strong> at the bottom, then <strong>Send a handoff</strong>. Text the link to the leader who will conduct.</li>
+          <li>They tap it and follow the steps.</li>
+          <li><strong>Filled in for someone?</strong> After you send the PDF, hand it back the same way, to whoever conducts next week.</li>
+        </ul>
+      </details></li>
+      <li><details class="help-item">
+        <summary class="nav-row"><span class="step-text"><span class="step-title">How do I fix a mistake?</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <ul class="help-body">
+          <li><strong>Sent too soon?</strong> Tap <strong>Undo</strong> in the <strong>Sent successfully</strong> message, fix it, and send again.</li>
+          <li><strong>Marked something done by mistake?</strong> Open it and tap the green <strong>Done</strong>.</li>
+          <li><strong>Carried an assignment forward by mistake?</strong> Tap <strong>Undo</strong> on that assignment.</li>
+        </ul>
+      </details></li>
+      <li><details class="help-item">
+        <summary class="nav-row"><span class="step-text"><span class="step-title">How do I share the PDF again?</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <ul class="help-body">
+          <li>On the opening screen, tap <strong>Share again</strong> beside <strong>✓ Nov 8 huddle sent</strong> (with your date).</li>
+          <li>The app keeps only the last huddle you sent.</li>
+        </ul>
+      </details></li>
+      <li><details class="help-item">
+        <summary class="nav-row"><span class="step-text"><span class="step-title">New phone? How do I get my names back?</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <ul class="help-body">
+          <li>Deleted the icon? Under <strong>Settings</strong>, tap <strong>Load from a PDF</strong> and choose the last PDF you sent.</li>
+        </ul>
+      </details></li>
+    </ul>
+
+    <h3 class="help-band">Settings</h3>
+    <ul class="steps-list help-list">
+      <li class="appearance-row"><div class="nav-row appearance">
+        <span class="step-text"><span class="step-title">Appearance</span></span>
+        <div class="appearance-seg" role="group" aria-label="Appearance">
+          <button type="button" data-action="theme" data-a="auto" aria-pressed="true">Automatic</button>
+          <button type="button" data-action="theme" data-a="light" aria-pressed="false">Light</button>
+          <button type="button" data-action="theme" data-a="dark" aria-pressed="false">Dark</button>
+        </div>
+      </div></li>
+      <li id="more-load-row"><button type="button" class="nav-row" data-action="load-other">
+        <span class="step-text"><span class="step-title">Load from a PDF</span><span class="step-status">New phone? Choose the last PDF you sent</span></span><span class="step-chev" aria-hidden="true">›</span>
+      </button></li>
+      <li><button type="button" class="nav-row danger-row clear-link" data-action="clear">
+        <span class="step-text"><span class="step-title">Erase everything and start over</span><span class="step-status">Clears this phone. The ward name stays.</span></span><span class="step-chev" aria-hidden="true">›</span>
+      </button></li>
+    </ul>
+
+    <h3 class="help-band">About this app</h3>
+    <ul class="steps-list help-list">
+      <li><details class="help-item" id="help-privacy">
+        <summary class="nav-row"><span class="step-text"><span class="step-title">Privacy and security</span><span class="step-status">Everything stays on this phone</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <ul class="help-body">
+          <li>What you enter stays on this phone. Nothing is saved online.</li>
+          <li>Only what you send leaves it: the PDF, an assignment text or a handoff.</li>
+          <li><strong>Protect the PDF.</strong> Only share via email or text message. Do not share through any other app. Delete old copies.</li>
+          <li><strong>Never enter confidential or sensitive information.</strong> Everyone who gets the PDF can read it.</li>
+        </ul>
+      </details></li>
+      <li><details class="help-item" id="help-sources">
+        <summary class="nav-row"><span class="step-text"><span class="step-title">Sources</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <ul class="help-body">
+          <li><a href="https://www.churchofjesuschrist.org/study/manual/preach-my-gospel-2023/21-chapter-13?lang=eng" target="_blank" rel="noopener noreferrer"><em>Preach My Gospel</em>, chapter 13</a>: questions.</li>
+          <li><a href="https://www.churchofjesuschrist.org/study/manual/general-handbook/23-sharing-the-gospel-and-strengthening-new-and-returning-members?lang=eng" target="_blank" rel="noopener noreferrer">General Handbook 23.4</a>: meeting.</li>
+          <li><a href="https://www.churchofjesuschrist.org/study/manual/sharing-the-gospel-resources-for-leaders/02-effective-coordination-with-missionaries?lang=eng" target="_blank" rel="noopener noreferrer">“Ideas for Weekly Missionary Coordination”</a>: tips.</li>
+        </ul>
+      </details></li>
+    </ul>
+
+    <div class="help-credits">
+      <p>Not an official app of The Church of Jesus Christ of Latter-day Saints.</p>
+      <p class="credit-name">Made by Darren Kirkham · <a href="mailto:darrenkirkham@mac.com">darrenkirkham@mac.com</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- How to add to Home Screen (iPhone, or browsers without an install prompt) -->
+<div class="overlay" id="install-sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="install-title">
+    <div class="grab" aria-hidden="true"></div>
+    <h2 id="install-title">Add to your Home Screen</h2>
+    <ol class="install-steps" id="install-steps"></ol>
+    <p class="step-hint">From now on, open Huddle from its icon so your names and assignments are always there.</p>
+    <button type="button" class="btn-primary full" data-action="close-install">Got it</button>
+  </div>
+</div>
+
+<!-- Confirm / notice sheet -->
+<div class="overlay" id="confirm-sheet" hidden>
+  <div class="sheet" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-body">
+    <div class="grab" aria-hidden="true"></div>
+    <div class="confirm-head">
+      <span class="warn-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#8A5A00" stroke-width="2"><path d="M10 3L18 17H2z"/><path d="M10 8.5v3.5M10 14.5v.2"/></svg></span>
+      <span class="confetti" aria-hidden="true" hidden><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="ok-icon" aria-hidden="true" hidden><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11.5l3.4 3.3L16.5 7.5"/></svg></span>
+      <h2 id="confirm-title"></h2>
+    </div>
+    <p class="confirm-cheer" id="confirm-cheer" hidden></p>
+    <div class="compare" id="confirm-compare" hidden></div>
+    <p class="confirm-body" id="confirm-body"></p>
+    <a class="btn-secondary full confirm-link" id="confirm-link" data-tools-link href="https://lcr.churchofjesuschrist.org/one-work/progress-record?lang=eng" hidden>Open the Covenant Path Report</a>
+    <div class="stack tight">
+      <button type="button" class="btn-primary full" id="confirm-primary"></button>
+      <button type="button" class="btn-secondary full" id="confirm-secondary"></button>
+      <button type="button" class="btn-link confirm-tertiary" id="confirm-tertiary" hidden></button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
