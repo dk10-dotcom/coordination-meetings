@@ -1,5 +1,5 @@
 // The test copy (try/): focus names filter the huddle, and it keeps its own storage.
-// - New members not yet at the temple, and those being taught with an upcoming baptism or appointment, are suggested
+// - New members not yet at the temple, and those being taught with a baptism in 30 days or an appointment in a week, are suggested
 // - Make focus name in ward council (past three when needed); swipe a focus name left to remove it
 // - The Huddle: Return and Report and Sacrament attendance, then the Huddle action plan (Focus names, Find New People to Teach)
 // - No Covenant Path Report section in the Huddle and no Missionary Referrals anywhere
@@ -20,7 +20,7 @@ const seed = {
   cp: {
     nm: [card({ name: 'Daniel Rivera', bap: shift(-60), temple: true, ordinance: 'Priesthood advancement' }), card({ name: 'Emma Walsh', ordinance: 'Baptisms for the dead', need: 'A ride to the temple' })],
     rm: [card({ name: 'Olivia Chen', ordinance: 'Endowment', need: 'A friend at church' })],
-    bt: [card({ name: 'Marcus Hill', bap: shift(40), committed: true, need: 'Get to know ward members' }), card({ name: 'Samuel Ortiz', appt: shift(3) })]
+    bt: [card({ name: 'Marcus Hill', bap: shift(20), committed: true, need: 'Get to know ward members' }), card({ name: 'Samuel Ortiz', appt: shift(3) }), card({ name: 'Marcus Bell', bap: shift(45), appt: shift(10) })]
   },
   cpNone: {}, tn: [card({ name: 'Grace Thompson', ordinance: 'Sealing' }), card({ touched: '' }), card({ touched: '' })],
   find: { plan: '', items: [{ task: '', when: '' }] }, referrals: [{ name: 'Marcus Bell', by: 'Sister Diaz', notes: '' }],
@@ -45,7 +45,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   // Before ward council: pressing names are suggested (not returning members, not a new member who has been to the temple)
   await p.click('#before-box'); await w(500);
   const bw = await p.$$eval('#before-list .person-row', els => els.map(e => e.querySelector('.person-name').textContent + (/Suggested focus name/.test(e.textContent) ? '*' : '')));
-  ok(bw.filter(x => x.endsWith('*')).sort().join('|') === 'Emma Walsh*|Marcus Hill*|Samuel Ortiz*', 'suggested: Emma (not yet to the temple, no baptism date), Marcus (baptism in 40 days), Samuel (appointment): ' + bw.join(', '));
+  ok(bw.filter(x => x.endsWith('*')).sort().join('|') === 'Emma Walsh*|Marcus Hill*|Samuel Ortiz*', 'suggested: Emma (not yet to the temple, no baptism date), Marcus Hill (baptism in 20 days), Samuel (appointment in 3 days); not Marcus Bell (baptism in 45 days, appointment in 10): ' + bw.join(', '));
   await p.click('.nav-home'); await w(400);
 
   // Ward council: the report button, then make them focus names (past three)
@@ -102,7 +102,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   // Sacrament attendance: one tap per name, and a focus name is marked once
   await p.click('[data-action="open-step"][data-a="sa"]'); await w(400);
   const saNames = await p.$$eval('#sa-list .person-name', els => els.map(e => e.textContent));
-  ok(saNames.join('|') === 'Daniel Rivera|Emma Walsh|Olivia Chen|Marcus Hill|Samuel Ortiz|Grace Thompson', 'everyone once: ' + saNames.join('|'));
+  ok(saNames.join('|') === 'Daniel Rivera|Emma Walsh|Olivia Chen|Marcus Hill|Samuel Ortiz|Marcus Bell|Grace Thompson', 'everyone once: ' + saNames.join('|'));
   await p.click('#sa-list [data-a="bt"][data-b="0"]'); await w(300);
   st = await saved();
   ok(st.cp.bt[0].sac && st.tn.find(t => t.name === 'Marcus Hill').sac, 'tapping Marcus Hill marks him on the report and on his focus name card');
@@ -136,7 +136,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const f = OUT + '/try.pdf'; await dl.saveAs(f);
   const t = execSync(`pdftotext -layout "${f}" -`).toString();
   ok(t.indexOf('Focus names') > 0 && /Christmas sacrament meeting/.test(t) && /Each family invites one friend/.test(t), 'PDF: focus names, the opportunity and its assignment');
-  ok(!/Missionary Referrals|Marcus Bell/.test(t), 'PDF: no Missionary Referrals');
+  ok(!/Missionary Referrals|Referred by/.test(t), 'PDF: no Missionary Referrals');
   // The next huddle: the assignment comes back in Return and Report, and the opportunity stays until its date
   await p.click('#confirm-primary').catch(() => {}); await w(500);
   st = await saved();

@@ -121,7 +121,7 @@
   function apptNote(a) { var d = parseISO(str(a.appt)), t = parseISO(todayISO()); return d && t && d >= t ? 'Appointment: ' + whenShow(a.appt) : ''; }
   /* ---------- (Test copy) Focus names filter the huddle ----------
    * Before ward council and in ward council, a Covenant Path name that is pressing (a new member not yet at the temple,
-   * someone being taught with an upcoming baptism or missionary appointment) is marked red as a suggested focus name.
+   * someone being taught with a baptism in the next 30 days or a missionary appointment in the next week) is marked red.
    * Returning members are never suggested; ward council can still choose them.
    * Ward council makes focus names; the huddle plans action items for focus names only. */
   function pressingReason(a, gid) {
@@ -130,10 +130,10 @@
       var st = templeStatus(a, state.date);
       return parseISO(str(a.bap)) && st.short ? 'Temple: ' + st.short : 'Not yet to the temple';
     }
-    if (gid === 'bt') { // anyone being taught with a baptism date or a missionary appointment coming up
-      var d = parseISO(str(a.bap)), t = parseISO(todayISO());
-      if (d && t && d >= t) return 'Baptism ' + whenShow(a.bap);
-      if (apptNote(a)) return apptNote(a);
+    if (gid === 'bt') { // being taught: a baptism date in the next 30 days, or a missionary appointment in the next week
+      var d = parseISO(str(a.bap)), ap = parseISO(str(a.appt)), t = parseISO(todayISO());
+      if (d && t && d >= t && (d - t) / 864e5 <= 30) return 'Baptism ' + whenShow(a.bap);
+      if (ap && t && ap >= t && (ap - t) / 864e5 <= 7) return 'Appointment ' + whenShow(a.appt);
     }
     return '';
   }

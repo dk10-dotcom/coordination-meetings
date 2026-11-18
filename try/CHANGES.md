@@ -6,7 +6,7 @@ Everything here is in `try/` only. When it's ready, these all move to the live a
 1. **Suggested focus names.** In Before ward council and Ward council, these Covenant Path names get a red
    "Suggested focus name" tag, and their screen says why:
    - every new member who hasn't been to the temple yet ("Temple: 9 days left", or "Not yet to the temple" with no baptism date);
-   - anyone being taught with an upcoming baptism date or an upcoming appointment with the missionaries.
+   - anyone being taught with a baptism date in the next 30 days, or an appointment with the missionaries in the next week.
    Returning members are never suggested; ward council can still choose them.
 2. **Make focus name.** On a Covenant Path name's Ward council screen. Fills an open spot, or adds one past three.
    Their next ordinance and needs come along. An action item already on their card moves with them.
