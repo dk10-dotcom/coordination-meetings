@@ -23,7 +23,7 @@ module.exports = [
   { shot: 's20-person-action', k: 'Step 3 · Focus names', c: 'orange', title: 'One action item', body: 'What will we do this week to help them prepare for their next ordinance? Who will do it, and when?', t: 8 },
   { shot: 's22-person-text', k: 'Step 3 · Before everyone leaves', c: 'orange', title: 'Text this assignment', body: 'Send each assignment by text, so the person asked to help knows exactly what, for whom, and when.', t: 8 },
   { shot: 's23-hd-tn-done', k: 'Step 3 · Focus names', c: 'orange', title: 'A plan for every focus name', body: 'Each name now shows its action item, who, and when.', t: 6 },
-  { shot: 's24-fn', k: 'Step 3 · Opportunities to invite', c: 'orange', title: 'Love, share, invite', body: 'Under each opportunity, tap an idea or add an assignment, then add when. A new tip each week.', t: 7 },
+  { shot: 's24-fn', k: 'Step 3 · Opportunities to invite', c: 'orange', title: 'Love, share, invite', body: 'Tap an opportunity to open it. Add an assignment, tap a way to invite, then add who and when.', t: 7 },
   { shot: 's18-howhelp', k: 'Step 3 · How can we help?', c: 'orange', title: 'Questions to guide you', body: 'Tap How can we help? for the questions in Preach My Gospel, chapter 13, for that section.', t: 8 },
   { shot: 's25-huddle-all', k: 'Step 3 · The Huddle', c: 'orange', title: 'All four sections done', body: 'Mark each section done as you go. The bar fills in.', t: 6 },
   { shot: 's26-start-up4', k: 'Step 4 · After the huddle', c: 'plum', title: 'Up next: After the huddle', body: 'Three green checks. One step left before you send.', t: 6 },

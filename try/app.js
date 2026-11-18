@@ -1303,27 +1303,24 @@
     ]);
   }
   // Opportunities to invite: ward council adds each upcoming opportunity (a name and a date) as a card;
-  // the huddle adds assignments under it. "Other ways to invite" holds assignments not tied to an event, closed until tapped.
-  // The starter ideas and invite ideas are short words from "Ideas for Weekly Missionary Coordination" (source line under them).
-  var OPP_STARTERS = ['Special sacrament meeting', 'Ward activity', 'Dinner or home evening', 'Baptismal service', 'Sports night', 'Self-reliance or other classes', 'Service project'];
-  var INVITE_IDEAS = ['Members invite friends and neighbors', 'Speakers invite someone to come hear them', 'Members go on a visit with the missionaries', 'Share it on the ward’s activity page'];
-  function tipSource() {
-    var a = h('p', { class: 'source-line' });
-    a.innerHTML = 'Ideas from <a href="https://www.churchofjesuschrist.org/study/manual/sharing-the-gospel-resources-for-leaders/02-effective-coordination-with-missionaries?lang=eng" target="_blank" rel="noopener noreferrer">“Ideas for Weekly Missionary Coordination”</a>';
-    return a;
-  }
+  // the huddle adds assignments under it. Each card starts closed (its name, date and how many assignments) and opens
+  // when tapped; a new one opens by itself. "Other ways to invite" holds assignments not tied to an event, closed until tapped.
+  // An empty assignment shows the invite ideas as quick picks for "Who will do what".
+  // (The user took the Tip of the week and the source line off these cards on Nov 18, 2026; the Tips sheet keeps its source line.)
+  var OPP_STARTERS = ['Special sacrament meeting', 'Christmas sacrament meeting', 'Easter sacrament meeting', 'Member speaking in sacrament meeting', 'Stake conference', 'Ward conference', 'Ward activity', 'Dinner or home evening', 'Baptismal service', 'Sports night', 'Self-reliance or other classes', 'Service project'];
+  var INVITE_IDEAS = ['Members invite friends and neighbors', 'Members go on a visit with the missionaries', 'Share it on the ward’s activity page'];
   function chips(action, a, list) {
     return h('div', { class: 'idea-chips' }, list.map(function (t) { return h('button', { type: 'button', class: 'idea-chip', 'data-action': action, 'data-a': a, 'data-b': t, text: t }); }));
   }
-  // Tip of the week: one of the 15 ideas in the tips sheet, a different one each week, in the sheet's own words.
-  function renderTipWeek() {
-    var el = $('#tip-week'); if (!el) return;
-    var ideas = document.querySelectorAll('#find-tips-sheet .idea-list > li'); if (!ideas.length) return;
-    var d = parseISO(state.date) || new Date(), wk = Math.floor(d.getTime() / (7 * 864e5));
-    el.innerHTML = ideas[wk % ideas.length].innerHTML;
+  var oppOpen = {}; // which opportunity cards are open, by id (not saved)
+  function oppSummaryText(o, mine) {
+    var bits = [], d = str(o.date).trim(), typed = mine.filter(function (m) { return str(m.x.task).trim(); }).length;
+    if (d) bits.push(whenShow(d));
+    bits.push(typed ? plural(typed, 'assignment', 'assignments') : 'Needs an assignment');
+    return bits.join(' · ');
   }
   function renderFN() {
-    var wrap = $('#fn-list'); renderTipWeek();
+    var wrap = $('#fn-list');
     var opps = state.find.opps, items = state.find.items;
     var assign = function (x, i, n) {
       var base = 'find.items.' + i + '.';
@@ -1335,6 +1332,7 @@
         ]),
         h('div', { class: 'fn-fields' }, [
           field('Who will do what', base + 'task', { multi: true, placeholder: 'e.g. Each family invites one friend' }),
+          str(x.task).trim() ? null : h('div', { class: 'invite-ideas' }, [h('p', { class: 'idea-k', text: 'Ways to invite: tap one' }), chips('invite-idea', i, INVITE_IDEAS)]),
           whenField('When', base + 'when', { placeholder: 'e.g. Sat' })
         ])
       ]);
@@ -1344,22 +1342,29 @@
     };
     var cards = opps.map(function (o, k) {
       var base = 'find.opps.' + k + '.', mine = mineOf(o.id), n = 0, hasTitle = !!str(o.title).trim();
-      return h('div', { class: 'card fn-card opp-card', 'data-opp': o.id }, [
-        h('div', { class: 'card-head' }, [h('p', { class: 'fn-assign-title', text: 'Opportunity' }), removeButton('remove-opp', k, '', 'Remove this opportunity')]),
+      var sumTitle = h('span', { class: 'fn-assign-title opp-sum-title', text: hasTitle ? o.title.trim() : 'New opportunity' });
+      var sumHint = h('span', { class: 'opp-hint opp-sum-hint', text: oppSummaryText(o, mine) });
+      var card = h('details', { class: 'card fn-card opp-card opp-fold', 'data-opp': o.id }, [
+        h('summary', { class: 'other-ways-sum opp-sum' }, [h('span', { class: 'opp-sum-text' }, [sumTitle, sumHint])]),
         h('div', { class: 'card-grid' }, [
           field('What’s coming up', base + 'title', { full: true, placeholder: 'e.g. Christmas sacrament meeting' }),
-          hasTitle ? null : h('div', { class: 'full' }, [h('p', { class: 'idea-k', text: 'Or tap an idea' }), chips('opp-starter', k, OPP_STARTERS), tipSource()]),
+          hasTitle ? null : h('div', { class: 'full' }, [h('p', { class: 'idea-k', text: 'Or tap an idea' }), chips('opp-starter', k, OPP_STARTERS)]),
           field('Date', base + 'date', { type: 'date', full: true })
         ])
       ].concat(mine.map(function (m) { n++; return assign(m.x, m.i, n); })).concat([
-        h('div', { class: 'invite-ideas' }, [h('p', { class: 'idea-k', text: mine.some(function (m) { return str(m.x.task).trim(); }) ? 'More ways to invite' : 'Ways to invite: tap one to add it' }), chips('invite-idea', o.id, INVITE_IDEAS), tipSource()]),
-        h('div', { class: 'list-foot' }, [addButton('add-fn', o.id, 'Add an assignment')])
+        h('div', { class: 'list-foot opp-foot' }, [addButton('add-fn', o.id, 'Add an assignment'), h('button', { type: 'button', class: 'opp-remove', 'data-action': 'remove-opp', 'data-a': k, text: 'Remove' })])
       ]));
+      if (oppOpen[o.id]) card.open = true;
+      card.addEventListener('toggle', function () {
+        oppOpen[o.id] = card.open;
+        if (!card.open) { var t = str(o.title).trim(); sumTitle.textContent = t || 'New opportunity'; sumHint.textContent = oppSummaryText(o, mineOf(o.id)); }
+      });
+      return card;
     });
     if (!opps.length) cards.push(h('div', { class: 'card fn-card opp-empty' }, [
       h('p', { class: 'opp-empty-text', text: 'Ward council hasn’t listed any opportunities yet.' }),
       h('p', { class: 'opp-hint', text: 'Add one here, or start from an idea.' }),
-      chips('opp-starter', '', OPP_STARTERS), tipSource()
+      chips('opp-starter', '', OPP_STARTERS)
     ]));
     // Other ways to invite: assignments not tied to an event, at the bottom and closed until tapped
     var general = mineOf(''), gi = 0;
@@ -1372,8 +1377,16 @@
     ]));
     if (typed || otherOpen) other.open = true;
     var addOpp = h('button', { type: 'button', class: 'btn-outline full btn-add-opp', 'data-action': 'add-opp' }, ['+ Add an upcoming opportunity']);
-    wrap.replaceChildren(h('section', { class: 'list-panel list-fn', 'aria-label': 'Opportunities to invite' }, cards.concat(opps.length ? [addOpp] : [addOpp], [other])));
+    wrap.replaceChildren(h('section', { class: 'list-panel list-fn', 'aria-label': 'Opportunities to invite' }, cards.concat([addOpp, other])));
     other.addEventListener('toggle', function () { otherOpen = other.open; });
+    if (!wrap.dataset.ideasHook) { // the ways to invite hide once "Who will do what" has words, and come back if it's emptied
+      wrap.dataset.ideasHook = '1';
+      wrap.addEventListener('input', function (e) {
+        var t = e.target; if (!t.dataset || !/^find\.items\.\d+\.task$/.test(t.dataset.bind || '')) return;
+        var box = t.closest('.fn-assign'), ideas = box && box.querySelector('.invite-ideas');
+        if (ideas) ideas.hidden = !!t.value.trim();
+      });
+    }
   }
   var otherOpen = false;
   /* ---------- Done: fold a finished list to one line per person ---------- */
@@ -2498,7 +2511,7 @@
       case 'find-tips': openOverlay('#find-tips-sheet', '#find-tips-title'); $('#find-tips-sheet .sheet').scrollTop = 0; break;
       case 'close-find-tips': closeOverlay('#find-tips-sheet'); break;
       case 'add-fn': {
-        var nx = blankAssign(); nx.opp = a || ''; state.find.items.push(nx); if (!a) otherOpen = true; renderFN(); renderSteps(); saveDraft();
+        var nx = blankAssign(); nx.opp = a || ''; state.find.items.push(nx); if (!a) otherOpen = true; else oppOpen[a] = true; renderFN(); renderSteps(); saveDraft();
         var fe = document.querySelector('[data-bind="find.items.' + (state.find.items.length - 1) + '.task"]'); if (fe) fe.focus();
         break;
       }
@@ -2506,18 +2519,20 @@
         var tk = a === '' || a === null ? -1 : +a;
         if (tk < 0) { state.find.opps.push({ id: oppId(), title: b, date: '' }); tk = state.find.opps.length - 1; }
         else state.find.opps[tk].title = b;
+        oppOpen[state.find.opps[tk].id] = true;
         renderFN(); renderSteps(); saveDraft();
         var de = document.querySelector('[data-bind="find.opps.' + tk + '.date"]'); if (de) de.scrollIntoView({ block: 'center' });
         break;
       }
-      case 'invite-idea': { // an invite idea: a new assignment under that opportunity, filled in; the huddle adds when
-        var blankAt = state.find.items.findIndex(function (x) { return x.opp === a && !assignHasText(x); });
-        if (blankAt >= 0) state.find.items[blankAt].task = b; else state.find.items.push({ task: b, when: '', opp: a });
+      case 'invite-idea': { // an invite idea fills that assignment's "Who will do what"; the huddle adds who and when
+        var ix = state.find.items[+a]; if (!ix) break;
+        ix.task = b; if (ix.opp) oppOpen[ix.opp] = true; else otherOpen = true;
         renderFN(); renderSteps(); saveDraft();
+        var te = document.querySelector('[data-bind="find.items.' + a + '.task"]'); if (te) { te.focus(); try { te.setSelectionRange(0, 0); } catch (e) {} }
         break;
       }
       case 'add-opp': {
-        state.find.opps.push({ id: oppId(), title: '', date: '' }); renderFN(); renderSteps(); saveDraft();
+        var nop = { id: oppId(), title: '', date: '' }; state.find.opps.push(nop); oppOpen[nop.id] = true; renderFN(); renderSteps(); saveDraft();
         var oe = document.querySelector('[data-bind="find.opps.' + (state.find.opps.length - 1) + '.title"]'); if (oe) { oe.focus(); oe.scrollIntoView({ block: 'center' }); }
         break;
       }
@@ -2981,7 +2996,7 @@
     { k: 'Step 3 · Focus names', t: 'The huddle plans an action item for each focus name. Tap **Focus names**, then **Daniel Rivera**, and add an action item, who will do it, and a date.', target: ['#person-card .zone-hd-wrap', '[data-group="tn"] .person-row', '[data-action="open-step"][data-a="tn"]', '#steps-this'], done: function () { var a = state.tn[focusIndex('Daniel Rivera')]; return !!(a && str(a.action).trim() && str(a.assigned).trim() && str(a.when).trim()); } },
     { k: 'Step 3 · Focus names', t: 'Tap **Text this assignment** and send it to yourself. In a real huddle, text each person before everyone leaves.', target: '#person-card [data-action="text-assign"]', done: function () { var a = state.tn[focusIndex('Daniel Rivera')]; return !!(a && a.texted); }, skip: true },
     { k: 'Step 3 · Focus names', t: 'Tap **Done**, then **Mark done**. Tip 👆 to take someone off Focus names, swipe their name to the left.', target: ['#person-view .person-done', '[data-action="step-done"]'], done: function () { return !!state.stepsDone.tn; } },
-    { k: 'Step 3 · Opportunities to invite', t: 'Open **Opportunities to invite**. Under the ward council’s opportunity, tap an invite idea (or **Add an assignment**), add when, then tap **Mark done**. For more ideas, tap **How can we help?**', target: ['[data-action="step-done"]', '[data-action="open-step"][data-a="fn"]'], done: function () { return STEPS.every(function (x) { return state.stepsDone[x.id]; }); } },
+    { k: 'Step 3 · Opportunities to invite', t: 'Open **Opportunities to invite**. Tap the ward council’s opportunity to open it, tap **Add an assignment**, pick a way to invite, add when, then tap **Mark done**. For more ideas, tap **How can we help?**', target: ['[data-action="step-done"]', '[data-action="open-step"][data-a="fn"]'], done: function () { return STEPS.every(function (x) { return state.stepsDone[x.id]; }); } },
     { k: 'Step 4 · After the huddle', t: 'All four sections are done, so Step 3 is too. Tap **Home** at the bottom, then **Step 4 · After the huddle**.', target: ['.nav-home:not(.is-here)', '#after-box'], done: function () { return view === 'af' || state.verified.after; } },
     { k: 'Step 4 · After the huddle', t: 'This page lists what happened for each person. Update the Covenant Path Report in Member Tools to match, then tap **Mark done**. Anyone marked **Changed** has updates since Step 1.', target: '#after-done-btn', done: function () { return !!state.verified.after; } },
     { k: 'Send', t: 'All four steps have green checks. Tap **Send**, then **Share PDF**, and send the sample to yourself.', target: '.nav-send', done: function () { return coachFlag('sent'); } },

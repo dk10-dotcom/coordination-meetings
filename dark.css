@@ -251,6 +251,7 @@
 :where(:root.theme-dark) .sa-box { color: #fff; }
 :where(:root.theme-dark) .sa-row.is-on .sa-box { background: #2E7D4F; border-color: #2E7D4F; }
 :where(:root.theme-dark) .swipe-del { background: #C62828; color: #fff; }
+:where(:root.theme-dark) .opp-remove { color: #DC908B; }
 :where(:root.theme-dark) .splash { background: #1B2B4B; }
 :where(:root.theme-dark) .splash-icon { box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35); }
 :where(:root.theme-dark) .splash-name { color: #FFFFFF; }

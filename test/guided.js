@@ -80,7 +80,9 @@ const real = { ward: 'Sample Ward', date: '2026-11-15', conducting: 'wml', atten
   ok((await p.evaluate(() => window.__sms.join('\n'))).includes('SAMPLE (practice, not a real assignment)'), 'a practice text says SAMPLE');
   await p.click('#person-view .person-done'); await p.waitForTimeout(400); await p.click('[data-action="step-done"]'); ok(await waitCoach(15), 'Focus names marked done moves to task 15 (Opportunities to invite)');
   await p.click('[data-action="open-step"][data-a="fn"]'); await p.waitForTimeout(300);
-  ok(/Ward Christmas devotional/.test(await p.inputValue('[data-bind="find.opps.0.title"]')), 'the practice week has an upcoming opportunity');
+  ok(/Ward Christmas devotional/.test(await p.textContent('[data-opp] > summary')), 'the practice week has an upcoming opportunity');
+  await p.click('[data-opp] > summary'); await p.waitForTimeout(200);
+  await p.click('[data-opp] [data-action="add-fn"]'); await p.waitForTimeout(200);
   await p.click('[data-opp] [data-action="invite-idea"] >> nth=0'); await p.waitForTimeout(200);
   await p.click('[data-action="step-done"]'); await p.waitForTimeout(400);
   ok(await waitCoach(16), 'all four sections done moves to task 16');

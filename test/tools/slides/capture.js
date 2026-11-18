@@ -101,11 +101,12 @@ module.exports = (async () => {
   }
   await p.evaluate(() => scrollTo(0, 0)); await shot('s23-hd-tn-done');
   await p.click('[data-action="step-done"]'); await wait(600);
-  // Opportunities to invite: the ward council's opportunity, with an invite idea tapped
+  // Opportunities to invite: the ward council's opportunity opened, an assignment showing the ways to invite
   await p.click('[data-action="open-step"][data-a="fn"]'); await wait(500);
-  await p.click('[data-opp] [data-action="invite-idea"]'); await wait(300);
-  await p.fill('[data-bind="find.items.1.when"], [data-bind="find.items.0.when"]', '2026-11-22').catch(() => {}); await wait(300);
-  await shot('s24-fn', '[data-opp] [data-action="invite-idea"]', { block: 'center' });
+  if (!(await p.locator('[data-opp]').first().evaluate(d => d.open))) { await p.click('[data-opp] > summary'); await wait(300); }
+  await p.click('[data-opp] [data-action="add-fn"]'); await wait(300);
+  await p.evaluate(() => document.activeElement && document.activeElement.blur());
+  await shot('s24-fn', '[data-opp] .invite-ideas', { block: 'center' });
   await p.evaluate(() => scrollTo(0, 0));
   await p.click('[data-step="fn"] .how-help-fn'); await wait(500);
   await shot('s18-howhelp');

@@ -98,12 +98,16 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   ok(/Opportunities to invite/.test(await p.textContent('#wc-rows')), 'Ward council’s row is called Opportunities to invite');
   await p.click('[data-action="open-wc-list"][data-a="fn"]'); await w(400);
   ok(/Ward council hasn’t listed any opportunities yet/.test(await p.textContent('#fn-list')) && await p.locator('#fn-list [data-action="opp-starter"]').count() >= 5, 'no opportunities yet: it says so, with starter ideas');
-  ok((await p.textContent('#tip-week')).length > 40 && await p.isVisible('#tip-week-source'), 'a tip of the week from the tips, with its source');
+  ok(!(await p.$('#tip-week')) && await p.isVisible('[data-step="fn"] .how-help-fn') && await p.isVisible('[data-step="fn"] [data-action="find-tips"]'), 'no tip of the week; How can we help? and Tips at the top');
+  const starters = await p.$$eval('#fn-list [data-action="opp-starter"]', els => els.map(e => e.dataset.b));
+  ok(['Special sacrament meeting', 'Christmas sacrament meeting', 'Easter sacrament meeting', 'Member speaking in sacrament meeting', 'Stake conference', 'Ward conference'].every(t => starters.includes(t)), 'starter ideas include Christmas, Easter, a member speaking, Stake and Ward conference');
+  ok(!(await p.$('#fn-list .source-line')), 'no source line on the opportunity cards');
   ok(!(await p.locator('#fn-list details.other-ways').getAttribute('open')), 'Other ways to invite starts closed');
   await p.click('#fn-list [data-action="opp-starter"][data-b="Ward activity"]'); await w(300);
   ok((await saved()).find.opps.map(o => o.title).join('|') === 'Ward activity', 'tapping a starter idea adds that opportunity');
   await p.click('#fn-list [data-action="remove-opp"]'); await w(300); if (await p.isVisible('#confirm-sheet')) { await p.click('#confirm-primary'); await w(300); }
   await p.click('[data-action="add-opp"]'); await w(300);
+  ok(await p.locator('[data-opp]').first().evaluate(d => d.open), 'a new opportunity opens by itself');
   await p.fill('[data-bind="find.opps.0.title"]', 'Christmas sacrament meeting');
   await p.fill('[data-bind="find.opps.0.date"]', shift(30)); await p.evaluate(() => document.activeElement && document.activeElement.blur()); await w(200);
   ok(wide ? await wide() : true, 'Find New People to Teach fits a small iPhone');
@@ -131,14 +135,24 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.click('.nav-home'); await w(400); await p.click('.door-hd'); await w(400);
   await p.click('[data-action="open-step"][data-a="fn"]'); await w(400);
   const opp = (await saved()).find.opps[0];
+  await p.reload(); await w(1500); if (!(await p.isVisible('[data-action="open-step"][data-a="fn"]'))) { await p.click('.door-hd'); await w(400); }
+  await p.click('[data-action="open-step"][data-a="fn"]'); await w(400);
+  ok(!(await p.locator(`[data-opp="${opp.id}"]`).evaluate(d => d.open)) && /Christmas sacrament meeting/.test(await p.textContent(`[data-opp="${opp.id}"] summary`)) && /Needs an assignment/.test(await p.textContent(`[data-opp="${opp.id}"] summary`)), 'opportunities start closed, showing the name, date and “Needs an assignment”');
+  await p.click(`[data-opp="${opp.id}"] summary`); await w(300);
   await p.click(`[data-opp="${opp.id}"] [data-action="add-fn"]`); await w(300);
   const ti = (await saved()).find.items.length - 1;
   await p.fill(`[data-bind="find.items.${ti}.task"]`, 'Each family invites one friend'); await p.evaluate(() => document.activeElement && document.activeElement.blur()); await w(300);
   st = await saved();
   ok(st.find.items[ti].opp === opp.id && st.find.items[ti].task === 'Each family invites one friend', 'the assignment sits under the opportunity');
-  await p.click(`[data-opp="${opp.id}"] [data-action="invite-idea"][data-b="Speakers invite someone to come hear them"]`); await w(300);
+  ok(!(await p.locator(`[data-opp="${opp.id}"] .fn-assign`).first().locator('.invite-ideas').isVisible().catch(() => false)), 'a filled assignment shows no ways to invite');
+  await p.click(`[data-opp="${opp.id}"] [data-action="add-fn"]`); await w(300);
+  const ideas = await p.$$eval(`[data-opp="${opp.id}"] [data-action="invite-idea"]`, els => els.map(e => e.dataset.b));
+  ok(ideas.length === 3 && !ideas.some(t => /Speakers/.test(t)), 'an empty assignment shows the ways to invite (no speakers idea): ' + ideas.join('|'));
+  await p.click(`[data-opp="${opp.id}"] [data-action="invite-idea"][data-b="Members go on a visit with the missionaries"]`); await w(300);
+  ok(await p.evaluate(() => /find\.items\.\d+\.task/.test(document.activeElement.dataset.bind || '')), 'the cursor goes to that assignment, to add who');
+  await p.evaluate(() => document.activeElement && document.activeElement.blur()); await w(300);
   st = await saved();
-  ok(st.find.items.some(x => x.opp === opp.id && x.task === 'Speakers invite someone to come hear them'), 'tapping an invite idea adds it as an assignment under the opportunity');
+  ok(st.find.items.filter(x => x.opp === opp.id).length === 2 && st.find.items.some(x => x.opp === opp.id && x.task === 'Members go on a visit with the missionaries'), 'tapping a way to invite fills that assignment');
   await p.screenshot({ path: OUT + '/opportunity.png', fullPage: true });
 
   // Return and Report: Daniel's partly-done assignment comes back as a focus name

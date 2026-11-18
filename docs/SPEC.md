@@ -86,8 +86,8 @@ Ward council and the Huddle show names the same way.
 The same row is used for the Huddle's sections, Ward council's lists and Before ward council, so
 every list in the app looks alike. A section marked done shows a green check before its chevron.
 
-**Every list's name stands out.** New members, Returning members, Those being taught, Focus names,
-and Opportunities to invite's "Tip of the week" each sit on a band of the list's own
+**Every list's name stands out.** New members, Returning members, Those being taught and Focus names
+each sit on a band of the list's own
 color (blue, green, purple, gold, teal: the colors the PDF uses), large and bold, with the
 count beside it. On the smallest phones the name is a little smaller so the count stays beside it.
 
@@ -419,21 +419,23 @@ screen above. Swipe one left to remove it (see Ward council). On the PDF the hea
 (Called Find New People to Teach before.) Ward council lists what's coming up; the huddle plans how members
 will invite. The same section opens from Ward council and the Huddle.
 
-- **Tip of the week** at the top: one of the 15 ideas in the tips sheet, in its own words, a different one each
-  week (chosen from the huddle's date). Beside it, **All the tips** (the tips sheet) and **How can we help?**,
-  and its source line.
-- **Each opportunity is a card:** what's coming up and its **Date**. While its name is empty it shows starter
-  ideas to tap: Special sacrament meeting, Ward activity, Dinner or home evening, Baptismal service, Sports
-  night, Self-reliance or other classes, Service project. Its assignments sit under it (who will do what, and
-  when), then **Ways to invite: tap one to add it**: Members invite friends and neighbors, Speakers invite someone
-  to come hear them, Members go on a visit with the missionaries, Share it on the ward's activity page. Each
-  becomes an assignment; the huddle adds when. **Add an assignment** adds a blank one. The ✕ removes the card
-  (asks first when it has a name); its assignments move to Other ways to invite.
+- **At the top:** **How can we help?** and **Tips** (the tips sheet, with its source line). The Tip of the week was
+  taken out (the user decided, Nov 18, 2026).
+- **Each opportunity is a card that starts closed:** its name, then its date and "1 assignment" (or "Needs an
+  assignment"), and a chevron. Tap it to open it; a new one (Add, or a starter idea) opens by itself. Open, it shows
+  what's coming up and its **Date**. While its name is empty it shows starter ideas to tap: Special sacrament
+  meeting, Christmas sacrament meeting, Easter sacrament meeting, Member speaking in sacrament meeting, Stake
+  conference, Ward conference, Ward activity, Dinner or home evening, Baptismal service, Sports night,
+  Self-reliance or other classes, Service project. Its assignments sit under it (who will do what, and when), then
+  **Add an assignment** and **Remove** (asks first when it has a name; its assignments move to Other ways to invite).
+- **Ways to invite sit inside each assignment:** while "Who will do what" is empty, it shows **Ways to invite: tap
+  one**: Members invite friends and neighbors, Members go on a visit with the missionaries, Share it on the ward's
+  activity page. A tap fills that assignment's "Who will do what"; the huddle adds who and when.
 - **With no opportunities:** "Ward council hasn't listed any opportunities yet." with the starter ideas.
 - **+ Add an upcoming opportunity** adds a card.
 - **Other ways to invite** (assignments not tied to an event) is at the bottom, closed until tapped (open
   when it holds assignments).
-- The starter ideas, invite ideas and tip carry a source line to "Ideas for Weekly Missionary Coordination".
+- The user decided the cards carry no source line (Nov 18, 2026); the Tips sheet keeps its own.
 - **The row** on the Huddle and Ward council screens names what's coming up: "Christmas sacrament meeting ·
   1 needs an assignment" ("each has an assignment" when done; "Ward council hasn't listed any yet" when empty).
 - **Next week** the assignments come back in Return and Report with the opportunity named ("Each family invites
@@ -595,7 +597,7 @@ link clears both from the address bar.
   open, and Help & training opens by itself on the first visit; from the Home Screen app every step
   starts closed.
 - **Tips for an effective meeting** (in the Huddle) and **Tips for finding new people to teach**
-  (All the tips, in Opportunities to invite) each end their borrowed text with a source line linking to
+  (Tips, in Opportunities to invite) each end their borrowed text with a source line linking to
   "Ideas for Weekly Missionary Coordination" in *Sharing the Gospel: Resources for Leaders*.
   The first says "Adapted from" (five points condensed from the page's eight principles); the
   second says "From" (quoted). The **Prepare ahead** tip is the app's own and sits below the line.
@@ -652,8 +654,7 @@ one is the only time these pages are contacted, and the app itself still makes n
 | How can we help? panels | From *Preach My Gospel*, chapter 13 | `…/preach-my-gospel-2023/21-chapter-13` |
 | Tips for an effective meeting | Adapted from "Ideas for Weekly Missionary Coordination," *Sharing the Gospel: Resources for Leaders* | `…/sharing-the-gospel-resources-for-leaders/02-effective-coordination-with-missionaries` |
 | Tips for finding new people to teach | From the same page | the same page |
-| Opportunities to invite: Tip of the week (one of the tips sheet's 15 ideas, quoted) | “Ideas for Weekly Missionary Coordination,” *Sharing the Gospel: Resources for Leaders* | the same page |
-| Opportunities to invite: starter ideas and invite ideas (short words from "Know the Calendar", "Help Speakers Invite Friends", "Assist the Missionaries", "Share Activities" and the page's "invite friends and neighbors") | Ideas from "Ideas for Weekly Missionary Coordination" | the same page |
+| Opportunities to invite: starter ideas and ways to invite (short words drawn from "Know the Calendar", "Help Speakers Invite Friends", "Assist the Missionaries" and "Share Activities") | No line on the cards (the user decided, Nov 18, 2026); the Tips sheet beside them names the page | the same page |
 | Huddle Attendees: temple and family history invitation | General Handbook 25.2.3 (quoted) | `…/general-handbook/25-temple-and-family-history-work` |
 | Help & training: Sources | The two above, and General Handbook 23.4 (who conducts and who is invited) | `…/general-handbook/23-sharing-the-gospel-and-strengthening-new-and-returning-members` |
 
