@@ -1521,6 +1521,14 @@ html.no-splash .splash { display: none; }
 .list-fn .opp-empty { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; }
 .opp-screen .card-grid { grid-template-columns: minmax(0, 1fr); }
 .opp-screen .card-grid > .full { grid-column: 1 / -1; }
+/* Tips for an effective meeting: a small link inside the Huddle's header card */
+.hero-link { display: inline-block; margin-top: 8px; padding: 4px 0; border: 0; background: none; font: inherit; font-size: 14px; font-weight: 700; color: #FFFFFF; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(255, 255, 255, .6); cursor: pointer; }
+/* Next: the next section, as a button (the one before stays a quiet link) */
+.step-foot .step-nav { flex-wrap: wrap; gap: 4px; }
+.step-nav-btn.next { order: -1; flex: 1 1 100%; max-width: 100%; min-height: 46px; padding: 10px 14px; border: 1.5px solid var(--accent-line); border-radius: 12px; background: var(--card); font-size: 16px; text-decoration: none; text-align: center; }
+.step-nav-btn.prev { max-width: 100%; }
+/* An opportunity's screen: white boxes, so it's plain they can be typed in */
+#person-view .opp-screen .field input, #person-view .opp-screen .field textarea, #person-view .opp-screen .field select { background: var(--card); border-color: var(--card-line); }
 
 /* Test copy only */
 .test-tag { color: #FFD5D5; }

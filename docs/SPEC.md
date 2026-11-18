@@ -203,7 +203,7 @@ there**, in the same place on all four:
 
 | Step | The line |
 | --- | --- |
-| Before ward council | Update each person from the Covenant Path Report: next ordinance, needs, temple attendance and sacrament attendance. |
+| Before ward council | Open the Covenant Path Report in the Member Tools app. Add each person on it with their next ordinance, needs, temple attendance, sacrament attendance and any upcoming lessons with the missionaries. |
 | Ward council | Decide who to focus on, each person's next ordinance, and what they need. |
 | Huddle | Report back on the last huddle, take attendance, and plan one assignment for each person: what, who and when. |
 | After the huddle | Update the Covenant Path Report with what happened, then mark it done so you can send. |
@@ -247,7 +247,8 @@ Opens from the second box as a screen of its own, like Before ward council. The 
 Path Report, then send". Read-only. For each person on the three Covenant Path Report lists it
 shows what to carry into the report: sacrament attendance, temple attendance (new members),
 baptism commitment (those being taught), next ordinance, needs, how the last assignment went
-(with any note), the new assignment, and huddle notes. It has the same report button and **Mark done**.
+(with any note) and the new assignment. Huddle notes are left out: they don't go back into the Covenant Path
+Report (the user decided, Nov 18, 2026). It has the same report button and **Mark done**.
 
 **What changed since step 1 is marked.** Marking Before ward council done remembers each person's
 sacrament attendance, temple attendance, baptism commitment and date, next ordinance and needs. Here,
@@ -261,6 +262,11 @@ without it.
 open this screen.
 
 ## Ward council
+
+**Next** (the user asked, Nov 18, 2026): at the bottom of each of ward council's three lists, and of each Huddle
+section under **Mark done**, a full-width **Next: {next section} ›** button goes to the next one in order;
+a quiet "‹ {previous section}" link sits under it. Ward council's lists have no Mark done. Ward council's header
+card has the same kind of progress bar as the Huddle's (names with a next ordinance).
 
 Opens to three rows:
 
@@ -324,8 +330,8 @@ the mirror of the Huddle's:**
 
 ## Huddle
 
-Top to bottom: the one line saying what to do, **Huddle Attendees**, **Tips for an effective meeting**,
-then four sections as rows: **Return and Report** and **Sacrament attendance** at the top, with no heading,
+Top to bottom: the header card (its one line saying what to do, then a small white link **Tips for an effective
+meeting ›**, then the progress bar), **Huddle Attendees**, then four sections as rows: **Return and Report** and **Sacrament attendance** at the top, with no heading,
 then **Huddle action plan** over **Focus names** and **Opportunities to invite**. The Covenant Path names are
 not a section of their own here: their sacrament attendance is marked in Sacrament attendance, and their
 assignments come back in Return and Report.
@@ -430,7 +436,7 @@ will invite. The same section opens from Ward council and the Huddle.
   bottom (asks first when anything is typed; its assignments go with it). An opportunity left empty is dropped on
   the way back. While its name is empty it shows starter ideas to tap: Special sacrament meeting, Christmas
   sacrament meeting, Easter sacrament meeting, Member speaking in sacrament meeting, Stake conference, Ward
-  conference, Ward activity, Dinner or home evening, Baptismal service, Sports night, Self-reliance or other
+  conference, Ward activity, Youth activity, Dinner or home evening, Baptismal service, Sports night, Self-reliance or other
   classes, Service project.
 - **Each assignment has three boxes:** **Assignment** (what), **Assigned to** (who) and **When**. While Assignment is
   empty, **Ways to invite: tap one** sits under it: Members invite friends and neighbors, Members go on a visit with
@@ -443,8 +449,11 @@ will invite. The same section opens from Ward council and the Huddle.
   gone, go under an opportunity named "Other assignments". A carried-forward assignment goes back under its own
   opportunity when that is still listed.
 - The user decided opportunities carry no source line (Nov 18, 2026); the Tips sheet keeps its own.
-- **The row** on the Huddle and Ward council screens names what's coming up: "Christmas sacrament meeting ·
-  1 needs an assignment" ("each has an assignment" when done; "Ward council hasn't listed any yet" when empty).
+- **The row** on the Huddle screen names what's coming up: "Christmas sacrament meeting · 1 needs an assignment"
+  ("each has an assignment" when done; "Ward council hasn't listed any yet" when empty). **In Ward council there is
+  no warning**, since the huddle makes the assignments: its row lists the opportunities with their dates
+  ("Christmas sacrament meeting (Dec 20)", or "None listed yet"), and each opportunity's row shows only its date.
+- **Swipe an opportunity left** to show **Remove**. It asks first, and its assignments go with it.
 - **Next week** the assignments come back in Return and Report with the opportunity named ("Each family invites
   one friend (Christmas sacrament meeting)"). **An opportunity stays until its date passes.** An older huddle's
   typed opportunities become one card.
@@ -704,7 +713,8 @@ width with nothing to zoom. On letter paper a page prints as a narrow column at 
   1 not done; left off when nothing was marked), then **every focus name**, one line each: a dot in
   the focus names' color, the name in bold, and this huddle's action item in gray (shortened with
   "…" to fit one line; "No action item yet" in italics). Under the names, **Coming up**: a baptism
-  date for those being taught, and the 30-day temple countdown for new members who haven't gone yet.
+  date for those being taught, the 30-day temple countdown for new members who haven't gone yet, and each
+  upcoming opportunity to invite with its date (it stays until its date passes).
   Nothing is typed for it; it comes from what is already entered. "No focus names this week" when there are
   none; "4 more on the Covenant Path Report, listed below for reference" counts the rest.
 - There are no tables and no Who/What/How/When boxes. **Each person is one short block** with a

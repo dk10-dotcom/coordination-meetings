@@ -45,7 +45,7 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     const [chooser] = await Promise.all([p.waitForEvent('filechooser'), p.click('#help-sheet [data-action="load-other"]')]);
     ok(!!chooser && await p.locator('.overlay:not([hidden])').count() === 0, tag + ': Load from a PDF goes straight to choosing the file');
     // Each of the four steps opens a page of its own (none slides up as a sheet), and each page starts with one line saying what to do there
-    const pages = [['#before-box', '#bw-view', '#bw-view .page-intro', 'Before ward council', 'Update each person from the Covenant Path Report: next ordinance, needs, temple attendance and sacrament attendance.'],
+    const pages = [['#before-box', '#bw-view', '#bw-view .page-intro', 'Before ward council', 'Open the Covenant Path Report in the Member Tools app. Add each person on it with their next ordinance, needs, temple attendance, sacrament attendance and any upcoming lessons with the missionaries.'],
       ['.door-wc', '#wc-view', '#wc-intro', 'Ward council', 'Decide who to focus on, each person’s next ordinance, and what they need.'],
       ['.door-hd', '#steps-home', '#hd-intro', 'Huddle', 'Report back on the last huddle, take attendance, and plan one assignment for each person: what, who and when.'],
       ['#after-box', '#af-view', '#af-view .page-intro', 'After the huddle', 'Update the Covenant Path Report with what happened, then mark it done so you can send.']];
@@ -192,13 +192,13 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     await back();
     ok((await rowText('cp')).includes('3 people · 2 need a next ordinance') && await p.locator('[data-action="open-wc-list"][data-a="cp"] .step-status.warn').count() === 1, tag + ': the roll-up counts people and turns orange when a next ordinance is missing');
     // Find New People to Teach and Missionary Referrals: the same sections the Huddle has
-    ok((await rowText('fn')).includes('Ward council hasn’t listed any yet'), tag + ': Opportunities to invite shows its status in ward council');
+    ok((await rowText('fn')).includes('None listed yet') && !(await p.$('[data-action="open-wc-list"][data-a="fn"] .warn')), tag + ': Opportunities to invite shows its status in ward council, with no warning');
     await p.click('[data-action="open-wc-list"][data-a="fn"]'); await p.waitForTimeout(300);
-    ok((await p.textContent('#step-title')) === 'Opportunities to invite' && await vis('#fn-list [data-action="add-opp"]') && !(await vis('#step-foot')) && !(await vis('#wc-rows')) && await noOverflow(), tag + ': Opportunities to invite opens in ward council (no Mark section done)');
+    ok((await p.textContent('#step-title')) === 'Opportunities to invite' && await vis('#fn-list [data-action="add-opp"]') && !(await vis('#step-done-btn')) && /Focus names/.test(await p.textContent('#step-prev')) && !(await vis('#step-next')) && !(await vis('#wc-rows')) && await noOverflow(), tag + ': Opportunities to invite opens in ward council (no Mark section done)');
     await p.click('[data-action="add-opp"]'); await fill('find.opps.0.title', 'Ward party'); await back();
     ok((await p.textContent('#fn-list')).includes('Ward party') && await vis('#fn-list [data-action="open-person"][data-a="opp"]'), tag + ': the opportunity opens on its own screen, and Back returns to the list with its row');
     await back();
-    ok(await vis('#wc-rows') && (await rowText('fn')).includes('Ward party · 1 needs an assignment'), tag + ': Back returns to ward council, and the row names the opportunity');
+    ok(await vis('#wc-rows') && (await rowText('fn')).includes('Ward party') && !(await rowText('fn')).includes('assignment'), tag + ': Back returns to ward council, and the row names the opportunity (no assignment warning there)');
     // Missionary Referrals are gone from Ward council
     await p.screenshot({ path: `${OUT}/${tag}-wc-filled.png` });
     await p.click('#mode-bar [data-action="go-start"]'); await p.waitForTimeout(200);
@@ -246,7 +246,7 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     ok((await p.textContent('#fn-list [data-a="opp"]')).includes('Ward party') && await vis('#step-foot'), tag + ': the opportunity added in ward council is in the Huddle’s Opportunities to invite');
     await back();
     await p.screenshot({ path: `${OUT}/${tag}-huddle.png` });
-    ok(await vis('.actionbar .btn-handoff') && await vis('.actionbar .nav-send') && await vis('.actionbar .nav-home') && !(await vis('[data-action="help"]')) && await vis('#steps-home [data-action="tips"]'), tag + ': Huddle screen has Tips at the top, the bottom bar (Hand off, Home, Send), no How to use');
+    ok(await vis('.actionbar .btn-handoff') && await vis('.actionbar .nav-send') && await vis('.actionbar .nav-home') && !(await vis('[data-action="help"]')) && await vis('#hd-hero [data-action="tips"]'), tag + ': Huddle screen has Tips in its header card, the bottom bar (Hand off, Home, Send), no How to use');
     ok(!(await vis('.fine-notes')) && !(await p.$('#hd-note')), tag + ': no disclaimer on the Huddle screen, and no confidential line under its step card (it sits under the notes)');
     ok(await p.locator('#steps-home .step-row').count() === 5 && await p.locator('#steps-home .step-row .step-num').count() === 0 && await p.locator('#steps-home .nav-row .step-chev').count() === 5, tag + ': the five sections are plain rows with a chevron (a check only once done)');
     // Send lives on the opening screen and waits for the after-huddle check

@@ -1318,7 +1318,7 @@
   // "Other ways to invite" (the user took it out); that card stays only in the cards-open layout used by tests.
   // An empty assignment shows the invite ideas as quick picks for "Assignment"; "Assigned to" says who.
   // (The user took the Tip of the week and the source line off these cards on Nov 18, 2026; the Tips sheet keeps its source line.)
-  var OPP_STARTERS = ['Special sacrament meeting', 'Christmas sacrament meeting', 'Easter sacrament meeting', 'Member speaking in sacrament meeting', 'Stake conference', 'Ward conference', 'Ward activity', 'Dinner or home evening', 'Baptismal service', 'Sports night', 'Self-reliance or other classes', 'Service project'];
+  var OPP_STARTERS = ['Special sacrament meeting', 'Christmas sacrament meeting', 'Easter sacrament meeting', 'Member speaking in sacrament meeting', 'Stake conference', 'Ward conference', 'Ward activity', 'Youth activity', 'Dinner or home evening', 'Baptismal service', 'Sports night', 'Self-reliance or other classes', 'Service project'];
   var INVITE_IDEAS = ['Members invite friends and neighbors', 'Members go on a visit with the missionaries', 'Share it on the ward’s activity page'];
   function chips(action, a, list) {
     return h('div', { class: 'idea-chips' }, list.map(function (t) { return h('button', { type: 'button', class: 'idea-chip', 'data-action': action, 'data-a': a, 'data-b': t, text: t }); }));
@@ -1352,10 +1352,14 @@
     var t = str(o.title).trim(), d = parseISO(str(o.date));
     var tile = h('span', { class: 'avatar opp-tile' + (d ? '' : ' is-blank'), 'aria-hidden': 'true' }, d ? [h('span', { class: 'opp-tile-m', text: d.toLocaleDateString('en-US', { month: 'short' }) }), h('span', { class: 'opp-tile-d', text: String(d.getDate()) })] : ['+']);
     var mine = oppItems(o.id), typed = mine.filter(function (m) { return str(m.x.task).trim(); }).length;
-    var sub = (d ? whenShow(o.date) + ' · ' : '') + (typed ? plural(typed, 'assignment', 'assignments') : 'Needs an assignment');
-    return h('li', {}, [h('button', { type: 'button', class: 'nav-row person-row opp-row' + (t ? '' : ' is-blank'), 'data-action': 'open-person', 'data-a': 'opp', 'data-b': k, 'data-kind': kind, 'aria-label': (t || 'New opportunity') + '. ' + sub }, [
+    // Ward council lists what's coming up; the huddle makes the assignments, so ward council shows only the date.
+    var warn = kind !== 'wc' && !typed;
+    var sub = kind === 'wc' ? (d ? whenShow(o.date) : 'No date yet') : (d ? whenShow(o.date) + ' · ' : '') + (typed ? plural(typed, 'assignment', 'assignments') : 'Needs an assignment');
+    var swipe = !!(t || d || typed);
+    return h('li', swipe ? { class: 'swipe-li' } : {}, [swipe ? h('button', { type: 'button', class: 'swipe-del', 'data-action': 'swipe-remove-opp', 'data-a': k, 'aria-label': 'Remove ' + (t || 'this opportunity'), text: 'Remove' }) : null,
+      h('button', { type: 'button', class: 'nav-row person-row opp-row' + (t ? '' : ' is-blank'), 'data-action': 'open-person', 'data-a': 'opp', 'data-b': k, 'data-kind': kind, 'aria-label': (t || 'New opportunity') + '. ' + sub }, [
       tile,
-      h('span', { class: 'step-text' }, [h('span', { class: 'step-title person-name', text: t || 'New opportunity' }), h('span', { class: 'step-status' + (typed ? '' : ' warn'), text: sub })]),
+      h('span', { class: 'step-text' }, [h('span', { class: 'step-title person-name', text: t || 'New opportunity' }), h('span', { class: 'step-status' + (warn ? ' warn' : ''), text: sub })]),
       h('span', { class: 'step-chev', 'aria-hidden': 'true', text: '›' })
     ])]);
   }
@@ -1854,15 +1858,18 @@
     $('#steps-this').replaceChildren.apply($('#steps-this'), STEPS.filter(function (st) { return st.band === 'this'; }).map(row));
     if (view !== 'home') renderStepFoot();
   }
+  // The sections in order, for Next and the link back: the Huddle's, or ward council's three lists.
+  function footList() { return isWcList(view) ? WC_LISTS.map(function (l) { return { id: 'wc-' + l.id, title: l.title }; }) : STEPS; }
   function renderStepFoot() {
-    var i = STEPS.findIndex(function (st) { return st.id === view; });
+    var list = footList(), i = list.findIndex(function (st) { return st.id === view; });
     if (i < 0) return;
-    var nxt = STEPS[i + 1], prv = STEPS[i - 1];
-    markDoneBtn($('#step-done-btn'), !!state.stepsDone[view], state.stepsDone[view] ? 'step-undone' : 'step-done');
+    var nxt = list[i + 1], prv = list[i - 1], wcSec = isWcList(view);
+    $('#step-done-btn').hidden = wcSec; // ward council's lists have no Mark done
+    if (!wcSec) markDoneBtn($('#step-done-btn'), !!state.stepsDone[view], state.stepsDone[view] ? 'step-undone' : 'step-done');
     var sn = $('#step-next'), sp = $('#step-prev');
     sn.hidden = !nxt; sp.hidden = !prv;
     // A quiet shortcut line, not steps: "‹ Return and Report · Name Next Ordinance ›"
-    if (nxt) { sn.textContent = nxt.title + ' ›'; sn.setAttribute('aria-label', 'Go to ' + nxt.title); }
+    if (nxt) { sn.textContent = 'Next: ' + nxt.title + ' ›'; sn.setAttribute('aria-label', 'Next: ' + nxt.title); }
     if (prv) { sp.textContent = '‹ ' + prv.title; sp.setAttribute('aria-label', 'Go to ' + prv.title); }
   }
   // Which parts of the page show: the step list (home), one step, or everything (view-all).
@@ -1908,7 +1915,7 @@
     renderWC(); renderMR(); renderPerson(); renderChecks(); renderBefore(); if (af) renderAfter();
     if (start) renderDoors();
     $('#steps-home').hidden = all || view !== 'home';
-    $('#step-bar').hidden = all || home || start || wc || bw || af; $('#step-foot').hidden = all || home || start || wc || wcSub || person || bw || af;
+    $('#step-bar').hidden = all || home || start || wc || bw || af; $('#step-foot').hidden = all || home || start || wc || person || bw || af;
     var bar = $('.actionbar'); if (bar) bar.hidden = false; // Hand off, Home and Send: on every screen (Home itself only away from the opening screen)
     var hb = $('.nav-home'); if (hb) hb.classList.toggle('is-here', start || all); // shown everywhere; on the opening screen it scrolls back to the top
     Array.prototype.forEach.call(document.querySelectorAll('[data-step]'), function (el) { el.hidden = !all && el.getAttribute('data-step') !== stepShown; });
@@ -1983,7 +1990,11 @@
   function isWcList(v) { return v === 'wc-cp' || v === 'wc-tn' || v === 'wc-fn' || v === 'wc-mr'; }
   function isWcNames(v) { return v === 'wc-cp' || v === 'wc-tn'; }
   function wcStatus(id) {
-    if (id === 'fn' || id === 'mr') return stepStatus(id);
+    if (id === 'fn') { // ward council lists what's coming up; the huddle makes the assignments, so no warning here
+      var wn = state.find.opps.filter(function (o) { return str(o.title).trim(); });
+      return { text: wn.length ? wn.map(function (o) { return o.title.trim() + (parseISO(str(o.date)) ? ' (' + monthDay(o.date) + ')' : ''); }).join(', ') : 'None listed yet' };
+    }
+    if (id === 'mr') return stepStatus(id);
     var named = [];
     if (id === 'tn') named = state.tn.filter(function (a) { return str(a.name).trim(); }).map(function (a) { return { a: a, g: 'tn' }; });
     else GROUPS.forEach(function (g) { state.cp[g.id].forEach(function (a) { if (str(a.name).trim()) named.push({ a: a, g: g.id }); }); });
@@ -2092,8 +2103,7 @@
         str(a.ordinance).trim() ? fact('Next ordinance', a.ordinance.trim(), '', upd('ordinance')) : null,
         str(a.need).trim() ? fact('Needs', a.need.trim(), '', upd('need')) : null,
         r ? fact('Reported back', (str(r.action).trim()) + ': ' + ({ Yes: 'Done', Partly: 'Partly done', No: 'Not done' }[r.happened] || 'Pending') + (str(r.notes).trim() ? ' · ' + r.notes.trim() : ''), statusOf(r.happened)) : null,
-        str(a.action).trim() ? fact('New assignment', a.action.trim() + (who ? ' (' + who + ')' : '')) : null,
-        str(a.hneed).trim() ? fact('Huddle notes', a.hneed.trim()) : null
+        str(a.action).trim() ? fact('New assignment', a.action.trim() + (who ? ' (' + who + ')' : '')) : null
       ]);
       return { el: card, changed: changed };
     });
@@ -2451,13 +2461,13 @@
       }
       case 'step-undone': { var uv = view; delete state.stepsDone[uv]; saveDraft(); renderStepFoot(); toast('Marked as not done.', 6000, { label: 'Undo', run: function () { state.stepsDone[uv] = true; saveDraft(); if (view === uv) renderStepFoot(); } }); break; }
       case 'step-prev': {
-        var pi = STEPS.findIndex(function (st) { return st.id === view; });
-        if (pi > 0) showView(STEPS[pi - 1].id, 'replace');
+        var pl = footList(), pi = pl.findIndex(function (st) { return st.id === view; });
+        if (pi > 0) showView(pl[pi - 1].id, 'replace');
         break;
       }
       case 'step-next': {
-        var si = STEPS.findIndex(function (st) { return st.id === view; });
-        if (si >= 0 && STEPS[si + 1]) showView(STEPS[si + 1].id, 'replace');
+        var nl = footList(), si = nl.findIndex(function (st) { return st.id === view; });
+        if (si >= 0 && nl[si + 1]) showView(nl[si + 1].id, 'replace');
         break;
       }
       case 'open-details': openDetails(); break;
@@ -2614,6 +2624,18 @@
           fnRedraw();
         };
         if (op && (str(op.title).trim() || oppItems(op.id).some(function (m) { return assignHasText(m.x); }))) confirmRemove('Remove “' + (str(op.title).trim() || 'this opportunity') + '” and its assignments?', dropOpp); else dropOpp();
+        break;
+      }
+      case 'swipe-remove-opp': { // swiped left: the same question as Remove this opportunity
+        var so = state.find.opps[+a]; if (!so) break;
+        var sItems = oppItems(so.id).filter(function (m) { return assignHasText(m.x); }).length;
+        ask({ title: 'Remove “' + (str(so.title).trim() || 'this opportunity') + '”?', body: sItems ? 'Its ' + plural(sItems, 'assignment is', 'assignments are') + ' removed too.' : 'It comes off Opportunities to invite.',
+          primary: 'Remove', onPrimary: function () {
+            state.find.items = state.find.items.filter(function (x) { return x.opp !== so.id; });
+            if (!state.find.items.length) state.find.items.push(blankAssign());
+            state.find.opps = state.find.opps.filter(function (o) { return o.id !== so.id; }); fnRedraw();
+          }, secondary: 'Cancel',
+          onSecondary: function () { Array.prototype.forEach.call(document.querySelectorAll('.swipe-li.is-open'), function (li) { li.classList.remove('is-open'); }); } });
         break;
       }
       case 'remove-fn': {
@@ -3917,6 +3939,10 @@
         }));
       });
       if (others) rows.push(line(18, function (top) { tx(L, top + 12, others + ' more on the Covenant Path Report, listed below for reference', F.ital, 9.5, C.gray); }));
+      // Upcoming opportunities to invite stay on the list until their date passes (rollForward drops them then).
+      (s.find.opps || []).filter(function (o) { return str(o.title).trim(); }).forEach(function (o) {
+        soon.push({ who: o.title.trim(), what: parseISO(str(o.date)) ? shortDay(str(o.date)) : '', color: GROUP_PDF.fn.ink });
+      });
       if (soon.length) {
         rows.push(space(4));
         soon.forEach(function (x, k) {

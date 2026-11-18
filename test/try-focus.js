@@ -100,7 +100,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   ok(/Ward council hasn’t listed any opportunities yet/.test(await p.textContent('#fn-list')) && await p.locator('#fn-list [data-action="opp-starter"]').count() >= 5, 'no opportunities yet: it says so, with starter ideas');
   ok(!(await p.$('#tip-week')) && await p.isVisible('[data-step="fn"] .how-help-fn') && await p.isVisible('[data-step="fn"] [data-action="find-tips"]'), 'no tip of the week; How can we help? and Tips at the top');
   const starters = await p.$$eval('#fn-list [data-action="opp-starter"]', els => els.map(e => e.dataset.b));
-  ok(['Special sacrament meeting', 'Christmas sacrament meeting', 'Easter sacrament meeting', 'Member speaking in sacrament meeting', 'Stake conference', 'Ward conference'].every(t => starters.includes(t)), 'starter ideas include Christmas, Easter, a member speaking, Stake and Ward conference');
+  ok(['Special sacrament meeting', 'Christmas sacrament meeting', 'Easter sacrament meeting', 'Member speaking in sacrament meeting', 'Stake conference', 'Ward conference', 'Youth activity'].every(t => starters.includes(t)), 'starter ideas include Christmas, Easter, a member speaking, Stake and Ward conference, Youth activity');
   ok(!(await p.$('#fn-list .source-line')), 'no source line on the opportunity cards');
   ok(!(await p.$('#fn-list details.other-ways')) && !/Other ways to invite/.test(await p.textContent('#fn-list')), 'no Other ways to invite');
   await p.click('#fn-list [data-action="opp-starter"][data-b="Ward activity"]'); await w(400);
@@ -115,7 +115,16 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.fill('#person-card [data-bind="find.opps.0.date"]', shift(30)); await p.evaluate(() => document.activeElement && document.activeElement.blur()); await w(200);
   await p.click('#person-view .person-done'); await w(400);
   const oppRow = await p.textContent('#fn-list [data-action="open-person"][data-a="opp"]');
-  ok(/Christmas sacrament meeting/.test(oppRow) && /Needs an assignment/.test(oppRow) && await p.locator('#fn-list .opp-tile-d').count() === 1, 'Done returns to the list: a row like a name, with a date tile, its name and “Needs an assignment”: ' + oppRow.trim());
+  ok(/Christmas sacrament meeting/.test(oppRow) && !/assignment/.test(oppRow) && !(await p.$('#fn-list [data-a="opp"] .warn')) && await p.locator('#fn-list .opp-tile-d').count() === 1, 'Done returns to the list: a row like a name, with a date tile, its name and date, and no warning in ward council: ' + oppRow.trim());
+  ok(await p.locator('#fn-list .swipe-li [data-action="swipe-remove-opp"]').count() === 1, 'an opportunity can be swiped left to remove it');
+  ok(/Focus names/.test(await p.textContent('#step-prev')) && await p.isHidden('#step-done-btn'), 'ward council’s last list links back to Focus names, with no Mark done');
+  await p.click('#step-prev'); await w(400);
+  ok((await p.textContent('#step-next')).trim() === 'Next: Opportunities to invite ›' && await p.isVisible('#step-next'), 'ward council’s Focus names has Next: Opportunities to invite');
+  await p.click('#step-next'); await w(400);
+  ok(await p.isVisible('#fn-list [data-a="opp"]'), 'Next goes to Opportunities to invite');
+  await p.click('.step-back'); await w(400);
+  ok(!/needs? an assignment/.test(await p.textContent('#wc-rows')) && /Christmas sacrament meeting \(/.test(await p.textContent('#wc-rows')), 'ward council’s row lists the opportunity and its date, no warning');
+  await p.click('[data-action="open-wc-list"][data-a="fn"]'); await w(400);
   ok(wide ? await wide() : true, 'Find New People to Teach fits a small iPhone');
 
   // Huddle: no heading over Return and Report and Sacrament attendance; the Huddle action plan is two sections
@@ -179,6 +188,8 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const f = OUT + '/try.pdf'; await dl.saveAs(f);
   const t = execSync(`pdftotext -layout "${f}" -`).toString();
   ok(t.indexOf('Focus names') > 0 && /Christmas sacrament meeting/.test(t) && /Each family invites one friend/.test(t), 'PDF: focus names, the opportunity and its assignment');
+  const glance = t.slice(t.indexOf('AT A GLANCE'), t.indexOf('Return and Report'));
+  ok(/Coming up/.test(glance) && /Christmas sacrament meeting/.test(glance), 'PDF: At a glance lists the upcoming opportunity');
   ok(!/Missionary Referrals|Referred by/.test(t), 'PDF: no Missionary Referrals');
   // The next huddle: the assignment comes back in Return and Report, and the opportunity stays until its date
   await p.click('#confirm-primary').catch(() => {}); await w(500);
