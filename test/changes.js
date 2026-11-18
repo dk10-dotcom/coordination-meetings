@@ -53,7 +53,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
 
   // Ward council: confidential line under the step card, and the temple countdown on new members
   await p.click('.door-wc'); await w(500);
-  ok(await p.evaluate(() => { const h = document.querySelector('#wc-hero'), n = document.querySelector('#wc-note'); return !n.hidden && h.nextElementSibling === n; }), 'Ward council: the confidential reminder sits right under the step card');
+  ok(await p.evaluate(() => !document.querySelector('#wc-note') && document.querySelector('#wc-hero').nextElementSibling === document.querySelector('#wc-pmf')), 'Ward council: no confidential line under the step card (it sits under Needs); Part-Member Families comes next');
   await p.locator('#wc-rows .nav-row').first().click(); await w(500);
   ok((await p.textContent('#wc-list')).includes('Temple:'), 'Ward council: new members show the temple countdown');
 
@@ -70,7 +70,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.click('[data-action="open-step"][data-a="cp"]'); await w(400); await p.locator('[data-action="open-person"]').first().click(); await w(500);
   ok(await p.evaluate(() => { const z = document.querySelector('#person-card .zone-hd-wrap'), n = z && z.lastElementChild; return !!n && n.classList.contains('need-note') && /Never add confidential information/.test(n.textContent); }), 'Huddle: the confidential reminder sits under the notes on a name');
   await p.click('.nav-home'); await w(400); await p.click('.door-hd'); await w(500);
-  ok(await p.evaluate(() => { const h = document.querySelector('#hd-hero'), n = document.querySelector('#hd-note'); return !n.hidden && h.nextElementSibling === n; }), 'Huddle: the confidential reminder sits right under the step card');
+  ok(await p.evaluate(() => !document.querySelector('#hd-note')), 'Huddle: no confidential line under the step card (it sits under the notes)');
   await p.evaluate(() => {
     const s = JSON.parse(localStorage.getItem('huddle-agenda-v1'));
     s.cp.nm[0].sac = true; s.cp.bt[0].need = 'A ride to church'; s.cp.rm.push(Object.assign({}, s.cp.rm[0], { name: 'Samuel Ortiz', ordinance: 'Sealing' }));

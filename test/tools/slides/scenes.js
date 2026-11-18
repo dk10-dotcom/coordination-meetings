@@ -12,7 +12,7 @@ module.exports = [
   { shot: 's09-wc-cp', k: 'Step 2 · Ward council', c: 'blue', title: 'The Covenant Path Report', body: 'New members, returning members, and those being taught, each in its own color.', t: 6 },
   { shot: 's10-wc-person', k: 'Step 2 · Ward council', c: 'blue', title: 'Next ordinance and needs', body: 'Enter them once. They show up in the Huddle, so nothing is typed twice.', t: 7 },
   { shot: 's11-wc-focus-person', k: 'Step 2 · Ward council', c: 'blue', title: 'Up to three focus names', body: 'Ward council chooses them. Give each one a next ordinance and what they need to get there.', t: 7 },
-  { shot: 's12-wc-note', k: 'Step 2 · Ward council', c: 'red', title: 'Never add confidential information', body: 'Everyone who receives the huddle report can read it. Keep it to names, ordinances and simple needs.', t: 7 },
+  { shot: 's12-wc-note', k: 'Step 2 · Ward council', c: 'red', title: 'Never add confidential information', body: 'It sits under Needs, and under the notes in the Huddle. Everyone who receives the huddle report can read it. Keep it to names, ordinances and simple needs.', t: 7 },
   { shot: 's13-start-up3', k: 'Step 3 · The Huddle', c: 'orange', title: 'How and when', body: 'The Huddle is the weekly coordination meeting: brief, focused, and about people.', t: 6 },
   { shot: 's14-huddle', k: 'Step 3 · The Huddle', c: 'orange', title: 'Five sections', body: 'The bar shows how many are done. Work through them in any order.', t: 6 },
   { shot: 's15-attendance', k: 'Step 3 · The Huddle', c: 'orange', title: 'Who came', body: 'In Huddle Attendees, tap everyone who attended. Make an extra effort to involve the youth.', t: 7 },

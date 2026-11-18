@@ -145,7 +145,7 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     ok(await vis('#wc-view') && await vis('#mode-bar') && await vis('.actionbar .nav-home') && (await p.textContent('#mode-title')) === 'Ward council', tag + ': Ward council opens with Back, and the bottom bar has Home');
     const rowText = async id => (await p.textContent(`[data-action="open-wc-list"][data-a="${id}"]`)).replace(/\s+/g, ' ');
     ok(await p.locator('#wc-rows .wc-row').count() === 4 && (await rowText('cp')).includes('Covenant Path Report') && (await rowText('tn')).includes('Focus names') && (await rowText('fn')).includes('Find New People to Teach') && (await rowText('mr')).includes('Missionary Referrals') && await p.locator('#wc-list .person-row, #wc-list .wc-card').count() === 0, tag + ': it shows two roll-ups, not the names');
-    ok(await vis('#wc-note') && (await p.textContent('#wc-note')).includes('Never add confidential information to this huddle report.') && await p.locator('#wc-view .help-warning').count() === 0, tag + ': the confidentiality reminder sits once under the two lists');
+    ok(!(await p.$('#wc-note')) && await p.locator('#wc-view .help-warning').count() === 0 && await p.evaluate(() => document.querySelector('#wc-pmf').compareDocumentPosition(document.querySelector('#wc-rows')) & Node.DOCUMENT_POSITION_FOLLOWING), tag + ': no confidential line on the list screen (it sits under Needs); Part-Member Families above the rows');
     ok(await p.evaluate(() => { const a = getComputedStyle(document.querySelector('#wc-rows .nav-row')), b2 = document.querySelector('#steps-this'); return !!a && !!b2 && document.querySelector('#wc-rows').className === b2.className; }), tag + ': ward council’s rows and the huddle’s rows are the same kind of list');
     ok((await rowText('cp')).includes('1 person · 1 needs a next ordinance') && (await rowText('tn')).includes('None chosen yet'), tag + ': each roll-up has a status: ' + await rowText('cp'));
     await p.screenshot({ path: `${OUT}/${tag}-wc.png` });
@@ -261,7 +261,7 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     await back(); await back();
     await p.screenshot({ path: `${OUT}/${tag}-huddle.png` });
     ok(await vis('.actionbar .btn-handoff') && await vis('.actionbar .nav-send') && await vis('.actionbar .nav-home') && !(await vis('[data-action="help"]')) && await vis('#steps-home [data-action="tips"]'), tag + ': Huddle screen has Tips at the top, the bottom bar (Hand off, Home, Send), no How to use');
-    ok(!(await vis('.fine-notes')) && await vis('#hd-note'), tag + ': no disclaimer on the Huddle screen; the confidential reminder sits under its step card');
+    ok(!(await vis('.fine-notes')) && !(await p.$('#hd-note')), tag + ': no disclaimer on the Huddle screen, and no confidential line under its step card (it sits under the notes)');
     ok(await p.locator('#steps-home .step-row').count() === 5 && await p.locator('#steps-home .step-row .step-num').count() === 0 && await p.locator('#steps-home .nav-row .step-chev').count() === 5, tag + ': the five sections are plain rows with a chevron (a check only once done)');
     // Send lives on the opening screen and waits for the after-huddle check
     await p.evaluate(() => { navigator.canShare = () => true; navigator.share = () => Promise.resolve(); });

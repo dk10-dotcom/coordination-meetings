@@ -1,4 +1,4 @@
-// Ward council shows Open Part-Member Families under its four rows: the web report, opened outside the app,
+// Ward council shows Open Part-Member Families above its four rows: the web report, opened outside the app,
 // on the four-row screen only (not on the lists of names), and never wider than a small iPhone.
 const { chromium } = require('playwright');
 const BASE = 'http://127.0.0.1:8765/';
@@ -18,8 +18,9 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   ok(await link.getAttribute('href') === URL, 'opens the Part-Member Families report');
   ok(await link.getAttribute('target') === '_blank' && /noopener/.test(await link.getAttribute('rel')), 'opens outside the app');
   ok(/Open Part-Member Families/.test(await link.innerText()), 'says Open Part-Member Families');
-  const rowsBottom = await p.locator('#wc-rows').evaluate(e => e.getBoundingClientRect().bottom);
-  ok((await link.boundingBox()).y >= rowsBottom, 'sits under the four rows');
+  const rowsTop = await p.locator('#wc-rows').evaluate(e => e.getBoundingClientRect().top);
+  const lb = await link.boundingBox();
+  ok(lb.y + lb.height <= rowsTop, 'sits above the four rows');
   ok(await p.evaluate(() => document.documentElement.scrollWidth) <= 320, 'fits a 320 px screen');
   await p.locator('[data-action="open-wc-list"][data-a="tn"]').click(); await p.waitForTimeout(400);
   ok(!(await link.isVisible()), 'hidden on a list of names');

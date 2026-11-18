@@ -270,14 +270,14 @@ Opens to four rows:
   They hold the same data, so what is entered in one meeting shows in the other.
 
 The first two show a count that turns orange when someone is missing a next ordinance.
-Under the four rows is **Open Part-Member Families**, the same outlined button as Open the Covenant Path
+Right under the step card, above the four rows, is **Open Part-Member Families**, the same outlined button as Open the Covenant Path
 Report, with "In Leader and Clerk Resources, on the web" under it. It opens the Part-Member Families report
 in Leader and Clerk Resources (`https://lcr.churchofjesuschrist.org/mlt/report/part-member-households?lang=eng`)
 outside the app (`target="_blank"`), for finding names to discuss. Member Tools has no link to this report, so
 it always opens the web page. It shows on the four-row screen only, not on the lists of names.
-Right under the step card, once, is "Never add confidential information to this huddle report." as one
-small gray line with a red "!" (the Huddle has the same line in the same place). On a person's Ward council
-screen the same line sits right under the **Needs** box, where details are typed. In the Huddle it sits under
+"Never add confidential information to this huddle report." is one small gray line with a red "!", placed
+next to the boxes where details are typed rather than under the step card. On a person's Ward council
+screen it sits right under the **Needs** box. In the Huddle it sits under
 the notes: at the end of a person's **Huddle · How & When** (under Huddle notes, or under "+ Add a note for ward
 council") and under **Notes** on each Return and Report item. It is not repeated on the lists. New members' rows show the same temple countdown as in the Huddle
 ("Temple: 14 days left" in red), so the 30-day goal is in front of both meetings.
@@ -307,7 +307,7 @@ the mirror of the Huddle's:**
 
 Top to bottom: the one line saying what to do, **Huddle Attendees**, **Tips for an effective meeting**,
 then five sections as rows.
-The confidential reminder sits right under the step card, as in Ward council.
+The confidential reminder sits under the notes on each name and Return and Report item, not under the step card.
 There is no disclaimer line on this screen.
 A section's name sits beside **Back** when it is open. **Mark done** gives a section a
 green check; it is optional, never blocks Send, and clears when the huddle is sent. A section whose
@@ -517,9 +517,9 @@ link clears both from the address bar.
 ## Help built into the app
 
 - **Help & training** (the button at the top of the opening screen) is a short list, not a page of text. Its
-  title and **Close** stay at the top while it scrolls (swiping down closes it too). It has an intro line
-  and five groups of rows, in this order (no confidential banner: Ward council and the Huddle carry it under
-  their step cards, and Privacy and security says it here):
+  title and **Close** stay at the top while it scrolls (swiping down closes it too). It has
+  five groups of rows, in this order (no confidential banner: Ward council and the Huddle carry it next to
+  their Needs and notes boxes, and Privacy and security says it here):
   - **Start here:** Add Huddle to your Home Screen ("Do this once, before you start", or "Already done on
     this phone" when the app is running from the Home Screen); Take the guided tour ("Practice a week with
     sample names"); Step-by-step guide ("Read through at your own pace"; the training slides); and See a sample huddle report. None has a step

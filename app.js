@@ -1614,7 +1614,6 @@
     $('#bw-view').hidden = !bw; $('#af-view').hidden = !af;
     $('#mode-title').textContent = wc ? 'Ward council' : bw ? 'Before ward council' : af ? 'After the huddle' : 'Huddle';
     $('#hd-hero').hidden = all || view !== 'home'; // the Huddle's header card, with its one line on what to do there
-    $('#hd-note').hidden = all || view !== 'home'; // and the confidential reminder right under it, as in Ward council
     var stp = STEPS.filter(function (x) { return x.id === view; })[0] || WC_LISTS.filter(function (x) { return 'wc-' + x.id === view; })[0];
     $('#step-title').textContent = person ? personTitle(personRef) : stp ? stp.title : '';
     // Leaving a person's screen: drop a name left empty, then redraw the lists it appears on.
@@ -1719,8 +1718,7 @@
         h('span', { class: 'step-chev', 'aria-hidden': 'true', text: '›' })
       ])]);
     }));
-    $('#wc-note').hidden = rows.hidden;
-    var pmf = $('#wc-pmf'); if (pmf) pmf.hidden = rows.hidden; // Part-Member Families: on the four-row screen only
+    var pmf = $('#wc-pmf'); if (pmf) pmf.hidden = rows.hidden; // Part-Member Families: above the four rows, on that screen only
     if (rows.hidden) rows.replaceChildren();
     if (rowsOn) { // one row per name; the fields are on the person's own screen
       if (!isWcNames(view)) { wrap.replaceChildren(); return; }
