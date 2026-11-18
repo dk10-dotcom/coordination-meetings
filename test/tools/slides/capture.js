@@ -63,8 +63,8 @@ module.exports = (async () => {
   await p.click('[data-action="add-opp"]'); await wait(300);
   await p.fill('[data-bind="find.opps.0.title"]', 'Christmas sacrament meeting'); await p.fill('[data-bind="find.opps.0.date"]', '2026-12-20');
   await p.evaluate(() => document.activeElement && document.activeElement.blur()); await wait(300);
-  await shot('s12b-wc-opp', '[data-opp] [data-bind$=".title"]', { block: 'center' });
-  await back();
+  await shot('s12b-wc-opp', '#person-card [data-bind$=".title"]', { block: 'center' });
+  await back(); await back();
   await start();
   // Step 3
   await shot('s13-start-up3', '.door-hd', { block: 'center' });
@@ -103,10 +103,11 @@ module.exports = (async () => {
   await p.click('[data-action="step-done"]'); await wait(600);
   // Opportunities to invite: the ward council's opportunity opened, an assignment showing the ways to invite
   await p.click('[data-action="open-step"][data-a="fn"]'); await wait(500);
-  if (!(await p.locator('[data-opp]').first().evaluate(d => d.open))) { await p.click('[data-opp] > summary'); await wait(300); }
-  await p.click('[data-opp] [data-action="add-fn"]'); await wait(300);
+  await p.click('#fn-list [data-a="opp"]'); await wait(500);
+  await p.click('#person-card [data-action="add-fn"]'); await wait(300);
   await p.evaluate(() => document.activeElement && document.activeElement.blur());
-  await shot('s24-fn', '[data-opp] .invite-ideas', { block: 'center' });
+  await shot('s24-fn', '#person-card .invite-ideas', { block: 'center' });
+  await p.click('#person-view .person-done'); await wait(500);
   await p.evaluate(() => scrollTo(0, 0));
   await p.click('[data-step="fn"] .how-help-fn'); await wait(500);
   await shot('s18-howhelp');

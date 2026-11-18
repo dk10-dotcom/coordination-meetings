@@ -102,14 +102,20 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const starters = await p.$$eval('#fn-list [data-action="opp-starter"]', els => els.map(e => e.dataset.b));
   ok(['Special sacrament meeting', 'Christmas sacrament meeting', 'Easter sacrament meeting', 'Member speaking in sacrament meeting', 'Stake conference', 'Ward conference'].every(t => starters.includes(t)), 'starter ideas include Christmas, Easter, a member speaking, Stake and Ward conference');
   ok(!(await p.$('#fn-list .source-line')), 'no source line on the opportunity cards');
-  ok(!(await p.locator('#fn-list details.other-ways').getAttribute('open')), 'Other ways to invite starts closed');
-  await p.click('#fn-list [data-action="opp-starter"][data-b="Ward activity"]'); await w(300);
-  ok((await saved()).find.opps.map(o => o.title).join('|') === 'Ward activity', 'tapping a starter idea adds that opportunity');
-  await p.click('#fn-list [data-action="remove-opp"]'); await w(300); if (await p.isVisible('#confirm-sheet')) { await p.click('#confirm-primary'); await w(300); }
-  await p.click('[data-action="add-opp"]'); await w(300);
-  ok(await p.locator('[data-opp]').first().evaluate(d => d.open), 'a new opportunity opens by itself');
-  await p.fill('[data-bind="find.opps.0.title"]', 'Christmas sacrament meeting');
-  await p.fill('[data-bind="find.opps.0.date"]', shift(30)); await p.evaluate(() => document.activeElement && document.activeElement.blur()); await w(200);
+  ok(!(await p.$('#fn-list details.other-ways')) && !/Other ways to invite/.test(await p.textContent('#fn-list')), 'no Other ways to invite');
+  await p.click('#fn-list [data-action="opp-starter"][data-b="Ward activity"]'); await w(400);
+  await p.click('#person-card [data-action="add-fn"]'); await w(300);
+  await p.fill('#person-card [data-bind$=".task"]', 'Each family invites one friend'); await p.evaluate(() => document.activeElement && document.activeElement.blur()); await w(200);
+  ok((await saved()).find.opps.map(o => o.title).join('|') === 'Ward activity' && await p.isVisible('#person-view') && (await p.textContent('#step-title')).trim() === 'Ward activity', 'tapping a starter idea adds that opportunity and opens it on its own screen');
+  await p.click('#person-card [data-action="remove-opp"]'); await w(300); if (await p.isVisible('#confirm-sheet')) { await p.click('#confirm-primary'); await w(400); }
+  ok(!(await saved()).find.opps.length && !(await saved()).find.items.some(x => /Each family/.test(x.task)) && !(await p.isVisible('#person-view')) && await p.isVisible('#fn-list'), 'Remove this opportunity takes it and its assignments off, and returns to the list');
+  await p.click('[data-action="add-opp"]'); await w(400);
+  ok(await p.isVisible('#person-view') && await p.evaluate(() => /\.title$/.test(document.activeElement.dataset.bind || '')), 'Add an opportunity opens a new one, ready to type its name');
+  await p.fill('#person-card [data-bind="find.opps.0.title"]', 'Christmas sacrament meeting');
+  await p.fill('#person-card [data-bind="find.opps.0.date"]', shift(30)); await p.evaluate(() => document.activeElement && document.activeElement.blur()); await w(200);
+  await p.click('#person-view .person-done'); await w(400);
+  const oppRow = await p.textContent('#fn-list [data-action="open-person"][data-a="opp"]');
+  ok(/Christmas sacrament meeting/.test(oppRow) && /Needs an assignment/.test(oppRow) && await p.locator('#fn-list .opp-tile-d').count() === 1, 'Done returns to the list: a row like a name, with a date tile, its name and “Needs an assignment”: ' + oppRow.trim());
   ok(wide ? await wide() : true, 'Find New People to Teach fits a small iPhone');
 
   // Huddle: no heading over Return and Report and Sacrament attendance; the Huddle action plan is two sections
@@ -137,23 +143,25 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const opp = (await saved()).find.opps[0];
   await p.reload(); await w(1500); if (!(await p.isVisible('[data-action="open-step"][data-a="fn"]'))) { await p.click('.door-hd'); await w(400); }
   await p.click('[data-action="open-step"][data-a="fn"]'); await w(400);
-  ok(!(await p.locator(`[data-opp="${opp.id}"]`).evaluate(d => d.open)) && /Christmas sacrament meeting/.test(await p.textContent(`[data-opp="${opp.id}"] summary`)) && /Needs an assignment/.test(await p.textContent(`[data-opp="${opp.id}"] summary`)), 'opportunities start closed, showing the name, date and “Needs an assignment”');
-  await p.click(`[data-opp="${opp.id}"] summary`); await w(300);
-  await p.click(`[data-opp="${opp.id}"] [data-action="add-fn"]`); await w(300);
+  await p.click('#fn-list [data-a="opp"]'); await w(400);
+  await p.click('#person-card [data-action="add-fn"]'); await w(300);
   const ti = (await saved()).find.items.length - 1;
-  await p.fill(`[data-bind="find.items.${ti}.task"]`, 'Each family invites one friend'); await p.evaluate(() => document.activeElement && document.activeElement.blur()); await w(300);
+  ok(await p.isVisible(`#person-card [data-bind="find.items.${ti}.task"]`) && await p.isVisible(`#person-card [data-bind="find.items.${ti}.who"]`) && /Assigned to/.test(await p.textContent('#person-card .fn-assign')), 'an assignment has Assignment and Assigned to');
+  await p.fill(`[data-bind="find.items.${ti}.task"]`, 'Each family invites one friend'); await p.fill(`[data-bind="find.items.${ti}.who"]`, 'Elders quorum'); await p.evaluate(() => document.activeElement && document.activeElement.blur()); await w(300);
   st = await saved();
-  ok(st.find.items[ti].opp === opp.id && st.find.items[ti].task === 'Each family invites one friend', 'the assignment sits under the opportunity');
-  ok(!(await p.locator(`[data-opp="${opp.id}"] .fn-assign`).first().locator('.invite-ideas').isVisible().catch(() => false)), 'a filled assignment shows no ways to invite');
-  await p.click(`[data-opp="${opp.id}"] [data-action="add-fn"]`); await w(300);
-  const ideas = await p.$$eval(`[data-opp="${opp.id}"] [data-action="invite-idea"]`, els => els.map(e => e.dataset.b));
+  ok(st.find.items[ti].opp === opp.id && st.find.items[ti].task === 'Each family invites one friend' && st.find.items[ti].who === 'Elders quorum', 'the assignment sits under the opportunity, with who');
+  ok(!(await p.locator('#person-card .fn-assign').first().locator('.invite-ideas').isVisible().catch(() => false)), 'a filled assignment shows no ways to invite');
+  await p.click('#person-card [data-action="add-fn"]'); await w(300);
+  const ideas = await p.$$eval('#person-card [data-action="invite-idea"]', els => els.map(e => e.dataset.b));
   ok(ideas.length === 3 && !ideas.some(t => /Speakers/.test(t)), 'an empty assignment shows the ways to invite (no speakers idea): ' + ideas.join('|'));
-  await p.click(`[data-opp="${opp.id}"] [data-action="invite-idea"][data-b="Members go on a visit with the missionaries"]`); await w(300);
-  ok(await p.evaluate(() => /find\.items\.\d+\.task/.test(document.activeElement.dataset.bind || '')), 'the cursor goes to that assignment, to add who');
+  await p.click('#person-card [data-action="invite-idea"][data-b="Members go on a visit with the missionaries"]'); await w(300);
+  ok(await p.evaluate(() => /find\.items\.\d+\.who/.test(document.activeElement.dataset.bind || '')), 'the cursor goes to Assigned to');
   await p.evaluate(() => document.activeElement && document.activeElement.blur()); await w(300);
   st = await saved();
   ok(st.find.items.filter(x => x.opp === opp.id).length === 2 && st.find.items.some(x => x.opp === opp.id && x.task === 'Members go on a visit with the missionaries'), 'tapping a way to invite fills that assignment');
   await p.screenshot({ path: OUT + '/opportunity.png', fullPage: true });
+  await p.click('#person-view .person-done'); await w(400);
+  ok(/2 assignments/.test(await p.textContent('#fn-list [data-a="opp"]')), 'its row now says 2 assignments');
 
   // Return and Report: Daniel's partly-done assignment comes back as a focus name
   await p.click('.nav-home'); await w(400); await p.click('.door-hd'); await w(400);
@@ -175,7 +183,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   // The next huddle: the assignment comes back in Return and Report, and the opportunity stays until its date
   await p.click('#confirm-primary').catch(() => {}); await w(500);
   st = await saved();
-  ok(st.rr.some(r => /Each family invites one friend \(Christmas sacrament meeting\)/.test(r.action)), 'next huddle: the assignment is in Return and Report with its opportunity');
+  ok(st.rr.some(r => /Each family invites one friend \(Christmas sacrament meeting\)/.test(r.action) && r.assigned === 'Elders quorum'), 'next huddle: the assignment is in Return and Report with its opportunity and who');
   ok(st.find.opps.length === 1 && st.find.opps[0].title === 'Christmas sacrament meeting', 'next huddle: the opportunity card is still there (its date hasn’t passed)');
   ok(!errs.length, 'no page errors ' + errs.join('; '));
   await b.close();

@@ -196,6 +196,8 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     await p.click('[data-action="open-wc-list"][data-a="fn"]'); await p.waitForTimeout(300);
     ok((await p.textContent('#step-title')) === 'Opportunities to invite' && await vis('#fn-list [data-action="add-opp"]') && !(await vis('#step-foot')) && !(await vis('#wc-rows')) && await noOverflow(), tag + ': Opportunities to invite opens in ward council (no Mark section done)');
     await p.click('[data-action="add-opp"]'); await fill('find.opps.0.title', 'Ward party'); await back();
+    ok((await p.textContent('#fn-list')).includes('Ward party') && await vis('#fn-list [data-action="open-person"][data-a="opp"]'), tag + ': the opportunity opens on its own screen, and Back returns to the list with its row');
+    await back();
     ok(await vis('#wc-rows') && (await rowText('fn')).includes('Ward party · 1 needs an assignment'), tag + ': Back returns to ward council, and the row names the opportunity');
     // Missionary Referrals are gone from Ward council
     await p.screenshot({ path: `${OUT}/${tag}-wc-filled.png` });
@@ -241,7 +243,7 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     await fill('tn.0.action', 'Invite to temple prep'); await back(); await back();
     // The two shared sections hold what ward council entered
     await p.click('[data-action="open-step"][data-a="fn"]'); await p.waitForTimeout(250);
-    ok(await p.inputValue('[data-bind="find.opps.0.title"]') === 'Ward party' && await vis('#step-foot'), tag + ': the opportunity added in ward council is in the Huddle’s Opportunities to invite');
+    ok((await p.textContent('#fn-list [data-a="opp"]')).includes('Ward party') && await vis('#step-foot'), tag + ': the opportunity added in ward council is in the Huddle’s Opportunities to invite');
     await back();
     await p.screenshot({ path: `${OUT}/${tag}-huddle.png` });
     ok(await vis('.actionbar .btn-handoff') && await vis('.actionbar .nav-send') && await vis('.actionbar .nav-home') && !(await vis('[data-action="help"]')) && await vis('#steps-home [data-action="tips"]'), tag + ': Huddle screen has Tips at the top, the bottom bar (Hand off, Home, Send), no How to use');

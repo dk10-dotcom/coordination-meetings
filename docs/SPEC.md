@@ -283,8 +283,9 @@ The first two show a count that turns orange when someone is missing a next ordi
   when suggested). It fills the first open spot, or adds one past three: a pressing name can take the list
   over three. Their next ordinance and needs come along, and an action item already on their card moves with
   them. Once they are a focus name the screen says so, and their row carries "★ Focus name".
-- **Swipe a focus name left** (Ward council and the Huddle) to show **Remove**. It asks first ("Remove … from
-  Focus names?"), then takes them off Focus names; **Undo** in the message puts them back where they were.
+- **Swipe a focus name left** (Ward council and the Huddle) to show **Remove**, or open the name and tap
+  **Remove from Focus names** at the bottom of its screen. Either asks first ("Remove … from
+  Focus names?"), then takes them off Focus names (from their screen, it goes back to the list); **Undo** in the message puts them back where they were.
   They stay on the Covenant Path Report. The list closes up: names stay together, and empty spots only fill
   out to three at the end (a huddle saved with a gap closes up when it opens).
 
@@ -421,21 +422,27 @@ will invite. The same section opens from Ward council and the Huddle.
 
 - **At the top:** **How can we help?** and **Tips** (the tips sheet, with its source line). The Tip of the week was
   taken out (the user decided, Nov 18, 2026).
-- **Each opportunity is a card that starts closed:** its name, then its date and "1 assignment" (or "Needs an
-  assignment"), and a chevron. Tap it to open it; a new one (Add, or a starter idea) opens by itself. Open, it shows
-  what's coming up and its **Date**. While its name is empty it shows starter ideas to tap: Special sacrament
-  meeting, Christmas sacrament meeting, Easter sacrament meeting, Member speaking in sacrament meeting, Stake
-  conference, Ward conference, Ward activity, Dinner or home evening, Baptismal service, Sports night,
-  Self-reliance or other classes, Service project. Its assignments sit under it (who will do what, and when), then
-  **Add an assignment** and **Remove** (asks first when it has a name; its assignments move to Other ways to invite).
-- **Ways to invite sit inside each assignment:** while "Who will do what" is empty, it shows **Ways to invite: tap
-  one**: Members invite friends and neighbors, Members go on a visit with the missionaries, Share it on the ward's
-  activity page. A tap fills that assignment's "Who will do what"; the huddle adds who and when.
-- **With no opportunities:** "Ward council hasn't listed any opportunities yet." with the starter ideas.
-- **+ Add an upcoming opportunity** adds a card.
-- **Other ways to invite** (assignments not tied to an event) is at the bottom, closed until tapped (open
-  when it holds assignments).
-- The user decided the cards carry no source line (Nov 18, 2026); the Tips sheet keeps its own.
+- **Opportunities are rows, like the name lists** (the user decided, Nov 18, 2026): under the band **Upcoming**
+  (with "2 opportunities"), each row has a date tile (DEC 20), its name, one status line ("Sun, Dec 20 ·
+  1 assignment", or "Needs an assignment" in orange) and a chevron; **Add an opportunity** is the last row.
+- **Each opportunity opens on its own screen** (Back, Done and the phone's Back return to the list): what's coming
+  up and its **Date**, then its assignments and **Add an assignment**, then **Remove this opportunity** at the
+  bottom (asks first when anything is typed; its assignments go with it). An opportunity left empty is dropped on
+  the way back. While its name is empty it shows starter ideas to tap: Special sacrament meeting, Christmas
+  sacrament meeting, Easter sacrament meeting, Member speaking in sacrament meeting, Stake conference, Ward
+  conference, Ward activity, Dinner or home evening, Baptismal service, Sports night, Self-reliance or other
+  classes, Service project.
+- **Each assignment has three boxes:** **Assignment** (what), **Assigned to** (who) and **When**. While Assignment is
+  empty, **Ways to invite: tap one** sits under it: Members invite friends and neighbors, Members go on a visit with
+  the missionaries, Share it on the ward's activity page. A tap fills Assignment and moves to Assigned to. An older
+  huddle's assignment keeps its words in Assignment, with Assigned to empty.
+- **With no opportunities:** "Ward council hasn't listed any opportunities yet." with the starter ideas; a tap
+  adds that opportunity and opens it.
+- **No "Other ways to invite"** (the user took it out, Nov 18, 2026). Every assignment sits under an opportunity.
+  An older huddle's assignments that weren't tied to one, and a carried-forward assignment whose opportunity is
+  gone, go under an opportunity named "Other assignments". A carried-forward assignment goes back under its own
+  opportunity when that is still listed.
+- The user decided opportunities carry no source line (Nov 18, 2026); the Tips sheet keeps its own.
 - **The row** on the Huddle and Ward council screens names what's coming up: "Christmas sacrament meeting ·
   1 needs an assignment" ("each has an assignment" when done; "Ward council hasn't listed any yet" when empty).
 - **Next week** the assignments come back in Return and Report with the opportunity named ("Each family invites

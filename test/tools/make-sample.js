@@ -34,7 +34,8 @@ const huddle = {
   cpNone: {},
   tn: [card({ name: 'Grace Thompson', ordinance: 'Sealing', need: 'Help preparing family names', action: 'Family history consultant visits to prepare names', assigned: 'Sister Nguyen', when: 'Thu', actionCarried: true }),
     card({ name: 'Samuel Ortiz', ordinance: 'Melchizedek Priesthood', need: 'Someone to study with', action: 'Elders quorum president meets with him', assigned: 'Bro. Young', when: 'Tue' }), card({ touched: '' })],
-  find: { plan: 'Invite friends to the ward Christmas devotional', items: [{ task: 'Each family invites one friend', when: 'Sun', carried: true }, { task: 'Missionaries bring invitations to hand out', when: 'Wed' }] },
+  find: { plan: '', opps: [{ id: 'o1', title: 'Ward Christmas devotional', date: '2026-12-13' }],
+    items: [{ task: 'Each family invites one friend', who: 'Elders quorum and Relief Society', when: 'Sun', carried: true, opp: 'o1' }, { task: 'Members go on a visit with the missionaries', who: 'The Rivera family', when: 'Wed', opp: 'o1' }] },
   referrals: [{ name: 'Marcus Bell', by: 'Sister Diaz', notes: 'A friend from work who asked about the Book of Mormon' }],
   verified: { before: true, after: true }
 };

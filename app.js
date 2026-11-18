@@ -158,7 +158,7 @@
   }
   function blankName() { return blankAction(); }
   // Plans to find new people to teach: one plan, and assignments that each have their own when.
-  function blankAssign() { return { task: '', when: '' }; }
+  function blankAssign() { return { task: '', who: '', when: '' }; }
   function blankFind() { return { plan: '', items: [blankAssign()], opps: [] }; }
   // Focus names keep no blank spots between names: the names first, then empty spots up to three.
   function tnBlank(n) { return !n.sac && !hasText(n, CARD_KEYS); }
@@ -168,7 +168,7 @@
     return out;
   }
   function oppId() { return 'o' + Math.random().toString(36).slice(2, 9); }
-  function assignHasText(x) { return hasText(x, ['task', 'when']); }
+  function assignHasText(x) { return hasText(x, ['task', 'who', 'when']); }
   // The meeting date defaults to the next day matching the weekday of the last saved agenda (today if none).
   function readMeetingDay() {
     try { var st = getStore('localStorage'); var v = st && st.getItem('huddle-meeting-day'); return v === null || v === undefined || v === '' ? null : +v; } catch (e) { return null; }
@@ -265,12 +265,20 @@
     f.tn = packTn(tn.slice(0, 12)); // pressing names can take focus names past three; no blank spots between names
     var fd = s.find && typeof s.find === 'object' ? s.find : {};
     f.find.plan = str(fd.plan);
-    var fi = Array.isArray(fd.items) ? fd.items.filter(function (x) { return x && typeof x === 'object'; }).map(function (x) { return { task: str(x.task), when: str(x.when), carried: !!x.carried, doneMid: !!x.doneMid, opp: str(x.opp) }; }) : [];
+    var fi = Array.isArray(fd.items) ? fd.items.filter(function (x) { return x && typeof x === 'object'; }).map(function (x) { return { task: str(x.task), who: str(x.who), when: str(x.when), carried: !!x.carried, doneMid: !!x.doneMid, opp: str(x.opp) }; }) : [];
     f.find.items = fi.length ? fi : [blankAssign()];
     // Upcoming opportunities are cards with a name and a date; assignments sit under them.
     // An older huddle's typed opportunities become one card.
     f.find.opps = Array.isArray(fd.opps) ? fd.opps.filter(function (o) { return o && typeof o === 'object'; }).map(function (o) { return { id: str(o.id) || oppId(), title: str(o.title), date: parseISO(str(o.date)) ? str(o.date) : '' }; }) : [];
     if (!f.find.opps.length && f.find.plan.trim()) { f.find.opps.push({ id: oppId(), title: f.find.plan.trim(), date: '' }); f.find.plan = ''; }
+    // Every typed assignment sits under an opportunity (there is no "Other ways to invite" any more):
+    // an older huddle's assignments that aren't tied to one go under an opportunity called "Other assignments".
+    var orphans = f.find.items.filter(function (x) { return assignHasText(x) && !f.find.opps.some(function (o) { return o.id === x.opp; }); });
+    if (orphans.length) {
+      var oth = f.find.opps.filter(function (o) { return o.title === 'Other assignments'; })[0];
+      if (!oth) { oth = { id: oppId(), title: 'Other assignments', date: '' }; f.find.opps.push(oth); }
+      orphans.forEach(function (x) { x.opp = oth.id; });
+    }
     f.referrals = cleanReferrals(s.referrals); // older PDFs and handoff links have none
     return f;
   }
@@ -354,6 +362,7 @@
     chat: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4.5h12v7.5H8l-3.5 3v-3H3z"/></svg>',
     check: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>',
     plus: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>',
+    calendar: '<svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="4.5" width="13" height="12" rx="2"/><path d="M3.5 8h13"/><path d="M7 2.8v3.4M13 2.8v3.4"/></svg>',
     x: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 5l8 8M13 5l-8 8"/></svg>'
   };
   function icon(name, cls) { var s = h('span', { class: cls || null, 'aria-hidden': 'true' }); s.innerHTML = ICONS[name]; return s; }
@@ -1127,12 +1136,13 @@
     var wrap = $('#person-card'); if (!wrap) return;
     var r = personRef, a = isPerson(view) && personOk(r) ? personCard(r) : null;
     if (!a) { wrap.replaceChildren(); return; }
+    if (r.g === 'opp') { wrap.replaceChildren.apply(wrap, oppScreen(r.i)); return; }
     var isRef = r.g === 'mr';
     var base = r.g === 'tn' ? 'tn.' + r.i + '.' : 'cp.' + r.g + '.' + r.i + '.';
     var card = isRef ? h('div', { class: 'card ref-card' }, [referralFields(r.i, true)]) : r.kind === 'wc' ? wcPersonCard(r, a) : r.kind === 'bw' ? bwPersonCard(r, a) : hdPersonCard(r, a);
-    var remove = h('button', { type: 'button', class: 'btn-link danger person-remove', 'data-action': r.g === 'tn' ? 'quick-remove-tn' : isRef ? 'remove-mr' : 'remove-cp',
+    var remove = h('button', { type: 'button', class: 'btn-link danger person-remove', 'data-action': r.g === 'tn' ? (str(a.name).trim() ? 'swipe-remove-tn' : 'quick-remove-tn') : isRef ? 'remove-mr' : 'remove-cp',
       'data-a': r.g === 'tn' || isRef ? r.i : r.g, 'data-b': r.g === 'tn' || isRef ? '' : r.i,
-      hidden: rowBlank(r.g, a) }, [r.g === 'tn' ? 'Clear this focus name' : 'Remove from the list']);
+      hidden: rowBlank(r.g, a) }, [r.g === 'tn' ? (str(a.name).trim() ? 'Remove from Focus names' : 'Clear this focus name') : 'Remove from the list']);
     var attrs = { class: 'list-panel person-panel list-' + r.g, 'aria-label': personTitle(r) };
     attrs[r.kind === 'wc' ? 'data-wc' : r.kind === 'bw' ? 'data-bw' : 'data-group'] = r.g;
     var done = h('button', { type: 'button', class: 'btn-primary full person-done', 'data-action': 'steps-home' }, ['Done']);
@@ -1304,8 +1314,9 @@
   }
   // Opportunities to invite: ward council adds each upcoming opportunity (a name and a date) as a card;
   // the huddle adds assignments under it. Each card starts closed (its name, date and how many assignments) and opens
-  // when tapped; a new one opens by itself. "Other ways to invite" holds assignments not tied to an event, closed until tapped.
-  // An empty assignment shows the invite ideas as quick picks for "Who will do what".
+  // when tapped. In the app itself (rows) each opportunity is a row that opens on its own screen, and there is no
+  // "Other ways to invite" (the user took it out); that card stays only in the cards-open layout used by tests.
+  // An empty assignment shows the invite ideas as quick picks for "Assignment"; "Assigned to" says who.
   // (The user took the Tip of the week and the source line off these cards on Nov 18, 2026; the Tips sheet keeps its source line.)
   var OPP_STARTERS = ['Special sacrament meeting', 'Christmas sacrament meeting', 'Easter sacrament meeting', 'Member speaking in sacrament meeting', 'Stake conference', 'Ward conference', 'Ward activity', 'Dinner or home evening', 'Baptismal service', 'Sports night', 'Self-reliance or other classes', 'Service project'];
   var INVITE_IDEAS = ['Members invite friends and neighbors', 'Members go on a visit with the missionaries', 'Share it on the ward’s activity page'];
@@ -1319,10 +1330,7 @@
     bits.push(typed ? plural(typed, 'assignment', 'assignments') : 'Needs an assignment');
     return bits.join(' · ');
   }
-  function renderFN() {
-    var wrap = $('#fn-list');
-    var opps = state.find.opps, items = state.find.items;
-    var assign = function (x, i, n) {
+  function fnAssign(x, i, n) {
       var base = 'find.items.' + i + '.';
       return h('div', { class: 'fn-assign' }, [
         h('div', { class: 'fn-assign-head' }, [
@@ -1331,12 +1339,72 @@
           removeButton('remove-fn', i, '', 'Remove assignment ' + n)
         ]),
         h('div', { class: 'fn-fields' }, [
-          field('Who will do what', base + 'task', { multi: true, placeholder: 'e.g. Each family invites one friend' }),
+          field('Assignment', base + 'task', { multi: true, placeholder: 'e.g. Invite a friend to come' }),
           str(x.task).trim() ? null : h('div', { class: 'invite-ideas' }, [h('p', { class: 'idea-k', text: 'Ways to invite: tap one' }), chips('invite-idea', i, INVITE_IDEAS)]),
+          field('Assigned to', base + 'who', { placeholder: 'e.g. The Rivera family', cap: 'words' }),
           whenField('When', base + 'when', { placeholder: 'e.g. Sat' })
         ])
       ]);
-    };
+  }
+  function oppItems(id) { return state.find.items.map(function (x, i) { return { x: x, i: i }; }).filter(function (o) { return o.x.opp === id; }); }
+  // An opportunity as a row, the way names are rows: a date tile, its name, one status line, a chevron.
+  function oppRow(kind, o, k) {
+    var t = str(o.title).trim(), d = parseISO(str(o.date));
+    var tile = h('span', { class: 'avatar opp-tile' + (d ? '' : ' is-blank'), 'aria-hidden': 'true' }, d ? [h('span', { class: 'opp-tile-m', text: d.toLocaleDateString('en-US', { month: 'short' }) }), h('span', { class: 'opp-tile-d', text: String(d.getDate()) })] : ['+']);
+    var mine = oppItems(o.id), typed = mine.filter(function (m) { return str(m.x.task).trim(); }).length;
+    var sub = (d ? whenShow(o.date) + ' · ' : '') + (typed ? plural(typed, 'assignment', 'assignments') : 'Needs an assignment');
+    return h('li', {}, [h('button', { type: 'button', class: 'nav-row person-row opp-row' + (t ? '' : ' is-blank'), 'data-action': 'open-person', 'data-a': 'opp', 'data-b': k, 'data-kind': kind, 'aria-label': (t || 'New opportunity') + '. ' + sub }, [
+      tile,
+      h('span', { class: 'step-text' }, [h('span', { class: 'step-title person-name', text: t || 'New opportunity' }), h('span', { class: 'step-status' + (typed ? '' : ' warn'), text: sub })]),
+      h('span', { class: 'step-chev', 'aria-hidden': 'true', text: '›' })
+    ])]);
+  }
+  // One opportunity's own screen: what's coming up, its date, and its assignments.
+  function oppScreen(k) {
+    var o = state.find.opps[k], base = 'find.opps.' + k + '.', t = str(o.title).trim(), n = 0;
+    var head = h('div', { class: 'person-head opp-head' }, [icon('calendar', 'avatar opp-head-icon'), h('div', { class: 'person-head-text' }, [
+      h('p', { class: 'person-head-name', text: t || 'New opportunity' }), h('p', { class: 'person-head-list', text: 'Opportunity to invite' })])]);
+    var card = h('div', { class: 'card fn-card opp-card opp-screen', 'data-opp': o.id }, [
+      h('div', { class: 'card-grid' }, [
+        field('What’s coming up', base + 'title', { full: true, placeholder: 'e.g. Christmas sacrament meeting' }),
+        t ? null : h('div', { class: 'full opp-starters' }, [h('p', { class: 'idea-k', text: 'Or tap an idea' }), chips('opp-starter', k, OPP_STARTERS)]),
+        field('Date', base + 'date', { type: 'date', full: true })
+      ])
+    ].concat(oppItems(o.id).map(function (m) { n++; return fnAssign(m.x, m.i, n); })).concat([
+      h('div', { class: 'list-foot' }, [addButton('add-fn', o.id, 'Add an assignment')])
+    ]));
+    return [h('section', { class: 'list-panel person-panel list-fn', 'aria-label': t || 'New opportunity' }, [head, card]),
+      h('button', { type: 'button', class: 'btn-primary full person-done', 'data-action': 'steps-home' }, ['Done']),
+      h('button', { type: 'button', class: 'btn-link danger person-remove', 'data-action': 'remove-opp', 'data-a': k }, ['Remove this opportunity'])];
+  }
+  function renderFN() {
+    var wrap = $('#fn-list');
+    var opps = state.find.opps, items = state.find.items, assign = fnAssign;
+    if (!ideasHook) { // the ways to invite hide once "Assignment" has words, and come back if it's emptied (in the list or on an opportunity's screen)
+      ideasHook = true;
+      document.addEventListener('input', function (e) {
+        var t = e.target; if (!t.dataset) return;
+        if (/^find\.opps\.\d+\.title$/.test(t.dataset.bind || '')) { var sc = t.closest('.opp-card'), st0 = sc && sc.querySelector('.opp-starters'); if (st0) st0.hidden = !!t.value.trim(); if (t.closest('#person-card')) { var nm0 = t.value.trim() || 'New opportunity', hn = $('#person-card .person-head-name'); if (hn) hn.textContent = nm0; $('#step-title').textContent = nm0; } return; }
+        if (!/^find\.items\.\d+\.task$/.test(t.dataset.bind || '')) return;
+        var box = t.closest('.fn-assign'), ideas = box && box.querySelector('.invite-ideas');
+        if (ideas) ideas.hidden = !!t.value.trim();
+      });
+    }
+    if (rowsOn) {
+      var kind = view === 'wc-fn' ? 'wc' : 'hd';
+      var rows = opps.map(function (o, k) { return oppRow(kind, o, k); });
+      if (!opps.length) rows.push(h('li', { class: 'list-empty opp-empty' }, [
+        h('p', { class: 'list-empty-text', text: 'Ward council hasn’t listed any opportunities yet.' }),
+        h('p', { class: 'opp-hint', text: 'Add one, or start from an idea.' }),
+        chips('opp-starter', '', OPP_STARTERS)]));
+      rows.push(h('li', {}, [h('button', { type: 'button', class: 'nav-row add-row', 'data-action': 'add-opp', 'aria-label': 'Add an upcoming opportunity' }, [icon('plus'), h('span', { text: 'Add an opportunity' })])]));
+      var named = opps.filter(function (o) { return str(o.title).trim(); }).length;
+      wrap.replaceChildren(h('section', { class: 'list-panel rows list-fn' + (opps.length ? '' : ' is-empty'), 'aria-label': 'Opportunities to invite' }, [
+        h('div', { class: 'list-head' }, [h('h3', { class: 'list-title', text: 'Upcoming' }), h('span', { class: 'list-count', text: plural(named, 'opportunity', 'opportunities') })]),
+        h('ul', { class: 'steps-list person-rows' }, rows)]));
+      return;
+    }
+    // (The cards-open layout, used only by tests that fill many cards: every opportunity's card in the list.)
     var mineOf = function (id) {
       return items.map(function (x, i) { return { x: x, i: i }; }).filter(function (o) { return id ? o.x.opp === id : !opps.some(function (op) { return op.id === o.x.opp; }); });
     };
@@ -1379,16 +1447,9 @@
     var addOpp = h('button', { type: 'button', class: 'btn-outline full btn-add-opp', 'data-action': 'add-opp' }, ['+ Add an upcoming opportunity']);
     wrap.replaceChildren(h('section', { class: 'list-panel list-fn', 'aria-label': 'Opportunities to invite' }, cards.concat([addOpp, other])));
     other.addEventListener('toggle', function () { otherOpen = other.open; });
-    if (!wrap.dataset.ideasHook) { // the ways to invite hide once "Who will do what" has words, and come back if it's emptied
-      wrap.dataset.ideasHook = '1';
-      wrap.addEventListener('input', function (e) {
-        var t = e.target; if (!t.dataset || !/^find\.items\.\d+\.task$/.test(t.dataset.bind || '')) return;
-        var box = t.closest('.fn-assign'), ideas = box && box.querySelector('.invite-ideas');
-        if (ideas) ideas.hidden = !!t.value.trim();
-      });
-    }
   }
-  var otherOpen = false;
+  var otherOpen = false, ideasHook = false;
+  function fnRedraw() { renderFN(); if (isPerson(view) && personRef && personRef.g === 'opp') renderPerson(); renderSteps(); saveDraft(); }
   /* ---------- Done: fold a finished list to one line per person ---------- */
   // In the four-step view each section is already its own page, so lists don't fold.
   function folded(gid) { return !stepsOn && !!state.collapsed[gid]; }
@@ -1632,19 +1693,20 @@
   function isPerson(v) { return v === 'p-hd' || v === 'p-wc' || v === 'p-bw'; }
   // Before ward council ('bw') always lists names as rows, so its person screen works in every layout.
   function personOk(r) { return !!(r && (rowsOn || r.kind === 'bw') && personCard(r)); }
-  function personList(r) { return r.g === 'tn' ? state.tn : r.g === 'mr' ? state.referrals : state.cp[r.g]; }
+  function personList(r) { return r.g === 'opp' ? state.find.opps : r.g === 'tn' ? state.tn : r.g === 'mr' ? state.referrals : state.cp[r.g]; }
   function personCard(r) { var l = r && personList(r); return l ? l[r.i] : null; }
   function personListView(r) {
     if (r.kind === 'bw') return 'bw';
-    var sec = r.g === 'tn' ? 'tn' : r.g === 'mr' ? 'mr' : 'cp';
+    var sec = r.g === 'opp' ? 'fn' : r.g === 'tn' ? 'tn' : r.g === 'mr' ? 'mr' : 'cp';
     return r.kind === 'wc' ? 'wc-' + sec : sec;
   }
   function personTitle(r) {
-    var a = personCard(r), n = a ? str(a.name).trim() : '';
+    var a = personCard(r), n = a ? str(r.g === 'opp' ? a.title : a.name).trim() : '';
+    if (r.g === 'opp') return n || 'New opportunity';
     return n || (r.g === 'tn' ? 'Focus name ' + (r.i + 1) : r.g === 'mr' ? 'New referral' : 'New name');
   }
   function cardBlank(a) { return !a.sac && !a.temple && !a.committed && !hasText(a, CARD_KEYS); }
-  function rowBlank(g, a) { return g === 'mr' ? refBlank(a) : cardBlank(a); }
+  function rowBlank(g, a) { return g === 'opp' ? !str(a.title).trim() && !str(a.date).trim() && !oppItems(a.id).some(function (m) { return assignHasText(m.x); }) : g === 'mr' ? refBlank(a) : cardBlank(a); }
   // The name in a person's header becomes a text box; Done on the keyboard, or tapping elsewhere, puts it back.
   function startNameEdit() {
     var hd = $('#person-card .person-head'), box = hd && hd.querySelector('.person-head-input'); if (!box) return;
@@ -1679,7 +1741,10 @@
     if (!r || r.g === 'tn') return;
     var list = personList(r), a = list[r.i];
     // (A Covenant Path list keeps one blank card as its placeholder; the referral list can be empty.)
-    if (a && rowBlank(r.g, a) && list.length > (r.g === 'mr' ? 0 : 1)) { list.splice(r.i, 1); saveDraft(); }
+    if (a && rowBlank(r.g, a) && list.length > (r.g === 'mr' || r.g === 'opp' ? 0 : 1)) {
+      if (r.g === 'opp') state.find.items = state.find.items.filter(function (x) { return x.opp !== a.id; });
+      list.splice(r.i, 1); saveDraft();
+    }
   }
   function resetView() { view = stepsOn ? START : 'home'; try { history.replaceState({ hv: view }, ''); } catch (e) { /* ignore */ } }
   // The huddle date is today unless someone picked one for this huddle.
@@ -1834,7 +1899,7 @@
     var stp = STEPS.filter(function (x) { return x.id === view; })[0] || WC_LISTS.filter(function (x) { return 'wc-' + x.id === view; })[0];
     $('#step-title').textContent = person ? personTitle(personRef) : stp ? stp.title : '';
     // Leaving a person's screen: drop a name left empty, then redraw the lists it appears on.
-    if (isPerson(shownView) && !person) { cleanupPerson(); renderCP(); renderTN(); }
+    if (isPerson(shownView) && !person) { cleanupPerson(); renderCP(); renderTN(); renderFN(); }
     // Names edited in ward council show up on the huddle's cards.
     if (isWcList(shownView) && !isWcList(view) && !person) { renderCP(); renderTN(); }
     if (!all && view === 'rr' && shownView !== 'rr') { rrAdding = false; renderRR(); } // names may have changed since it was drawn
@@ -2299,7 +2364,7 @@
         var sn = state.tn[+a], sname = sn ? str(sn.name).trim() : '';
         if (!sname) break;
         ask({ title: 'Remove ' + sname + ' from Focus names?', body: 'Their action item for this huddle is removed too. If they’re on the Covenant Path Report, they stay there.',
-          primary: 'Remove', onPrimary: function () { removeFocus(+a); }, secondary: 'Cancel',
+          primary: 'Remove', onPrimary: function () { var onScreen = isPerson(view); removeFocus(+a); if (onScreen) leavePerson(); }, secondary: 'Cancel',
           onSecondary: function () { Array.prototype.forEach.call(document.querySelectorAll('.swipe-li.is-open'), function (li) { li.classList.remove('is-open'); }); } });
         break;
       }
@@ -2511,44 +2576,50 @@
       case 'find-tips': openOverlay('#find-tips-sheet', '#find-tips-title'); $('#find-tips-sheet .sheet').scrollTop = 0; break;
       case 'close-find-tips': closeOverlay('#find-tips-sheet'); break;
       case 'add-fn': {
-        var nx = blankAssign(); nx.opp = a || ''; state.find.items.push(nx); if (!a) otherOpen = true; else oppOpen[a] = true; renderFN(); renderSteps(); saveDraft();
+        var nx = blankAssign(); nx.opp = a || ''; state.find.items.push(nx); if (!a) otherOpen = true; else oppOpen[a] = true; fnRedraw();
         var fe = document.querySelector('[data-bind="find.items.' + (state.find.items.length - 1) + '.task"]'); if (fe) fe.focus();
         break;
       }
-      case 'opp-starter': { // a starter idea: a new opportunity named with it (or this card's empty name filled in)
+      case 'opp-starter': { // a starter idea: a new opportunity named with it (or this one's empty name filled in)
         var tk = a === '' || a === null ? -1 : +a;
         if (tk < 0) { state.find.opps.push({ id: oppId(), title: b, date: '' }); tk = state.find.opps.length - 1; }
         else state.find.opps[tk].title = b;
         oppOpen[state.find.opps[tk].id] = true;
-        renderFN(); renderSteps(); saveDraft();
+        if (rowsOn && !isPerson(view)) { saveDraft(); openPerson(view === 'wc-fn' ? 'wc' : 'hd', 'opp', tk); break; }
+        fnRedraw();
         var de = document.querySelector('[data-bind="find.opps.' + tk + '.date"]'); if (de) de.scrollIntoView({ block: 'center' });
         break;
       }
-      case 'invite-idea': { // an invite idea fills that assignment's "Who will do what"; the huddle adds who and when
+      case 'invite-idea': { // a way to invite fills that assignment; the huddle adds who and when
         var ix = state.find.items[+a]; if (!ix) break;
         ix.task = b; if (ix.opp) oppOpen[ix.opp] = true; else otherOpen = true;
-        renderFN(); renderSteps(); saveDraft();
-        var te = document.querySelector('[data-bind="find.items.' + a + '.task"]'); if (te) { te.focus(); try { te.setSelectionRange(0, 0); } catch (e) {} }
+        fnRedraw();
+        var te = document.querySelector('[data-bind="find.items.' + a + '.who"]'); if (te) te.focus();
         break;
       }
       case 'add-opp': {
-        var nop = { id: oppId(), title: '', date: '' }; state.find.opps.push(nop); oppOpen[nop.id] = true; renderFN(); renderSteps(); saveDraft();
+        var nop = { id: oppId(), title: '', date: '' }; state.find.opps.push(nop); oppOpen[nop.id] = true;
+        if (rowsOn) { saveDraft(); openPerson(view === 'wc-fn' ? 'wc' : 'hd', 'opp', state.find.opps.length - 1); setTimeout(function () { var t0 = document.querySelector('#person-card [data-bind$=".title"]'); if (t0) t0.focus(); }, 60); break; }
+        fnRedraw();
         var oe = document.querySelector('[data-bind="find.opps.' + (state.find.opps.length - 1) + '.title"]'); if (oe) { oe.focus(); oe.scrollIntoView({ block: 'center' }); }
         break;
       }
       case 'remove-opp': {
         var op = state.find.opps[+a];
-        var dropOpp = function () { // its assignments stay, under Other assignments
-          state.find.items.forEach(function (x) { if (op && x.opp === op.id) x.opp = ''; });
-          state.find.opps.splice(+a, 1); renderFN(); renderSteps(); saveDraft();
+        var dropOpp = function () { // its assignments go with it
+          state.find.items = state.find.items.filter(function (x) { return !(op && x.opp === op.id); });
+          if (!state.find.items.length) state.find.items.push(blankAssign());
+          state.find.opps.splice(+a, 1);
+          if (isPerson(view)) { personRef = { kind: personRef.kind, g: 'opp', i: -1 }; leavePerson(); }
+          fnRedraw();
         };
-        if (op && str(op.title).trim()) confirmRemove('Remove “' + op.title.trim() + '”?', dropOpp); else dropOpp();
+        if (op && (str(op.title).trim() || oppItems(op.id).some(function (m) { return assignHasText(m.x); }))) confirmRemove('Remove “' + (str(op.title).trim() || 'this opportunity') + '” and its assignments?', dropOpp); else dropOpp();
         break;
       }
       case 'remove-fn': {
         var fx = state.find.items[+a];
-        var dropFn = function () { state.find.items.splice(+a, 1); if (!state.find.items.length) state.find.items.push(blankAssign()); renderFN(); saveDraft(); };
-        if (fx && assignHasText(fx)) confirmRemove('Remove assignment ' + (+a + 1) + '?', dropFn); else dropFn();
+        var dropFn = function () { state.find.items.splice(+a, 1); if (!state.find.items.length) state.find.items.push(blankAssign()); fnRedraw(); };
+        if (fx && assignHasText(fx)) confirmRemove('Remove this assignment?', dropFn); else dropFn();
         break;
       }
       case 'tips': openOverlay('#tips-sheet', '#tips-title'); $('#tips-sheet .sheet').scrollTop = 0; break;
@@ -2995,8 +3066,8 @@
     { k: 'Step 3 · Sacrament attendance', t: 'Tap **Sacrament attendance** and tap each person who came. Then tap **Mark done**.', target: ['[data-action="step-done"]', '[data-action="open-step"][data-a="sa"]'], done: function () { return !!state.stepsDone.sa; } },
     { k: 'Step 3 · Focus names', t: 'The huddle plans an action item for each focus name. Tap **Focus names**, then **Daniel Rivera**, and add an action item, who will do it, and a date.', target: ['#person-card .zone-hd-wrap', '[data-group="tn"] .person-row', '[data-action="open-step"][data-a="tn"]', '#steps-this'], done: function () { var a = state.tn[focusIndex('Daniel Rivera')]; return !!(a && str(a.action).trim() && str(a.assigned).trim() && str(a.when).trim()); } },
     { k: 'Step 3 · Focus names', t: 'Tap **Text this assignment** and send it to yourself. In a real huddle, text each person before everyone leaves.', target: '#person-card [data-action="text-assign"]', done: function () { var a = state.tn[focusIndex('Daniel Rivera')]; return !!(a && a.texted); }, skip: true },
-    { k: 'Step 3 · Focus names', t: 'Tap **Done**, then **Mark done**. Tip 👆 to take someone off Focus names, swipe their name to the left.', target: ['#person-view .person-done', '[data-action="step-done"]'], done: function () { return !!state.stepsDone.tn; } },
-    { k: 'Step 3 · Opportunities to invite', t: 'Open **Opportunities to invite**. Tap the ward council’s opportunity to open it, tap **Add an assignment**, pick a way to invite, add when, then tap **Mark done**. For more ideas, tap **How can we help?**', target: ['[data-action="step-done"]', '[data-action="open-step"][data-a="fn"]'], done: function () { return STEPS.every(function (x) { return state.stepsDone[x.id]; }); } },
+    { k: 'Step 3 · Focus names', t: 'Tap **Done**, then **Mark done**. Tip 👆 to take someone off Focus names, swipe their name left or tap **Remove from Focus names** on their screen.', target: ['#person-view .person-done', '[data-action="step-done"]'], done: function () { return !!state.stepsDone.tn; } },
+    { k: 'Step 3 · Opportunities to invite', t: 'Open **Opportunities to invite**. Tap the ward council’s opportunity, tap **Add an assignment**, pick a way to invite, add who and when, tap **Done**, then **Mark done**. For more ideas, tap **How can we help?**', target: ['[data-action="step-done"]', '#person-view .person-done', '#person-card [data-action="invite-idea"]', '#person-card [data-action="add-fn"]', '[data-action="open-person"][data-a="opp"]', '[data-action="open-step"][data-a="fn"]'], done: function () { return STEPS.every(function (x) { return state.stepsDone[x.id]; }); } },
     { k: 'Step 4 · After the huddle', t: 'All four sections are done, so Step 3 is too. Tap **Home** at the bottom, then **Step 4 · After the huddle**.', target: ['.nav-home:not(.is-here)', '#after-box'], done: function () { return view === 'af' || state.verified.after; } },
     { k: 'Step 4 · After the huddle', t: 'This page lists what happened for each person. Update the Covenant Path Report in Member Tools to match, then tap **Mark done**. Anyone marked **Changed** has updates since Step 1.', target: '#after-done-btn', done: function () { return !!state.verified.after; } },
     { k: 'Send', t: 'All four steps have green checks. Tap **Send**, then **Share PDF**, and send the sample to yourself.', target: '.nav-send', done: function () { return coachFlag('sent'); } },
@@ -3110,7 +3181,7 @@
       if (!x || !str(x.task).trim()) return;
       var op = opps.find(function (o) { return o && x.opp && o.id === x.opp; }), opT = op ? str(op.title).trim() : '';
       items.push({ source: SOURCE.fn, group: 'fn', pname: '', ord: '', need: '', hneed: '', sac: false, bap: '', temple: false, committed: false,
-        person: '', action: str(x.task).trim() + (opT ? ' (' + opT + ')' : ''), assigned: '', when: str(x.when).trim(), done: !!x.doneMid });
+        person: '', action: str(x.task).trim() + (opT ? ' (' + opT + ')' : ''), assigned: str(x.who).trim(), when: str(x.when).trim(), done: !!x.doneMid });
     });
     return items;
   }
@@ -3218,11 +3289,16 @@
     var undo = null;
     if (g) delete state.collapsed[g];
     if (g === 'fn') {
-      var fl = state.find.items;
-      if (!fl.some(function (x) { return norm(x.task) === norm(item.action); })) {
+      var fl = state.find.items, cop = null, ctask = item.action, made = '';
+      state.find.opps.forEach(function (o) { var t = str(o.title).trim(), sfx = ' (' + t + ')'; if (!cop && t && ctask.slice(-sfx.length) === sfx) { cop = o; ctask = ctask.slice(0, -sfx.length).trim(); } });
+      if (!cop) {
+        cop = state.find.opps.filter(function (o) { return o.title === 'Other assignments'; })[0];
+        if (!cop) { cop = { id: oppId(), title: 'Other assignments', date: '' }; state.find.opps.push(cop); made = cop.id; }
+      }
+      if (!fl.some(function (x) { return x.opp === cop.id && norm(x.task) === norm(ctask); })) {
         if (fl.length === 1 && !assignHasText(fl[0])) fl.pop();
-        fl.push({ task: item.action, when: '', carried: true });
-        undo = { g: 'fn', kind: 'new', action: item.action };
+        fl.push({ task: ctask, who: item.assigned, when: '', carried: true, opp: cop.id });
+        undo = { g: 'fn', kind: 'new', action: ctask, opp: cop.id, made: made };
       } else undo = { g: 'fn', kind: 'none' };
       renderFN();
     } else if (g) { // every carried assignment comes back as a focus name, past three if need be
@@ -3263,6 +3339,7 @@
       var fl = state.find.items;
       var fi = fl.findIndex(function (x) { return x.carried && norm(x.task) === norm(u.action); });
       if (fi >= 0) fl.splice(fi, 1);
+      if (u.made && !fl.some(function (x) { return x.opp === u.made; })) state.find.opps = state.find.opps.filter(function (o) { return o.id !== u.made; });
       if (!fl.length) fl.push(blankAssign());
       renderFN();
     } else if (g === 'tn' || (g && state.cp[g])) {
@@ -3905,7 +3982,7 @@
     if (!fOpps.length && !fItems.length) emptyRow('None this week');
     var fnAssign = function (x) {
       var t = str(x.task).trim();
-      block(field('Assignment', t || '—', [{ text: whenShow(x.when) }, { text: x.carried && t ? carriedText(s) : '', ital: true }]), GROUP_PDF.fn.ink, 'fn');
+      block(field('Assignment', t || '—', [{ text: [str(x.who).trim(), whenShow(x.when)].filter(Boolean).join(' · ') }, { text: x.carried && t ? carriedText(s) : '', ital: true }]), GROUP_PDF.fn.ink, 'fn');
     };
     fOpps.forEach(function (o) { // each opportunity, then the assignments for it
       var mine = fItems.filter(function (x) { return x.opp === o.id; });
@@ -3959,7 +4036,7 @@
           : { plan: r.plan, happened: r.happened, notes: r.notes };
       }),
       cpDone: s.cpDone, cp: s.cp, cpNone: s.cpNone, tnDone: s.tnDone, tn: s.tn, ftDone: s.ftDone,
-      find: { plan: str(s.find.plan), items: s.find.items.map(function (x) { return { task: str(x.task), when: str(x.when), carried: !!x.carried, opp: str(x.opp) }; }),
+      find: { plan: str(s.find.plan), items: s.find.items.map(function (x) { return { task: str(x.task), who: str(x.who), when: str(x.when), carried: !!x.carried, opp: str(x.opp) }; }),
         opps: (s.find.opps || []).map(function (o) { return { id: str(o.id), title: str(o.title), date: str(o.date) }; }) },
       referrals: cleanReferrals(s.referrals)
     }));

@@ -72,7 +72,7 @@
  {
   "kicker": "Step 2 · Ward council",
   "title": "Focus names",
-  "body": "Give each one a next ordinance and what they need. Swipe a name left to remove it.",
+  "body": "Give each one a next ordinance and what they need. To remove one, swipe it left or tap Remove on its screen.",
   "color": "#2F5DA6",
   "img": "11.jpg"
  },
@@ -156,7 +156,7 @@
  {
   "kicker": "Step 3 · Opportunities to invite",
   "title": "Love, share, invite",
-  "body": "Tap an opportunity to open it. Add an assignment, tap a way to invite, then add who and when.",
+  "body": "Each opportunity opens on its own screen. Add an assignment, tap a way to invite, then add who and when.",
   "color": "#B0531A",
   "img": "23.jpg"
  },

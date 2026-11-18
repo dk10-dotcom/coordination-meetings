@@ -44,7 +44,10 @@ const seed = {
     ok((await p.$eval('#person-card [data-bind$=".when"]', e => e.type + ' ' + e.value)) === 'text this week', tag + ': "this week" stays in a text box, nothing lost');
     await p.click('#person-view .person-done'); await p.waitForTimeout(300); await p.goBack(); await p.waitForTimeout(300);
     await p.click('[data-action="open-step"][data-a="fn"]'); await p.waitForTimeout(400);
-    ok((await p.$eval('[data-bind="find.items.0.when"]', e => e.type + ' ' + e.value)) === 'date 2026-11-22' && await fits(), tag + ': Find New People to Teach: When is a date too');
+    ok(/Other assignments/.test(await p.textContent('#fn-list')), tag + ': an older assignment not tied to an opportunity sits under “Other assignments”');
+    await p.click('#fn-list [data-a="opp"]:has-text("Other assignments")'); await p.waitForTimeout(400);
+    ok((await p.$eval('[data-bind="find.items.0.when"]', e => e.type + ' ' + e.value)) === 'date 2026-11-22' && await fits(), tag + ': Opportunities to invite: When is a date too');
+    await p.click('#person-view .person-done'); await p.waitForTimeout(300);
     await p.goBack(); await p.waitForTimeout(300); await p.click('#mode-bar [data-action="go-start"]'); await p.waitForTimeout(300);
     // Ward council: Next ordinance is a menu; an older typed one stays as a choice; being taught stays Baptism
     await p.click('.door-wc'); await p.waitForTimeout(300); await p.click('[data-action="open-wc-list"][data-a="cp"]'); await p.waitForTimeout(300);
