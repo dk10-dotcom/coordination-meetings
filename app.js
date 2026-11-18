@@ -3271,9 +3271,9 @@
     var STATUS_FILL = { Yes: rgb(0.906, 0.957, 0.922), Partly: rgb(1, 0.957, 0.855), No: rgb(0.988, 0.918, 0.918) };
     // A phone-shaped page: it fills a phone screen without zooming, and prints on letter paper as a narrow column.
     var W = 360, H = 780, L = 22, R = 338, TOP = 26, BOTTOM = 40;
-    var IN = 11;                              // a block's text sits this far in from its color bar
+    var IN = 23;                              // a block's text sits this far in from its color bar
     var LBL = 80;                             // room for the small labels ("Next ordinance")
-    var FS = 12, LH = 15.5, MS = 10, MLH = 13; // the value text, and the smaller gray lines under it
+    var FS = 12, LH = 14, MS = 10, MLH = 12; // the value text, and the smaller gray lines under it
     var page = null, y = 0, pages = [];
     var wardTxt = s.ward.trim(), dateTxt = longDate(s.date);
 
@@ -3335,7 +3335,6 @@
       page.drawLine({ start: { x: x + 3.4, y: H - (top + 7.4) }, end: { x: x + 7.6, y: H - (top + 1.8) }, thickness: 1.5, color: color });
     }
     function newPage() { page = doc.addPage([W, H]); pages.push(page); y = TOP; }
-
     // The page is built from lines. Lines that belong together (one person's block, or a heading and the
     // first block under it) move to the next page together when they don't fit on this one.
     var lead = []; // headings waiting for the block they sit above
@@ -3345,31 +3344,57 @@
       rows = lead.concat(rows); lead = [];
       var total = rows.reduce(function (n, r) { return n + r.h; }, 0);
       if (y + total > H - BOTTOM && total <= H - BOTTOM - TOP) newPage();
+      var run = null;
+      function flush() { if (run) sideLabel(run); run = null; }
       rows.forEach(function (r) {
         if (y + r.h > H - BOTTOM) newPage();
         if (r.space && !r.bar && y === TOP) return; // no empty gap at the top of a page
-        if (r.bar) box(L, y, 2.5, r.h + 0.3, { color: r.bar });
+        if (r.side) {
+          if (!run || run.page !== page) { flush(); run = { page: page, top: y, bottom: y, side: r.side }; }
+          box(L, y, 14, r.h + 0.3, { color: r.side.color });
+        } else if (r.bar) box(L, y, 2.5, r.h + 0.3, { color: r.bar });
         if (r.draw) r.draw(y);
         y += r.h;
+        if (r.side && run) run.bottom = y;
       });
+      flush();
     }
     // A thin bar in the list's color runs down the left of a block and shows which list it belongs to.
     function barred(rows, color) { rows.forEach(function (r) { r.bar = color; }); return rows; }
-    function rule() { return line(7, function (top) { hline(L, R, top + 3.5, C.line, 0.6); }); }
-    function block(rows, color) { put(barred([space(3)].concat(rows, [space(3)]), color).concat([rule()])); }
+    function rule() { return line(5, function (top) { hline(L, R, top + 2.5, C.line, 0.6); }); }
+    // Each block carries its section down its left side, turned on its side, in the section's color.
+    var SLATE = rgb(0.29, 0.333, 0.408);
+    var SIDE = { rr: ['RETURN & REPORT', 'REPORT'], nm: ['NEW MEMBERS', 'NEW'], rm: ['RETURNING', 'RETURNING'], bt: ['BEING TAUGHT', 'TAUGHT'],
+      tn: ['FOCUS NAME', 'FOCUS'], fn: ['FINDING', 'FINDING'], mr: ['REFERRAL', 'REFERRAL'] };
+    function block(rows, color, key) {
+      var side = key ? { label: SIDE[key][0], short: SIDE[key][1], color: color } : null;
+      var all = barred([space(4)].concat(rows, [space(4)]), color);
+      if (side) all.forEach(function (r) { r.side = side; });
+      put(all.concat([rule()]));
+    }
+    function sideLabel(run) {
+      var avail = run.bottom - run.top, t = run.side.label, sz = 7.5;
+      if (width(t, F.bold, sz) > avail - 6) t = run.side.short;
+      if (width(t, F.bold, sz) > avail - 6) return;
+      var tw = width(t, F.bold, sz), pg = page; page = run.page;
+      page.drawText(t, { x: L + 9.6, y: H - (run.top + (avail + tw) / 2), size: sz, font: F.bold, color: C.white, rotate: P.degrees(90) });
+      page = pg;
+    }
 
-    // A slim band groups the sections: from the last huddle (looking back) and this huddle's plan (looking ahead).
-    function band(label, sub, gap) {
-      lead.push(space(gap === undefined ? 18 : gap));
-      lead.push(line(22, function (top) {
-        box(L, top, R - L, 22, { color: C.navy });
-        var e = tx(L + IN, top + 14.8, label, F.bold, 9.5, C.white);
-        if (sub && e + 8 + width(sub, F.ital, 9.5) <= R - IN) tx(e + 8, top + 14.8, sub, F.ital, 9.5, rgb(0.82, 0.87, 0.94));
+    // A part of the report opens with a colored header: 1 · Looking back (Return and Report, slate) and
+    // 2 · Looking ahead (the huddle action plan, navy), so the two halves can't be mistaken for each other.
+    function partHead(kicker, title, sub, color, gap) {
+      lead.push(space(gap === undefined ? 16 : gap));
+      lead.push(line(50, function (top) {
+        rbox(L, top, R - L, 46, 6, color);
+        tx(L + IN, top + 15, kicker, F.bold, 8.5, rgb(0.86, 0.89, 0.94));
+        var e = tx(L + IN, top + 34, title, F.bold, 15, C.white);
+        if (sub && e + 8 + width(sub, F.ital, 9.5) <= R - IN) tx(e + 8, top + 34, sub, F.ital, 9.5, rgb(0.86, 0.89, 0.94));
       }));
     }
     function heading(label, note) {
-      lead.push(space(14));
-      lead.push(line(30, function (top) {
+      lead.push(space(8));
+      lead.push(line(26, function (top) {
         var e = tx(L, top + 13, label, F.bold, 13.5, C.blue);
         if (note && e + 7 + width(note, F.ital, 9.5) <= R) tx(e + 7, top + 13, note, F.ital, 9.5, C.gray);
         hline(L, R, top + 20.5, C.line, 0.8);
@@ -3377,7 +3402,7 @@
     }
     function groupLabel(title, gid) {
       var gc = GROUP_PDF[gid];
-      lead.push(line(26, function (top) {
+      lead.push(line(23, function (top) {
         box(L, top, R - L, 19, { color: gc.fill });
         box(L, top, 2.5, 19, { color: gc.ink });
         tx(L + IN, top + 12.8, title.toUpperCase(), F.bold, 8.5, gc.ink);
@@ -3396,7 +3421,7 @@
     // A typed item with no person's name is a sentence, not a name, so it prints in plain text (plain).
     function titleLines(text, missing, rightW, drawRight, plain) {
       var has = !!str(text).trim();
-      var rows = textLines(has ? text : missing, !has ? F.ital : plain ? F.reg : F.bold, plain ? 12.5 : 13.5, has ? C.dark : C.gray, plain ? 16 : 17.5, 13, R - L - IN - (rightW ? rightW + 10 : 0));
+      var rows = textLines(has ? text : missing, !has ? F.ital : plain ? F.reg : F.bold, plain ? 12.5 : 13.5, has ? C.dark : C.gray, plain ? 15 : 16, 12.5, R - L - IN - (rightW ? rightW + 10 : 0));
       if (drawRight) { var first = rows[0].draw; rows[0].draw = function (top) { first(top); drawRight(top); }; }
       return rows;
     }
@@ -3437,7 +3462,7 @@
         var mf = m.ital ? F.ital : F.reg;
         wrap(m.text, mf, MS, maxW).forEach(function (ln) { add(MLH, 10, function (top) { tx(x, top + 10, ln, mf, MS, C.gray); }); });
       });
-      if (rows.length) rows.push(space(4));
+      if (rows.length) rows.push(space(2));
       return rows;
     }
 
@@ -3456,12 +3481,12 @@
       if (a.sac) tags.push({ text: 'Attended sacrament meeting', color: STATUS_PDF.Yes, check: true });
       var ord = ordOf(a, gid), need = str(a.need).trim(), act = str(a.action).trim(), note = str(a.hneed).trim();
       var who = [str(a.assigned).trim(), whenShow(a.when)].filter(Boolean).join(' · ');
-      var rows = titleLines(name, 'No name').concat(tagLines(tags), [space(5)]);
+      var rows = titleLines(name, 'No name').concat(tagLines(tags), [space(3)]);
       if (ord) rows = rows.concat(field('Next ordinance', ord));
       if (need) rows = rows.concat(field('Needs', need));
       rows = rows.concat(field('Action item', act || 'None yet', [{ text: who }, { text: a.actionCarried && act ? carriedText(s) : '', ital: true }], !act));
       if (note) rows = rows.concat(field('Huddle notes', note));
-      block(rows, GROUP_PDF[gid].ink);
+      block(rows, GROUP_PDF[gid].ink, gid);
     }
 
     /* ----- page 1 header ----- */
@@ -3485,9 +3510,64 @@
     hline(L, R, y + 7, C.navy, 1.2);
     y += 8;
 
+    /* ----- At a glance: how the last huddle's assignments went, then every name once with this huddle's action item ----- */
+    (function () {
+      var cnt = { Yes: 0, Partly: 0, No: 0 };
+      s.rr.forEach(function (r) { if ((r.prefilled || rrHasInput(r)) && cnt[r.happened] !== undefined) cnt[r.happened]++; });
+      var people = [], soon = [];
+      GROUPS.forEach(function (g) { s.cp[g.id].forEach(function (a) { if (str(a.name).trim()) people.push({ a: a, gid: g.id }); }); });
+      s.tn.forEach(function (a) { if (str(a.name).trim()) people.push({ a: a, gid: 'tn' }); });
+      s.cp.bt.forEach(function (a) { var n = str(a.name).trim(); if (n && a.bap) soon.push({ who: n, what: 'Baptism ' + shortDay(str(a.bap)), color: GROUP_PDF.bt.ink }); });
+      s.cp.nm.forEach(function (a) {
+        var n = str(a.name).trim(); if (!n || !a.bap) return;
+        var st = templeStatus(a, s.date); if (!st.done && st.left !== undefined) soon.push({ who: n, what: 'Temple: ' + st.short, color: TEMPLE_RED });
+      });
+      var marked = cnt.Yes + cnt.Partly + cnt.No;
+      lead.push(space(18));
+      lead.push(line(26, function (top) {
+        tx(L, top + 10, 'AT A GLANCE', F.bold, 8.5, C.navy);
+        if (marked) {
+          var sx = R;
+          ['No', 'Partly', 'Yes'].forEach(function (k) {
+            var label = cnt[k] + ' ' + (k === 'Yes' ? 'done' : k === 'Partly' ? 'partly' : 'not done');
+            var w = width(label, F.bold, 8.5) + 12; sx -= w;
+            rbox(sx, top, w, 14, 7, STATUS_FILL[k]); tx(sx + 6, top + 10.2, label, F.bold, 8.5, STATUS_PDF[k]); sx -= 4;
+          });
+          tx(sx - width('Last huddle', F.reg, 8.5) - 2, top + 10.2, 'Last huddle', F.reg, 8.5, C.gray);
+        }
+        hline(L, R, top + 22, C.line, 0.6);
+      }));
+      var rows = [];
+      if (!people.length) rows.push(line(18, function (top) { tx(L, top + 12, 'No names this week', F.ital, 10.5, C.gray); }));
+      people.forEach(function (p) {
+        var n = str(p.a.name).trim(), act = str(p.a.action).trim();
+        rows.push(line(18, function (top) {
+          rbox(L, top + 5, 7, 7, 3.5, GROUP_PDF[p.gid].ink);
+          var e = tx(L + 13, top + 12, n, F.bold, 11, C.dark);
+          var room = R - e - 8, t = act || 'No action item yet';
+          if (width(t, F.reg, 9.5) > room) { // shortened to fit one line; the whole item is in the person's block below
+            while (t.length > 3 && width(t + '…', F.reg, 9.5) > room) t = t.slice(0, -1);
+            t = t.replace(/\s+\S*$/, '') + '…';
+          }
+          if (room > 30) tx(e + 8, top + 12, t, act ? F.reg : F.ital, 9.5, C.gray);
+        }));
+      });
+      if (soon.length) {
+        rows.push(space(4));
+        soon.forEach(function (x, k) {
+          rows.push(line(16, function (top) {
+            if (!k) tx(L, top + 12, 'Coming up', F.reg, 9.5, C.gray);
+            var e = tx(L + 64, top + 12, x.who, F.bold, 10.5, C.dark);
+            tx(e + 6, top + 12, x.what, F.bold, 9.5, x.color);
+          }));
+        });
+      }
+      put(rows);
+    })();
+
     /* ----- Return and Report ----- */
-    band(fromLabel(s).toUpperCase(), 'Did it happen?', 14);
-    heading('Return and Report');
+    partHead('1 · LOOKING BACK · ' + fromLabel(s).replace(/^From the /i, '').toUpperCase(), 'Return and Report', 'Did it happen?', rgb(0.29, 0.333, 0.408), 18);
+    lead.push(space(8));
     var rrItems = s.rr.filter(function (r) { return r.prefilled || rrHasInput(r); });
     if (!rrItems.length) emptyRow('Nothing to report from the last huddle.');
     rrItems.forEach(function (r) {
@@ -3511,11 +3591,11 @@
       else if (who) rows = rows.concat(field('Assigned to', who));
       rows = rows.concat(field(notes ? 'Notes' : '', notes, [{ text: fwd, ital: true }]));
       if (note) rows = rows.concat(field('Huddle notes', note));
-      block(rows, gid && GROUP_PDF[gid] ? GROUP_PDF[gid].ink : C.faint);
+      block(rows, SLATE, 'rr');
     });
 
     /* ----- Covenant Path Report Review ----- */
-    band(monthDay(s.date) ? monthDay(s.date).toUpperCase() + ' HUDDLE PLAN' : 'THIS HUDDLE’S PLAN');
+    partHead('2 · LOOKING AHEAD · ' + (monthDay(s.date) ? monthDay(s.date).toUpperCase() + ' HUDDLE' : 'THIS HUDDLE'), 'Huddle action plan', 'Who, what, how and when', C.navy, 22);
     heading('Covenant Path Report Review');
     GROUPS.forEach(function (g) {
       groupLabel(g.title, g.id);
@@ -3535,11 +3615,11 @@
     var fPlan = str(s.find.plan).trim();
     var fItems = s.find.items.filter(assignHasText);
     if (!fPlan && !fItems.length) emptyRow('None this week');
-    if (fPlan) block(field('Opportunities', fPlan), GROUP_PDF.fn.ink); // 'Upcoming opportunities' on screen; shorter to fit the label column
-    if (fPlan && !fItems.length) block(field('Assignment', 'No assignments yet', null, true), GROUP_PDF.fn.ink);
+    if (fPlan) block(field('Opportunities', fPlan), GROUP_PDF.fn.ink, 'fn'); // 'Upcoming opportunities' on screen; shorter to fit the label column
+    if (fPlan && !fItems.length) block(field('Assignment', 'No assignments yet', null, true), GROUP_PDF.fn.ink, 'fn');
     fItems.forEach(function (x) {
       var t = str(x.task).trim();
-      block(field('Assignment', t || '—', [{ text: whenShow(x.when) }, { text: x.carried && t ? carriedText(s) : '', ital: true }]), GROUP_PDF.fn.ink);
+      block(field('Assignment', t || '—', [{ text: whenShow(x.when) }, { text: x.carried && t ? carriedText(s) : '', ital: true }]), GROUP_PDF.fn.ink, 'fn');
     });
 
     /* ----- Missionary referrals ----- */
@@ -3551,7 +3631,7 @@
     }
     refs.forEach(function (x) {
       var rows = titleLines(str(x.name).trim(), 'No name').concat([space(5)], field('Referred by', str(x.by).trim()), field('Notes', str(x.notes).trim()));
-      block(rows, GROUP_PDF.mr.ink);
+      block(rows, GROUP_PDF.mr.ink, 'mr');
     });
 
     // Footers: the ward and date on every page, so a printed page can be matched to its huddle.

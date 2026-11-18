@@ -91,10 +91,10 @@ function words(v) { return v.replace(/[“”]/g, '').split(/\s+/).filter(Boolea
     ok('every typed value is in the PDF', missing.length === 0, missing.length ? 'missing: ' + missing.join(' | ') : `${need.length} values checked`);
 
     // Attendees: only the people who attended, on one line, in the order of the form
-    const att = (/ Attended (.*?) FROM THE LAST HUDDLE/.exec(text) || [])[1];
+    const att = (/ Attended (.*?) AT A GLANCE/.exec(text) || [])[1];
     ok('only the people who attended are listed', att === ATT.filter(a => s.attendees.includes(a)).join(', '), att);
     // Fixed agenda text
-    const fixed = ['Keep this PDF secure', 'Weekly', 'Huddle Report', 'Return and Report', 'FROM THE LAST HUDDLE', 'Did it happen?', 'NOV 1 HUDDLE PLAN',
+    const fixed = ['Keep this PDF secure', 'Weekly', 'Huddle Report', 'AT A GLANCE', 'Return and Report', 'LOOKING BACK', 'Did it happen?', 'LOOKING AHEAD · NOV 1 HUDDLE',
       'Covenant Path Report Review', 'Name Next Ordinance', 'Ward council focus names', 'Find New People to Teach', 'Huddle action plan', 'Missionary Referrals', 'Referred by',
       'NEW MEMBERS', 'RETURNING MEMBERS', 'THOSE BEING TAUGHT', 'Next ordinance', 'Action item'];
     const fixedMissing = fixed.filter(f => !text.includes(f));

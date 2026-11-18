@@ -93,8 +93,9 @@ New members (blue), Returning members (green), Those being taught (purple) and F
 The PDF is made to read on a phone: its pages are the shape of a phone screen (360 × 780 points), with text large enough to read without zooming. On letter paper each page prints as a narrow column.
 
 - **Top:** "Keep this PDF secure", the title, ward, date, who conducted, and **Attended**: only the people who were there, on one line.
-- **Two bands group the pages, named by date:** **FROM THE NOV 1 HUDDLE** (Did it happen?) over Return and Report, and **NOV 8 HUDDLE PLAN** over the rest.
-- **One short block per person,** with a thin bar in the color of their list. There are no tables.
+- **At a glance:** how the last huddle's assignments went (done, partly, not done), every name once with this huddle's action item, and dates coming up (baptisms, the temple countdown).
+- **Two parts, each with a colored header named by date:** **1 · Looking back · Nov 1 huddle — Return and Report** (slate) and **2 · Looking ahead · Nov 8 huddle — Huddle action plan** (navy).
+- **One short block per person,** with its section written sideways down a colored band at the left (RETURN & REPORT, NEW MEMBERS, …), so every name shows where it belongs. There are no tables.
 - **Return and Report:** the name with **Yes**, **Partly** or **No** in color at the right (or "Not marked"), the person's list, last huddle's action item with who and when in gray, and notes. Carried-forward items say so.
 - **Covenant Path Report Review** (new members, returning members, those being taught) **and Name Next Ordinance:** the name; a colored line for the temple count, a baptism commitment and "Attended sacrament meeting"; then next ordinance, needs, and the action item with who and when. Huddle notes come last.
 - **Plans to Find New People to Teach:** the plan and its assignments.

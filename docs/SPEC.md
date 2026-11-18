@@ -657,15 +657,29 @@ width with nothing to zoom. On letter paper a page prints as a narrow column at 
 - Top: "Keep this PDF secure and delete it when it's no longer needed.", title, then Ward, Date,
   Conducting and **Attended**. Attended lists only the people who were there, on one line, in the
   order of the form (a dash when no one was marked).
+- **At a glance**, right under the header: "Last huddle" with three colored counts (2 done, 2 partly,
+  1 not done; left off when nothing was marked), then **every name once**, one line each: a dot in
+  the color of their list, the name in bold, and this huddle's action item in gray (shortened with
+  "…" to fit one line; "No action item yet" in italics). Under the names, **Coming up**: a baptism
+  date for those being taught, and the 30-day temple countdown for new members who haven't gone yet.
+  Nothing is typed for it; it comes from what is already entered. "No names this week" when there are none.
 - There are no tables and no Who/What/How/When boxes. **Each person is one short block** with a
-  thin bar in the color of their list at the left and a hairline under it. A block stays together
-  on one page when it fits, and a heading never sits alone at the bottom of a page.
-- **From the {date} huddle · Did it happen?** Return and Report. Each block: the name with **Yes**,
+  hairline under it. Down its left side runs a band in the color of its section with the section's
+  name turned sideways in white (RETURN & REPORT in slate; NEW MEMBERS, RETURNING, BEING TAUGHT,
+  FOCUS NAME, FINDING and REFERRAL in their list's color; a shorter word when the block is short,
+  none when even that doesn't fit). So wherever a reader stops scrolling, each name shows where it
+  belongs. A block stays together on one page when it fits, and a heading never sits alone at the
+  bottom of a page.
+- The report has **two parts, each opening with a colored header**: **1 · Looking back · {date}
+  huddle — Return and Report** *Did it happen?* in slate, and **2 · Looking ahead · {date} huddle —
+  Huddle action plan** *Who, what, how and when* in navy. The headers appear once each; pages don't
+  repeat them.
+- **Return and Report.** Each block: the name with **Yes**,
   **Partly** or **No** in color at the right ("Not marked" when unanswered), the list the person is
   on, **Action item** with who and when in gray under it, **Notes**, "Carried forward to the
   {date} plan", and **Huddle notes**. An item typed in without a person prints its text in place
   of the name.
-- **{date} huddle plan:** Covenant Path Report Review (a tinted label for each list: new members,
+- **Huddle action plan:** Covenant Path Report Review (a tinted label for each list: new members,
   returning members, those being taught) and Name Next Ordinance. Each block: the name; one colored
   line with the temple status (new members), "Committed · {date}" or "Scheduled: {date}" (those
   being taught) and a green tick with "Attended sacrament meeting"; then **Next ordinance**,

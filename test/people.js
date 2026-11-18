@@ -97,7 +97,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     const f = `${OUT}/${tag}.pdf`; await dl.saveAs(f);
     const t = execSync(`pdftotext -layout "${f}" -`).toString();
     ok((t.match(/Carried forward from Oct 25/g) || []).length === 3, 'PDF marks 3 carried actions with the last huddle’s date: ' + (t.match(/Carried forward from Oct 25/g) || []).length);
-    ok(/FROM THE OCT 25 HUDDLE/.test(t) && /NOV 1 HUDDLE PLAN/.test(t), 'PDF bands name the huddles by date');
+    ok(/LOOKING BACK · OCT 25 HUDDLE/.test(t) && /LOOKING AHEAD · NOV 1 HUDDLE/.test(t), 'PDF part headers name the huddles by date');
     ok(!errs.length, 'no errors ' + errs.join('; '));
     await ctx.close();
   }
