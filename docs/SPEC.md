@@ -277,8 +277,9 @@ outside the app (`target="_blank"`), for finding names to discuss. Member Tools 
 it always opens the web page. It shows on the four-row screen only, not on the lists of names.
 Right under the step card, once, is "Never add confidential information to this huddle report." as one
 small gray line with a red "!" (the Huddle has the same line in the same place). On a person's Ward council
-screen the same line sits right under the **Needs** box, where details are typed. It is not repeated on the
-lists. New members' rows show the same temple countdown as in the Huddle
+screen the same line sits right under the **Needs** box, where details are typed. In the Huddle it sits under
+the notes: at the end of a person's **Huddle · How & When** (under Huddle notes, or under "+ Add a note for ward
+council") and under **Notes** on each Return and Report item. It is not repeated on the lists. New members' rows show the same temple countdown as in the Huddle
 ("Temple: 14 days left" in red), so the 30-day goal is in front of both meetings.
 
 **The name is edited in the header, and only there.** On every person's screen (Before ward council, Ward

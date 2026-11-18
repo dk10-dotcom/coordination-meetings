@@ -530,7 +530,7 @@
       }
       return h('div', { class: 'card rr-card' + (gid ? ' g-' + gid : ''), 'data-status': statusOf(r.happened) }, [head, body,
         // Happened? and the notes stay together so the tour can point at them.
-        h('div', { class: 'rr-answer' }, [seg, carry, field('Notes', 'rr.' + i + '.notes', { placeholder: 'How did it go?' })])]);
+        h('div', { class: 'rr-answer' }, [seg, carry, field('Notes', 'rr.' + i + '.notes', { placeholder: 'How did it go?' }), confNote()])]);
   }
 
   function statusOf(v) { return { Yes: 'yes', Partly: 'partly', No: 'no' }[v] || ''; }
@@ -678,7 +678,8 @@
         h('div', { class: 'assign-actions' }, [textAssignButton(base)]),
         hneedField
       ]),
-      hneedLink
+      hneedLink,
+      confNote() // under the notes, the same reminder as under the step card
     ]);
   }
   function cardFields(base, nameLabel, namePh, whenPh, tag, withBap, needPh, ordPh, wcExtra, fixedOrd) {
@@ -769,7 +770,7 @@
     Array.prototype.forEach.call(card.querySelectorAll('.wc-last'), function (x) { x.remove(); });
     (card.classList.contains('person-wc') ? [wcLast(gid, a)].filter(Boolean) : wcExtras(gid, a)).forEach(function (x) { card.appendChild(x); });
   }
-  // Under Needs on a ward council name: the same reminder that sits under the step card.
+  // Under Needs on a ward council name, and under the notes in the Huddle: the same reminder that sits under the step card.
   function confNote() {
     return h('p', { class: 'wc-note need-note full' }, [h('span', { class: 'help-warning-icon', 'aria-hidden': 'true', text: '!' }), h('span', { text: 'Never add confidential information to this huddle report.' })]);
   }

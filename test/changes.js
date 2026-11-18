@@ -67,6 +67,9 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
 
   // Change things after step 1 (in the huddle): sacrament for Daniel, a new need for Marcus, a new name
   await p.click('.nav-home'); await w(400); await p.click('.door-hd'); await w(500);
+  await p.click('[data-action="open-step"][data-a="cp"]'); await w(400); await p.locator('[data-action="open-person"]').first().click(); await w(500);
+  ok(await p.evaluate(() => { const z = document.querySelector('#person-card .zone-hd-wrap'), n = z && z.lastElementChild; return !!n && n.classList.contains('need-note') && /Never add confidential information/.test(n.textContent); }), 'Huddle: the confidential reminder sits under the notes on a name');
+  await p.click('.nav-home'); await w(400); await p.click('.door-hd'); await w(500);
   ok(await p.evaluate(() => { const h = document.querySelector('#hd-hero'), n = document.querySelector('#hd-note'); return !n.hidden && h.nextElementSibling === n; }), 'Huddle: the confidential reminder sits right under the step card');
   await p.evaluate(() => {
     const s = JSON.parse(localStorage.getItem('huddle-agenda-v1'));
