@@ -60,7 +60,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   // A person's name header opens the name to edit
   await p.locator('[data-action="open-person"]').first().click(); await w(500);
   ok(await p.isVisible('#person-view .avatar-pencil'), 'the initials carry a small pencil');
-  ok(await p.evaluate(() => { const n = document.querySelector('#person-card .need-note'), f = n && n.previousElementSibling; return !!n && /Never add confidential information to this huddle report\./.test(n.textContent) && !!f && !!f.querySelector('[data-bind$=".need"]'); }), 'Ward council: the confidential reminder sits right under Needs on a name');
+  ok(await p.evaluate(() => { const n = document.querySelector('#person-card .need-note'); let f = n && n.previousElementSibling; while (f && f.classList.contains('help-chips')) f = f.previousElementSibling; return !!n && /Never add confidential information to this huddle report\./.test(n.textContent) && !!f && !!f.querySelector('[data-bind$=".need"]'); }), 'Ward council: the confidential reminder sits right under Needs on a name');
   await p.click('.person-head'); await w(600);
   ok(await p.evaluate(() => { const a = document.activeElement; return !!a && a.tagName === 'INPUT' && /\.name$/.test(a.getAttribute('data-bind') || '') && a.value === 'Daniel Rivera'; }), 'tapping the name header puts the cursor in the name box');
   await p.evaluate(() => document.activeElement.blur()); await w(600);
@@ -73,18 +73,18 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   ok(await p.evaluate(() => !document.querySelector('#hd-note')), 'Huddle: no confidential line under the step card (it sits under the notes)');
   await p.evaluate(() => {
     const s = JSON.parse(localStorage.getItem('huddle-agenda-v1'));
-    s.cp.nm[0].sac = true; s.cp.bt[0].need = 'A ride to church'; s.cp.rm.push(Object.assign({}, s.cp.rm[0], { name: 'Samuel Ortiz', ordinance: 'Sealing' }));
+    s.cp.nm[0].sac = true; s.cp.bt[0].need = 'A ride to church'; s.cp.bt[0].checks = Object.assign({}, s.cp.bt[0].checks, { bishop: true }); s.cp.rm.push(Object.assign({}, s.cp.rm[0], { name: 'Samuel Ortiz', ordinance: 'Sealing' }));
     localStorage.setItem('__seed', JSON.stringify(s));
   });
   await p.reload(); await w(600);
   await p.click('#after-box'); await w(600);
   const cards = await p.$$eval('#after-list .after-card', cs => cs.map(c => ({ name: c.querySelector('.after-name').firstChild.textContent, tag: (c.querySelector('.after-changed') || {}).textContent || '', upd: [...c.querySelectorAll('.after-fact.is-upd .after-k')].map(k => k.textContent) })));
-  ok(cards.slice(0, 3).map(x => x.name).sort().join('|') === 'Daniel Rivera|Marcus Hill|Samuel Ortiz', 'the three people who changed come first', cards.map(x => x.name).join(' | '));
+  ok(cards.length === 3 && cards.map(x => x.name).sort().join('|') === 'Daniel Rivera|Marcus Hill|Samuel Ortiz', 'only the three people who changed are listed', cards.map(x => x.name).join(' | '));
   const by = n => cards.find(x => x.name === n) || {};
   ok(by('Daniel Rivera').tag === 'Changed' && by('Daniel Rivera').upd.join() === 'Sacrament', 'Daniel: Changed, with Sacrament marked Updated');
-  ok(by('Marcus Hill').upd.join() === 'Needs', 'Marcus: Needs marked Updated');
+  ok(by('Marcus Hill').upd.join() === 'Met the bishop', 'Marcus: Met the bishop marked Updated (a new What will help is not listed: it isn’t in the report)');
   ok(by('Samuel Ortiz').tag === 'New since step 1', 'a name added after step 1 says New since step 1');
-  ok(by('Emma Walsh').tag === '' && by('Olivia Chen').tag === '', 'people with no changes have no tag');
+  ok(!cards.some(x => x.name === 'Emma Walsh' || x.name === 'Olivia Chen'), 'people with no changes are not listed');
   ok((await p.textContent('.after-summary')).startsWith('3 people changed since step 1'), 'a line at the top says how many changed');
   await p.screenshot({ path: OUT + '/after.png' });
 

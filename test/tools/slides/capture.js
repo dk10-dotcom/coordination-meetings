@@ -37,7 +37,8 @@ module.exports = (async () => {
   await shot('s03-bw', '#bw-view .btn-tools', { scroll: false });
   await shot('s04-bw-list', '[data-bw="nm"] [data-action="open-person"][data-b="0"]');
   await p.click('[data-bw="nm"] [data-action="open-person"][data-b="0"]'); await wait(500); await p.evaluate(() => scrollTo(0, 0));
-  await shot('s05-bw-person');
+  for (const k of ['calling', 'ministers']) { await p.click(`#person-card [data-action="check-item"][data-b="${k}"]`); await wait(200); }
+  await shot('s05-bw-person', '#person-card .checklist', { block: 'start' });
   await back();
   await shot('s06-bw-done', '#before-done-btn', { block: 'end' });
   await p.click('#before-done-btn'); await wait(600);
@@ -49,6 +50,9 @@ module.exports = (async () => {
   await shot('s08-wc', '[data-action="open-wc-list"][data-a="cp"]', { scroll: false });
   await p.click('[data-action="open-wc-list"][data-a="cp"]'); await wait(500);
   await shot('s09-wc-cp', '[data-wc="nm"] [data-action="open-person"][data-b="0"]', { scroll: false });
+  await p.click('[data-wc="nm"] [data-action="how-help"]'); await wait(500);
+  await shot('s18-howhelp');
+  await p.click('#howhelp-sheet [data-action="close-how-help"]'); await wait(400);
   await p.click('[data-wc="nm"] [data-action="open-person"][data-b="0"]'); await wait(500); await p.evaluate(() => scrollTo(0, 0));
   await shot('s10-wc-person', '#person-card [data-action="make-focus"]');
   await p.click('#person-card [data-action="make-focus"]'); await wait(500);
@@ -88,7 +92,7 @@ module.exports = (async () => {
   // Focus names: an action item for each
   await p.click('[data-action="open-step"][data-a="tn"]'); await wait(500);
   await p.click('[data-group="tn"] .person-row:has-text("Daniel Rivera")'); await wait(500);
-  await shot('s19-person-sac', '#person-card .sac-toggle', { block: 'start' });
+  await shot('s19-person-sac', '#person-card .zone-hd-wrap', { block: 'start' });
   await p.fill('#person-card [data-bind$=".action"]', 'Go with the youth to the temple on Thursday');
   await p.fill('#person-card [data-bind$=".assigned"]', 'Bro. Patel'); await p.fill('#person-card [data-bind$=".when"]', '2026-11-19'); await wait(300);
   await shot('s20-person-action', '#person-card [data-bind$=".action"]', { block: 'center' });
@@ -108,10 +112,6 @@ module.exports = (async () => {
   await p.evaluate(() => document.activeElement && document.activeElement.blur());
   await shot('s24-fn', '#person-card .invite-ideas', { block: 'center' });
   await p.click('#person-view .person-done'); await wait(500);
-  await p.evaluate(() => scrollTo(0, 0));
-  await p.click('[data-step="fn"] .how-help-fn'); await wait(500);
-  await shot('s18-howhelp');
-  await p.click('#howhelp-sheet [data-action="close-how-help"]'); await wait(400);
   await p.click('[data-action="step-done"]'); await wait(800);
   await p.evaluate(() => scrollTo(0, 0));
   await shot('s25-huddle-all', '#hd-hero .hero-progress', { scroll: false });
