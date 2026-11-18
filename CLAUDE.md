@@ -132,4 +132,7 @@ never reads or replaces a real huddle. Each service worker deletes only its own 
 Everything it tried through Nov 18, 2026 is now in the live app (focus names filtering the huddle, Sacrament
 attendance, Opportunities to invite, no Missionary Referrals, the opening picture). Keep it for future ideas:
 list each new difference in `try/CHANGES.md`, since that list is what moves to the live app later.
+Now being tried (Nov 18, 2026): the Covenant Path Report checklist and What will help. Its live-ready version, with
+tests, slides and docs, is on the branch `checklist`; moving it to the live app is merging that branch into `main`
+and bumping `CACHE`. Only `try/` carries it on `main`.
 `test/try-focus.js` covers it. Changes to `try/` don't need a live `CACHE` bump; bump `try/sw.js` instead.
