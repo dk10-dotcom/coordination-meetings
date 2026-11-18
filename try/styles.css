@@ -1460,35 +1460,32 @@ body[data-view="start"] .title-text .title-sub { color: #FFFFFF; opacity: .88; }
 /* Ward council: the confidential reminder right under a name's Needs box */
 .need-note { grid-column: 1 / -1; margin: -4px 0 0; }
 
-/* (Test copy) Focus names filter the huddle */
-.test-tag { color: #FFD5D5; }
+/* Focus names filter the huddle: suggested names, Make focus name */
 .focus-box { display: flex; flex-direction: column; gap: 8px; margin: 0 0 14px; }
 .focus-box.is-pressing { padding: 12px; border-radius: 12px; background: #FDECEC; border: 1px solid #F1BDBD; }
 .focus-why { margin: 0; font-size: 14px; font-weight: 700; color: #B42318; }
 .focus-on { display: flex; gap: 8px; align-items: flex-start; margin: 0 0 14px; padding: 10px 12px; border-radius: 12px; background: var(--green-soft); border: 1px solid var(--green-line); color: var(--green-ink); font-size: 14px; font-weight: 600; line-height: 1.35; }
 .focus-on svg { flex: none; margin-top: 2px; }
 .focus-note { margin: 10px 0 0; font-size: 13.5px; color: var(--muted); }
-:root.theme-dark .focus-box.is-pressing { background: #3A1D1D; border-color: #6E2C2C; }
-:root.theme-dark .focus-why { color: #FF9C9C; }
 
-/* (Test copy) Sacrament attendance: tap a name to mark it */
+/* Sacrament attendance: tap a name to mark it */
 .sa-box { flex: none; width: 26px; height: 26px; border-radius: 8px; border: 2px solid var(--card-line); display: grid; place-items: center; color: #fff; }
 .sa-row.is-on .sa-box { background: #2E7D4F; border-color: #2E7D4F; }
 .sa-box svg { width: 16px; height: 16px; }
-/* (Test copy) Swipe a focus name left to remove it */
+/* Swipe a focus name left to remove it */
 .swipe-li { position: relative; overflow: hidden; }
 .swipe-li .person-row { position: relative; z-index: 1; background: var(--card); transition: transform .2s ease; }
 .swipe-li.is-open .person-row { transform: translateX(-88px); }
 .swipe-li:not(.is-open):not(.is-moving) .swipe-del { visibility: hidden; }
 .swipe-del { position: absolute; top: 0; right: 0; bottom: 0; width: 88px; border: 0; background: #C62828; color: #fff; font: inherit; font-weight: 700; font-size: 15px; }
-/* (Test copy) Upcoming opportunities as cards, with their assignments under them */
+/* Upcoming opportunities as cards, with their assignments under them */
 .opp-card { display: flex; flex-direction: column; gap: 12px; }
 .opp-card .card-head { display: flex; align-items: center; justify-content: space-between; }
 .opp-hint { margin: -8px 0 0; font-size: 13.5px; color: var(--muted); }
 .btn-add-opp { margin-top: 4px; }
 .wc-report-link { margin-bottom: 4px; }
 .opp-card .fn-fields { grid-template-columns: minmax(0, 1fr); }
-/* (Test copy) Opportunities to invite: tip of the week, idea chips, Other ways to invite */
+/* Opportunities to invite: tip of the week, idea chips, Other ways to invite */
 .tip-week { padding-bottom: 12px; }
 .tip-week-text { margin: 4px 16px 0; font-size: 15px; line-height: 1.45; color: var(--text); }
 .tip-week-links { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 10px 16px 0; }
@@ -1512,3 +1509,6 @@ html.no-splash .splash { display: none; }
 .splash-name { margin: 18px 0 0; color: #FFFFFF; font-size: 38px; font-weight: 700; letter-spacing: -0.01em; }
 .splash-sub { margin: 4px 0 0; color: #B9C7E2; font-size: min(16px, 4vw); line-height: 1.4; text-align: center; white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { .splash { transition: none; } }
+
+/* Test copy only */
+.test-tag { color: #FFD5D5; }

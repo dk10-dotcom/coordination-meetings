@@ -32,7 +32,8 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     await ctx.addInitScript(() => { try { localStorage.setItem('huddle-view-all', '1'); } catch (e) {} }); await ctx.addInitScript(() => { try { ['huddle-names-hint-seen', 'huddle-tour-seen', 'huddle-help-seen'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
     const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
     await p.goto('http://127.0.0.1:8765/#huddle'); await p.waitForSelector('.chip'); await p.click('[data-action="dismiss-install"]').catch(() => {});
-    const fill = (k, v) => p.fill(`[data-bind="${k}"]`, v);
+    // Other ways to invite (assignments not tied to an opportunity) starts closed; open it to type there
+    const fill = async (k, v) => { if (k.startsWith('find.items')) await p.evaluate(() => document.querySelectorAll('details.other-ways').forEach(d => { d.open = true; })); return p.fill(`[data-bind="${k}"]`, v); };
     // 1. Name at the top
     ok(await p.$eval('[data-bind="cp.nm.0.name"]', i => i.closest('.card-head') && getComputedStyle(i).fontWeight >= 700), 'name field is the bold card title');
     await fill('cp.nm.0.name', 'Daniel Rivera');
@@ -51,8 +52,8 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     for (const i of [0, 2, 3]) { await p.click(`[data-action="happened"][data-a="${i}"][data-b="No"]`); await p.click(`[data-action="carry-fwd"][data-a="${i}"]`); }
     await p.click('[data-action="happened"][data-a="1"][data-b="Yes"]');
     const nmCard = p.locator('[data-group="nm"] .card').filter({ has: p.locator('[data-bind="cp.nm.0.name"]') });
-    ok(await nmCard.locator('.carried-tag').count() === 1, 'carried tag on New members card');
-    ok(await p.locator('#tn-list .carried-tag').count() === 1, 'carried tag on Name Next Ordinance card');
+    ok(await nmCard.locator('.carried-tag').count() === 0, 'a carried Covenant Path assignment no longer goes back on the New members card');
+    ok(await p.locator('#tn-list .carried-tag').count() === 2, 'it comes back as a focus name: carried tags on both focus name cards (Daniel and Grace)');
     ok(await p.locator('#fn-list .carried-tag').count() === 1, 'carried tag on finding assignment');
     ok(await p.locator('[data-group="rm"] .carried-tag').count() === 0, 'no carried tag where nothing was carried');
     await p.waitForTimeout(3500); await nmCard.screenshot({ path: `${OUT}/${tag}-card.png` });
@@ -64,7 +65,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     await p.click('[data-action="list-done"][data-a="nm"]');
     if (await p.isVisible('#confirm-sheet')) await p.click('#confirm-primary');
     ok(await p.locator('[data-group="nm"].is-folded').count() === 1, 'New members folded');
-    ok(await p.locator('[data-group="nm"] .fold-tag', { hasText: 'Carried forward' }).count() === 1, 'folded row says Carried forward');
+    ok(await p.locator('[data-group="nm"] .fold-tag', { hasText: 'Carried forward' }).count() === 0, 'the folded New members row has no Carried forward (it went to Focus names)');
     await p.click('[data-group="nm"] .fold-row-btn >> nth=0');
     ok(await p.locator('[data-group="nm"] .fold-open .card').count() === 1, 'tapped name opens its card');
     ok(await p.locator('[data-group="nm"].is-folded').count() === 1, 'list stays folded');

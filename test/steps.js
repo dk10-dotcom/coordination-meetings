@@ -1,4 +1,5 @@
 // These checks fill many cards in a row, so they keep every card open in its list ('huddle-cards-open').
+// 'huddle-cp-section' (a test-only flag) brings back the Huddle's Covenant Path Report section these checks use. // cp-section flag
 // The lists of names and each person's own screen are covered by rows.js and twodoor.js.
 const { chromium, devices } = require('playwright');
 (async () => {
@@ -13,7 +14,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
   for (const dev of ['iPhone 13', 'iPhone SE']) {
     const tag = dev === 'iPhone SE' ? 'se' : 'i13';
     const ctx = await b.newContext({ ...devices[dev] });
-    await ctx.addInitScript(() => { try { ['huddle-names-hint-seen', 'huddle-tour-seen', 'huddle-help-seen', 'huddle-cards-open'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
+    await ctx.addInitScript(() => { try { ['huddle-names-hint-seen', 'huddle-tour-seen', 'huddle-help-seen', 'huddle-cp-section', 'huddle-cards-open'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
     const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
     await p.goto('http://127.0.0.1:8765/#huddle'); await p.waitForSelector('.chip', { state: 'attached' }); await p.click('[data-action="dismiss-install"]').catch(() => {});
     const vis = s => p.isVisible(s);
@@ -21,7 +22,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     ok(!(await vis('#details-full')) && await vis('#details-summary') && (await p.textContent('#details-summary')).includes('Huddle Attendees'), 'details closed on a fresh form');
     ok((await p.textContent('#details-sub .warn')).includes('Attendance not taken yet') && await p.evaluate(() => getComputedStyle(document.querySelector('#details-sub .warn')).color) === 'rgb(154, 68, 22)', 'missing attendance shows in dark orange');
     ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'no sideways overflow');
-    ok(await p.locator('.step-row').count() === 5 && (await p.textContent('.step-row[data-a="mr"]')).includes('Missionary Referrals') && (await p.textContent('.step-row[data-a="mr"] .step-status')).trim() === 'None listed', 'five sections, ending with Missionary Referrals');
+    ok(await p.locator('.step-row').count() === 5 && (await p.textContent('.step-row[data-a="fn"]')).includes('Opportunities to invite') && (await p.textContent('.step-row[data-a="fn"] .step-status')).trim() === 'Ward council hasn’t listed any yet' && !(await vis('.step-row[data-a="mr"]')), 'five sections (with the test-only Covenant Path Report), ending with Opportunities to invite; no Missionary Referrals');
     ok(!(await vis('[data-step="rr"]')) && !(await vis('[data-step="cp"]')), 'sections hidden on home');
     ok(await p.locator('.step-row.next, .step-tag, #steps-count, .steps-bar').count() === 0 && await p.locator('.step-num').count() === 0, 'no up next, numbers, empty circles or progress bar');
     await p.click('#details-summary');
@@ -66,15 +67,12 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     ok(await p.locator('[data-a="cp"].step-row.done').count() === 1 && await p.locator('.step-row.done').count() === 1, 'section gets a green check');
     // Next step link
     await p.click('[data-action="open-step"][data-a="tn"]');
-    ok((await p.textContent('#step-next')).includes('Find New People to Teach'), 'next step link');
+    ok((await p.textContent('#step-next')).includes('Opportunities to invite'), 'next step link');
     ok((await p.textContent('#step-prev')).includes('Covenant Path') && !(await p.textContent('#step-prev')).includes('Report Review'), 'back link names the previous step (Covenant Path Report)');
     await p.click('#step-next');
-    ok(await vis('[data-step="fn"]') && (await p.textContent('#step-next')).includes('Missionary Referrals'), 'went to Find New People to Teach; next is Missionary Referrals');
-    await p.click('#step-next');
-    ok(await vis('[data-step="mr"]') && !(await p.isVisible('#step-next')) && (await p.textContent('#step-title')) === 'Missionary Referrals', 'went to the last section; no next link');
+    ok(await vis('[data-step="fn"]') && !(await p.isVisible('#step-next')) && (await p.textContent('#step-title')) === 'Opportunities to invite', 'went to the last section (Opportunities to invite); no next link');
     await p.click('#step-prev');
     await p.locator('#step-done-btn').screenshot({ path: `${OUT}/${tag}-foot.png` });
-    await p.click('#step-prev');
     ok(await vis('[data-step="tn"]'), 'Back goes to the previous step');
     await p.click('#step-next');
     await p.click('[data-action="steps-home"]'); await p.waitForTimeout(200);
@@ -93,7 +91,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     // Clear keeps the ward name
     await p.fill('#ward', 'Sample Ward').catch(() => {});
     await p.click('[data-action="open-details"]').catch(() => {}); await p.fill('#ward', 'Sample Ward'); await p.fill('[data-bind="find.plan"]', 'x').catch(() => {});
-    await p.click('[data-action="open-step"][data-a="fn"]').catch(() => {}); await p.fill('[data-bind="find.plan"]', 'Plan'); await p.click('[data-action="steps-home"]'); await p.waitForTimeout(200);
+    await p.click('[data-action="open-step"][data-a="fn"]').catch(() => {}); await p.click('[data-action="add-opp"]'); await p.fill('[data-bind="find.opps.0.title"]', 'Plan'); await p.click('[data-action="steps-home"]'); await p.waitForTimeout(200);
     await p.evaluate(() => document.querySelector('.clear-link').click()); await p.click('#confirm-primary'); await p.waitForTimeout(200);
     ok(await p.inputValue('#ward') === 'Sample Ward', 'Clear keeps the ward name');
     ok(await p.locator('.btn-done:visible').count() === 0, 'no list Done buttons in the step view');

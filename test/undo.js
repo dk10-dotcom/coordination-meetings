@@ -26,7 +26,8 @@ async function freshWeek(pg) { if (await pg.isVisible('#load-panel [data-action=
     await ctx.addInitScript(() => { try { localStorage.setItem('huddle-view-all', '1'); } catch (e) {} }); await ctx.addInitScript(() => { try { ['huddle-names-hint-seen', 'huddle-tour-seen', 'huddle-help-seen'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
     const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
     await p.goto('http://127.0.0.1:8765/#huddle'); await p.waitForSelector('.chip'); await p.click('[data-action="dismiss-install"]').catch(() => {});
-    const fill = (k, v) => p.fill(`[data-bind="${k}"]`, v);
+    // Other ways to invite (assignments not tied to an opportunity) starts closed; open it to type there
+    const fill = async (k, v) => { if (k.startsWith('find.items')) await p.evaluate(() => document.querySelectorAll('details.other-ways').forEach(d => { d.open = true; })); return p.fill(`[data-bind="${k}"]`, v); };
     await fill('ward', 'Test Ward'); await fill('date', '2026-10-25');
     await fill('cp.nm.0.name', 'Daniel Rivera'); await fill('cp.nm.0.ordinance', 'Temple baptisms'); await fill('cp.nm.0.action', 'Schedule interview'); await fill('cp.nm.0.assigned', 'Bishop');
     await fill('tn.0.name', 'Grace Thompson'); await fill('tn.0.ordinance', 'Endowment'); await fill('tn.0.action', 'Invite to temple prep'); await fill('tn.0.assigned', 'Sister Diaz');
@@ -35,19 +36,19 @@ async function freshWeek(pg) { if (await pg.isVisible('#load-panel [data-action=
     await nextWeek(p, '2026-11-01');
     // New members: Daniel carried as a name (no action) -> carry fills the action
     await p.click('[data-action="happened"][data-a="0"][data-b="No"]'); await p.click('[data-action="carry-fwd"][data-a="0"]');
-    ok(await p.inputValue('[data-bind="cp.nm.0.action"]') === 'Schedule interview', 'carried into Daniel');
-    await fill('cp.nm.0.when', 'Sat 9 am'); // typed after carrying: should survive undo
+    ok(await p.inputValue('[data-bind="tn.1.action"]') === 'Schedule interview', 'carried into a focus name for Daniel');
+    await fill('tn.1.when', 'Sat 9 am'); // typed after carrying: should survive undo
     ok(await p.locator('#rr-list .btn-undo').count() === 1, 'Undo button shows after carrying');
     await p.waitForTimeout(3600); await p.locator('#rr-list .rr-card').first().screenshot({ path: `test/out-people/${tag}-undo-btn.png` });
     await p.click('#rr-list [data-action="undo-carry"][data-a="0"]');
     ok((await p.textContent('#confirm-title')).includes('Undo carry forward'), 'asks before undoing');
     await p.click('#confirm-secondary');
-    ok(await p.inputValue('[data-bind="cp.nm.0.action"]') === 'Schedule interview', 'Keep it leaves the carry');
+    ok(await p.inputValue('[data-bind="tn.1.action"]') === 'Schedule interview', 'Keep it leaves the carry');
     await p.click('#rr-list [data-action="undo-carry"][data-a="0"]'); await p.click('#confirm-primary');
-    ok(await p.inputValue('[data-bind="cp.nm.0.action"]') === '', 'undo clears the carried action');
-    ok(await p.inputValue('[data-bind="cp.nm.0.assigned"]') === '', 'undo clears the carried assignee');
+    ok(await p.inputValue('[data-bind="tn.1.action"]') === '', 'undo clears the carried action');
+    ok(await p.inputValue('[data-bind="tn.1.assigned"]') === '', 'undo clears the carried assignee');
     ok(await p.inputValue('[data-bind="cp.nm.0.name"]') === 'Daniel Rivera', 'name (from last week) stays');
-    ok(/^(Sat 9 am|\d{4}-\d{2}-\d{2})$/.test(await p.inputValue('[data-bind="cp.nm.0.when"]')), 'what you typed since stays (a typed day may have become its date)');
+    ok(/^(Sat 9 am|\d{4}-\d{2}-\d{2})$/.test(await p.inputValue('[data-bind="tn.1.when"]')), 'what you typed since stays (a typed day may have become its date)');
     ok(await p.locator('[data-group="nm"] .carried-tag').count() === 0, 'carried tag gone');
     ok(await p.locator('#rr-list [data-action="carry-fwd"][data-a="0"]').count() === 1, 'Carry forward button is back');
     // Name Next Ordinance: carry fills an empty slot; undo empties it again

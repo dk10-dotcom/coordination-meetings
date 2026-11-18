@@ -78,7 +78,6 @@ Ward council and the Huddle show names the same way.
   shows its own half open and highlighted, and the other meeting's half closed as a short summary
   with **Edit** (see Ward council and Covenant Path Report). Before ward council shows one card with only
   what the Covenant Path Report tells you (see Before ward council).
-- **Missionary referrals** are listed and opened the same way (see Missionary Referrals).
 - **Done** at the bottom, **Back** at the top and the phone's own Back all return to the list.
 - **Remove from the list** (or **Clear this focus name**) is at the bottom of the person's screen.
   Removing someone who has details asks first, then returns to the list. While there is nothing
@@ -88,8 +87,8 @@ The same row is used for the Huddle's sections, Ward council's lists and Before 
 every list in the app looks alike. A section marked done shows a green check before its chevron.
 
 **Every list's name stands out.** New members, Returning members, Those being taught, Focus names,
-Referrals and Find New People to Teach's "Huddle action plan" each sit on a band of the list's own
-color (blue, green, purple, gold, rose, teal: the colors the PDF uses), large and bold, with the
+and Opportunities to invite's "Tip of the week" each sit on a band of the list's own
+color (blue, green, purple, gold, teal: the colors the PDF uses), large and bold, with the
 count beside it. On the smallest phones the name is a little smaller so the count stays beside it.
 
 **Names have initials.** Each name row starts with a circle of initials ("DR") in its list's color;
@@ -99,8 +98,8 @@ is typed.
 
 **Section rows have icons.** In the Huddle and Ward council, each section row starts with a white
 drawing on a rounded tile of the section's color, like an iPhone's Settings: Return and Report
-(an arrow coming back, violet), Covenant Path Report (people, blue), Focus names (a star, gold),
-Find New People to Teach (a magnifying glass, teal), Missionary Referrals (a paper plane, rose).
+(an arrow coming back, violet), Sacrament attendance (a calendar with a check), Covenant Path Report
+(people, blue; Ward council), Focus names (a star, gold), Opportunities to invite (a magnifying glass, teal).
 
 **Each of the four steps starts with a header card** in the step's color (Before ward council slate,
 Ward council blue, Huddle orange, After the huddle plum): the step ("Step 3 · How & When") and the
@@ -123,7 +122,7 @@ There is no "needs attention" list: the sections' own orange status lines alread
 Sealing ("Choose one" until picked). Those being taught stay fixed on Baptism. A next ordinance typed in
 before the menu existed ("Aaronic Priesthood") stays chosen and is listed as one more choice. An older "Temple baptisms" becomes "Baptisms for the dead".
 
-**When is a date** (the huddle's action items and Find New People to Teach's assignments). Rows and the
+**When is a date** (the huddle's action items and Opportunities to invite's assignments). Rows and the
 PDF show it as "Thu, Nov 19"; the assignment text writes it out ("When: Thursday, November 19"). A When
 typed before ("Sat", "tomorrow") becomes that date when the app opens; one that isn't a day ("this week")
 stays as typed, in a text box. Return and Report keeps last week's wording as it was. An empty date
@@ -151,11 +150,12 @@ instead of a white flash.
 **A list's band and its names are one card:** the band is the card's top and the names hang right under
 it, edged in the list's color.
 
-**Missionary Referrals:** a referral's screen has **Text this referral to the missionaries**. Messages
-opens with "Missionary referral: name", "Referred by: …", the notes, and "From the … huddle. Thank you!";
-the person picks the missionaries. Turned off during a practice week.
 
 ## Opening screen
+
+**The opening picture.** When the app opens, the same picture as the phone's launch screen (the icon,
+"Huddle", and “Joyfully gathering Israel one by one in Christ”) stays about a second longer, then fades.
+Taps pass through it. Automated checks skip it.
 
 **Look.** At the top, **Help & training**, then a deep blue header card: "Huddle", the title "Weekly Ward
 Mission Process", and under a thin line the ward name and today's date. **The ward is set here:** tapping
@@ -262,15 +262,33 @@ open this screen.
 
 ## Ward council
 
-Opens to four rows:
+Opens to three rows:
 
-- **Covenant Path Report** opens New members, Returning members and Those being taught.
-- **Focus names** opens the three focus names.
-- **Find New People to Teach** and **Missionary Referrals** open the same sections the Huddle has.
-  They hold the same data, so what is entered in one meeting shows in the other.
+- **Covenant Path Report** opens New members, Returning members and Those being taught, with
+  **Open the Covenant Path Report** at the top (the same button the opening screen's step 1 has).
+- **Focus names** opens the focus names.
+- **Opportunities to invite** opens the same section the Huddle has. It holds the same data, so what is
+  entered in one meeting shows in the other.
 
 The first two show a count that turns orange when someone is missing a next ordinance.
-Right under the step card, above the four rows, is **Open Part-Member Families**, the same outlined button as Open the Covenant Path
+
+**Ward council chooses the focus names; the huddle plans their action items.**
+
+- **Suggested focus name.** In Before ward council and Ward council, a Covenant Path name gets a red
+  "Suggested focus name" tag when it is pressing: every new member who hasn't been to the temple yet
+  ("Temple: 9 days left", or "Not yet to the temple" with no baptism date), and anyone being taught with a
+  baptism date in the next 30 days or an appointment with the missionaries in the next week. Returning
+  members are never suggested; ward council can still choose them.
+- **Make focus name** is at the top of a Covenant Path name's Ward council screen (in a red box saying why
+  when suggested). It fills the first open spot, or adds one past three: a pressing name can take the list
+  over three. Their next ordinance and needs come along, and an action item already on their card moves with
+  them. Once they are a focus name the screen says so, and their row carries "★ Focus name".
+- **Swipe a focus name left** (Ward council and the Huddle) to show **Remove**. It asks first ("Remove … from
+  Focus names?"), then takes them off Focus names; **Undo** in the message puts them back where they were.
+  They stay on the Covenant Path Report. The list closes up: names stay together, and empty spots only fill
+  out to three at the end (a huddle saved with a gap closes up when it opens).
+
+Right under the step card, above the three rows, is **Open Part-Member Families**, the same outlined button as Open the Covenant Path
 Report, with "In Leader and Clerk Resources, on the web" under it. It opens the Part-Member Families report
 in Leader and Clerk Resources (`https://lcr.churchofjesuschrist.org/mlt/report/part-member-households?lang=eng`)
 outside the app (`target="_blank"`), for finding names to discuss. Member Tools has no link to this report, so
@@ -306,7 +324,10 @@ the mirror of the Huddle's:**
 ## Huddle
 
 Top to bottom: the one line saying what to do, **Huddle Attendees**, **Tips for an effective meeting**,
-then five sections as rows.
+then four sections as rows: **Return and Report** and **Sacrament attendance** at the top, with no heading,
+then **Huddle action plan** over **Focus names** and **Opportunities to invite**. The Covenant Path names are
+not a section of their own here: their sacrament attendance is marked in Sacrament attendance, and their
+assignments come back in Return and Report.
 The confidential reminder sits under the notes on each name and Return and Report item, not under the step card.
 There is no disclaimer line on this screen.
 A section's name sits beside **Back** when it is open. **Mark done** gives a section a
@@ -333,21 +354,24 @@ from the last huddle." after a huddle that made no assignments. **Add an item** 
 blank item, for reporting on something that was not in the app. Every item has a remove button;
 an item left blank is gone the next time the section opens.
 
-**Carry forward to this huddle** appears on a Partly or No item. It puts the assignment back on
-that person's card, tagged as carried, and can be undone. It is offered only while the person is
+**Carry forward to this huddle** appears on a Partly or No item. It brings the assignment back as a
+**focus name** with the action item on it (past three if need be), tagged as carried, and can be undone.
+A finding assignment goes back to Opportunities to invite. It is offered only while the person is
 still listed. If they have been removed, a note says so. Someone converted from Those being
 taught to New members is followed to the new list.
 
 Each assignment has a **Notes** box ("How did it go?") under Yes / Partly / No; its words go on the PDF as before.
 
-### Covenant Path Report
+### Sacrament attendance
 
-The Huddle's second section. On screen it is called **Covenant Path Report**, the same name Ward
-council uses for these lists; the PDF's heading for it stays "Covenant Path Report Review".
+Everyone once: the Covenant Path names (New members, Returning members, Those being taught), then focus
+names not on the report. Each is a row with the person's list under the name and a box at the right; one tap
+marks them as attending, another unmarks them. Marking someone marks their focus name card too, so no one is
+marked twice. The row on the Huddle screen reads "3 of 6 attended".
 
-**Open the Covenant Path Report** is at the top (there is no reminder box), then the three lists as
-rows. Under each list's name is a small **How can we help?** link (see How can we help?).
-Tapping a name opens that person's screen, which has two halves:
+### A person's Huddle screen
+
+Tapping a focus name opens that person's screen, which has two halves:
 
 - **Ward Council · Who & What** is condensed to a short summary: next ordinance, needs, and a new
   member's baptism date. **Edit** opens the name, baptism date, next ordinance and needs;
@@ -381,31 +405,46 @@ Also in the huddle's half:
 - **When** suggests "e.g. Sat 9 am". On a phone it has a row of its own under **Assigned to**.
 - **+ Add a note for ward council** adds huddle notes, which carry forward and print on the PDF.
 
-On the lists:
-
-- **Confirm none this week** is a row on an empty list. It marks the list as reviewed, and
-  **Undo** takes it back. A list left blank prints "Not reviewed".
-- **Add a name** adds a person to a list.
+A Covenant Path name opened from Ward council shows its sacrament, temple and baptism checks with "Action items
+are planned for focus names" in place of the action item.
 
 ### Focus names
 
-The three focus names as rows; each opens the same two-half screen. On screen the section is
-called **Focus names** in both meetings; the PDF's heading for it stays "Name Next Ordinance"
-(with "Ward council focus names" beside it).
+The focus names as rows (three spots, more when ward council adds pressing names); each opens the two-half
+screen above. Swipe one left to remove it (see Ward council). On the PDF the heading is "Focus names" with
+"Name Next Ordinance" beside it.
 
-### Find New People to Teach
+### Opportunities to invite
 
-**Upcoming opportunities** (activities, service or events coming up where members can invite friends;
-the row reads "Opportunities listed" once it has words) and any number of assignments (who will do what,
-and when), plus
-**Tips for finding new people to teach**. The same section opens from Ward council.
-Its "Huddle action plan" band carries its own **How can we help?** link, in the Huddle and in Ward council.
+(Called Find New People to Teach before.) Ward council lists what's coming up; the huddle plans how members
+will invite. The same section opens from Ward council and the Huddle.
+
+- **Tip of the week** at the top: one of the 15 ideas in the tips sheet, in its own words, a different one each
+  week (chosen from the huddle's date). Beside it, **All the tips** (the tips sheet) and **How can we help?**,
+  and its source line.
+- **Each opportunity is a card:** what's coming up and its **Date**. While its name is empty it shows starter
+  ideas to tap: Special sacrament meeting, Ward activity, Dinner or home evening, Baptismal service, Sports
+  night, Self-reliance or other classes, Service project. Its assignments sit under it (who will do what, and
+  when), then **Ways to invite: tap one to add it**: Members invite friends and neighbors, Speakers invite someone
+  to come hear them, Members go on a visit with the missionaries, Share it on the ward's activity page. Each
+  becomes an assignment; the huddle adds when. **Add an assignment** adds a blank one. The ✕ removes the card
+  (asks first when it has a name); its assignments move to Other ways to invite.
+- **With no opportunities:** "Ward council hasn't listed any opportunities yet." with the starter ideas.
+- **+ Add an upcoming opportunity** adds a card.
+- **Other ways to invite** (assignments not tied to an event) is at the bottom, closed until tapped (open
+  when it holds assignments).
+- The starter ideas, invite ideas and tip carry a source line to "Ideas for Weekly Missionary Coordination".
+- **The row** on the Huddle and Ward council screens names what's coming up: "Christmas sacrament meeting ·
+  1 needs an assignment" ("each has an assignment" when done; "Ward council hasn't listed any yet" when empty).
+- **Next week** the assignments come back in Return and Report with the opportunity named ("Each family invites
+  one friend (Christmas sacrament meeting)"). **An opportunity stays until its date passes.** An older huddle's
+  typed opportunities become one card.
 
 ### How can we help?
 
 Questions to talk through, for the person conducting who is not sure what to ask. The link is in
 the Huddle and in Ward council: under New members, Returning members and Those being taught in the
-Covenant Path Report, and at the top of Find New People to Teach. It is not in Before ward council
+Covenant Path Report (Ward council), and at the top of Opportunities to invite. It is not in Before ward council
 or on a person's screen.
 
 Tapping it slides up a panel with that section's questions and no others:
@@ -415,7 +454,7 @@ Tapping it slides up a panel with that section's questions and no others:
 | New members | How can we help those who were recently baptized? | 6 |
 | Returning members | How can we help returning members? | 4 |
 | Those being taught | How can we help those being taught? | 3 |
-| Find New People to Teach | How can we find more people to teach? | 2 |
+| Opportunities to invite | How can we find more people to teach? | 2 |
 
 The headings and questions are the "possible discussion items" in *Preach My Gospel*, chapter 13
 ("Participate in the Weekly Coordination Meeting"), word for word. Each card holds one item; when an item asks several questions, each
@@ -428,16 +467,8 @@ PDF, in a handoff or in an assignment text.
 
 ### Missionary Referrals
 
-People referred to the full-time missionaries. The same list opens from Ward council.
-
-- Each referral holds a **name**, who it was **referred by**, and **notes**.
-- The list shows one row per referral (the name, then "Referred by … · notes"). **Add a referral**
-  is the last row and opens a new one with the cursor in Name; one left empty is dropped.
-- Tapping a referral opens its three fields. **Remove from the list** is at the bottom and asks first.
-- **A referral stays on the list from huddle to huddle until it is removed.** It has no
-  assignment, so it never appears in Return and Report, and it is not part of the two Covenant
-  Path Report sheets.
-- The row on the Huddle and Ward council screens reads "None listed" or the number of referrals.
+Removed. Ward council, the Huddle and the PDF no longer have referrals. A huddle, PDF or handoff saved with
+referrals still loads; they are kept in its data but not shown.
 
 ## Send
 
@@ -457,7 +488,7 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
   send, removed after 5 weeks, and removed by Erase everything.
 - Every action item moves into Return and Report for the next huddle.
 - Names, next ordinances, needs and huddle notes stay. Baptism dates, temple and commitment stay.
-- Missionary referrals stay.
+- Upcoming opportunities stay until their date passes.
 - Attendance, attended-sacrament marks, assignments, section checks and both boxes clear.
   Each card remembers whether sacrament was marked at the huddle just sent.
 - The next huddle is dated the day it is sent, unless **Change date** is used.
@@ -564,7 +595,7 @@ link clears both from the address bar.
   open, and Help & training opens by itself on the first visit; from the Home Screen app every step
   starts closed.
 - **Tips for an effective meeting** (in the Huddle) and **Tips for finding new people to teach**
-  (in Find New People to Teach) each end their borrowed text with a source line linking to
+  (All the tips, in Opportunities to invite) each end their borrowed text with a source line linking to
   "Ideas for Weekly Missionary Coordination" in *Sharing the Gospel: Resources for Leaders*.
   The first says "Adapted from" (five points condensed from the page's eight principles); the
   second says "From" (quoted). The **Prepare ahead** tip is the app's own and sits below the line.
@@ -621,6 +652,8 @@ one is the only time these pages are contacted, and the app itself still makes n
 | How can we help? panels | From *Preach My Gospel*, chapter 13 | `…/preach-my-gospel-2023/21-chapter-13` |
 | Tips for an effective meeting | Adapted from "Ideas for Weekly Missionary Coordination," *Sharing the Gospel: Resources for Leaders* | `…/sharing-the-gospel-resources-for-leaders/02-effective-coordination-with-missionaries` |
 | Tips for finding new people to teach | From the same page | the same page |
+| Opportunities to invite: Tip of the week (one of the tips sheet's 15 ideas, quoted) | “Ideas for Weekly Missionary Coordination,” *Sharing the Gospel: Resources for Leaders* | the same page |
+| Opportunities to invite: starter ideas and invite ideas (short words from "Know the Calendar", "Help Speakers Invite Friends", "Assist the Missionaries", "Share Activities" and the page's "invite friends and neighbors") | Ideas from "Ideas for Weekly Missionary Coordination" | the same page |
 | Huddle Attendees: temple and family history invitation | General Handbook 25.2.3 (quoted) | `…/general-handbook/25-temple-and-family-history-work` |
 | Help & training: Sources | The two above, and General Handbook 23.4 (who conducts and who is invited) | `…/general-handbook/23-sharing-the-gospel-and-strengthening-new-and-returning-members` |
 
@@ -660,15 +693,16 @@ width with nothing to zoom. On letter paper a page prints as a narrow column at 
   Conducting and **Attended**. Attended lists only the people who were there, on one line, in the
   order of the form (a dash when no one was marked).
 - **At a glance**, right under the header: "Last huddle" with three colored counts (2 done, 2 partly,
-  1 not done; left off when nothing was marked), then **every name once**, one line each: a dot in
-  the color of their list, the name in bold, and this huddle's action item in gray (shortened with
+  1 not done; left off when nothing was marked), then **every focus name**, one line each: a dot in
+  the focus names' color, the name in bold, and this huddle's action item in gray (shortened with
   "…" to fit one line; "No action item yet" in italics). Under the names, **Coming up**: a baptism
   date for those being taught, and the 30-day temple countdown for new members who haven't gone yet.
-  Nothing is typed for it; it comes from what is already entered. "No names this week" when there are none.
+  Nothing is typed for it; it comes from what is already entered. "No focus names this week" when there are
+  none; "4 more on the Covenant Path Report, listed below for reference" counts the rest.
 - There are no tables and no Who/What/How/When boxes. **Each person is one short block** with a
   hairline under it. Down its left side runs a band in the color of its section with the section's
   name turned sideways in white (RETURN & REPORT in slate; NEW MEMBERS, RETURNING, BEING TAUGHT,
-  FOCUS NAME, FINDING and REFERRAL in their list's color; a shorter word when the block is short,
+  FOCUS NAME and FINDING in their list's color; a shorter word when the block is short,
   none when even that doesn't fit). So wherever a reader stops scrolling, each name shows where it
   belongs. A block stays together on one page when it fits, and a heading never sits alone at the
   bottom of a page.
@@ -681,16 +715,18 @@ width with nothing to zoom. On letter paper a page prints as a narrow column at 
   on, **Action item** with who and when in gray under it, **Notes**, "Carried forward to the
   {date} plan", and **Huddle notes**. An item typed in without a person prints its text in place
   of the name.
-- **Huddle action plan:** Covenant Path Report Review (a tinted label for each list: new members,
-  returning members, those being taught) and Name Next Ordinance. Each block: the name; one colored
+- **Huddle action plan:** **Focus names** (with "Name Next Ordinance" beside it) first, then the
+  **Covenant Path Report Review** "For reference" (a tinted label for each list: new members,
+  returning members, those being taught), whose blocks have no action item line unless one was typed.
+  Each block: the name; one colored
   line with the temple status (new members), "Committed · {date}" or "Scheduled: {date}" (those
   being taught) and a green tick with "Attended sacrament meeting"; then **Next ordinance**,
   **Needs**, **Action item** (who and when in gray, "Carried forward from {date}" in italics; "None
   yet" when there is no action item) and **Huddle notes**. Empty parts are left out. An empty list
   prints "No one on the Covenant Path Report this week" when confirmed, otherwise "Not reviewed".
-- **Find New People to Teach** *Huddle action plan*: the upcoming opportunities (labeled "Opportunities" to fit), then each assignment with its when.
-- **Missionary Referrals:** name, referred by, notes. With no referrals it prints "None listed",
-  but only where there is room: an empty referral section never starts a page by itself.
+- **Opportunities to invite** *Huddle action plan*: each opportunity as a block (its name, its **Date**, or
+  "No assignments yet"), its assignments under it with their when, then assignments not tied to an event.
+  "None this week" when there is nothing. There is no Missionary Referrals section.
 - Every page ends with the ward, the date and, when there is more than one page, "Page 1 of 3".
 
 The sample agenda in Help & training (`sample/page-1.png` to `page-4.png`) is this PDF made from a
@@ -699,4 +735,6 @@ made-up huddle. Remake it with `node test/tools/make-sample.js` whenever the PDF
 A copy of the huddle's data is stored inside the PDF (the `HuddleData` entry of its information
 dictionary; app id `huddle-agenda`, version 1). **Load from a PDF** reads it back. Keep this
 format readable by future versions. `referrals` was added later as an optional list; a PDF or
-handoff link without it loads with no referrals.
+handoff link without it loads with no referrals (referrals are no longer shown, but are kept). `find.opps`
+(each `{id, title, date}`) and an assignment's `opp` were added later too; without them, typed opportunities
+(`find.plan`) become one card. `tn` may hold more than three names; `stepsDone.sa` is Sacrament attendance.

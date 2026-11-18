@@ -38,6 +38,9 @@ ROOT_VARS = """  --ink: #E8ECF3;
 
 # Rules written by hand for things the automatic pass can't judge
 TUNED = """
+  .focus-box.is-pressing { background: #3A1D1D; border-color: #6E2C2C; }
+  .focus-why { color: #FF9C9C; }
+  .splash { background: #1B2B4B; }
   .actionbar, body[data-view="start"] .actionbar { background: rgba(26, 30, 38, .92); border-color: rgba(255, 255, 255, .08); }
   .nav-home { border-color: #1A1E26; }
   .toast { background: #2C3340; color: #FFFFFF; }

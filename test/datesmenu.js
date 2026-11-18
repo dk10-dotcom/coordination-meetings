@@ -1,4 +1,5 @@
 // When is a date, Next ordinance is a menu, a referral can be texted to the missionaries, and older typed values
+// 'huddle-cp-section' (a test-only flag) brings back the Huddle's Covenant Path Report section these checks use. // cp-section flag
 // (a When of "Sat" or "this week", an ordinance typed in by hand) still load. Fake names only.
 const { chromium, devices } = require('playwright');
 const card = o => Object.assign({ name: '', sac: false, bap: '', temple: false, committed: false, ordinance: '', need: '', hneed: '', action: '', assigned: '', when: '', touched: '2026-11-14' }, o);
@@ -17,7 +18,7 @@ const seed = {
   const ok = (c, m) => { if (c) { pass++; console.log('PASS', m); } else { fail++; console.log('FAIL', m); } };
   for (const [dev, tag] of [['iPhone 13', 'i13'], ['iPhone SE', 'se']]) {
     const c = await b.newContext({ ...devices[dev] });
-    await c.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen'].forEach(k => localStorage.setItem(k, '1')); Object.defineProperty(Navigator.prototype, 'standalone', { get: () => true }); const s = localStorage.getItem('__seed'); if (s) { localStorage.setItem('huddle-agenda-v1', s); localStorage.removeItem('__seed'); } } catch (e) {} });
+    await c.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-cp-section', 'huddle-names-hint-seen'].forEach(k => localStorage.setItem(k, '1')); Object.defineProperty(Navigator.prototype, 'standalone', { get: () => true }); const s = localStorage.getItem('__seed'); if (s) { localStorage.setItem('huddle-agenda-v1', s); localStorage.removeItem('__seed'); } } catch (e) {} });
     const p = await c.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
     await p.clock.setFixedTime(new Date('2026-11-15T10:00:00'));
     await p.goto('http://127.0.0.1:8765/'); await p.waitForSelector('#start-home:not([hidden])');
@@ -56,11 +57,8 @@ const seed = {
     await p.click('[data-wc="bt"] [data-action="open-person"][data-b="0"]'); await p.waitForTimeout(400);
     ok((await p.locator('#person-card select[data-bind$=".ordinance"]').count()) === 0 && (await p.textContent('#person-card .fixed-value')) === 'Baptism', tag + ': those being taught stay locked on Baptism');
     await p.click('#person-view .person-done'); await p.waitForTimeout(300); await p.goBack(); await p.waitForTimeout(300);
-    // Referrals: text it to the missionaries
-    await p.click('[data-action="open-wc-list"][data-a="mr"]'); await p.waitForTimeout(300);
-    await p.click('[data-action="open-person"][data-a="mr"][data-b="0"]'); await p.waitForTimeout(400); sms = null;
-    await p.click('[data-action="text-referral"]'); await p.waitForTimeout(400);
-    ok(sms && /Missionary referral: Marcus Bell\nReferred by: Sister Diaz\nA friend from work\nFrom the Sample Ward huddle/.test(sms.split('body=')[1] || ''), tag + ': a referral can be texted to the missionaries');
+    // Missionary Referrals are gone from Ward council
+    ok(!(await p.isVisible('[data-action="open-wc-list"][data-a="mr"]')), tag + ': Ward council has no Missionary Referrals');
     ok(errs.length === 0 && await fits(), tag + ': no errors, fits the screen ' + errs.join('; '));
     await c.close();
   }

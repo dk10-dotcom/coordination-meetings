@@ -1,4 +1,5 @@
 // "How can we help?": a small link under each Covenant Path list's name in the Huddle, and one in the Huddle's
+// 'huddle-cp-section' (a test-only flag) brings back the Huddle's Covenant Path Report section these checks use. // cp-section flag
 // Find New People to Teach. It slides up that section's questions from Preach My Gospel, chapter 13, with a link
 // to the chapter. Nothing is typed, nothing is saved, and none of it goes on the PDF. Also checked here: the three
 // list names stand out (large, bold, on a band of the list's color), and every list of questions or tips names
@@ -16,7 +17,7 @@ const PANELS = {
   nm: { list: 'New members', title: 'How can we help those who were recently baptized?', n: 6, first: 'Which new members in their first year of membership are attending sacrament meeting? How can we help any who are not attending?', last: 'Review My Covenant Path progress for each new member.' },
   rm: { list: 'Returning members', title: 'How can we help returning members?', n: 4, first: 'Which part-member families can the missionaries visit and teach?', last: 'How can we help these members?' },
   bt: { list: 'Those being taught', title: 'How can we help those being taught?', n: 3, first: 'Which members could participate in the lessons this coming week? Who will invite them to participate?', last: 'What are the needs for those with a scheduled baptismal date? Has the baptism been planned?' },
-  fn: { list: 'Find New People to Teach', title: 'How can we find more people to teach?', n: 2, first: 'How can we help individuals, including youth, and families apply the principles of love, share, and invite?', last: 'How can we help members, including Primary leaders, invite friends to ward activities?' }
+  fn: { list: 'Opportunities to invite', title: 'How can we find more people to teach?', n: 2, first: 'How can we help individuals, including youth, and families apply the principles of love, share, and invite?', last: 'How can we help members, including Primary leaders, invite friends to ward activities?' }
 };
 // Words that appear only in the questions, never in the made-up huddle below: none may reach the PDF.
 const QUESTION_WORDS = ['How can we help', 'Preach My Gospel', 'ministering brothers', 'part-member', 'scheduled baptismal date', 'love, share, and invite', 'deceased ancestors', 'Possible discussion'];
@@ -43,7 +44,7 @@ const huddle = {
     const tag = dev === 'iPhone SE' ? 'se' : 'i13';
     const ctx = await b.newContext({ ...devices[dev], acceptDownloads: true });
     // The saved huddle is put in place before the app starts, so this is the app reopening with a week already saved.
-    await ctx.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen'].forEach(k => localStorage.setItem(k, '1')); const s = localStorage.getItem('__seed'); if (s) { localStorage.setItem('huddle-agenda-v1', s); localStorage.removeItem('__seed'); } } catch (e) {} });
+    await ctx.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-cp-section', 'huddle-names-hint-seen'].forEach(k => localStorage.setItem(k, '1')); const s = localStorage.getItem('__seed'); if (s) { localStorage.setItem('huddle-agenda-v1', s); localStorage.removeItem('__seed'); } } catch (e) {} });
     const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
     await p.clock.setFixedTime(new Date('2026-11-08T10:00:00'));
     const noOverflow = () => p.evaluate(() => document.documentElement.scrollWidth <= innerWidth);
@@ -124,7 +125,7 @@ const huddle = {
     await p.click('[data-action="open-step"][data-a="fn"]'); await p.waitForTimeout(350);
     ok((await linksShown()) === 1 && await p.isVisible('[data-step="fn"] .how-help-fn') && await p.isVisible('[data-action="find-tips"]'), tag + ': Find New People to Teach has its own link, with the Tips button still there');
     await p.click('[data-step="fn"] [data-action="how-help"]'); await p.waitForTimeout(350);
-    await checkPanel('fn', 'Find New People to Teach'); await p.screenshot({ path: `${OUT}/${tag}-4-finding.png` });
+    await checkPanel('fn', 'Opportunities to invite'); await p.screenshot({ path: `${OUT}/${tag}-4-finding.png` });
     await p.click('#howhelp-sheet [data-action="close-how-help"]'); await p.waitForTimeout(300);
     // Where the finding tips come from
     await p.click('[data-action="find-tips"]'); await p.waitForTimeout(350);
@@ -192,7 +193,7 @@ const huddle = {
   // (every card open; the older one-page layout).
   for (const flag of ['huddle-no-flag', 'huddle-cards-open', 'huddle-view-all']) {
     const ctx = await b.newContext({ ...devices['iPhone SE'] });
-    await ctx.addInitScript(f => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen', f].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} }, flag);
+    await ctx.addInitScript(f => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-cp-section', 'huddle-names-hint-seen', f].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} }, flag);
     const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
     await p.goto('http://127.0.0.1:8765/#huddle'); await p.waitForSelector('.chip', { state: 'attached' }); await p.click('[data-action="dismiss-install"]').catch(() => {});
     if (flag !== 'huddle-view-all') { await p.click('[data-action="open-step"][data-a="cp"]'); await p.waitForTimeout(300); }

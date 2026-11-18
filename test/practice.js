@@ -1,4 +1,5 @@
 // Practice week: first-time Load last week offers sample data; it can't be sent or saved; Remove restores the form.
+// 'huddle-cp-section' (a test-only flag) brings back the Huddle's Covenant Path Report section these checks use. // cp-section flag
 const { chromium, devices } = require('playwright');
 // Sending no longer clears the form; to test loading last week, start from a clear form like another conductor would.
 async function freshWeek(pg) { if (await pg.isVisible('#load-panel [data-action="load"]')) return; await pg.evaluate(() => document.querySelector('.clear-link').click()); await pg.click('#confirm-primary'); await pg.waitForTimeout(250); }
@@ -12,7 +13,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
   const b = await chromium.launch(); let pass = 0, fail = 0;
   const ok = (c, m) => { if (c) { pass++; console.log('PASS', m); } else { fail++; console.log('FAIL', m); } };
   const ctx = await b.newContext({ ...devices['iPhone 13'] });
-  await ctx.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
+  await ctx.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-cp-section'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
   await p.goto('http://127.0.0.1:8765/#huddle'); await p.waitForSelector('.chip', { state: 'attached' }); await p.click('[data-action="dismiss-install"]').catch(() => {});
   await p.click('#details-summary'); await p.fill('#ward', 'Real Ward'); await p.click('[data-action="conducting"][data-a="wml"]');
@@ -36,9 +37,9 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
   await p.click('[data-action="steps-home"]'); await p.click('[data-action="open-step"][data-a="tn"]');
   const tn = await p.$$eval('#tn-list .person-row .person-name', e => e.map(x => x.textContent));
   ok(tn.join('|') === 'Grace Thompson|Samuel Ortiz|Emma Walsh', 'three sample focus names');
-  await p.click('[data-action="steps-home"]'); await p.click('[data-action="open-step"][data-a="mr"]');
-  ok((await p.$$eval('#mr-list .person-row .person-name', e => e.map(x => x.textContent))).join('|') === 'Marcus Bell', 'one sample missionary referral');
-  await p.click('[data-action="steps-home"]'); await p.click('[data-action="open-step"][data-a="tn"]');
+  await p.click('[data-action="steps-home"]');
+  ok(!(await p.isVisible('[data-action="open-step"][data-a="mr"]')), 'no Missionary Referrals section');
+  await p.click('[data-action="open-step"][data-a="tn"]');
   // Mark Name Next Ordinance done even though actions are missing -> stays orange
   await p.click('[data-action="step-done"]'); await p.waitForTimeout(200);
   ok(await p.locator('[data-a="tn"].step-row.done .step-status.warn').count() === 1, 'a done section with missing actions stays dark orange');
@@ -55,7 +56,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
   await p.click('[data-action="open-step"][data-a="tn"]');
   ok(await p.locator('#tn-list .person-row.is-blank').count() === 3, 'sample focus names gone');
   await p.click('[data-action="steps-home"]');
-  ok((await p.textContent('.step-row[data-a="mr"] .step-status')).trim() === 'None listed', 'the sample referral is gone too');
+  ok(await p.evaluate(() => { window.dispatchEvent(new Event('pagehide')); return JSON.parse(localStorage.getItem('huddle-agenda-v1')).referrals.length === 0; }), 'the sample referral is gone too (from the data)');
   await p.click('[data-action="open-step"][data-a="tn"]');
   // How to use button starts it too
   await p.click('[data-action="steps-home"]'); await p.evaluate(() => document.querySelector('[data-action="help"]').click()); await p.waitForTimeout(200);

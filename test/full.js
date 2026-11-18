@@ -86,7 +86,7 @@ function words(v) { return v.replace(/[“”]/g, '').split(/\s+/).filter(Boolea
     s.rr.forEach(r => need.push(r.plan, r.happened, r.notes));
     for (const g of ['nm', 'rm', 'bt']) s.cp[g].forEach(a => need.push(a.name, a.action, a.assigned, a.when));
     s.tn.forEach(t => need.push(t.name, t.ordinance, t.action, t.assigned, t.when));
-    s.referrals.forEach(r => need.push(r.name, r.by, r.notes));
+    // Missionary Referrals are no longer on the PDF (they are kept in the huddle's data)
     need.forEach(v => { const w = words(v); const joined = w.join(' '); if (!text.includes(joined)) { if (!w.every(x => text.includes(x))) missing.push(v); } });
     ok('every typed value is in the PDF', missing.length === 0, missing.length ? 'missing: ' + missing.join(' | ') : `${need.length} values checked`);
 
@@ -95,7 +95,7 @@ function words(v) { return v.replace(/[“”]/g, '').split(/\s+/).filter(Boolea
     ok('only the people who attended are listed', att === ATT.filter(a => s.attendees.includes(a)).join(', '), att);
     // Fixed agenda text
     const fixed = ['Keep this PDF secure', 'Weekly', 'Huddle Report', 'AT A GLANCE', 'Return and Report', 'LOOKING BACK', 'Did it happen?', 'LOOKING AHEAD · NOV 1 HUDDLE',
-      'Covenant Path Report Review', 'Name Next Ordinance', 'Ward council focus names', 'Find New People to Teach', 'Huddle action plan', 'Missionary Referrals', 'Referred by',
+      'Covenant Path Report Review', 'Name Next Ordinance', 'Focus names', 'Opportunities to invite', 'Huddle action plan',
       'NEW MEMBERS', 'RETURNING MEMBERS', 'THOSE BEING TAUGHT', 'Next ordinance', 'Action item'];
     const fixedMissing = fixed.filter(f => !text.includes(f));
     ok('all section headings printed', fixedMissing.length === 0, fixedMissing.join(' | '));

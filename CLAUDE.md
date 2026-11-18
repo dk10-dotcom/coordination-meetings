@@ -84,8 +84,10 @@ node test/tools/slides/make.js       # remakes the training slides (media/slides
 
 See `test/README.md` for setup (Playwright and the poppler PDF tools).
 A link ending in `#huddle` opens straight to the Huddle screen; most tests use it.
-Two flags in the phone's storage exist only for tests: `huddle-view-all` (an older one-page layout)
-and `huddle-cards-open` (every card open in its list, for tests that fill many cards).
+Three flags in the phone's storage exist only for tests: `huddle-view-all` (an older one-page layout),
+`huddle-cards-open` (every card open in its list, for tests that fill many cards) and `huddle-cp-section` (brings
+back the Huddle's old Covenant Path Report section with an action item on each name, so the older checks of those
+cards, dates and the PDF keep running; the Huddle no longer has that section).
 `rows.js` and `twodoor.js` test what people see: names as rows and one screen per person.
 Next ordinance is a menu and When is a date (`datesmenu.js`). Older tests type words into them through
 `test/tools/compat-fill.js`, the way a huddle saved before the change holds them; new tests should pick a
@@ -127,6 +129,7 @@ within those pieces; don't add a "needs attention" list (the user decided it rep
 before they reach the nine wards. It is named "Huddle Test" (red TEST band on its icon, "Test version" on the
 opening screen), keeps its own storage keys (`huddletest-…`) and its own offline cache (`huddle-test-vN`), so it
 never reads or replaces a real huddle. Each service worker deletes only its own old caches.
-What it tries is listed in `try/CHANGES.md` (focus names filtering the huddle, Sacrament attendance,
-upcoming opportunities, no Missionary Referrals). Keep that list current: it is what moves to the live app later.
+Everything it tried through Nov 18, 2026 is now in the live app (focus names filtering the huddle, Sacrament
+attendance, Opportunities to invite, no Missionary Referrals, the opening picture). Keep it for future ideas:
+list each new difference in `try/CHANGES.md`, since that list is what moves to the live app later.
 `test/try-focus.js` covers it. Changes to `try/` don't need a live `CACHE` bump; bump `try/sw.js` instead.

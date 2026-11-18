@@ -11,7 +11,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
   const b = await chromium.launch(); let pass = 0, fail = 0;
   const ok = (c, m) => { if (c) { pass++; console.log('PASS', m); } else { fail++; console.log('FAIL', m); } };
   const ctx = await b.newContext({ ...devices['iPhone 13'] });
-  await ctx.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen', 'huddle-cards-open'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
+  await ctx.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-cp-section', 'huddle-names-hint-seen', 'huddle-cards-open'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
   // Test hook: age a name card as the page loads (after the previous page saved itself on the way out).
   await ctx.addInitScript(() => { try { const d = localStorage.getItem('__touch'); if (d) { const s = JSON.parse(localStorage.getItem('huddle-agenda-v1')); s.cp.nm[0].touched = d; localStorage.setItem('huddle-agenda-v1', JSON.stringify(s)); localStorage.removeItem('__touch'); } } catch (e) {} });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
@@ -35,7 +35,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
   ok((await p.textContent('#meeting-date .md-text')) === longD(daysAgo(0)), 'the huddle date is today without setting it: ' + (await p.textContent('#meeting-date .md-text')));
   ok(await p.evaluate(() => { const i = document.querySelector('#meeting-date input[type=date]'); return !!i && i.id === 'date'; }) && !(await p.evaluate(() => !!document.querySelector('#details-full input[type=date]'))), 'the date is set at the top, not in Huddle Attendees');
   ok((await rrRow()).startsWith('Nothing yet. After your first huddle'), 'Return and Report row before the first send: ' + await rrRow());
-  ok((await p.textContent('#band-rr')).trim() === 'From the last huddle', 'home groups before a date: ' + await p.textContent('#band-rr'));
+  ok(!(await p.$('#band-rr')) && (await p.textContent('#band-plan')).trim() === 'Huddle action plan', 'no heading over Return and Report; Huddle action plan over the plan');
   const today = daysAgo(0);
   await fill('date', today); await p.waitForTimeout(100);
   ok((await p.textContent('#meeting-date .md-text')) === longD(today), 'changing the date updates the label');
@@ -46,7 +46,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
   await fill('cp.nm.0.action', 'Drive him to the temple'); await fill('cp.nm.0.assigned', 'Bro. Patel'); await blur();
   ok(await p.locator('.btn-completed').count() === 0 && await p.isVisible('.btn-text-assign[data-a="cp.nm.0."]'), 'no Mark completed on the card (Text this assignment stays)');
   await open('tn'); await fill('tn.0.name', 'Grace Thompson'); await fill('tn.0.action', 'Invite to temple prep'); await blur();
-  await open('fn'); await fill('find.plan', 'Invite friends to the devotional'); await fill('find.items.0.task', 'Each family invites a friend'); await blur();
+  await open('fn'); await p.click('[data-action="add-opp"]'); await fill('find.opps.0.title', 'Ward devotional'); await p.click('[data-opp] [data-action="add-fn"]'); await fill('find.items.1.task', 'Each family invites a friend'); await blur();
   await home();
   ok(await p.locator('#newweek-btn').count() === 0 && !(await p.isVisible('#load-panel')), 'no Start button and no Load panel on the huddle’s list');
   ok(await p.locator('#date-nudge').count() === 0, 'no “has passed” nudge');
@@ -75,7 +75,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
   ok(await p.isVisible('#sent-line') && (await p.textContent('#sent-line-text')).trim() === '✓ ' + md(today) + ' huddle sent' && await p.isVisible('[data-action="share-last"]'), 'under the date: ✓ ' + md(today) + ' huddle sent · Share again');
   ok((await p.textContent('#send-label')).trim() === 'Send', 'Send stays Send');
   ok((await rrRow()) === '0 of 3 marked', 'home row: ' + await rrRow());
-  ok((await p.textContent('#band-rr')).trim() === 'From the last huddle' && (await p.textContent('#band-plan')).trim() === 'This huddle’s plan', 'groups have no dates: ' + await p.textContent('#band-rr') + ' / ' + await p.textContent('#band-plan'));
+  ok((await p.textContent('#band-plan')).trim() === 'Huddle action plan', 'groups have no dates: ' + await p.textContent('#band-plan'));
   ok((await p.textContent('#details-sub')).includes('Attendance not taken'), 'attendance cleared');
   ok(await p.locator('.step-row.done').count() === 0, 'section checks cleared');
   await p.locator('header.top').screenshot({ path: `${OUT}/header-next.png` });

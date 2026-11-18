@@ -1,4 +1,5 @@
 // Handoff link: the ward mission leader texts the agenda; another leader opens the link (iPhone Safari, iPhone app via paste, Android) and it loads.
+// 'huddle-cp-section' (a test-only flag) brings back the Huddle's Covenant Path Report section these checks use. // cp-section flag
 // On iPhone the link opens in Safari, never in the app, so it gets a page of its own: Copy handoff, then paste it in the app.
 // Hand off (beside Send) offers both ends: Send a handoff (text it) and Receive a handoff (paste it).
 // These checks fill many cards in a row, so they keep every card open in its list ('huddle-cards-open').
@@ -10,10 +11,11 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   await require('./tools/compat-fill.js')();
   const b = await chromium.launch(); let pass = 0, fail = 0;
   const ok = (c, m) => { if (c) { pass++; console.log('PASS', m); } else { fail++; console.log('FAIL', m); } };
-  const seen = ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen', 'huddle-cards-open'];
+  const seen = ['huddle-tour-seen', 'huddle-help-seen', 'huddle-cp-section', 'huddle-names-hint-seen', 'huddle-cards-open'];
   const mk = async (dev, extra) => {
     const ctx = await b.newContext({ ...devices[dev], ...(extra || {}) });
     await ctx.addInitScript(k => { try { k.forEach(x => localStorage.setItem(x, '1')); } catch (e) {} }, seen);
+    await ctx.addInitScript(() => { try { const s = localStorage.getItem('__seed'); if (s) { localStorage.setItem('huddle-agenda-v1', s); localStorage.removeItem('__seed'); } } catch (e) {} });
     await ctx.addInitScript(() => { const orig = HTMLAnchorElement.prototype.click; HTMLAnchorElement.prototype.click = function () { if (/^sms:/.test(this.href)) { window.__sms = this.href; return; } return orig.call(this); }; });
     const p = await ctx.newPage(); p.errs = []; p.on('pageerror', e => p.errs.push(e.message));
     return { ctx, p };
@@ -28,9 +30,11 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   await p.fill('[data-bind="cp.nm.0.name"]', 'Daniel Rivera'); await p.fill('[data-bind="cp.nm.0.ordinance"]', 'Temple baptisms'); await p.fill('[data-bind="cp.nm.0.action"]', 'Drive him to the temple'); await p.fill('[data-bind="cp.nm.0.assigned"]', 'Bro. Patel');
   await p.click('[data-action="steps-home"]'); await p.click('[data-action="open-step"][data-a="tn"]');
   await p.fill('[data-bind="tn.0.name"]', 'Grace Thompson'); await p.fill('[data-bind="tn.0.action"]', 'Invite to temple prep');
-  await p.click('[data-action="steps-home"]'); await p.click('[data-action="open-step"][data-a="mr"]'); await p.click('[data-action="add-mr"]');
-  await p.fill('[data-bind="referrals.0.name"]', 'Marcus Bell'); await p.fill('[data-bind="referrals.0.by"]', 'Olivia Chen');
-  await p.click('[data-action="steps-home"]'); await p.waitForTimeout(400);
+  // An older huddle can still hold a missionary referral (no longer shown); it rides along in the handoff's data
+  await p.evaluate(() => window.dispatchEvent(new Event('pagehide')));
+  await p.evaluate(() => { const s = JSON.parse(localStorage.getItem('huddle-agenda-v1')); s.referrals = [{ name: 'Marcus Bell', by: 'Olivia Chen', notes: '' }]; localStorage.setItem('__seed', JSON.stringify(s)); });
+  await p.reload(); await p.waitForTimeout(500); await p.click('[data-action="steps-home"]').catch(() => {});
+  await p.waitForTimeout(400);
   ok(await p.locator('.actionbar [data-action="handoff"]').count() === 1 && !(await p.isVisible('[data-action="save-only"]')), 'Hand off sits beside Send; Save without sending is gone');
   await p.evaluate(() => document.querySelector('.actionbar [data-action="handoff"]').click()); await p.waitForSelector('#handoff-sheet:not([hidden])');
   ok((await p.textContent('#handoff-title')) === 'Hand off' && await p.locator('#handoff-sheet .nav-row').count() === 2 && (await p.textContent('#handoff-send')).includes('Send a handoff') && (await p.textContent('#handoff-receive')).includes('Receive a handoff'), 'Hand off offers two choices: Send a handoff and Receive a handoff');
@@ -84,10 +88,8 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   await q.click('[data-action="open-step"][data-a="cp"]');
   ok(await q.inputValue('[data-bind="cp.nm.0.name"]') === 'Daniel Rivera' && await q.inputValue('[data-bind="cp.nm.0.action"]') === 'Drive him to the temple', 'names and actions came over');
   await q.click('[data-action="steps-home"]'); ok((await q.textContent('#details-sub')).includes('1 attended'), 'attendance came over');
-  ok((await q.textContent('.step-row[data-a="mr"] .step-status')).trim() === '1 referral', 'the missionary referral came over');
-  await q.click('[data-action="open-step"][data-a="mr"]');
-  ok(await q.inputValue('[data-bind="referrals.0.name"]') === 'Marcus Bell' && await q.inputValue('[data-bind="referrals.0.by"]') === 'Olivia Chen', 'with its name and who referred them');
-  await q.click('[data-action="steps-home"]');
+  ok(await q.evaluate(() => { window.dispatchEvent(new Event('pagehide')); const s = JSON.parse(localStorage.getItem('huddle-agenda-v1')); return s.referrals.length === 1 && s.referrals[0].name === 'Marcus Bell'; }) && !(await q.isVisible('.step-row[data-a="mr"]')), 'an older missionary referral comes over in the data, but isn’t shown');
+  await q.click('[data-action="steps-home"]').catch(() => {});
 
   // iPhone app: Paste a handoff from the clipboard
   const C = await mk('iPhone 13', { permissions: ['clipboard-read', 'clipboard-write'] }); const r = C.p;

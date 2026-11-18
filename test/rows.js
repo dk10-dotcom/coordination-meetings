@@ -1,4 +1,5 @@
 // Names as rows and one screen per person, in the Huddle and in Ward council: the parts twodoor.js doesn't reach.
+// 'huddle-cp-section' (a test-only flag) brings back the Huddle's Covenant Path Report section these checks use. // cp-section flag
 // In the Huddle, ward council's half of a person is a condensed summary (Edit opens it) and the huddle's half is highlighted.
 // Removing a name, converting to a new member, names not updated in 4 weeks, the same-person question,
 // what a row says about a person, the slide between screens, and a reload.
@@ -33,7 +34,7 @@ const seed = () => ({
   for (const dev of ['iPhone 13', 'iPhone SE']) {
     const tag = dev === 'iPhone SE' ? 'se' : 'i13';
     const ctx = await b.newContext({ ...devices[dev] });
-    await ctx.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
+    await ctx.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-cp-section', 'huddle-names-hint-seen'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
     // The app saves its own state as a page closes, so a seeded huddle is put in place as the next page opens.
     await ctx.addInitScript(() => { try { const s = localStorage.getItem('__seed'); if (s) { localStorage.setItem('huddle-agenda-v1', s); localStorage.removeItem('__seed'); } } catch (e) {} });
     const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
@@ -63,7 +64,7 @@ const seed = () => ({
     ok((await rowNames('#cp-groups', 'nm')).join('|') === 'Daniel Rivera|Emma Walsh' && (await rowNames('#cp-groups', 'rm')).join('|') === 'Olivia Chen' && (await rowNames('#cp-groups', 'bt')).join('|') === 'Marcus Hill', tag + ': each list shows its names, one row each');
     ok(/^Temple prep lesson · Sis\. Park · Wed(, [A-Z][a-z]{2} \d{1,2})?$/.test(await rowSub('#cp-groups', 'rm', 0)) && await p.locator(row('#cp-groups', 'rm', 0) + ' .step-status.warn').count() === 0, tag + ': a row with an action shows the action, who and when');
     const danTags = await rowTags('#cp-groups', 'nm', 0), emmaTags = await rowTags('#cp-groups', 'nm', 1), marcusTags = await rowTags('#cp-groups', 'bt', 0);
-    ok(danTags.join('|') === 'Temple: 20 days left', tag + ': a new member’s row counts down the 30-day temple goal: ' + danTags.join('|'));
+    ok(danTags.join('|') === 'Suggested focus name|Temple: 20 days left', tag + ': a new member’s row counts down the 30-day temple goal: ' + danTags.join('|'));
     ok(emmaTags.includes('Not updated in 4 weeks'), tag + ': a name not updated in 4 weeks says so on its row: ' + emmaTags.join('|'));
     ok(marcusTags.some(t => t.startsWith('Committed to baptism')), tag + ': someone committed to baptism says so on their row: ' + marcusTags.join('|'));
     ok(await p.locator('#cp-groups .temple-goal').count() === 1 && await vis('#cp-groups [data-group="nm"] .temple-goal'), tag + ': the 30-day temple goal is stated once, under New members');
@@ -123,32 +124,21 @@ const seed = () => ({
     const mi = await p.evaluate(() => JSON.parse(localStorage.getItem('huddle-agenda-v1')).rr.findIndex(r => r.pname === 'Marcus Hill'));
     await p.click(`[data-action="happened"][data-a="${mi}"][data-b="No"]`); await p.waitForTimeout(200);
     await p.click(`[data-action="carry-fwd"][data-a="${mi}"]`); await p.waitForTimeout(300);
-    await back(); await p.click('[data-action="open-step"][data-a="cp"]'); await p.waitForTimeout(300);
-    ok(await rowSub('#cp-groups', 'nm', 1) === 'Invite to church · Sis. Lee' && (await rowTags('#cp-groups', 'nm', 1)).includes('Carried forward'), tag + ': an assignment carried forward follows the converted name, and the row says Carried forward');
+    await back(); await p.click('[data-action="open-step"][data-a="tn"]'); await p.waitForTimeout(300);
+    ok(await rowSub('#tn-list', 'tn', 1) === 'Invite to church · Sis. Lee' && (await rowTags('#tn-list', 'tn', 1)).includes('Carried forward') && (await rowNames('#tn-list', 'tn'))[1] === 'Marcus Hill', tag + ': an unfinished assignment carried forward comes back as a focus name, and the row says Carried forward');
     await back();
 
     // ---- Name Next Ordinance in the huddle: action on the row; a blank spot opens ready to type
     await p.click('[data-action="open-step"][data-a="tn"]'); await p.waitForTimeout(300);
-    await openPerson('#tn-list', 'tn', 1);
-    ok((await p.textContent('#step-title')) === 'Focus name 2' && await p.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-bind')) === 'tn.1.name' && await vis('#person-card .wc-edit') && await p.locator('#person-card .zone-toggle').count() === 0, tag + ': an empty focus spot opens with its fields showing and the cursor in the name (nothing to condense yet)');
-    await fill('tn.1.name', 'Samuel Ortiz'); await fill('tn.1.action', 'Visit with the bishop'); await back();
-    ok((await rowNames('#tn-list', 'tn')).join('|') === 'Grace Thompson|Samuel Ortiz|Focus name 3' && await rowSub('#tn-list', 'tn', 1) === 'Visit with the bishop' && (await p.textContent('#tn-list .list-count')) === '2 of 3 names', tag + ': the new focus name is on the list with its action');
+    await openPerson('#tn-list', 'tn', 2);
+    ok((await p.textContent('#step-title')) === 'Focus name 3' && await p.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-bind')) === 'tn.2.name' && await vis('#person-card .wc-edit') && await p.locator('#person-card .zone-toggle').count() === 0, tag + ': an empty focus spot opens with its fields showing and the cursor in the name (nothing to condense yet)');
+    await fill('tn.2.name', 'Samuel Ortiz'); await fill('tn.2.action', 'Visit with the bishop'); await back();
+    ok((await rowNames('#tn-list', 'tn')).join('|') === 'Grace Thompson|Marcus Hill|Samuel Ortiz' && await rowSub('#tn-list', 'tn', 2) === 'Visit with the bishop' && (await p.textContent('#tn-list .list-count')) === '3 of 3 names', tag + ': the new focus name is on the list with its action');
     await back();
 
-    // ---- Missionary referrals: saved with the huddle (the app reopened with them above), rows, and Remove on a referral's screen
-    ok((await p.textContent('.step-row[data-a="mr"] .step-status')).trim() === '2 referrals', tag + ': the Huddle’s Missionary Referrals row counts the saved referrals');
-    await p.click('[data-action="open-step"][data-a="mr"]'); await p.waitForTimeout(300);
-    const refNames = () => p.$$eval('#mr-list .person-row .person-name', e => e.map(x => x.textContent));
-    const refSubs = () => p.$$eval('#mr-list .person-row .step-status', e => e.map(x => x.textContent.trim()));
-    ok((await refNames()).join('|') === 'Marcus Bell|Samuel Ortiz' && (await refSubs()).join('|') === 'Referred by Olivia Chen · Friend from work|No details yet' && (await p.textContent('#mr-list .list-count')) === '2 referrals', tag + ': referrals saved with the huddle are listed after the app is reopened: ' + (await refSubs()).join('|'));
-    ok(await p.locator('#mr-list input, #mr-list textarea').count() === 0 && await noOverflow(), tag + ': no fields are open in the referral list, and it fits the phone');
-    await p.click(row('#mr-list', 'mr', 1)); await p.waitForSelector('#person-view:not([hidden])'); await p.waitForTimeout(250);
-    ok((await p.textContent('#step-title')) === 'Samuel Ortiz' && await p.locator('#person-card .person-head-input[data-bind="referrals.1.name"]').count() === 1, tag + ': a referral opens on its own screen');
-    await p.click('#person-card .person-remove'); await p.waitForSelector('#confirm-sheet:not([hidden])');
-    ok((await p.textContent('#confirm-title')).includes('Remove Samuel Ortiz?'), tag + ': removing a referral asks first');
-    await p.click('#confirm-primary'); await p.waitForTimeout(450);
-    ok(!(await vis('#person-view')) && (await refNames()).join('|') === 'Marcus Bell' && (await p.textContent('#mr-list .list-count')) === '1 referral', tag + ': Remove takes the referral off and returns to the list');
-    await back(); await p.click('#mode-bar [data-action="go-start"]'); await p.waitForTimeout(300);
+    // ---- Missionary Referrals are no longer shown (older huddles keep them in their data)
+    ok(!(await vis('.step-row[data-a="mr"]')) && (await saved()).referrals.length === 2, tag + ': no Missionary Referrals row; the saved referrals stay in the data');
+    await p.click('#mode-bar [data-action="go-start"]'); await p.waitForTimeout(300);
 
     // ---- Ward council: the 4-week question, the same-person question and Remove live on the person's screen
     await p.waitForTimeout(500);
@@ -156,10 +146,7 @@ const seed = () => ({
     await p.reload(); await p.waitForSelector('.chip', { state: 'attached' });
     ok(await vis('#start-home') && !(await vis('#person-view')), tag + ': a reload opens at the start');
     await p.click('.door-wc'); await p.waitForTimeout(250);
-    ok((await p.textContent('[data-action="open-wc-list"][data-a="mr"] .step-status')).trim() === '1 referral', tag + ': ward council shows the same referral list (1 left), still there after another reopen');
-    await p.click('[data-action="open-wc-list"][data-a="mr"]'); await p.waitForTimeout(300);
-    ok((await p.$$eval('#mr-list [data-wc="mr"] .person-row .person-name', e => e.map(x => x.textContent))).join('|') === 'Marcus Bell', tag + ': and lists it by name');
-    await back();
+    ok(!(await vis('[data-action="open-wc-list"][data-a="mr"]')), tag + ': ward council has no Missionary Referrals row');
     await p.click('[data-action="open-wc-list"][data-a="cp"]'); await p.waitForTimeout(300);
     ok((await rowTags('#wc-list', 'rm', 0)).includes('Not updated in 4 weeks') && await rowSub('#wc-list', 'rm', 0) === 'Next: Endowment', tag + ': ward council’s row shows the next ordinance and the 4-week flag');
     await openPerson('#wc-list', 'rm', 0);
@@ -175,7 +162,7 @@ const seed = () => ({
     await p.click('#person-card .person-remove'); await confirmIfAsked();
     ok(!(await vis('#person-view')) && (await rowNames('#wc-list', 'nm')).join('|') === 'Marcus Hill', tag + ': Remove from the list works from ward council too');
     await back(); await p.click('#mode-bar [data-action="go-start"]'); await p.waitForTimeout(300);
-    ok(await p.evaluate(() => document.body.getAttribute('data-view')) === 'start' && (await p.textContent('#door-wc-sub')).startsWith('3 names'), tag + ': back at the start, the door counts the names left: ' + await p.textContent('#door-wc-sub'));
+    ok(await p.evaluate(() => document.body.getAttribute('data-view')) === 'start' && (await p.textContent('#door-wc-sub')).startsWith('4 names'), tag + ': back at the start, the door counts the names left: ' + await p.textContent('#door-wc-sub'));
     ok(!errs.length, tag + ': no page errors ' + errs.join('; '));
     await ctx.close();
   }

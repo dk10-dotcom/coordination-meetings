@@ -1,4 +1,5 @@
 // The livelier look: a header card in each step's color (ward, date, the line on what to do, and progress in the two
+// 'huddle-cp-section' (a test-only flag) brings back the Huddle's Covenant Path Report section these checks use. // cp-section flag
 // meetings), a colored icon on each section row, initials beside each name, a band of the list's color at the top of
 // a person's screen, a pop when a section is marked done, and a small celebration when the huddle is sent.
 // Fake names only.
@@ -33,7 +34,7 @@ const seed = {
   const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (c) good++; else bad++; };
   for (const dev of ['iPhone 13', 'iPhone SE']) {
     const ctx = await b.newContext({ ...devices[dev], acceptDownloads: true });
-    await ctx.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen'].forEach(k => localStorage.setItem(k, '1')); Object.defineProperty(Navigator.prototype, 'standalone', { get: () => true }); const s = localStorage.getItem('__seed'); if (s) { localStorage.setItem('huddle-agenda-v1', s); localStorage.removeItem('__seed'); } } catch (e) {} });
+    await ctx.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-cp-section', 'huddle-names-hint-seen'].forEach(k => localStorage.setItem(k, '1')); Object.defineProperty(Navigator.prototype, 'standalone', { get: () => true }); const s = localStorage.getItem('__seed'); if (s) { localStorage.setItem('huddle-agenda-v1', s); localStorage.removeItem('__seed'); } } catch (e) {} });
     const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
     const view = () => p.evaluate(() => document.body.dataset.view);
     const fits = () => p.evaluate(() => document.documentElement.scrollWidth <= innerWidth);
@@ -57,9 +58,9 @@ const seed = {
     await p.fill('#person-card [data-bind$=".action"]', 'Invite her to the ward dinner'); await p.waitForTimeout(150);
     await p.click('#person-view .person-done'); await p.waitForTimeout(400); await p.click('[data-action="steps-home"]'); await p.waitForTimeout(350);
     // Mark a section done: its check pops, the bar moves
-    await p.click('[data-action="open-step"][data-a="mr"]'); await p.waitForTimeout(300);
+    await p.click('[data-action="open-step"][data-a="sa"]'); await p.waitForTimeout(300);
     await p.click('[data-action="step-done"]'); await p.waitForTimeout(250);
-    ok((await view()) === 'home' && await p.$eval('[data-action="open-step"][data-a="mr"] .step-num', e => e.classList.contains('pop')), dev + ': Missionary Referrals marked done: its check pops');
+    ok((await view()) === 'home' && await p.$eval('[data-action="open-step"][data-a="sa"] .step-num', e => e.classList.contains('pop')), dev + ': Sacrament attendance marked done: its check pops');
     await p.waitForTimeout(900);
     ok((await p.textContent('#hd-hero .hero-count')) === '3 of 5 sections done' && (await p.$eval('#hd-hero .hero-fill', e => e.style.width)) === '60%', dev + ': the bar moved to 3 of 5');
     // A new name: the header follows the typing
@@ -73,7 +74,7 @@ const seed = {
     await p.click('#mode-bar [data-action="go-start"]'); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(200);
     // Ward council
     await p.click('.door-wc'); await p.waitForTimeout(350);
-    ok(await p.isVisible('#wc-hero') && (await p.textContent('#wc-hero .hero-count')) === '6 of 7 names have a next ordinance' && (await p.$$eval('#wc-rows .row-icon', e => e.length)) === 4 && await fits(), dev + ': Ward council header card and four icons');
+    ok(await p.isVisible('#wc-hero') && (await p.textContent('#wc-hero .hero-count')) === '6 of 7 names have a next ordinance' && (await p.$$eval('#wc-rows .row-icon', e => e.length)) === 3 && await fits(), dev + ': Ward council header card and three icons');
     ok(!(await p.$('#wc-note')) && await p.isVisible('#wc-pmf'), dev + ': no confidential line under the step card; Part-Member Families sits above the rows');
     await p.click('#mode-bar [data-action="go-start"]'); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(200);
     // Every page fits
@@ -103,7 +104,7 @@ const seed = {
   }
   for (const flag of ['huddle-cards-open', 'huddle-view-all']) {
     const ctx = await b.newContext({ ...devices['iPhone SE'] });
-    await ctx.addInitScript(f => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen', f].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} }, flag);
+    await ctx.addInitScript(f => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-cp-section', 'huddle-names-hint-seen', f].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} }, flag);
     const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
     await p.goto(BASE + '#huddle'); await p.waitForSelector('.chip', { state: 'attached' }); await p.waitForTimeout(400);
     ok(errs.length === 0 && await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), flag + ': opens with no errors and fits ' + errs.join('; '));

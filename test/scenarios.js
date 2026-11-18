@@ -1,4 +1,5 @@
 // Scenarios: names added, assigned, removed, renamed, re-added and moved between lists across huddles.
+// 'huddle-cp-section' (a test-only flag) brings back the Huddle's Covenant Path Report section these checks use. // cp-section flag
 // Each scenario checks that nothing errors, nothing is lost silently, and the PDF still builds.
 // These checks fill many cards in a row, so they keep every card open in its list ('huddle-cards-open').
 // The lists of names and each person's own screen are covered by rows.js and twodoor.js.
@@ -14,7 +15,7 @@ const OUT = 'test/out-scen'; fs.mkdirSync(OUT, { recursive: true });
   let n = 0;
   const open = async () => {
     const ctx = await b.newContext({ ...devices['iPhone 13'], acceptDownloads: true });
-    await ctx.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen', 'huddle-cards-open'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
+    await ctx.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-cp-section', 'huddle-names-hint-seen', 'huddle-cards-open'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
     const p = await ctx.newPage(); p.errs = []; p.on('pageerror', e => p.errs.push(e.message));
     await p.goto('http://127.0.0.1:8765/'); await p.waitForSelector('.chip', { state: 'attached' }); await p.click('[data-action="dismiss-install"]').catch(() => {});
     await p.click('.door-hd'); await p.click('#details-summary'); await p.fill('#ward', 'Sample Ward'); await p.click('[data-action="conducting"][data-a="wml"]'); await p.click('[data-action="toggle-att"][data-a="wml"]'); await p.click('#details-full .btn-collapse'); await p.click('#mode-bar [data-action="go-start"]');
@@ -64,7 +65,7 @@ const OUT = 'test/out-scen'; fs.mkdirSync(OUT, { recursive: true });
   // C. Carried forward, then the name is removed
   { const p = await open(); await addName(p, 'nm', 'Daniel Rivera'); await assign(p, 'nm', 'Daniel Rivera', 'Drive him to the temple'); await send(p, 'C1');
     const i = await mark(p, 'Daniel Rivera', 'Partly'); await p.click(`[data-action="carry-fwd"][data-a="${i}"]`); await p.waitForTimeout(200);
-    let s = await st(p); ok(s.cp.nm.find(a => a.name === 'Daniel Rivera').action === 'Drive him to the temple' && s.rr[i].carriedFwd, 'C: carry forward puts the assignment back on his card');
+    let s = await st(p); ok(s.tn.find(a => a.name === 'Daniel Rivera').action === 'Drive him to the temple' && s.rr[i].carriedFwd, 'C: carry forward brings the assignment back as a focus name');
     await removeName(p, 'nm', 'Daniel Rivera');
     await step(p, 'rr'); const txt = await p.textContent('#rr-list');
     s = await st(p);
@@ -81,7 +82,7 @@ const OUT = 'test/out-scen'; fs.mkdirSync(OUT, { recursive: true });
     const i = await mark(p, 'Marcus Hill', 'No');
     ok(await p.locator(`[data-action="carry-fwd"][data-a="${i}"]`).count() === 1, 'D: added back (even typed differently), Carry forward is offered again');
     await p.click(`[data-action="carry-fwd"][data-a="${i}"]`); await p.waitForTimeout(200);
-    const s = await st(p); ok(s.cp.bt.filter(a => a.name.trim()).length === 1 && s.cp.bt.find(a => a.name.trim()).action === 'Invite to the ward dinner', 'D: it carries onto the re-added card, with no duplicate');
+    const s = await st(p); ok(s.cp.bt.filter(a => a.name.trim()).length === 1 && s.tn.filter(a => a.name.trim().toLowerCase() === 'marcus hill').length === 1 && s.tn.find(a => a.name.trim().toLowerCase() === 'marcus hill').action === 'Invite to the ward dinner', 'D: it comes back as one focus name, with no duplicate card');
     await send(p, 'D2'); await done(p, 'D'); }
 
   // E. Renamed after an assignment: the app asks whether it's the same person
@@ -113,7 +114,7 @@ const OUT = 'test/out-scen'; fs.mkdirSync(OUT, { recursive: true });
     const i = await mark(p, 'Marcus Hill', 'Partly');
     const carry = await p.locator(`[data-action="carry-fwd"][data-a="${i}"]`).count();
     if (!carry) note('F: after Move to New members, his unfinished assignment from Those being taught can’t be carried forward (the app looks for him only on his old list).');
-    else { await p.click(`[data-action="carry-fwd"][data-a="${i}"]`); await p.waitForTimeout(200); s = await st(p); ok(s.cp.nm.find(a => a.name === 'Marcus Hill').action === 'Invite to the ward dinner' && !s.cp.bt.some(a => a.name === 'Marcus Hill'), 'F: carry forward follows him to New members'); }
+    else { await p.click(`[data-action="carry-fwd"][data-a="${i}"]`); await p.waitForTimeout(200); s = await st(p); ok(s.tn.find(a => a.name === 'Marcus Hill').action === 'Invite to the ward dinner' && !s.cp.bt.some(a => a.name === 'Marcus Hill'), 'F: carry forward follows him after the move, as a focus name'); }
     await send(p, 'F2'); await done(p, 'F'); }
 
   // G. A focus name is replaced by a different person in the same spot
