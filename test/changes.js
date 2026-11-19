@@ -92,8 +92,11 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.click('#after-done-btn'); await p.waitForSelector('#start-home:not([hidden])'); await w(300);
   await p.click('#after-box'); await w(500);
   ok((await p.getAttribute('#after-done-btn', 'class')).includes('is-done') && (await p.textContent('#after-done-btn')).trim() === 'Done', 'once done it is green and says Done');
-  await p.click('#after-done-btn'); await w(300);
-  ok((await p.textContent('#after-done-btn')).trim() === 'Mark done' && await p.isVisible('#toast .toast-action'), 'tapping it again takes the mark off, with Undo');
+  await p.click('#after-done-btn'); await w(400);
+  ok(await p.isVisible('#start-home') && await p.evaluate(() => JSON.parse(localStorage.getItem('huddle-agenda-v1')).verified.after === true), 'tapping the green Done keeps it done and goes back');
+  await p.click('#after-box'); await w(500);
+  await p.click('#af-view .undone-link'); await w(300);
+  ok((await p.textContent('#after-done-btn')).trim() === 'Mark done' && await p.isVisible('#toast .toast-action'), 'Mark as not done takes the mark off, with Undo');
 
   // A new week starts without the memory of step 1
   await p.evaluate(() => { const s = JSON.parse(localStorage.getItem('huddle-agenda-v1')); delete s.bwSnap; s.verified.before = false; localStorage.setItem('__seed', JSON.stringify(s)); });

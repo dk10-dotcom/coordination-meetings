@@ -20,7 +20,7 @@ const seed = {
     bt: [card({ name: 'Marcus Hill', bap: shift(20), committed: true })]
   },
   cpNone: {}, tn: [card({ name: 'Olivia Chen' }), card({ name: 'Grace Thompson' }), card({ touched: '' })],
-  find: { plan: '', items: [{ task: '', when: '' }], opps: [] }, referrals: [],
+  find: { plan: '', items: [{ task: '', when: '' }], opps: [{ id: 'o1', title: 'Christmas sacrament meeting', date: shift(30) }] }, referrals: [],
   verified: { before: false, after: false }, stepsDone: {}
 };
 let failed = 0, passed = 0;
@@ -39,12 +39,12 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
 
   // Before ward council: Olivia's checklist, with Doesn't apply on the "if applicable" items
   await p.click('#before-box'); await w(500);
-  ok((await p.textContent('#before-list [data-bw="rm"] .person-row')).includes('1 of 10 done'), 'a row counts what’s done, leaving out what doesn’t apply');
+  ok((await p.textContent('#before-list [data-bw="rm"] .person-row')).includes('1 of 11 done'), 'a row counts what’s done, leaving out what doesn’t apply');
   await p.click('#before-list [data-bw="rm"] [data-action="open-person"]'); await w(400);
   ok(await p.locator('#person-card .ck-li.is-na').count() === 1 && await p.locator('#person-card .ck-na').count() === 3, 'Aaronic Priesthood is marked Doesn’t apply; three items offer it');
   await p.click('[data-action="check-na"][data-b="sealspouse"]'); await w(200);
   await p.click('[data-action="check-item"][data-b="calling"]'); await w(200);
-  ok((await p.textContent('#person-card .ck-count')).trim() === '2 of 9 done' && await wide(), 'Doesn’t apply takes an item out of the count; a check counts as done');
+  ok((await p.textContent('#person-card .ck-count')).trim() === '2 of 10 done' && await wide(), 'Doesn’t apply takes an item out of the count; a check counts as done');
   await w(800); let st = await saved();
   ok(st.cp.rm[0].checks.sealspouse === 'na' && st.cp.rm[0].checks.calling === true && st.cp.rm[0].checks.friends === true, 'the checklist is saved with the person');
   await p.click('[data-action="check-na"][data-b="sealspouse"]'); await w(800);
@@ -68,7 +68,10 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.screenshot({ path: OUT + '/wc-focus.png', fullPage: true });
   await p.click('#person-view .person-done'); await w(300);
   await p.click('#wc-list [data-action="open-person"][data-a="tn"][data-b="1"]'); await w(400);
-  ok(!(await p.$('#person-card .help-chips')), 'a focus name that isn’t on the report gets no chips');
+  ok(!(await p.$('#person-card .help-chips')), 'a focus name that isn’t on the report has no chips until it has a next ordinance');
+  await p.selectOption('#person-card [data-bind="tn.1.ordinance"]', 'Endowment'); await w(400);
+  const ideas = await p.$$eval('#person-card .help-chips .idea-chip', e => e.map(x => x.textContent));
+  ok(/Ideas for the endowment/.test(await p.textContent('#person-card .help-chips')) && ideas.join('|') === 'Schedule a temple recommend interview with the bishop|Invite to temple preparation|Prepare a family name for the temple', 'a name not on the report gets Ideas for its next ordinance: ' + ideas.join(' | '));
   await p.click('#person-view .person-done'); await w(300);
 
   // The Huddle: a focus name has no sacrament box
@@ -77,6 +80,21 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.click('#tn-list [data-action="open-person"][data-b="0"]'); await w(400);
   ok(!(await p.$('#person-card .sac-toggle')), 'a focus name in the Huddle has no Attended sacrament box');
   await p.fill('#person-card [data-bind="tn.0.action"]', 'Meet with the elders quorum president'); await p.evaluate(() => document.activeElement.blur()); await w(200);
+  await p.click('#person-view .person-done'); await w(300);
+
+  // Opportunities to invite: an assignment is one line; texting it names the opportunity
+  await p.click('#step-foot [data-action="steps-home"], .step-back'); await w(400);
+  await p.click('[data-action="open-step"][data-a="fn"]'); await w(400);
+  await p.click('#fn-list [data-a="opp"]'); await w(400);
+  await p.click('#person-card [data-action="add-fn"]'); await w(300);
+  await p.fill('#person-card [data-bind$=".task"]', 'Each family invites one friend'); await p.fill('#person-card [data-bind$=".who"]', 'Elders quorum'); await p.evaluate(() => document.activeElement.blur()); await w(300);
+  await p.evaluate(() => { const orig = HTMLAnchorElement.prototype.click; HTMLAnchorElement.prototype.click = function () { if (/^sms:/.test(this.href)) { window.__sms = this.href; return; } return orig.call(this); }; });
+  ok(await p.isVisible('#person-card .fn-line .btn-text-assign'), 'an assignment with what and who can be texted');
+  await p.click('#person-card .fn-line .btn-text-assign'); await w(300);
+  const sms = await p.evaluate(() => decodeURIComponent(String(window.__sms || '')));
+  ok(/Each family invites one friend/.test(sms) && /For: Christmas sacrament meeting/.test(sms) && /report back before Sunday/.test(sms), 'the text has the assignment, the opportunity and the report-back line: ' + sms.replace(/\n/g, ' / ').slice(0, 160));
+  await p.click('#person-card .fn-line summary'); await w(300);
+  ok(await p.locator('#person-card .fn-line').count() === 1 && /Elders quorum/.test(await p.textContent('#person-card .fn-line summary')), 'closed, the assignment is one line with who');
   await p.click('#person-view .person-done'); await w(300);
 
   // Something done this week: Olivia got her calling... and Melchizedek Priesthood
@@ -96,7 +114,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
 
   // The PDF: Done this week under Olivia's focus name; the checklist itself isn't printed
   await p.click('.actionbar [data-action="send"]'); await w(400);
-  if (await p.isVisible('#confirm-sheet')) await p.click('#confirm-primary');
+  if (await p.isVisible('#confirm-sheet')) { ok(!/Covenant Path Report: /.test(await p.textContent('#confirm-sheet')), 'Ready to send doesn’t ask for action items on the Covenant Path Report (only focus names)'); await p.click('#confirm-primary'); }
   await p.evaluate(() => { navigator.canShare = () => false; });
   await p.waitForSelector('#share-btn:not([disabled])');
   const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#share-btn')]);
@@ -109,6 +127,16 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   st = await saved();
   const ol2 = (st.cp.rm || []).find(x => x.name === 'Olivia Chen') || {};
   ok(ol2.checks && ol2.checks.melch === true && ol2.checks.calling === true && ol2.checks.aaronic === 'na', 'next huddle: the checklist carries over with the name');
+  const past = (st.find.items || []).filter(x => x.past);
+  const ri = (st.rr || []).findIndex(r => /Each family invites one friend/.test(r.action || ''));
+  ok(past.length === 1 && past[0].opp === 'o1' && ri >= 0 && st.rr[ri].fid === past[0].id, 'next huddle: the assignment stays on the opportunity and comes back in Return and Report');
+  await p.click('.nav-home').catch(() => {}); await w(300); if (await p.isVisible('.door-hd')) { await p.click('.door-hd'); await w(400); }
+  await p.click('[data-action="open-step"][data-a="rr"]'); await w(400);
+  await p.click(`#rr-list [data-action="happened"][data-a="${ri}"][data-b="Yes"]`); await w(800);
+  ok(((await saved()).find.items.find(x => x.past) || {}).status === 'Yes', 'marking it Yes in Return and Report marks it on the opportunity');
+  await p.click('.step-back'); await w(300); await p.click('[data-action="open-step"][data-a="fn"]'); await w(400);
+  await p.click('#fn-list [data-a="opp"]'); await w(400);
+  ok((await p.textContent('#person-card .fn-line.is-past .wc-status')).trim() === 'Done', 'the opportunity shows it as Done');
   ok(!errs.length, 'no page errors ' + errs.join('; '));
   await b.close();
   console.log(passed + '/' + (passed + failed) + ' checks passed');

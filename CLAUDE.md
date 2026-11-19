@@ -94,7 +94,7 @@ Next ordinance is a menu and When is a date (`datesmenu.js`). Older tests type w
 choice (`selectOption`) and type dates as `YYYY-MM-DD`.
 The guided tour is a practice week (`guided.js`): a black card at the bottom gives one task at a time (the `COACH`
 list in `app.js`), rings what to tap, and moves on once it's done; each step ends with that step's green check.
-The bottom bar (Hand off, a round Home in the middle, Send) floats on every screen. Mark done (step 1, each Huddle section, step 4) is pinned just above it, green with a check once done, tapped again to undo; on the opening screen Home scrolls back to the top. Each training slide shows which part of the week it is in (1-4 and Week). The bar stays above the card. The old passive tour (`tour.js`) is retired. a sample Send (stamped SAMPLE, no data inside, changes nothing) and a
+The bottom bar (Hand off, a round Home in the middle, Send) floats on every screen. Mark done (step 1, each Huddle section, step 4) is pinned just above it, green with a check once done; the green Done keeps it done and goes back, and a small Mark as not done link under it undoes it; on the opening screen Home scrolls back to the top. Each training slide shows which part of the week it is in (1-4 and Week). The bar stays above the card. The old passive tour (`tour.js`) is retired. a sample Send (stamped SAMPLE, no data inside, changes nothing) and a
 practice handoff are allowed; nothing from a practice may ever load over or replace a real huddle.
 `howhelp.js` tests the How can we help? panels, the list names' bands and the source links.
 `lively.js` tests the header cards, icons, initials and the Sent celebration. Keep color and motion
@@ -130,6 +130,7 @@ before they reach the nine wards. It is named "Huddle Test" (red TEST band on it
 opening screen), keeps its own storage keys (`huddletest-…`) and its own offline cache (`huddle-test-vN`), so it
 never reads or replaces a real huddle. Each service worker deletes only its own old caches.
 Everything it tried through Nov 18, 2026 is now in the live app (focus names filtering the huddle, Sacrament
-attendance, Opportunities to invite, no Missionary Referrals, the opening picture). Keep it for future ideas:
+attendance, Opportunities to invite, no Missionary Referrals, the opening picture, then the Covenant Path Report
+checklist, What will help, assignment status lines and the green Done fix). `test/checklist.js` covers the checklist. Keep it for future ideas:
 list each new difference in `try/CHANGES.md`, since that list is what moves to the live app later.
 `test/try-focus.js` covers it. Changes to `try/` don't need a live `CACHE` bump; bump `try/sw.js` instead.

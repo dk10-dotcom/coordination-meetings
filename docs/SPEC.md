@@ -192,11 +192,14 @@ From top to bottom:
 The two boxes have no check box to tap. Each is one button that opens its step's screen. The only
 way to mark one done is the **Mark done** button on that screen, which also returns to the opening
 screen. Opening one that is already done shows the button green, reading **Done** with a check;
-tapping it takes the mark off (with Undo in the message). Both clear after a send.
+tapping it keeps it done and goes back. A small **Mark as not done** link under it takes the mark off (with Undo
+in the message). Both clear after a send.
 
 **Mark done is the same everywhere** (Before ward council, each Huddle section, After the huddle): one
-label, pinned just above the bottom bar so it stays in view on a long list, green with a check once done,
-and tapped again to take the mark off.
+label, pinned just above the bottom bar so it stays in view on a long list, green with a check once done.
+**The green Done keeps it done** and goes back (the user decided, Nov 18, 2026: tapping it used to take the mark
+off, which was easy to do by mistake right after a person's own Done). **Mark as not done**, a small link under it,
+is the only way to take the mark off.
 
 **Each of the four steps opens a screen of its own**, with **Back** at the top and the step's name
 beside it. None of them slides up as a sheet. **Each screen starts with one line saying what to do
@@ -235,13 +238,14 @@ marked in the Huddle; next ordinance and What will help are ward council's).
 
 | New members | Returning members | Those being taught |
 | --- | --- | --- |
-| Performed baptisms for the dead (red, with the 30-day countdown, until checked) | Has friends at church | Attended sacrament meeting |
-| A calling | Aaronic Priesthood ordination | Has friends at church |
-| A ministering assignment | Melchizedek Priesthood ordination | Met the bishop |
-| Assigned ministers | A calling | Participated in family history |
-| Prepared a family name for the temple | A ministering assignment | |
-| Invited to attend institute | Assigned ministers | |
-| Invited to mission or temple preparation | Prepared a family name for the temple | |
+| Scheduled a temple recommend interview with the bishop | Has friends at church | Attended sacrament meeting |
+| Performed baptisms for the dead (red, with the 30-day countdown, until checked) | Aaronic Priesthood ordination | Has friends at church |
+| A calling | Melchizedek Priesthood ordination | Met the bishop |
+| A ministering assignment | A calling | Participated in family history |
+| Assigned ministers | A ministering assignment | |
+| Prepared a family name for the temple | Assigned ministers | |
+| Invited to attend institute | Prepared a family name for the temple | |
+| Invited to mission or temple preparation | Scheduled a temple recommend interview with the bishop | |
 | Interview for patriarchal blessing | Performed baptisms for the dead | |
 | Invited to consider a full-time mission | Received endowment (if applicable) | |
 | | Sealed to parents (if applicable) | |
@@ -338,8 +342,14 @@ the mirror of the Huddle's:**
   - Under What will help (placeholder "One step toward their next ordinance"), **Still open on their Covenant
     Path Report** lists the person's unchecked items as chips ("A calling", "Prepare a family name for the
     temple"). A tap fills What will help; the chips hide once something is typed. A focus name finds its chips
-    by name on the Covenant Path Report lists; a name that isn't on the report gets none (the user decided,
-    Nov 18, 2026: no general suggestions for now).
+    by name on the Covenant Path Report lists. A name that isn't on the report gets ideas by the next ordinance
+    ward council picks, labeled **Ideas for {ordinance}**: baptism (Attend sacrament meeting, Friends at church,
+    Meet the bishop, Participate in family history); the sacrament (Friends at church, Assigned ministers, A
+    calling); baptisms for the dead (Schedule a temple recommend interview with the bishop, Prepare a family name
+    for the temple); priesthood advancement (Meet the bishop, Friends at church, Assigned ministers, A calling);
+    the endowment (Schedule a temple recommend interview with the bishop, Invite to temple preparation, Prepare a
+    family name for the temple); sealing (Schedule a temple recommend interview with the bishop, Invite to temple
+    preparation). They change when the next ordinance changes.
 - **Huddle · How & When** is under it, closed, as a short summary: sacrament attendance (marked
   this huddle, or as of the last one), temple status (new members), baptism commitment (those
   being taught), this huddle's action item, and huddle notes. **Edit** opens the same fields the
@@ -463,6 +473,15 @@ will invite. The same section opens from Ward council and the Huddle.
   empty, **Ways to invite: tap one** sits under it: Members invite friends and neighbors, Members go on a visit with
   the missionaries, Share it on the ward's activity page. A tap fills Assignment and moves to Assigned to. An older
   huddle's assignment keeps its words in Assignment, with Assigned to empty.
+- **Each assignment is one line** on the opportunity's screen (the user asked, Nov 18, 2026): what, then who and
+  when in gray, a chevron, and for one from an earlier huddle a status tag (**Done**, **Partly**, **Not done** or
+  **Pending**). Tap the line to open its boxes; a new assignment opens by itself. Earlier ones come first.
+- **Text this assignment** sits in each open assignment once it has what and who: the text reads the assignment,
+  "For: Christmas sacrament meeting (Dec 20)", When, and the report-back line.
+- **An opportunity keeps its assignments until its date passes.** At the next huddle each one comes back in Return
+  and Report (with the opportunity in brackets) and also stays on the opportunity, marked **Pending**; marking it
+  Yes, Partly or No in Return and Report shows on the opportunity as Done, Partly or Not done, and it stays that way
+  (an earlier one isn't sent to Return and Report again). On the PDF it reads "From an earlier huddle · Done".
 - **With no opportunities:** "Ward council hasn't listed any opportunities yet." with the starter ideas; a tap
   adds that opportunity and opens it.
 - **No "Other ways to invite"** (the user took it out, Nov 18, 2026). Every assignment sits under an opportunity.
@@ -513,8 +532,9 @@ referrals still loads; they are kept in its data but not shown.
 
 1. Requires a ward name and something to send.
 2. Requires the after-huddle box to be marked done.
-3. **Ready to send?** lists anything still open (attendance, unmarked report-backs, people with
-   no action, no finding plan). Each line jumps to that spot. **Send anyway** continues.
+3. **Ready to send?** lists anything still open (attendance, unmarked report-backs, focus names with
+   no action item, no opportunities listed). Covenant Path Report names are not counted: action items are planned
+   for focus names only. Each line jumps to that spot. **Send anyway** continues.
 4. The Send screen shows the file name, **Dated {day} · Change date**, who to send to (including
    yourself, so you keep a copy), and the share rule: "Only share via email or text message. Do not share through any other app."
 5. **Share PDF** opens the phone's share menu. On a computer the PDF downloads instead.

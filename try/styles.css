@@ -1553,6 +1553,20 @@ html.no-splash .splash { display: none; }
 .ord-suggest { margin-top: -6px; }
 .idea-chip.is-suggest { border-color: var(--accent-line); color: var(--accent); font-weight: 700; }
 .card-grid > .help-chips, .card-grid > .ord-suggest { grid-column: 1 / -1; }
+.undone-link { display: block; margin: 2px auto 0; font-size: 14px; font-weight: 600; color: var(--muted); }
+.undone-link[hidden] { display: none; }
+/* An opportunity's assignments: one line each (what, who and when, how it went); tap for the details */
+.fn-line { border: 1.5px solid var(--card-line); border-radius: 12px; background: var(--card); }
+.fn-line + .fn-line { margin-top: 8px; }
+.fn-line > summary { list-style: none; display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 10px 12px; cursor: pointer; }
+.fn-line > summary::-webkit-details-marker { display: none; }
+.fn-line > summary::after { content: '›'; flex: none; color: var(--muted); font-size: 20px; transform: rotate(90deg); }
+.fn-line[open] > summary::after { transform: rotate(-90deg); }
+.fn-line-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.fn-line-title { font-size: 16px; font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
+.fn-line-sub { font-size: 13.5px; color: var(--muted); overflow-wrap: anywhere; }
+.fn-line .wc-status { flex: none; font-weight: 700; }
+.fn-line[open] > .fn-assign { border: 0; border-top: 1px solid var(--card-line); border-radius: 0 0 12px 12px; margin: 0; }
 
 /* Test copy only */
 .test-tag { color: #FFD5D5; }
