@@ -251,6 +251,8 @@
 :where(:root.theme-dark) .wc-up-next { color: #FFFFFF; }
 :where(:root.theme-dark) .wc-done-tick { background: #1F6B3A; color: #FFFFFF; }
 :where(:root.theme-dark) #wc-step-fn.is-done .step-status { color: #B0DEC1; }
+:where(:root.theme-dark) .wc-find { box-shadow: 0 1px 2px rgba(119, 142, 187, .05); }
+:where(:root.theme-dark) .wc-pmf:active { background: #202630; }
 :where(:root.theme-dark) .wc-focus { box-shadow: 0 1px 2px rgba(119, 142, 187, .05); --wc-ink: #E3C68C; }
 :where(:root.theme-dark) .wc-focus.is-done { border: 2px solid #59B57A; box-shadow: 0 10px 22px -14px #59B57A; }
 :where(:root.theme-dark) .wc-focus .steps-list > li:first-child::before { background: #242932; }

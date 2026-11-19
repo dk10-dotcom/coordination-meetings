@@ -1,5 +1,5 @@
-// Ward Council's screen as cards, in order (Nov 19, 2026): Opportunities to invite, then Find your focus names (the
-// Covenant Path Report card and a plain Part-Member Families row), then the focus names right on the screen. The next
+// Ward Council's screen as cards, in order (Nov 19, 2026): Opportunities to invite, then the Find your focus names box
+// (the Covenant Path Report and an Open Part-Member Families button), then the focus names right on the screen. The next
 // card says Up next; a finished one gets a green check, and the focus names card turns green once every focus name has
 // a next ordinance. No upcoming events finishes Opportunities to invite, and Ward Council's check waits for it.
 // The opportunity's date is labeled Event date, and the Huddle puts Opportunities to invite before Focus names.
@@ -19,7 +19,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const fits = () => p.evaluate(() => document.documentElement.scrollWidth <= innerWidth);
   await p.goto(BASE); await w(900); await p.click('[data-action="dismiss-install"]').catch(() => {});
   await p.click('.door-wc'); await w(500);
-  ok(await nextId() === 'wc-step-fn' && await doneIds() === 'wc-step-cp', 'Opportunities to invite is Up next; the Covenant Path Report has its check once focus names are chosen');
+  ok(await nextId() === 'wc-step-fn' && await doneIds() === 'wc-find', 'Opportunities to invite is Up next; the Covenant Path Report has its check once focus names are chosen');
   ok(/Opportunities to invite not done yet/.test(await p.textContent('#wc-hero .hero-count')), 'the header card says Opportunities to invite isn’t done yet');
   ok(await fits(), 'Ward Council fits a 320 px screen');
   // Opportunities to invite: what counts as an event, Add an event, No upcoming events

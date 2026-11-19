@@ -2223,8 +2223,8 @@
     return { text: lead + ' · ' + (missing ? missing + (missing === 1 ? ' needs' : ' need') + ' a next ordinance' : 'everyone has a next ordinance'), warn: missing > 0 };
   }
   // A part of Ward Council as a card of its own: its tile, title and one status line, Up next or a green check.
-  function wcPartRow(l, parts) {
-    var st = wcStatus(l.id), done = parts.done[l.id], next = parts.next === l.id;
+  function wcPartRow(l, parts, inBox) {
+    var st = wcStatus(l.id), done = parts.done[l.id], next = parts.next === l.id && !inBox; // in a box, the box carries Up next
     return h('li', {}, [h('button', { type: 'button', class: 'nav-row wc-row' + (done ? ' is-done' : '') + (next ? ' is-next' : ''), 'data-action': 'open-wc-list', 'data-a': l.id,
       'aria-label': l.title + '. ' + st.text + (done ? '. Done' : next ? '. Up next' : '') }, [
       tile(l.id),
@@ -2241,8 +2241,12 @@
     var parts = wcParts();
     WC_LISTS.forEach(function (l) {
       var ul = $('#wc-step-' + l.id); if (!ul) return;
-      ul.classList.toggle('is-next', parts.next === l.id); ul.classList.toggle('is-done', !!parts.done[l.id]);
-      ul.replaceChildren(wcPartRow(l, parts));
+      // The Covenant Path Report sits in the Find your focus names box with Part-Member Families: the box is the card.
+      var card = l.id === 'cp' ? $('#wc-find') || ul : ul;
+      card.classList.toggle('is-next', parts.next === l.id); card.classList.toggle('is-done', !!parts.done[l.id]);
+      var old = card.querySelector(':scope > .wc-up-next'); if (old && card !== ul) old.remove();
+      if (card !== ul && parts.next === l.id) card.insertBefore(h('span', { class: 'up-next wc-up-next', 'aria-hidden': 'true', text: 'Up next' }), card.firstChild);
+      ul.replaceChildren(wcPartRow(l, parts, card !== ul));
     });
     // The focus names, right on the screen: tap one to open it, swipe left to take it off.
     var sec = $('#wc-step-tn'); if (!sec) return;

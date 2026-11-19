@@ -292,11 +292,12 @@ screen, the first one not done is outlined with an **Up next** tag, and a finish
 
 - **Opportunities to invite** opens the same section the Huddle has. It holds the same data, so what is
   entered in one meeting shows in the other. Done when it has an event, or **No upcoming events** was tapped.
-- **Find your focus names** (a small heading) over the two lists the focus names come from:
+- **Find your focus names**: one box, with that heading inside it, holding the two lists the focus names come from,
+  so it's plain they go together (the user asked, Nov 19, 2026). The box is the card: it carries Up next and its check.
   - **Covenant Path Report** opens New members, Returning members and Those being taught, with
     **Open the Covenant Path Report** at the top (the same button the opening screen's step 1 has). Its status
     counts people ("4 people · 1 needs a next ordinance", in gray). Done (a check) once a focus name is chosen.
-  - **Part-Member Families**, a plain link row (no outline), so it reads as a second place to look, not the next step.
+  - **Open Part-Member Families**, a button under it in the same box.
 - **Focus names**, a card with the focus names right in it (there is no Focus names list of its own any more; an old
   `wc-tn` screen still opens). Each is the usual name row, a little smaller: name, "Next: Sealing" or the red
   **Needs a next ordinance** tag. Tap a name to open it (Back and Done return here); swipe it left to remove it.
@@ -321,8 +322,8 @@ screen, the first one not done is outlined with an **Up next** tag, and a finish
   They stay on the Covenant Path Report. The list closes up: names stay together, and empty spots only fill
   out to three at the end (a huddle saved with a gap closes up when it opens).
 
-**Part-Member Families** (under the Covenant Path Report card, with "In Leader and Clerk Resources, on the web" under
-it) opens the Part-Member Families report
+**Open Part-Member Families** (in the Find your focus names box, with "In Leader and Clerk Resources, on the web"
+under it) opens the Part-Member Families report
 in Leader and Clerk Resources (`https://lcr.churchofjesuschrist.org/mlt/report/part-member-households?lang=eng`)
 outside the app (`target="_blank"`), for finding names to discuss. Member Tools has no link to this report, so
 it always opens the web page. It shows on Ward Council's own screen only, not on the lists of names.
