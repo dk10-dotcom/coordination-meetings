@@ -1182,6 +1182,8 @@
       var ord = ordOf(a, gid);
       sub = ord ? 'Next: ' + ord : '';
       if (!sub && name) { sub = 'Needs a next ordinance'; warn = true; }
+      // A focus name without What will help is what's left for ward council's check (shown in red).
+      if (gid === 'tn' && name) { var help = str(a.need).trim(); if (help) sub = (sub ? sub + ' · ' : '') + help; else tags.push(rowTag('Needs What will help', 'due')); }
     }
     if (!name) sub = sub || 'Tap to add';
     var title = name || (gid === 'tn' ? 'Focus name ' + (i + 1) : 'No name yet');
@@ -2154,6 +2156,10 @@
     if (!named.length) return { text: id === 'tn' ? 'None chosen yet' : 'No names yet' };
     var missing = named.filter(function (x) { return !ordOf(x.a, x.g); }).length;
     var lead = id === 'tn' ? tnCountText() : plural(named.length, 'person', 'people');
+    if (id === 'tn') { // focus names: what's left before ward council's check is What will help
+      var noHelp = named.filter(function (x) { return !str(x.a.need).trim(); }).length;
+      if (noHelp) return { text: lead + ' · ' + noHelp + (noHelp === 1 ? ' needs' : ' need') + ' What will help', warn: true };
+    }
     return { text: lead + ' · ' + (missing ? missing + (missing === 1 ? ' needs' : ' need') + ' a next ordinance' : 'everyone has a next ordinance'), warn: missing > 0 };
   }
   function renderWC() {

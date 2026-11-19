@@ -169,7 +169,7 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     ok(await noOverflow(), tag + ': a person’s screen fits the phone');
     await p.screenshot({ path: `${OUT}/${tag}-wc-person.png`, fullPage: true });
     await p.click('#person-card .person-done'); await p.waitForTimeout(300);
-    ok(await vis('#wc-list') && !(await vis('#person-view')) && (await p.textContent('#step-title')) === 'Focus names' && (await rowNames('#wc-list', 'tn'))[0] === 'Grace Thompson' && await rowSub('#wc-list', 'tn', 0) === 'Next: Endowment', tag + ': Done rolls back up to the list, which shows the name and next ordinance');
+    ok(await vis('#wc-list') && !(await vis('#person-view')) && (await p.textContent('#step-title')) === 'Focus names' && (await rowNames('#wc-list', 'tn'))[0] === 'Grace Thompson' && (await rowSub('#wc-list', 'tn', 0)).startsWith('Next: Endowment'), tag + ': Done rolls back up to the list, which shows the name and next ordinance');
     await back();
     ok(await vis('#wc-rows') && (await rowText('tn')).includes('1 of 3 names · everyone has a next ordinance'), tag + ': Back returns to the roll-ups, updated: ' + await rowText('tn'));
     // Covenant Path Report lists: three lists of rows, each ending in Add a name

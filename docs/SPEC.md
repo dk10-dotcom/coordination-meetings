@@ -108,7 +108,10 @@ date on one line, the ward name large (or the step's name when no ward is set), 
 line on what to do. The Huddle and After the huddle show the huddle's date; the other two show
 today's. The two meetings also show progress:
 - **Huddle:** "2 of 5 sections done", with a bar that fills as sections are marked done.
-- **Ward council:** "2 of 3 focus names have What will help". Ward council (step 2 on the opening screen) is done when
+- **Ward council:** "2 of 3 focus names have What will help". On Ward council's Focus names list, a focus name without
+  What will help carries a red **Needs What will help** tag (with it, the row reads "Next: Sealing · Help preparing family
+  names"), and the Focus names row says "3 of 3 names · 2 need What will help" in orange, so what's left is plain.
+  (The rest of this line:) Ward council (step 2 on the opening screen) is done when
   every focus name has What will help; since What will help clears after each send, so does the check (the user
   decided, Nov 18, 2026).
   Hidden while there are no names.
