@@ -65,9 +65,9 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   ok(await p.evaluate(() => localStorage.getItem('huddle-agenda-v1')) === '{"live":true}', 'the live app’s saved huddle is untouched');
 
   // Swipe a focus name left to remove it; Undo brings it back; they stay on the Covenant Path Report
-  await p.click('.step-back'); await w(400); await p.click('[data-action="open-wc-list"][data-a="tn"]'); await w(400);
+  await p.click('.step-back'); await w(400); // the focus names sit right on Ward Council
   const swiped = await p.evaluate(async () => {
-    const row = [...document.querySelectorAll('#wc-list .swipe-li .person-row')].find(r => /Samuel Ortiz/.test(r.textContent));
+    const row = [...document.querySelectorAll('#wc-rows .swipe-li .person-row')].find(r => /Samuel Ortiz/.test(r.textContent));
     const r = row.getBoundingClientRect(), y = r.top + r.height / 2;
     const t = x => new Touch({ identifier: 1, target: row, clientX: x, clientY: y });
     row.dispatchEvent(new TouchEvent('touchstart', { bubbles: true, touches: [t(r.right - 20)], changedTouches: [t(r.right - 20)] }));
@@ -78,7 +78,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   });
   ok(swiped, 'swiping a focus name left shows Remove');
   await p.screenshot({ path: OUT + '/wc-swipe.png' });
-  await p.tap('#wc-list .swipe-li.is-open .swipe-del'); await w(400); // a real tap: touches first, then the click
+  await p.tap('#wc-rows .swipe-li.is-open .swipe-del'); await w(400); // a real tap: touches first, then the click
   ok(await p.isVisible('#confirm-sheet') && /Remove Samuel Ortiz from Focus names\?/.test(await p.textContent('#confirm-title')) && !(await p.isVisible('#person-view')), 'tapping Remove asks first, and does not open the name');
   await p.click('#confirm-primary'); await w(400);
   st = await saved();
@@ -86,7 +86,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.click('#toast .toast-action'); await w(300);
   ok((await saved()).tn.some(t => t.name === 'Samuel Ortiz'), 'Undo brings him back');
   // Removing a name in the middle leaves no blank spot behind
-  await p.evaluate(() => [...document.querySelectorAll('#wc-list .swipe-li')].find(li => /Marcus Hill/.test(li.textContent)).querySelector('.swipe-del').click()); await w(300);
+  await p.evaluate(() => [...document.querySelectorAll('#wc-rows .swipe-li')].find(li => /Marcus Hill/.test(li.textContent)).querySelector('.swipe-del').click()); await w(300);
   await p.click('#confirm-primary'); await w(400);
   const rowsNow = await p.$$eval('#wc-list [data-wc="tn"] .person-name', els => els.map(e => e.textContent));
   ok(rowsNow.join('|') === 'Grace Thompson|Emma Walsh|Samuel Ortiz', 'after removing Marcus Hill the names close up, with no blank spot: ' + rowsNow.join('|'));

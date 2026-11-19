@@ -47,7 +47,15 @@ module.exports = (async () => {
   await shot('s07-start-after1', '.door-wc', { scroll: false });
   // Step 2
   await p.click('.door-wc'); await wait(500);
-  await shot('s08-wc', '[data-action="open-wc-list"][data-a="cp"]', { scroll: false });
+  await shot('s08-wc', '#wc-step-fn', { scroll: false });
+  // Opportunities to invite comes first
+  await p.click('[data-action="open-wc-list"][data-a="fn"]'); await wait(500);
+  await p.click('[data-action="add-opp"]'); await wait(300);
+  await p.fill('[data-bind="find.opps.0.title"]', 'Christmas sacrament meeting'); await p.fill('[data-bind="find.opps.0.date"]', '2026-12-20');
+  await p.evaluate(() => document.activeElement && document.activeElement.blur()); await wait(300);
+  await shot('s12b-wc-opp', '#person-card [data-bind$=".date"]', { block: 'center' });
+  await back(); await back();
+  // Find your focus names
   await p.click('[data-action="open-wc-list"][data-a="cp"]'); await wait(500);
   await shot('s09-wc-cp', '[data-wc="nm"] [data-action="open-person"][data-b="0"]', { scroll: false });
   await p.click('[data-wc="nm"] [data-action="how-help"]'); await wait(500);
@@ -57,18 +65,19 @@ module.exports = (async () => {
   await shot('s10-wc-person', '#person-card [data-action="make-focus"]');
   await p.click('#person-card [data-action="make-focus"]'); await wait(500);
   await back(); await back();
-  await p.click('[data-action="open-wc-list"][data-a="tn"]'); await wait(500);
-  await p.click('[data-wc="tn"] [data-action="open-person"][data-b="1"]'); await wait(500); await p.evaluate(() => scrollTo(0, 0));
+  // The focus names sit right on Ward Council
+  await p.click('#wc-step-tn [data-action="open-person"][data-b="1"]'); await wait(500); await p.evaluate(() => scrollTo(0, 0));
   await p.selectOption('#person-card [data-bind$=".ordinance"]', 'Baptism'); await wait(200);
   await shot('s11-wc-focus-person', '#person-card [data-bind$=".ordinance"]');
-  await shot('s12-wc-note', '#person-card .need-note', { block: 'center' }); // the reminder sits right under Needs
-  await back(); await back();
-  await p.click('[data-action="open-wc-list"][data-a="fn"]'); await wait(500);
-  await p.click('[data-action="add-opp"]'); await wait(300);
-  await p.fill('[data-bind="find.opps.0.title"]', 'Christmas sacrament meeting'); await p.fill('[data-bind="find.opps.0.date"]', '2026-12-20');
-  await p.evaluate(() => document.activeElement && document.activeElement.blur()); await wait(300);
-  await shot('s12b-wc-opp', '#person-card [data-bind$=".title"]', { block: 'center' });
-  await back(); await back();
+  await back();
+  for (let k = 0; k < 6; k++) { // every focus name gets a next ordinance, so the card turns green
+    const row = await p.$('#wc-step-tn .person-row:has(.fold-tag.due)'); if (!row) break;
+    await row.click(); await wait(400);
+    const opts = await p.$$eval('#person-card [data-bind$=".ordinance"] option', o => o.map(x => x.value).filter(Boolean));
+    await p.selectOption('#person-card [data-bind$=".ordinance"]', opts[0]); await wait(200);
+    await back();
+  }
+  await shot('s12-wc-done', '#wc-step-tn', { block: 'center' });
   await start();
   // Step 3
   await shot('s13-start-up3', '.door-hd', { block: 'center' });
@@ -89,22 +98,6 @@ module.exports = (async () => {
   for (const [g, i] of [['nm', 0], ['rm', 0], ['bt', 0]]) { await p.click(`#sa-list [data-a="${g}"][data-b="${i}"]`); await wait(150); }
   await shot('s17-sa', '#sa-list [data-a="nm"][data-b="0"]', { scroll: false });
   await p.click('[data-action="step-done"]'); await wait(600);
-  // Focus names: an action item for each
-  await p.click('[data-action="open-step"][data-a="tn"]'); await wait(500);
-  await p.click('[data-group="tn"] .person-row:has-text("Daniel Rivera")'); await wait(500);
-  await shot('s19-person-sac', '#person-card .zone-hd-wrap', { block: 'start' });
-  await p.fill('#person-card [data-bind$=".action"]', 'Go with the youth to the temple on Thursday');
-  await p.fill('#person-card [data-bind$=".assigned"]', 'Bro. Patel'); await p.fill('#person-card [data-bind$=".when"]', '2026-11-19'); await wait(300);
-  await shot('s20-person-action', '#person-card [data-bind$=".action"]', { block: 'center' });
-  await shot('s22-person-text', '#person-card [data-action="text-assign"]', { block: 'center' });
-  await p.click('#person-view .person-done'); await wait(500);
-  for (const [name, act, who, when] of [['Grace Thompson', 'A family history consultant visits', 'Sister Nguyen', '2026-11-19'], ['Marcus Bell', 'Sit with him at church', 'Bro. Hansen', '2026-11-22']]) {
-    await p.click(`[data-group="tn"] .person-row:has-text("${name}")`); await wait(350);
-    await p.fill('#person-card [data-bind$=".action"]', act); await p.fill('#person-card [data-bind$=".assigned"]', who); await p.fill('#person-card [data-bind$=".when"]', when);
-    await p.click('#person-view .person-done'); await wait(350);
-  }
-  await p.evaluate(() => scrollTo(0, 0)); await shot('s23-hd-tn-done');
-  await p.click('[data-action="step-done"]'); await wait(600);
   // Opportunities to invite: the ward council's opportunity opened, an assignment showing the ways to invite
   await p.click('[data-action="open-step"][data-a="fn"]'); await wait(500);
   await p.click('#fn-list [data-a="opp"]'); await wait(500);
@@ -113,6 +106,23 @@ module.exports = (async () => {
   await shot('s24-fn', '#person-card .invite-ideas', { block: 'center' });
   await p.click('#person-view .person-done'); await wait(500);
   await p.click('[data-action="step-done"]'); await wait(800);
+  // Focus names: an action item for each
+  await p.click('[data-action="open-step"][data-a="tn"]'); await wait(500);
+  await p.click('[data-group="tn"] .person-row:has-text("Daniel Rivera")'); await wait(500);
+  await shot('s19-person-sac', '#person-card .zone-hd-wrap', { block: 'start' });
+  await p.fill('#person-card [data-bind$=".action"]', 'Go with the youth to the temple on Thursday');
+  await p.fill('#person-card [data-bind$=".assigned"]', 'Bro. Patel'); await p.fill('#person-card [data-bind$=".when"]', '2026-11-19'); await wait(300);
+  await shot('s20-person-action', '#person-card [data-bind$=".action"]', { block: 'center' });
+  await shot('s22-person-text', '#person-card [data-action="text-assign"]', { block: 'center' });
+  await shot('s21-hd-note', '#person-card .need-note', { block: 'center' }); // the reminder sits under the notes
+  await p.click('#person-view .person-done'); await wait(500);
+  for (const [name, act, who, when] of [['Grace Thompson', 'A family history consultant visits', 'Sister Nguyen', '2026-11-19'], ['Marcus Bell', 'Sit with him at church', 'Bro. Hansen', '2026-11-22']]) {
+    await p.click(`[data-group="tn"] .person-row:has-text("${name}")`); await wait(350);
+    await p.fill('#person-card [data-bind$=".action"]', act); await p.fill('#person-card [data-bind$=".assigned"]', who); await p.fill('#person-card [data-bind$=".when"]', when);
+    await p.click('#person-view .person-done'); await wait(350);
+  }
+  await p.evaluate(() => scrollTo(0, 0)); await shot('s23-hd-tn-done');
+  await p.click('[data-action="step-done"]'); await wait(600);
   await p.evaluate(() => scrollTo(0, 0));
   await shot('s25-huddle-all', '#hd-hero .hero-progress', { scroll: false });
   await start();

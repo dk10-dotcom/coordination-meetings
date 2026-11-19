@@ -238,7 +238,7 @@
   function blankName() { return blankAction(); }
   // Plans to find new people to teach: one plan, and assignments that each have their own when.
   function blankAssign() { return { id: oppId(), task: '', who: '', when: '' }; }
-  function blankFind() { return { plan: '', items: [blankAssign()], opps: [] }; }
+  function blankFind() { return { plan: '', items: [blankAssign()], opps: [], none: false }; } // none: ward council said No upcoming events
   // Focus names keep no blank spots between names: the names first, then empty spots up to three.
   function tnBlank(n) { return !n.sac && !hasText(n, CARD_KEYS); }
   function packTn(list) {
@@ -350,6 +350,7 @@
     // Upcoming opportunities are cards with a name and a date; assignments sit under them.
     // An older huddle's typed opportunities become one card.
     f.find.opps = Array.isArray(fd.opps) ? fd.opps.filter(function (o) { return o && typeof o === 'object'; }).map(function (o) { return { id: str(o.id) || oppId(), title: str(o.title), date: parseISO(str(o.date)) ? str(o.date) : '' }; }) : [];
+    f.find.none = fd.none === true;
     if (!f.find.opps.length && f.find.plan.trim()) { f.find.opps.push({ id: oppId(), title: f.find.plan.trim(), date: '' }); f.find.plan = ''; }
     // Every typed assignment sits under an opportunity (there is no "Other ways to invite" any more):
     // an older huddle's assignments that aren't tied to one go under an opportunity called "Other assignments".
@@ -955,8 +956,7 @@
         g === 'nm' ? field('Baptism date', base + 'bap', { type: 'date', full: true }) : null,
         FIXED_ORD[g] ? h('div', { class: 'field full' }, ['Next ordinance', h('p', { class: 'fixed-value', text: FIXED_ORD[g] })])
           : ordField('Next ordinance', base + 'ordinance', { full: true }),
-        FIXED_ORD[g] ? null : ordSuggest(base),
-        confNote()
+        FIXED_ORD[g] ? null : ordSuggest(base) // no confidential note here: nothing is typed (the user decided, Nov 19, 2026)
       ])
     ]);
     var hd = personHdOpen
@@ -1560,7 +1560,7 @@
       h('div', { class: 'card-grid' }, [
         field('What’s coming up', base + 'title', { full: true, placeholder: 'e.g. Christmas sacrament meeting' }),
         t ? null : h('div', { class: 'full opp-starters' }, [h('p', { class: 'idea-k', text: 'Or tap an idea' }), chips('opp-starter', k, OPP_STARTERS)]),
-        field('Date', base + 'date', { type: 'date', full: true })
+        field('Event date', base + 'date', { type: 'date', full: true })
       ])
     ].concat(oppItems(o.id).sort(function (p, q) { return (q.x.past ? 1 : 0) - (p.x.past ? 1 : 0); }).map(function (m) { return fnLine(m.x, m.i); })).concat([
       h('div', { class: 'list-foot' }, [addButton('add-fn', o.id, 'Add an assignment')])
@@ -1589,18 +1589,24 @@
       var kind = view === 'wc-fn' ? 'wc' : 'hd';
       if (kind === 'hd' && opps.length) { // the Huddle: one card per opportunity, its assignments as lines under it
         wrap.replaceChildren.apply(wrap, opps.map(function (o, k) { return oppCard(o, k); }).concat([
-          h('button', { type: 'button', class: 'btn-outline full btn-add-opp', 'data-action': 'add-opp' }, ['+ Add an opportunity'])]));
+          h('button', { type: 'button', class: 'btn-outline full btn-add-opp', 'data-action': 'add-opp' }, ['+ Add an event'])]));
         return;
       }
       var rows = opps.map(function (o, k) { return oppRow(kind, o, k); });
-      if (!opps.length) rows.push(h('li', { class: 'list-empty opp-empty' }, [
-        h('p', { class: 'list-empty-text', text: 'Ward council hasn’t listed any opportunities yet.' }),
+      var none = !opps.length && state.find.none;
+      if (none) rows.push(h('li', { class: 'list-empty confirmed' }, [
+        h('p', { class: 'list-empty-text' }, [icon('check'), h('span', { text: 'No upcoming events' })]),
+        h('button', { type: 'button', class: 'btn-link list-empty-undo', 'data-action': 'opps-none-undo', 'aria-label': 'Undo No upcoming events', text: 'Undo' })]));
+      else if (!opps.length) rows.push(h('li', { class: 'list-empty opp-empty' }, [
+        h('p', { class: 'list-empty-text', text: 'Ward council hasn’t listed any events yet.' }),
         h('p', { class: 'opp-hint', text: 'Add one, or start from an idea.' }),
         chips('opp-starter', '', OPP_STARTERS)]));
-      rows.push(h('li', {}, [h('button', { type: 'button', class: 'nav-row add-row', 'data-action': 'add-opp', 'aria-label': 'Add an upcoming opportunity' }, [icon('plus'), h('span', { text: 'Add an opportunity' })])]));
+      rows.push(h('li', {}, [h('button', { type: 'button', class: 'nav-row add-row', 'data-action': 'add-opp', 'aria-label': 'Add an event' }, [icon('plus'), h('span', { text: 'Add an event' })])]));
+      if (!opps.length && !none) rows.push(h('li', {}, [h('button', { type: 'button', class: 'nav-row none-row', 'data-action': 'opps-none' }, [h('span', { text: 'No upcoming events' })])]));
       var named = opps.filter(function (o) { return str(o.title).trim(); }).length;
-      wrap.replaceChildren(h('section', { class: 'list-panel rows list-fn' + (opps.length ? '' : ' is-empty'), 'aria-label': 'Opportunities to invite' }, [
-        h('div', { class: 'list-head' }, [h('h3', { class: 'list-title', text: 'Upcoming' }), h('span', { class: 'list-count', text: plural(named, 'opportunity', 'opportunities') })]),
+      wrap.replaceChildren(h('p', { class: 'opp-what' }, ['Ward activities, special meetings and other events to invite friends to.']),
+        h('section', { class: 'list-panel rows list-fn' + (opps.length ? '' : ' is-empty'), 'aria-label': 'Opportunities to invite' }, [
+        h('div', { class: 'list-head' }, [h('h3', { class: 'list-title', text: 'Upcoming' }), h('span', { class: 'list-count', text: none ? 'None' : plural(named, 'event', 'events') })]),
         h('ul', { class: 'steps-list person-rows' }, rows)]));
       return;
     }
@@ -1617,7 +1623,7 @@
         h('div', { class: 'card-grid' }, [
           field('What’s coming up', base + 'title', { full: true, placeholder: 'e.g. Christmas sacrament meeting' }),
           hasTitle ? null : h('div', { class: 'full' }, [h('p', { class: 'idea-k', text: 'Or tap an idea' }), chips('opp-starter', k, OPP_STARTERS)]),
-          field('Date', base + 'date', { type: 'date', full: true })
+          field('Event date', base + 'date', { type: 'date', full: true })
         ])
       ].concat(mine.map(function (m) { n++; return assign(m.x, m.i, n); })).concat([
         h('div', { class: 'list-foot opp-foot' }, [addButton('add-fn', o.id, 'Add an assignment'), h('button', { type: 'button', class: 'opp-remove', 'data-action': 'remove-opp', 'data-a': k, text: 'Remove' })])
@@ -1869,8 +1875,8 @@
   var STEPS = [
     { id: 'rr', title: 'Return and Report', band: 'last' },
     { id: 'sa', title: 'Sacrament attendance', band: 'last' },
-    { id: 'tn', title: 'Focus names', band: 'this' },
-    { id: 'fn', title: 'Opportunities to invite', band: 'this' }
+    { id: 'fn', title: 'Opportunities to invite', band: 'this' },
+    { id: 'tn', title: 'Focus names', band: 'this' } // last, so the focus names finish the huddle (the user decided, Nov 19, 2026)
   ];
   // Tests only: 'huddle-cp-section' brings back the Huddle's Covenant Path Report section (action items on each
   // Covenant Path name), so the older checks of those cards, dates and the PDF keep running. Never set for users.
@@ -1898,6 +1904,7 @@
   function personListView(r) {
     if (r.kind === 'bw') return 'bw';
     var sec = r.g === 'opp' ? 'fn' : r.g === 'tn' ? 'tn' : r.g === 'mr' ? 'mr' : 'cp';
+    if (r.kind === 'wc' && sec === 'tn') return 'wc'; // the focus names sit on Ward Council's screen
     return r.kind === 'wc' ? 'wc-' + sec : sec;
   }
   function personTitle(r) {
@@ -2008,11 +2015,14 @@
       return { done: n, of: STEPS.length, text: n === STEPS.length ? 'All ' + n + ' sections done' : n + ' of ' + STEPS.length + ' sections done' };
     }
     if (key !== 'wc') return null;
-    // Ward Council is done when every focus name has a next ordinance (What will help moved to the Huddle's action item).
-    var fn = state.tn.filter(function (a) { return str(a.name).trim(); });
-    if (!fn.length) return null;
-    var have = fn.filter(function (a) { return str(a.ordinance).trim(); }).length, all = have === fn.length;
-    return { done: have, of: fn.length, text: all ? (have === 1 ? 'The focus name has a next ordinance' : 'All ' + have + ' focus names have a next ordinance') : have + ' of ' + fn.length + ' focus names have a next ordinance' };
+    // Ward Council is done when Opportunities to invite has an event (or No upcoming events) and every focus name has
+    // a next ordinance (What will help moved to the Huddle's action item).
+    var fn = state.tn.filter(function (a) { return str(a.name).trim(); }), op = oppsOk();
+    if (!fn.length && !op) return null;
+    var have = fn.filter(function (a) { return str(a.ordinance).trim(); }).length, all = !!fn.length && have === fn.length;
+    var ft = !fn.length ? 'No focus names yet' : all ? (have === 1 ? 'The focus name has a next ordinance' : 'All ' + have + ' focus names have a next ordinance') : have + ' of ' + fn.length + ' focus names have a next ordinance';
+    var parts = [op ? 'Opportunities to invite done' : 'Opportunities to invite not done yet', ft];
+    return { done: have + (op ? 1 : 0), of: Math.max(fn.length, 1) + 1, text: op && all ? 'Ward Council is done' : parts.join(' · ') };
   }
   function renderHeroes() {
     Array.prototype.forEach.call(document.querySelectorAll('[data-hero]'), function (el) {
@@ -2183,14 +2193,25 @@
     return a;
   }
   // Ward council's lists. The last two are the same sections the Huddle has (the same data, entered once).
-  var WC_LISTS = [{ id: 'cp', title: 'Covenant Path Report' }, { id: 'tn', title: 'Focus names' },
-    { id: 'fn', title: 'Opportunities to invite' }]; // no Missionary Referrals
+  // Ward Council's screen, in order (the user decided, Nov 19, 2026): Opportunities to invite, then the two lists to find
+  // focus names in (the Covenant Path Report and Part-Member Families), then the focus names themselves, right on the
+  // screen. The focus names have no list of their own any more ('wc-tn' still opens, for an old link).
+  var WC_LISTS = [{ id: 'fn', title: 'Opportunities to invite' }, { id: 'cp', title: 'Covenant Path Report' }]; // no Missionary Referrals
+  function oppsOk() { return !!state.find.none || state.find.opps.some(function (o) { return str(o.title).trim(); }); }
+  function focusNamed() { return state.tn.map(function (a, i) { return { a: a, i: i }; }).filter(function (x) { return str(x.a.name).trim(); }); }
+  function focusOk() { var f = focusNamed(); return !!f.length && f.every(function (x) { return !!str(x.a.ordinance).trim(); }); }
+  // Each part's state on Ward Council's screen: done (a green check), and the first one not done is Up next.
+  function wcParts() {
+    var done = { fn: oppsOk(), cp: focusNamed().length > 0, tn: focusOk() }, order = ['fn', 'cp', 'tn'];
+    var next = order.filter(function (id) { return !done[id]; })[0] || '';
+    return { done: done, next: next };
+  }
   function isWcList(v) { return v === 'wc-cp' || v === 'wc-tn' || v === 'wc-fn' || v === 'wc-mr'; }
   function isWcNames(v) { return v === 'wc-cp' || v === 'wc-tn'; }
   function wcStatus(id) {
     if (id === 'fn') { // ward council lists what's coming up; the huddle makes the assignments, so no warning here
       var wn = state.find.opps.filter(function (o) { return str(o.title).trim(); });
-      return { text: wn.length ? wn.map(function (o) { return o.title.trim() + (parseISO(str(o.date)) ? ' (' + monthDay(o.date) + ')' : ''); }).join(', ') : 'None listed yet' };
+      return { text: wn.length ? wn.map(function (o) { return o.title.trim() + (parseISO(str(o.date)) ? ' (' + monthDay(o.date) + ')' : ''); }).join(', ') : state.find.none ? 'No upcoming events' : 'None listed yet' };
     }
     if (id === 'mr') return stepStatus(id);
     var named = [];
@@ -2201,23 +2222,48 @@
     var lead = id === 'tn' ? tnCountText() : plural(named.length, 'person', 'people');
     return { text: lead + ' · ' + (missing ? missing + (missing === 1 ? ' needs' : ' need') + ' a next ordinance' : 'everyone has a next ordinance'), warn: missing > 0 };
   }
+  // A part of Ward Council as a card of its own: its tile, title and one status line, Up next or a green check.
+  function wcPartRow(l, parts) {
+    var st = wcStatus(l.id), done = parts.done[l.id], next = parts.next === l.id;
+    return h('li', {}, [h('button', { type: 'button', class: 'nav-row wc-row' + (done ? ' is-done' : '') + (next ? ' is-next' : ''), 'data-action': 'open-wc-list', 'data-a': l.id,
+      'aria-label': l.title + '. ' + st.text + (done ? '. Done' : next ? '. Up next' : '') }, [
+      tile(l.id),
+      next ? h('span', { class: 'up-next wc-up-next', 'aria-hidden': 'true', text: 'Up next' }) : null,
+      h('span', { class: 'step-text' }, [
+        h('span', { class: 'step-title', text: l.title }),
+        h('span', { class: 'step-status' + (st.warn && !done ? ' warn' : ''), text: st.text })
+      ]),
+      done ? icon('check', 'wc-done-tick') : null,
+      h('span', { class: 'step-chev', 'aria-hidden': 'true', text: '›' })
+    ])]);
+  }
+  function renderWcCards() {
+    var parts = wcParts();
+    WC_LISTS.forEach(function (l) {
+      var ul = $('#wc-step-' + l.id); if (!ul) return;
+      ul.classList.toggle('is-next', parts.next === l.id); ul.classList.toggle('is-done', !!parts.done[l.id]);
+      ul.replaceChildren(wcPartRow(l, parts));
+    });
+    // The focus names, right on the screen: tap one to open it, swipe left to take it off.
+    var sec = $('#wc-step-tn'); if (!sec) return;
+    var named = focusNamed(), done = parts.done.tn, next = parts.next === 'tn';
+    sec.classList.toggle('is-next', next); sec.classList.toggle('is-done', done);
+    var rows = named.map(function (x) { return personRow('wc', 'tn', x.i, x.a); });
+    if (!named.length) rows.push(h('li', { class: 'list-empty' }, [h('p', { class: 'list-empty-text', text: 'Choose up to three from the lists above.' })]));
+    if (named.length < 3) rows.push(h('li', {}, [h('button', { type: 'button', class: 'nav-row add-row', 'data-action': 'add-focus', 'aria-label': 'Add a focus name' }, [icon('plus'), h('span', { text: 'Add a focus name' })])]));
+    sec.replaceChildren.apply(sec, [
+      next ? h('span', { class: 'up-next wc-up-next', 'aria-hidden': 'true', text: 'Up next' }) : null,
+      h('div', { class: 'wc-focus-head' }, [tile('tn'), h('span', { class: 'step-text' }, [
+        h('span', { class: 'step-title', text: 'Focus names' }),
+        h('span', { class: 'step-status' + (done ? ' ok' : ''), text: done ? 'Every focus name has a next ordinance' : tnCountText() })
+      ]), done ? icon('check', 'wc-done-tick') : null]),
+      h('ul', { class: 'steps-list person-rows', 'data-wc': 'tn' }, rows)].filter(Boolean));
+  }
   function renderWC() {
     var wrap = $('#wc-list'), rows = $('#wc-rows'); if (!wrap || !rows) return;
     rows.hidden = !(stepsOn && view === 'wc');
     var wcHero = $('#wc-hero'); if (wcHero) wcHero.hidden = rows.hidden;
-    if (!rows.hidden) rows.replaceChildren.apply(rows, WC_LISTS.map(function (l) {
-      var st = wcStatus(l.id);
-      return h('li', {}, [h('button', { type: 'button', class: 'nav-row wc-row', 'data-action': 'open-wc-list', 'data-a': l.id, 'aria-label': l.title + '. ' + st.text }, [
-        tile(l.id),
-        h('span', { class: 'step-text' }, [
-          h('span', { class: 'step-title', text: l.title }),
-          h('span', { class: 'step-status' + (st.warn ? ' warn' : ''), text: st.text })
-        ]),
-        h('span', { class: 'step-chev', 'aria-hidden': 'true', text: '›' })
-      ])]);
-    }));
-    var pmf = $('#wc-pmf'); if (pmf) pmf.hidden = rows.hidden; // Part-Member Families: above the four rows, on that screen only
-    if (rows.hidden) rows.replaceChildren();
+    if (!rows.hidden) renderWcCards();
     if (rowsOn) { // one row per name; the fields are on the person's own screen
       if (!isWcNames(view)) { wrap.replaceChildren(); return; }
       wrap.replaceChildren.apply(wrap, view === 'wc-tn' ? [rowsPanel('wc', 'tn', 'Focus names')] : [reportLink()].concat(GROUPS.map(function (g) { return rowsPanel('wc', g.id, g.title); })));
@@ -2814,6 +2860,7 @@
         var tk = a === '' || a === null ? -1 : +a;
         if (tk < 0) { state.find.opps.push({ id: oppId(), title: b, date: '' }); tk = state.find.opps.length - 1; }
         else state.find.opps[tk].title = b;
+        state.find.none = false;
         oppOpen[state.find.opps[tk].id] = true;
         if (rowsOn && !isPerson(view)) { saveDraft(); openPerson(view === 'wc-fn' ? 'wc' : 'hd', 'opp', tk); break; }
         fnRedraw();
@@ -2827,8 +2874,15 @@
         var te = document.querySelector('[data-bind="find.items.' + a + '.who"]'); if (te) te.focus();
         break;
       }
+      case 'opps-none': state.find.none = true; fnRedraw(); renderWC(); renderDoors(); renderHeroes(); saveDraft(); break;
+      case 'opps-none-undo': state.find.none = false; fnRedraw(); renderWC(); renderDoors(); renderHeroes(); saveDraft(); break;
+      case 'add-focus': { // Ward Council: a focus name who isn't on either list
+        var fs0 = state.tn.findIndex(function (n) { return !n.sac && !hasText(n, CARD_KEYS); });
+        if (fs0 < 0) { state.tn.push(blankName()); fs0 = state.tn.length - 1; }
+        saveDraft(); openPerson('wc', 'tn', fs0, true); break;
+      }
       case 'add-opp': {
-        var nop = { id: oppId(), title: '', date: '' }; state.find.opps.push(nop); oppOpen[nop.id] = true;
+        var nop = { id: oppId(), title: '', date: '' }; state.find.opps.push(nop); oppOpen[nop.id] = true; state.find.none = false;
         if (rowsOn) { saveDraft(); openPerson(view === 'wc-fn' ? 'wc' : 'hd', 'opp', state.find.opps.length - 1); setTimeout(function () { var t0 = document.querySelector('#person-card [data-bind$=".title"]'); if (t0) t0.focus(); }, 60); break; }
         fnRedraw();
         var oe = document.querySelector('[data-bind="find.opps.' + (state.find.opps.length - 1) + '.title"]'); if (oe) { oe.focus(); oe.scrollIntoView({ block: 'center' }); }
@@ -4128,7 +4182,7 @@
     };
     fOpps.forEach(function (o) { // each opportunity, then the assignments for it
       var mine = fItems.filter(function (x) { return x.opp === o.id; });
-      block(titleLines(str(o.title).trim(), '', 0, null, true).concat(parseISO(str(o.date)) ? field('Date', whenShow(o.date)) : [], mine.length ? [] : field('Assignment', 'No assignments yet', null, true)), GROUP_PDF.fn.ink, 'fn');
+      block(titleLines(str(o.title).trim(), '', 0, null, true).concat(parseISO(str(o.date)) ? field('Event date', whenShow(o.date)) : [], mine.length ? [] : field('Assignment', 'No assignments yet', null, true)), GROUP_PDF.fn.ink, 'fn');
       mine.forEach(fnAssign);
     });
     fItems.filter(function (x) { return !fOpps.some(function (o) { return o.id === x.opp; }); }).forEach(fnAssign);
@@ -4179,7 +4233,7 @@
       }),
       cpDone: s.cpDone, cp: s.cp, cpNone: s.cpNone, tnDone: s.tnDone, tn: s.tn, ftDone: s.ftDone,
       find: { plan: str(s.find.plan), items: s.find.items.map(function (x) { return { id: str(x.id), task: str(x.task), who: str(x.who), when: str(x.when), carried: !!x.carried, opp: str(x.opp), past: !!x.past, status: str(x.status) }; }),
-        opps: (s.find.opps || []).map(function (o) { return { id: str(o.id), title: str(o.title), date: str(o.date) }; }) },
+        opps: (s.find.opps || []).map(function (o) { return { id: str(o.id), title: str(o.title), date: str(o.date) }; }), none: !!s.find.none },
       referrals: cleanReferrals(s.referrals)
     }));
   }

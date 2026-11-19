@@ -1453,8 +1453,38 @@ body.typing .mark-done, body.coaching .mark-done { position: static; box-shadow:
 body[data-view="start"] .title-text .title-sub { color: #FFFFFF; opacity: .88; }
 
 /* Ward council: Open Part-Member Families, under the four rows */
-.wc-pmf { margin: 4px 0 0; }
-.wc-pmf[hidden] { display: none; }
+/* Ward Council's screen: each part its own card, in order. The next one is outlined with an Up next tag, a finished
+   one gets a green check, and the focus names sit right in their own card (green outline once every one has a next ordinance). */
+.wc-cards { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+.wc-cards[hidden] { display: none; }
+.wc-step { position: relative; overflow: visible; --wc-ink: #2F5DA6; }
+.wc-step .nav-row { border-radius: 14px; }
+.wc-step.is-next { border: 2px solid var(--wc-ink); box-shadow: 0 10px 22px -14px var(--wc-ink); }
+.wc-step.is-done { border-color: #A9D3B6; }
+.wc-up-next { display: block; position: absolute; top: -10px; right: 14px; z-index: 2; padding: 2px 9px; border-radius: 999px; background: var(--wc-ink); color: #FFFFFF;
+  font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.wc-done-tick { flex: none; display: inline-flex; width: 24px; height: 24px; border-radius: 50%; background: #1F6B3A; color: #FFFFFF; align-items: center; justify-content: center; }
+.wc-done-tick svg { width: 14px; height: 14px; }
+#wc-step-fn.is-done .step-status { color: #1F6B3A; font-weight: 600; }
+#wc-step-cp .step-status.warn { color: var(--muted); font-weight: 500; } /* the focus names carry the warning now */
+.wc-group-k { margin: 8px 16px -6px; font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+/* Part-Member Families: the second list to look in, so a plain link row rather than a card */
+.wc-pmf { display: flex; align-items: center; gap: 10px; margin: -4px 0 0; padding: 6px 16px; color: var(--accent); text-decoration: none; font-size: 16px; font-weight: 600; }
+.wc-pmf svg { flex: none; }
+.wc-pmf-text { display: flex; flex-direction: column; gap: 1px; }
+.wc-pmf-sub { font-size: 13px; font-weight: 500; color: var(--muted); }
+.wc-pmf:active { opacity: .6; }
+.wc-focus { background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; box-shadow: 0 1px 2px rgba(27,43,75,.05); --wc-ink: #B07A12; }
+.wc-focus.is-done { border: 2px solid #1F6B3A; box-shadow: 0 10px 22px -14px #1F6B3A; }
+.wc-focus-head { display: flex; align-items: center; gap: 10px; padding: 14px 12px 8px 16px; }
+.wc-focus .steps-list { border: 0; border-radius: 0 0 14px 14px; box-shadow: none; background: none; }
+.wc-focus .steps-list > li:first-child::before { content: ''; display: block; height: 1px; margin-left: 16px; background: #E3E7EE; }
+.wc-focus .person-row { min-height: 52px; padding-top: 8px; padding-bottom: 8px; }
+.wc-focus .person-name { font-size: 15.5px; }
+.wc-focus .step-status { font-size: 13.5px; }
+.wc-focus .list-empty { border: 0; background: none; padding: 10px 16px; }
+.wc-focus .step-status.ok { color: #1F6B3A; font-weight: 600; }
+.opp-what { margin: 0 4px 2px; font-size: 15px; color: var(--muted); line-height: 1.35; }
 
 /* Ward council: the confidential reminder right under a name's Needs box */
 .need-note { grid-column: 1 / -1; margin: -4px 0 0; }

@@ -246,6 +246,15 @@
 :where(:root.theme-dark) .after-fact.is-upd { background: #332B18; }
 :where(:root.theme-dark) .after-upd { background: #413820; color: #F2D9A5; }
 :where(:root.theme-dark) body[data-view="start"] .title-text .title-sub { color: #FFFFFF; }
+:where(:root.theme-dark) .wc-step { --wc-ink: #93ABD3; }
+:where(:root.theme-dark) .wc-step.is-done { border-color: #41664C; }
+:where(:root.theme-dark) .wc-up-next { color: #FFFFFF; }
+:where(:root.theme-dark) .wc-done-tick { background: #1F6B3A; color: #FFFFFF; }
+:where(:root.theme-dark) #wc-step-fn.is-done .step-status { color: #B0DEC1; }
+:where(:root.theme-dark) .wc-focus { box-shadow: 0 1px 2px rgba(119, 142, 187, .05); --wc-ink: #E3C68C; }
+:where(:root.theme-dark) .wc-focus.is-done { border: 2px solid #59B57A; box-shadow: 0 10px 22px -14px #59B57A; }
+:where(:root.theme-dark) .wc-focus .steps-list > li:first-child::before { background: #242932; }
+:where(:root.theme-dark) .wc-focus .step-status.ok { color: #B0DEC1; }
 :where(:root.theme-dark) .focus-box.is-pressing { background: #311818; border: 1px solid #602E2E; }
 :where(:root.theme-dark) .focus-why { color: #DF918B; }
 :where(:root.theme-dark) .sa-box { color: #fff; }

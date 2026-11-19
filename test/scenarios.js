@@ -22,6 +22,9 @@ const OUT = 'test/out-scen'; fs.mkdirSync(OUT, { recursive: true });
     return p;
   };
   const st = async p => { await p.waitForTimeout(350); return p.evaluate(() => JSON.parse(localStorage.getItem('huddle-agenda-v1'))); };
+  // The focus names have no list of their own any more (they sit on Ward Council); the cards-open layout these
+  // checks use still opens the old 'wc-tn' list, through the same action.
+  const wcTn = async p => { await p.evaluate(() => { const x = document.createElement('button'); x.dataset.action = 'open-wc-list'; x.dataset.a = 'tn'; document.body.appendChild(x); x.click(); x.remove(); }); await p.waitForTimeout(200); };
   const toStart = async p => { for (let i = 0; i < 3 && !(await p.isVisible('.door-wc')); i++) { if (await p.isVisible('[data-action="steps-home"]')) await p.click('[data-action="steps-home"]'); else if (await p.isVisible('#mode-bar [data-action="go-start"]')) await p.click('#mode-bar [data-action="go-start"]'); await p.waitForTimeout(120); } };
   const addName = async (p, g, name) => { await toStart(p); await p.click('[data-action="open-before"]'); await p.waitForSelector('#bw-view:not([hidden])'); await p.click(`#before-list [data-action="add-person"][data-a="${g}"]`); await p.waitForSelector('#person-view:not([hidden])'); await p.fill('#person-card input[data-bind$=".name"]', name); await p.click('#person-card .person-done'); await p.waitForSelector('#bw-view:not([hidden])'); await p.waitForTimeout(150); await p.click('#mode-bar [data-action="go-start"]'); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(150); };
   const removeName = async (p, g, name) => { await toStart(p); await p.click('[data-action="open-before"]'); await p.waitForSelector('#bw-view:not([hidden])'); await p.locator(`#before-list [data-bw="${g}"] .person-row`, { hasText: name }).click(); await p.waitForSelector('#person-view:not([hidden])'); await p.click('#person-card .person-remove'); await p.waitForTimeout(200); if (await p.isVisible('#confirm-sheet')) await p.click('#confirm-primary'); await p.waitForSelector('#bw-view:not([hidden])'); await p.waitForTimeout(150); await p.click('#mode-bar [data-action="go-start"]'); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(150); };
@@ -118,9 +121,9 @@ const OUT = 'test/out-scen'; fs.mkdirSync(OUT, { recursive: true });
     await send(p, 'F2'); await done(p, 'F'); }
 
   // G. A focus name is replaced by a different person in the same spot
-  { const p = await open(); await toStart(p); await p.click('.door-wc'); await p.click('[data-action="open-wc-list"][data-a="tn"]'); await p.fill('[data-bind="tn.0.name"]', 'Grace Thompson'); await toStart(p);
+  { const p = await open(); await toStart(p); await p.click('.door-wc'); await wcTn(p); await p.fill('[data-bind="tn.0.name"]', 'Grace Thompson'); await toStart(p);
     await step(p, 'tn'); await p.fill('[data-bind="tn.0.action"]', 'Invite to temple prep'); await send(p, 'G1');
-    await toStart(p); await p.click('.door-wc'); await p.click('[data-action="open-wc-list"][data-a="tn"]'); await p.fill('[data-bind="tn.0.name"]', 'Emma Walsh'); await p.evaluate(() => document.activeElement.blur()); await p.waitForSelector('#confirm-sheet:not([hidden])'); await p.click('#confirm-secondary'); await p.waitForTimeout(150);
+    await toStart(p); await p.click('.door-wc'); await wcTn(p); await p.fill('[data-bind="tn.0.name"]', 'Emma Walsh'); await p.evaluate(() => document.activeElement.blur()); await p.waitForSelector('#confirm-sheet:not([hidden])'); await p.click('#confirm-secondary'); await p.waitForTimeout(150);
     const card = await p.locator('#wc-list [data-wc="tn"] .wc-card').first().textContent();
     ok(!card.includes('Invite to temple prep'), 'G: the new focus name doesn’t inherit the old one’s assignment');
     const s0 = await st(p); if (s0.tn[0].ordinance || s0.tn[0].need) note('G: typing a new name over a focus name keeps the previous person’s next ordinance and need on the card.');
@@ -130,7 +133,7 @@ const OUT = 'test/out-scen'; fs.mkdirSync(OUT, { recursive: true });
     await done(p, 'G'); }
 
   // H. The same person on two lists
-  { const p = await open(); await addName(p, 'nm', 'Daniel Rivera'); await toStart(p); await p.click('.door-wc'); await p.click('[data-action="open-wc-list"][data-a="tn"]'); await p.fill('[data-bind="tn.0.name"]', 'Daniel Rivera'); await toStart(p);
+  { const p = await open(); await addName(p, 'nm', 'Daniel Rivera'); await toStart(p); await p.click('.door-wc'); await wcTn(p); await p.fill('[data-bind="tn.0.name"]', 'Daniel Rivera'); await toStart(p);
     await assign(p, 'nm', 'Daniel Rivera', 'Drive him to the temple'); await step(p, 'tn'); await p.fill('[data-bind="tn.0.action"]', 'Introduce him to the bishop');
     await send(p, 'H1'); let s = await st(p);
     ok(s.rr.filter(r => r.pname === 'Daniel Rivera').length === 2, 'H: a name on two lists gets one Return and Report item per list');

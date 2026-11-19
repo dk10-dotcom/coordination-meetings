@@ -23,7 +23,7 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     const openPerson = async (scope, g, i) => { await p.click(`${scope} [data-action="open-person"][data-a="${g}"][data-b="${i}"]`); await p.waitForSelector('#person-view:not([hidden])'); await p.waitForTimeout(250); };
     const addPerson = async (scope, g) => { await p.click(`${scope} [data-action="add-person"][data-a="${g}"]`); await p.waitForSelector('#person-view:not([hidden])'); await p.waitForTimeout(250); };
     const back = async () => { await p.click('[data-action="steps-home"]'); await p.waitForTimeout(300); };
-    const rowNames = (scope, g) => p.$$eval(`${scope} [data-${scope === '#wc-list' ? 'wc' : 'group'}="${g}"] .person-row .person-name`, e => e.map(x => x.textContent));
+    const rowNames = (scope, g) => p.$$eval(`${scope} [data-${scope === '#wc-list' || scope === '#wc-rows' ? 'wc' : 'group'}="${g}"] .person-row .person-name`, e => e.map(x => x.textContent));
     const rowSub = async (scope, g, i) => (await p.textContent(`${scope} [data-action="open-person"][data-a="${g}"][data-b="${i}"] .step-status`)).trim();
     await p.goto('http://127.0.0.1:8765/'); await p.waitForSelector('.chip', { state: 'attached' }); await p.click('[data-action="dismiss-install"]').catch(() => {});
     // Opening screen
@@ -46,8 +46,8 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     ok(!!chooser && await p.locator('.overlay:not([hidden])').count() === 0, tag + ': Load from a PDF goes straight to choosing the file');
     // Each of the four steps opens a page of its own (none slides up as a sheet), and each page starts with one line saying what to do there
     const pages = [['#before-box', '#bw-view', '#bw-view .page-intro', 'Before ward council', 'Open the Covenant Path Report in Member Tools and make this list match it: add or remove names so everyone is listed, and check off each person’s items that are done there.'],
-      ['.door-wc', '#wc-view', '#wc-intro', 'Ward Council', 'Identify focus names from the Part-Member Families list, the Covenant Path Report, or anyone else ward council feels to focus on. Then add any upcoming opportunities to invite.'],
-      ['.door-hd', '#steps-home', '#hd-intro', 'Huddle', 'Report back on the last huddle, take attendance, and plan one assignment for each focus name: what, who and when. Then review the opportunities to invite and make at least one action plan.'],
+      ['.door-wc', '#wc-view', '#wc-intro', 'Ward Council', 'Add any upcoming opportunities to invite. Then identify focus names from the Covenant Path Report, the Part-Member Families list, or anyone else ward council feels to focus on.'],
+      ['.door-hd', '#steps-home', '#hd-intro', 'Huddle', 'Report back on the last huddle and take attendance. Review the opportunities to invite and make at least one action plan, then plan one assignment for each focus name: what, who and when.'],
       ['#after-box', '#af-view', '#af-view .page-intro', 'After the huddle', 'Go back to the Covenant Path Report and update it with any new information. Then mark this done so you can send.']];
     const introTops = [];
     for (const [door, pageSel, introSel, title, text] of pages) {
@@ -150,28 +150,27 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     await p.click('.door-wc');
     ok(await vis('#wc-view') && await vis('#mode-bar') && await vis('.actionbar .nav-home') && (await p.textContent('#mode-title')) === 'Ward Council', tag + ': Ward council opens with Back, and the bottom bar has Home');
     const rowText = async id => (await p.textContent(`[data-action="open-wc-list"][data-a="${id}"]`)).replace(/\s+/g, ' ');
-    ok(await p.locator('#wc-rows .wc-row').count() === 3 && (await rowText('cp')).includes('Covenant Path Report') && (await rowText('tn')).includes('Focus names') && (await rowText('fn')).includes('Opportunities to invite') && !(await vis('[data-action="open-wc-list"][data-a="mr"]')) && await p.locator('#wc-list .person-row, #wc-list .wc-card').count() === 0, tag + ': it shows three roll-ups (no Missionary Referrals), not the names');
-    ok(!(await p.$('#wc-note')) && await p.locator('#wc-view .help-warning').count() === 0 && await p.evaluate(() => document.querySelector('#wc-pmf').compareDocumentPosition(document.querySelector('#wc-rows')) & Node.DOCUMENT_POSITION_FOLLOWING), tag + ': no confidential line on the list screen (it sits under Needs); Part-Member Families above the rows');
-    ok(await p.evaluate(() => { const a = getComputedStyle(document.querySelector('#wc-rows .nav-row')), b2 = document.querySelector('#steps-this'); return !!a && !!b2 && document.querySelector('#wc-rows').className === b2.className; }), tag + ': ward council’s rows and the huddle’s rows are the same kind of list');
-    ok((await rowText('cp')).includes('1 person · 1 needs a next ordinance') && (await rowText('tn')).includes('None chosen yet'), tag + ': each roll-up has a status: ' + await rowText('cp'));
+    const tnText = async () => (await p.textContent('#wc-step-tn')).replace(/\s+/g, ' ');
+    ok(await p.locator('#wc-rows .wc-row').count() === 2 && (await rowText('cp')).includes('Covenant Path Report') && (await rowText('fn')).includes('Opportunities to invite') && (await tnText()).includes('Focus names') && !(await vis('[data-action="open-wc-list"][data-a="tn"]')) && !(await vis('[data-action="open-wc-list"][data-a="mr"]')) && await p.locator('#wc-list .person-row, #wc-list .wc-card').count() === 0, tag + ': Ward Council shows Opportunities to invite, the Covenant Path Report and the focus names card (no Missionary Referrals, no Focus names list)');
+    ok(await p.evaluate(() => { const ids = Array.from(document.querySelectorAll('#wc-rows > *')).map(e => e.id); return ids.join('|') === 'wc-step-fn|wc-find-k|wc-step-cp|wc-pmf|wc-step-tn'; }) && /Find your focus names/i.test(await p.textContent('#wc-find-k')), tag + ': in order: Opportunities to invite, then Find your focus names over the Covenant Path Report and Part-Member Families, then Focus names');
+    ok(!(await p.$('#wc-note')) && await p.locator('#wc-view .help-warning').count() === 0 && await p.evaluate(() => !document.querySelector('#wc-pmf').classList.contains('btn-tools')), tag + ': no confidential line; Part-Member Families is a plain link row');
+    ok(await p.evaluate(() => document.querySelector('#wc-step-cp').classList.contains('steps-list') && document.querySelector('#steps-this').classList.contains('steps-list')), tag + ': ward council’s rows and the huddle’s rows are the same kind of list');
+    ok((await rowText('cp')).includes('1 person · 1 needs a next ordinance') && (await tnText()).includes('Choose up to three from the lists above.'), tag + ': each card has a status: ' + await rowText('cp'));
+    ok(await p.evaluate(() => document.querySelector('#wc-step-fn').classList.contains('is-next') && !!document.querySelector('#wc-step-fn .wc-up-next')), tag + ': Opportunities to invite is Up next');
     await p.screenshot({ path: `${OUT}/${tag}-wc.png` });
-    // Name Next Ordinance: three rows; a name opens on its own screen
-    await p.click('[data-action="open-wc-list"][data-a="tn"]'); await p.waitForTimeout(250);
-    ok(await p.locator('#wc-list [data-wc="tn"] .person-row').count() === 3 && await p.locator('#wc-list .list-panel').count() === 1 && (await p.textContent('#step-title')) === 'Focus names' && !(await vis('#wc-rows')), tag + ': Focus names lists the three focus names as rows, with its title beside Back');
-    ok(await p.locator('#wc-list input, #wc-list textarea').count() === 0 && !(await vis('#wc-note')) && (await rowNames('#wc-list', 'tn')).join('|') === 'Focus name 1|Focus name 2|Focus name 3' && await rowSub('#wc-list', 'tn', 0) === 'Tap to add', tag + ': no fields are open in the list, and empty spots say Tap to add');
-    ok(await noOverflow(), tag + ': the list of names fits the phone');
-    await openPerson('#wc-list', 'tn', 0);
-    ok((await p.textContent('#step-title')) === 'Focus name 1' && await p.locator('#person-card .wc-card').count() === 1 && !(await vis('#wc-list')) && !(await vis('#step-foot')) && !(await vis('#person-card .person-remove')), tag + ': tapping a name opens that person on their own screen');
-    ok(!(await p.$('[data-bind="tn.0.need"]')), tag + ': Ward Council has no What will help (it moved to the Huddle’s action item)');
+    // The focus names sit on Ward Council: Add a focus name opens a spot on its own screen
+    ok(await p.locator('#wc-rows input, #wc-rows textarea').count() === 0 && await vis('[data-action="add-focus"]'), tag + ': no fields are open on the screen, and Add a focus name is there');
+    ok(await noOverflow(), tag + ': Ward Council fits the phone');
+    await p.click('[data-action="add-focus"]'); await p.waitForSelector('#person-view:not([hidden])'); await p.waitForTimeout(250);
+    ok((await p.textContent('#step-title')) === 'Focus name 1' && await p.locator('#person-card .wc-card').count() === 1 && !(await vis('#wc-rows')) && !(await vis('#step-foot')) && !(await vis('#person-card .person-remove')), tag + ': Add a focus name opens that spot on its own screen');
+    ok(!(await p.$('[data-bind="tn.0.need"]')) && !(await p.$('#person-card .need-note')), tag + ': Ward Council has no What will help, and no confidential note under Next ordinance');
     await fill('tn.0.name', 'Grace Thompson');
     ok((await p.textContent('#step-title')) === 'Grace Thompson' && await vis('#person-card .person-remove'), tag + ': the screen takes the person’s name as it’s typed');
     await fill('tn.0.ordinance', 'Endowment');
     ok(await noOverflow(), tag + ': a person’s screen fits the phone');
     await p.screenshot({ path: `${OUT}/${tag}-wc-person.png`, fullPage: true });
     await p.click('#person-card .person-done'); await p.waitForTimeout(300);
-    ok(await vis('#wc-list') && !(await vis('#person-view')) && (await p.textContent('#step-title')) === 'Focus names' && (await rowNames('#wc-list', 'tn'))[0] === 'Grace Thompson' && (await rowSub('#wc-list', 'tn', 0)).startsWith('Next: Endowment'), tag + ': Done rolls back up to the list, which shows the name and next ordinance');
-    await back();
-    ok(await vis('#wc-rows') && (await rowText('tn')).includes('1 of 3 names · everyone has a next ordinance'), tag + ': Back returns to the roll-ups, updated: ' + await rowText('tn'));
+    ok(await vis('#wc-rows') && !(await vis('#person-view')) && (await rowNames('#wc-rows', 'tn'))[0] === 'Grace Thompson' && (await rowSub('#wc-rows', 'tn', 0)).startsWith('Next: Endowment') && (await tnText()).includes('Every focus name has a next ordinance') && await p.evaluate(() => document.querySelector('#wc-step-tn').classList.contains('is-done')), tag + ': Done goes back to Ward Council, where the name shows with its next ordinance and the card is green');
     // Covenant Path Report lists: three lists of rows, each ending in Add a name
     await p.click('[data-action="open-wc-list"][data-a="cp"]'); await p.waitForTimeout(250);
     ok(await p.locator('#wc-list .list-panel').count() === 3 && await p.locator('#wc-list [data-wc="tn"]').count() === 0 && (await p.textContent('#step-title')) === 'Covenant Path Report', tag + ': Covenant Path Report opens the three lists');
@@ -196,11 +195,11 @@ const OUT = 'test/out-twodoor'; fs.mkdirSync(OUT, { recursive: true });
     ok(await noOverflow(), tag + ': ward council fits the phone');
     await p.screenshot({ path: `${OUT}/${tag}-wc-list.png`, fullPage: true });
     await back();
-    ok((await rowText('cp')).includes('3 people · 2 need a next ordinance') && await p.locator('[data-action="open-wc-list"][data-a="cp"] .step-status.warn').count() === 1, tag + ': the roll-up counts people and turns orange when a next ordinance is missing');
+    ok((await rowText('cp')).includes('3 people · 2 need a next ordinance') && await p.locator('[data-action="open-wc-list"][data-a="cp"] .wc-done-tick').count() === 1 && await p.locator('[data-action="open-wc-list"][data-a="cp"] .step-status.warn').count() === 0, tag + ': the card counts people; with a focus name chosen it has its green check, and no orange');
     // Find New People to Teach and Missionary Referrals: the same sections the Huddle has
     ok((await rowText('fn')).includes('None listed yet') && !(await p.$('[data-action="open-wc-list"][data-a="fn"] .warn')), tag + ': Opportunities to invite shows its status in ward council, with no warning');
     await p.click('[data-action="open-wc-list"][data-a="fn"]'); await p.waitForTimeout(300);
-    ok((await p.textContent('#step-title')) === 'Opportunities to invite' && await vis('#fn-list [data-action="add-opp"]') && !(await vis('#step-done-btn')) && /Focus names/.test(await p.textContent('#step-prev')) && !(await vis('#step-next')) && !(await vis('#wc-rows')) && await noOverflow(), tag + ': Opportunities to invite opens in ward council (no Mark section done)');
+    ok((await p.textContent('#step-title')) === 'Opportunities to invite' && await vis('#fn-list [data-action="add-opp"]') && !(await vis('#step-done-btn')) && !(await vis('#step-prev')) && /Covenant Path Report/.test(await p.textContent('#step-next')) && !(await vis('#wc-rows')) && await noOverflow(), tag + ': Opportunities to invite opens in ward council (no Mark section done)');
     await p.click('[data-action="add-opp"]'); await fill('find.opps.0.title', 'Ward party'); await back();
     ok((await p.textContent('#fn-list')).includes('Ward party') && await vis('#fn-list [data-action="open-person"][data-a="opp"]'), tag + ': the opportunity opens on its own screen, and Back returns to the list with its row');
     await back();

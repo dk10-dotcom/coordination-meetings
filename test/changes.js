@@ -53,14 +53,14 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
 
   // Ward council: confidential line under the step card, and the temple countdown on new members
   await p.click('.door-wc'); await w(500);
-  ok(await p.evaluate(() => !document.querySelector('#wc-note') && document.querySelector('#wc-hero').nextElementSibling === document.querySelector('#wc-pmf')), 'Ward council: no confidential line under the step card (it sits under Needs); Part-Member Families comes next');
-  await p.locator('#wc-rows .nav-row').first().click(); await w(500);
+  ok(await p.evaluate(() => !document.querySelector('#wc-note') && document.querySelector('#wc-hero').nextElementSibling === document.querySelector('#wc-rows')), 'Ward council: no confidential line under the step card; its cards come next');
+  await p.click('[data-action="open-wc-list"][data-a="cp"]'); await w(500);
   ok((await p.textContent('#wc-list')).includes('Temple:'), 'Ward council: new members show the temple countdown');
 
   // A person's name header opens the name to edit
-  await p.locator('[data-action="open-person"]').first().click(); await w(500);
+  await p.locator('#wc-list [data-action="open-person"]').first().click(); await w(500);
   ok(await p.isVisible('#person-view .avatar-pencil'), 'the initials carry a small pencil');
-  ok(await p.evaluate(() => { const n = document.querySelector('#person-card .need-note'); let f = n && n.previousElementSibling; while (f && (f.classList.contains('help-chips') || f.classList.contains('ord-suggest'))) f = f.previousElementSibling; return !!n && /Never add confidential information to this huddle report\./.test(n.textContent) && !!f && !!(f.querySelector('[data-bind$=".ordinance"]') || f.querySelector('.fixed-value')); }), 'Ward Council: the confidential reminder sits right under Next ordinance on a name');
+  ok(await p.evaluate(() => !document.querySelector('#person-card .need-note') && !!document.querySelector('#person-card [data-bind$=".ordinance"], #person-card .fixed-value')), 'Ward Council: no confidential reminder under Next ordinance (nothing is typed there; the user decided, Nov 19, 2026)');
   await p.click('.person-head'); await w(600);
   ok(await p.evaluate(() => { const a = document.activeElement; return !!a && a.tagName === 'INPUT' && /\.name$/.test(a.getAttribute('data-bind') || '') && a.value === 'Daniel Rivera'; }), 'tapping the name header puts the cursor in the name box');
   await p.evaluate(() => document.activeElement.blur()); await w(600);

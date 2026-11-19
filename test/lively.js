@@ -74,8 +74,8 @@ const seed = {
     await p.click('#mode-bar [data-action="go-start"]'); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(200);
     // Ward council
     await p.click('.door-wc'); await p.waitForTimeout(350);
-    ok(await p.isVisible('#wc-hero') && /^(\d+ of \d+ focus names have a next ordinance|All \d+ focus names have a next ordinance|The focus name has a next ordinance)$/.test(await p.textContent('#wc-hero .hero-count')) && (await p.$$eval('#wc-rows .row-icon', e => e.length)) === 3 && await fits(), dev + ': Ward council header card and three icons');
-    ok(!(await p.$('#wc-note')) && await p.isVisible('#wc-pmf'), dev + ': no confidential line under the step card; Part-Member Families sits above the rows');
+    ok(await p.isVisible('#wc-hero') && /(\d+ of \d+ focus names have a next ordinance|All \d+ focus names have a next ordinance|The focus name has a next ordinance|Ward Council is done)$/.test(await p.textContent('#wc-hero .hero-count')) && (await p.$$eval('#wc-rows .row-icon', e => e.length)) === 3 && await fits(), dev + ': Ward council header card and three icons');
+    ok(!(await p.$('#wc-note')) && await p.isVisible('#wc-pmf'), dev + ': no confidential line under the step card; Part-Member Families sits with the cards');
     await p.click('#mode-bar [data-action="go-start"]'); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(200);
     // Every page fits
     for (const [open, name] of [['#before-box', 'Before ward council'], ['#after-box', 'After the huddle']]) {

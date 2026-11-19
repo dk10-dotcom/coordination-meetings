@@ -1,5 +1,5 @@
-// Ward council shows Open Part-Member Families above its four rows: the web report, opened outside the app,
-// on the four-row screen only (not on the lists of names), and never wider than a small iPhone.
+// Ward council shows Part-Member Families under Find your focus names, as a plain link row beside the Covenant Path
+// Report card: the web report, opened outside the app, on Ward Council's own screen only, never wider than a small iPhone.
 const { chromium } = require('playwright');
 const BASE = 'http://127.0.0.1:8765/';
 const URL = 'https://lcr.churchofjesuschrist.org/mlt/report/part-member-households?lang=eng';
@@ -17,16 +17,15 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   ok(await link.isVisible(), 'shows on Ward council');
   ok(await link.getAttribute('href') === URL, 'opens the Part-Member Families report');
   ok(await link.getAttribute('target') === '_blank' && /noopener/.test(await link.getAttribute('rel')), 'opens outside the app');
-  ok(/Open Part-Member Families/.test(await link.innerText()), 'says Open Part-Member Families');
-  const rowsTop = await p.locator('#wc-rows').evaluate(e => e.getBoundingClientRect().top);
-  const lb = await link.boundingBox();
-  ok(lb.y + lb.height <= rowsTop, 'sits above the four rows');
+  ok(/Part-Member Families/.test(await link.innerText()) && await link.evaluate(e => !e.classList.contains('btn-tools')), 'says Part-Member Families, as a plain row (less prominent than the cards)');
+  const cpB = await p.locator('#wc-step-cp').boundingBox(), tnB = await p.locator('#wc-step-tn').boundingBox(), lb = await link.boundingBox();
+  ok(lb.y >= cpB.y + cpB.height - 1 && lb.y + lb.height <= tnB.y + 1 && /Find your focus names/i.test(await p.textContent('#wc-find-k')), 'sits under Find your focus names, between the Covenant Path Report and Focus names');
   ok(await p.evaluate(() => document.documentElement.scrollWidth) <= 320, 'fits a 320 px screen');
-  await p.locator('[data-action="open-wc-list"][data-a="tn"]').click(); await p.waitForTimeout(400);
+  await p.locator('[data-action="open-wc-list"][data-a="cp"]').click(); await p.waitForTimeout(400);
   ok(!(await link.isVisible()), 'hidden on a list of names');
   await p.goBack(); await p.waitForTimeout(500);
   ok(await link.isVisible(), 'back on Ward council, it shows again');
-  ok(/Open Part-Member Families/.test(await p.content()), 'Help & training mentions it');
+  ok(/Part-Member Families<\/strong>/.test(await p.content()), 'Help & training mentions it');
   ok(!problems.length, 'no page errors' + (problems.length ? ': ' + problems.join('; ') : ''));
   await b.close();
   console.log(`\n${passed} passed, ${failed} failed`);

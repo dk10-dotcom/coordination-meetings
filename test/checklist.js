@@ -54,8 +54,8 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.click('#before-done-btn'); await w(500); // step 1 done: remembers how everyone looks
 
   // Ward Council: a focus name gets its next ordinance suggested; What will help isn't here any more (Nov 19, 2026)
-  await p.click('.door-wc'); await w(400); await p.click('[data-action="open-wc-list"][data-a="tn"]'); await w(400);
-  await p.click('#wc-list [data-action="open-person"][data-a="tn"][data-b="0"]'); await w(500);
+  await p.click('.door-wc'); await w(400); // the focus names sit right on Ward Council
+  await p.click('#wc-rows [data-action="open-person"][data-a="tn"][data-b="0"]'); await w(500);
   ok(/Suggested: Priesthood advancement/.test(await p.textContent('#person-card .ord-suggest')), 'Olivia’s next ordinance is suggested from her checklist (Melchizedek Priesthood still open)');
   ok(!(await p.$('#person-card [data-bind$=".need"]')) && !(await p.$('#person-card .help-chips')), 'Ward Council has no What will help box or chips');
   await p.click('#person-card .ord-suggest .idea-chip'); await w(300);
@@ -64,7 +64,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   ok(await wide(), 'ward council’s screen fits a small iPhone');
   await p.screenshot({ path: OUT + '/wc-focus.png', fullPage: true });
   await p.click('#person-view .person-done'); await w(300);
-  await p.click('#wc-list [data-action="open-person"][data-a="tn"][data-b="1"]'); await w(400);
+  await p.click('#wc-rows [data-action="open-person"][data-a="tn"][data-b="1"]'); await w(400);
   await p.selectOption('#person-card [data-bind="tn.1.ordinance"]', 'Endowment'); await w(400);
   await p.click('#person-view .person-done'); await w(300);
 

@@ -16,10 +16,11 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
   The page's security settings block outside connections; keep it that way.
 - **The PDF is the only thing that leaves the phone,** and only by email or text. Keep this wording
   wherever sharing is offered: "Only share via email or text message. Do not share through any other app."
-- Keep this warning visible next to the boxes where details are typed (under Next ordinance on a Ward Council name;
-  under the notes in the Huddle and on each Return and Report item), and in the step-by-step guide:
+- Keep this warning visible next to the boxes where details are typed (under the notes in the Huddle and on each
+  Return and Report item), and in the step-by-step guide:
   "Never add confidential information to this huddle report." (The user decided it no longer sits under the
-  step cards. Help & training says it in Privacy and security, with no banner there.)
+  step cards, nor under Next ordinance on a Ward Council name, Nov 19, 2026, since nothing is typed there. Help &
+  training says it in Privacy and security, with no banner there.)
 - Keep the disclaimer on the opening screen: "Not an official app of The Church of Jesus Christ of
   Latter-day Saints." Keep "Made by Darren Kirkham · darrenkirkham@mac.com" at the end of Help & training.
 - **Fake names only** in samples, tests, screenshots and commit messages
@@ -98,6 +99,7 @@ The bottom bar (Hand off, a round Home in the middle, Send) floats on every scre
 section, step 4) is pinned just above it, green with a check once done; the green Done keeps it done and goes back,
 and a small Mark as not done link under it undoes it; on the opening screen Home scrolls back to the top. Each
 training slide shows which part of the week it is in (1-4 and Week).
+`wccards.js` tests Ward Council's cards (Up next, No upcoming events, the focus names right on the screen, Event date).
 `howhelp.js` tests the How can we help? panels, the list names' bands and the source links.
 `lively.js` tests the header cards, icons, initials and the Sent celebration. Keep color and motion
 within those pieces; don't add a "needs attention" list (the user decided it repeats what the sections say).

@@ -131,7 +131,7 @@
     <div class="hero hero-hd" data-hero="hd" id="hd-hero" hidden>
       <p class="hero-top"><span class="hero-kicker">Step 3 · How &amp; When</span><span class="hero-date"></span></p>
       <p class="hero-ward"></p>
-      <p class="page-intro" id="hd-intro">Report back on the last huddle, take attendance, and plan one assignment for each focus name: what, who and when. Then review the opportunities to invite and make at least one action plan.</p>
+      <p class="page-intro" id="hd-intro">Report back on the last huddle and take attendance. Review the opportunities to invite and make at least one action plan, then plan one assignment for each focus name: what, who and when.</p>
       <button type="button" class="hero-link huddle-tips" data-action="tips" aria-haspopup="dialog">Tips for an effective meeting ›</button>
       <div class="hero-progress" hidden><span class="hero-bar" aria-hidden="true"><span class="hero-fill"></span></span><span class="hero-count"></span></div>
     </div>
@@ -200,14 +200,20 @@
     <div class="hero hero-wc" data-hero="wc" id="wc-hero" hidden>
       <p class="hero-top"><span class="hero-kicker">Step 2 · Who &amp; What</span><span class="hero-date"></span></p>
       <p class="hero-ward"></p>
-      <p class="page-intro" id="wc-intro">Identify focus names from the Part-Member Families list, the Covenant Path Report, or anyone else ward council feels to focus on. Then add any upcoming opportunities to invite.</p>
+      <p class="page-intro" id="wc-intro">Add any upcoming opportunities to invite. Then identify focus names from the Covenant Path Report, the Part-Member Families list, or anyone else ward council feels to focus on.</p>
       <div class="hero-progress" hidden><span class="hero-bar" aria-hidden="true"><span class="hero-fill"></span></span><span class="hero-count"></span></div>
     </div>
-    <a class="btn-tools wc-pmf" id="wc-pmf" href="https://lcr.churchofjesuschrist.org/mlt/report/part-member-households?lang=eng" target="_blank" rel="noopener noreferrer" hidden>
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 3h6v6"/><path d="M17 3l-8 8"/><path d="M15 12v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4"/></svg>
-        <span class="btn-tools-text">Open Part-Member Families<span class="btn-tools-sub">In Leader and Clerk Resources, on the web</span></span>
+    <!-- Ward Council's parts, in order, each its own card: the next one is marked Up next, a finished one gets a green check -->
+    <div class="wc-cards" id="wc-rows" hidden>
+      <ul class="steps-list wc-step" id="wc-step-fn"></ul>
+      <p class="wc-group-k" id="wc-find-k">Find your focus names</p>
+      <ul class="steps-list wc-step" id="wc-step-cp"></ul>
+      <a class="wc-pmf" id="wc-pmf" href="https://lcr.churchofjesuschrist.org/mlt/report/part-member-households?lang=eng" target="_blank" rel="noopener noreferrer">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 3h6v6"/><path d="M17 3l-8 8"/><path d="M15 12v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4"/></svg>
+        <span class="wc-pmf-text">Part-Member Families<span class="wc-pmf-sub">In Leader and Clerk Resources, on the web</span></span>
       </a>
-    <ul class="steps-list" id="wc-rows" hidden></ul>
+      <section class="wc-step wc-focus" id="wc-step-tn" aria-label="Focus names"></section>
+    </div>
     <div class="stack" id="wc-list"></div>
   </section>
 
@@ -639,12 +645,12 @@
         </ul>
       </details></li>
       <li><details class="help-item">
-        <summary class="nav-row"><span class="help-num" aria-hidden="true">2</span><span class="step-text"><span class="step-title">Ward Council</span><span class="step-status">Focus names, next ordinances, and what’s coming up</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <summary class="nav-row"><span class="help-num" aria-hidden="true">2</span><span class="step-text"><span class="step-title">Ward Council</span><span class="step-status">What’s coming up, focus names and next ordinances</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
         <ul class="help-body">
-          <li>Tap <strong>Home</strong>, then <strong>Ward council</strong>, then <strong>Covenant Path Report</strong> or <strong>Focus names</strong>.</li>
-          <li>Tap a name and choose the next ordinance (tap <strong>Suggested</strong> to use the one offered). <strong>Open Part-Member Families</strong> helps find names.</li>
-          <li>For a <strong>Suggested focus name</strong>, tap <strong>Make focus name</strong>. Swipe a focus name left, or open it and tap <strong>Remove</strong>, to remove it.</li>
-          <li>In <strong>Opportunities to invite</strong>, add what’s coming up and its date.</li>
+          <li>Tap <strong>Home</strong>, then <strong>Ward council</strong>. Work down the cards; the next one says <strong>Up next</strong>.</li>
+          <li><strong>Opportunities to invite:</strong> tap <strong>Add an event</strong> and set its <strong>Event date</strong>, or tap <strong>No upcoming events</strong>.</li>
+          <li>Find focus names in the <strong>Covenant Path Report</strong> or <strong>Part-Member Families</strong>. Tap <strong>Make focus name</strong> on a name, or <strong>Add a focus name</strong>.</li>
+          <li>Tap a focus name and choose its next ordinance. Swipe a focus name left to remove it.</li>
           <li>For ideas, tap <strong>How can we help?</strong> It all shows in the Huddle.</li>
         </ul>
       </details></li>
@@ -654,8 +660,8 @@
           <li>Tap <strong>Home</strong>, then <strong>Huddle</strong>. The bar shows sections done. In <strong>Huddle Attendees</strong>, choose who’s conducting and tap who attended.</li>
           <li><strong>Return and Report:</strong> mark each assignment <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>; tap <strong>Carry forward to this huddle</strong> to keep an unfinished one.</li>
           <li><strong>Sacrament attendance:</strong> tap each person who came.</li>
-          <li><strong>Focus names:</strong> tap a name. Tap a suggestion for the action item or type your own, add who and when, then tap <strong>Text this assignment</strong>.</li>
           <li><strong>Opportunities to invite:</strong> under each one, tap <strong>Add an assignment</strong>, then a way to invite. Tap an assignment to change it.</li>
+          <li><strong>Focus names:</strong> tap a name. Tap a suggestion for the action item or type your own, add who and when, then tap <strong>Text this assignment</strong>.</li>
         </ul>
       </details></li>
       <li><details class="help-item">
