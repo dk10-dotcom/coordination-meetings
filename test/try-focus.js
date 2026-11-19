@@ -88,16 +88,16 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   // Removing a name in the middle leaves no blank spot behind
   await p.evaluate(() => [...document.querySelectorAll('#wc-rows .swipe-li')].find(li => /Marcus Hill/.test(li.textContent)).querySelector('.swipe-del').click()); await w(300);
   await p.click('#confirm-primary'); await w(400);
-  const rowsNow = await p.$$eval('#wc-list [data-wc="tn"] .person-name', els => els.map(e => e.textContent));
+  const rowsNow = await p.$$eval('#wc-rows [data-wc="tn"] .person-name', els => els.map(e => e.textContent));
   ok(rowsNow.join('|') === 'Grace Thompson|Emma Walsh|Samuel Ortiz', 'after removing Marcus Hill the names close up, with no blank spot: ' + rowsNow.join('|'));
   await p.click('#toast .toast-action'); await w(300);
   ok((await saved()).tn.map(t => t.name).join('|') === 'Grace Thompson|Marcus Hill|Emma Walsh|Samuel Ortiz', 'Undo puts Marcus Hill back in his place');
 
   // Ward council: Opportunities to invite. With none yet it says so, with starter ideas; a tip of the week sits on top.
-  await p.click('.step-back'); await w(400);
+  // (already on Ward Council: the focus names sit right on its screen)
   ok(/Opportunities to invite/.test(await p.textContent('#wc-rows')), 'Ward council’s row is called Opportunities to invite');
   await p.click('[data-action="open-wc-list"][data-a="fn"]'); await w(400);
-  ok(/Ward council hasn’t listed any opportunities yet/.test(await p.textContent('#fn-list')) && await p.locator('#fn-list [data-action="opp-starter"]').count() >= 5, 'no opportunities yet: it says so, with starter ideas');
+  ok(/Ward council hasn’t listed any events yet/.test(await p.textContent('#fn-list')) && await p.locator('#fn-list [data-action="opp-starter"]').count() >= 5, 'no opportunities yet: it says so, with starter ideas');
   ok(!(await p.$('#tip-week')) && !(await p.$('[data-step="fn"] .how-help-fn')) && await p.isVisible('[data-step="fn"] [data-action="find-tips"]'), 'no tip of the week and no How can we help?; Tips at the top');
   const starters = await p.$$eval('#fn-list [data-action="opp-starter"]', els => els.map(e => e.dataset.b));
   ok(['Special sacrament meeting', 'Christmas sacrament meeting', 'Easter sacrament meeting', 'Member speaking in sacrament meeting', 'Stake conference', 'Ward conference', 'Youth activity'].every(t => starters.includes(t)), 'starter ideas include Christmas, Easter, a member speaking, Stake and Ward conference, Youth activity');
@@ -117,11 +117,11 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const oppRow = await p.textContent('#fn-list [data-action="open-person"][data-a="opp"]');
   ok(/Christmas sacrament meeting/.test(oppRow) && !/assignment/.test(oppRow) && !(await p.$('#fn-list [data-a="opp"] .warn')) && await p.locator('#fn-list .opp-tile-d').count() === 1, 'Done returns to the list: a row like a name, with a date tile, its name and date, and no warning in ward council: ' + oppRow.trim());
   ok(await p.locator('#fn-list .swipe-li [data-action="swipe-remove-opp"]').count() === 1, 'an opportunity can be swiped left to remove it');
-  ok(/Focus names/.test(await p.textContent('#step-prev')) && await p.isHidden('#step-done-btn'), 'ward council’s last list links back to Focus names, with no Mark done');
-  await p.click('#step-prev'); await w(400);
-  ok((await p.textContent('#step-next')).trim() === 'Next: Opportunities to invite ›' && await p.isVisible('#step-next'), 'ward council’s Focus names has Next: Opportunities to invite');
+  ok(/Covenant Path Report/.test(await p.textContent('#step-next')) && await p.isHidden('#step-prev') && await p.isHidden('#step-done-btn'), 'ward council’s first list leads on to the Covenant Path Report, with no Mark done');
   await p.click('#step-next'); await w(400);
-  ok(await p.isVisible('#fn-list [data-a="opp"]'), 'Next goes to Opportunities to invite');
+  ok((await p.textContent('#step-prev')).trim() === '‹ Opportunities to invite' && await p.isHidden('#step-next'), 'the Covenant Path Report links back to Opportunities to invite');
+  await p.click('#step-prev'); await w(400);
+  ok(await p.isVisible('#fn-list [data-a="opp"]'), 'the link goes back to Opportunities to invite');
   await p.click('.step-back'); await w(400);
   ok(!/needs? an assignment/.test(await p.textContent('#wc-rows')) && /Christmas sacrament meeting \(/.test(await p.textContent('#wc-rows')), 'ward council’s row lists the opportunity and its date, no warning');
   await p.click('[data-action="open-wc-list"][data-a="fn"]'); await w(400);
@@ -131,7 +131,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.click('.nav-home'); await w(400); await p.click('.door-hd'); await w(500);
   const last = await p.$$eval('#steps-last [data-action="open-step"]', els => els.map(e => e.getAttribute('data-a')));
   const plan = await p.$$eval('#steps-this [data-action="open-step"]', els => els.map(e => e.getAttribute('data-a')));
-  ok(last.join(',') === 'rr,sa' && plan.join(',') === 'tn,fn', 'the Huddle: rr,sa then tn,fn: ' + last + ' / ' + plan);
+  ok(last.join(',') === 'rr,sa' && plan.join(',') === 'fn,tn', 'the Huddle: rr,sa then fn,tn: ' + last + ' / ' + plan);
   ok(/Christmas sacrament meeting · 1 needs an assignment/.test(await p.textContent('#steps-this')), 'the Huddle row names the opportunity and what still needs an assignment');
   ok(!(await p.isVisible('#band-rr')) && (await p.textContent('#band-plan')).trim() === 'Huddle action plan', 'no “From the last huddle” heading; “Huddle action plan” over the plan');
   await p.screenshot({ path: OUT + '/huddle.png' });

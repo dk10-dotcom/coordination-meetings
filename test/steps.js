@@ -67,14 +67,14 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     await p.click('[data-action="step-done"]'); await p.waitForTimeout(200); if (await p.isVisible('#confirm-sheet')) { await p.click('#confirm-primary'); await p.waitForTimeout(200); }
     ok(await p.locator('[data-a="cp"].step-row.done').count() === 1 && await p.locator('.step-row.done').count() === 1, 'section gets a green check');
     // Next step link
-    await p.click('[data-action="open-step"][data-a="tn"]');
-    ok((await p.textContent('#step-next')).includes('Opportunities to invite'), 'next step link');
+    await p.click('[data-action="open-step"][data-a="fn"]'); // Opportunities to invite comes before Focus names (Nov 19, 2026)
+    ok((await p.textContent('#step-next')).includes('Focus names'), 'next step link');
     ok((await p.textContent('#step-prev')).includes('Covenant Path') && !(await p.textContent('#step-prev')).includes('Report Review'), 'back link names the previous step (Covenant Path Report)');
     await p.click('#step-next');
-    ok(await vis('[data-step="fn"]') && !(await p.isVisible('#step-next')) && (await p.textContent('#step-title')) === 'Opportunities to invite', 'went to the last section (Opportunities to invite); no next link');
+    ok(await vis('[data-step="tn"]') && !(await p.isVisible('#step-next')) && (await p.textContent('#step-title')) === 'Focus names', 'went to the last section (Focus names); no next link');
     await p.click('#step-prev');
     await p.locator('#step-done-btn').screenshot({ path: `${OUT}/${tag}-foot.png` });
-    ok(await vis('[data-step="tn"]'), 'Back goes to the previous step');
+    ok(await vis('[data-step="fn"]'), 'Back goes to the previous step');
     await p.click('#step-next');
     await p.click('[data-action="steps-home"]'); await p.waitForTimeout(200);
     ok(await vis('#steps-home'), 'All steps button returns');
