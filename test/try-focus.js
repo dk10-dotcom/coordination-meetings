@@ -98,7 +98,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   ok(/Opportunities to invite/.test(await p.textContent('#wc-rows')), 'Ward council’s row is called Opportunities to invite');
   await p.click('[data-action="open-wc-list"][data-a="fn"]'); await w(400);
   ok(/Ward council hasn’t listed any opportunities yet/.test(await p.textContent('#fn-list')) && await p.locator('#fn-list [data-action="opp-starter"]').count() >= 5, 'no opportunities yet: it says so, with starter ideas');
-  ok(!(await p.$('#tip-week')) && await p.isVisible('[data-step="fn"] .how-help-fn') && await p.isVisible('[data-step="fn"] [data-action="find-tips"]'), 'no tip of the week; How can we help? and Tips at the top');
+  ok(!(await p.$('#tip-week')) && !(await p.$('[data-step="fn"] .how-help-fn')) && await p.isVisible('[data-step="fn"] [data-action="find-tips"]'), 'no tip of the week and no How can we help?; Tips at the top');
   const starters = await p.$$eval('#fn-list [data-action="opp-starter"]', els => els.map(e => e.dataset.b));
   ok(['Special sacrament meeting', 'Christmas sacrament meeting', 'Easter sacrament meeting', 'Member speaking in sacrament meeting', 'Stake conference', 'Ward conference', 'Youth activity'].every(t => starters.includes(t)), 'starter ideas include Christmas, Easter, a member speaking, Stake and Ward conference, Youth activity');
   ok(!(await p.$('#fn-list .source-line')), 'no source line on the opportunity cards');

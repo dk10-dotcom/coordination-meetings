@@ -29,7 +29,7 @@ const { chromium, devices } = require('playwright');
   await p.evaluate(() => document.activeElement && document.activeElement.blur()); await p.waitForTimeout(150); await p.click(btn); await p.waitForTimeout(200);
   const href = await p.evaluate(() => window.__sms || ''); const body = decodeURIComponent(href.replace(/^sms:\?&body=/, ''));
   console.log(body);
-  ok(href.startsWith('sms:') && body === 'Drive him to the temple\nFor: Daniel Rivera\nWhen: Saturday 9 am (Nov 14)\nFrom the Sample Ward huddle. Please report back. Thank you!', 'Messages opens with the action, who it is for, when (the day spelled out, with its date) and where it came from');
+  ok(href.startsWith('sms:') && body === 'Drive him to the temple\nFor: Daniel Rivera\nWhen: Saturday 9 am (Nov 14)\nFrom the Sample Ward huddle. Please report back before Sunday, Nov 15. Thank you!', 'Messages opens with the action, who it is for, when (the day spelled out, with its date) and where it came from');
   ok(!/https?:|calendar/i.test(body), 'the text has no link in it');
   // What the When line says for different things typed under When (today is Sunday, Nov 8)
   const whenLine = async when => {

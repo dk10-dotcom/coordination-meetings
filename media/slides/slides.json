@@ -16,21 +16,21 @@
  {
   "kicker": "Step 1 · Before ward council",
   "title": "Open the Covenant Path Report",
-  "body": "Before ward council, open the report in Member Tools and bring each name up to date.",
+  "body": "Open the report in Member Tools and make this list match it: add or remove names so everyone is listed.",
   "color": "#4F5A8C",
   "img": "03.jpg"
  },
  {
   "kicker": "Step 1 · Before ward council",
   "title": "Tap each name",
-  "body": "Update the next ordinance, needs, temple attendance and sacrament attendance. Add anyone new; remove anyone no longer on the report.",
+  "body": "Add any dates, and check off what the report shows they’ve done. A check means done.",
   "color": "#4F5A8C",
   "img": "04.jpg"
  },
  {
   "kicker": "Step 1 · Before ward council",
-  "title": "Everything about one person",
-  "body": "Each person has a screen of their own. Done brings you back to the list.",
+  "title": "Check off what’s done",
+  "body": "Each person has the checklist from their report. Baptisms for the dead stays red, with its 30-day countdown, until it’s checked.",
   "color": "#4F5A8C",
   "img": "05.jpg"
  },
@@ -51,7 +51,7 @@
  {
   "kicker": "Step 2 · Ward council",
   "title": "Counsel together",
-  "body": "Ward council decides who to focus on, each person’s next ordinance, and what they need, and lists opportunities to invite.",
+  "body": "Identify focus names from the Part-Member Families list, the Covenant Path Report, or anyone else, and add upcoming opportunities to invite.",
   "color": "#2F5DA6",
   "img": "08.jpg"
  },
@@ -63,107 +63,107 @@
   "img": "09.jpg"
  },
  {
-  "kicker": "Step 2 · Ward council",
-  "title": "Make focus name",
-  "body": "Tap it, and the huddle plans their action item. Their next ordinance and needs come along.",
+  "kicker": "Step 2 · How can we help?",
+  "title": "Questions to guide you",
+  "body": "On each Covenant Path Report list, tap How can we help? for the questions in Preach My Gospel, chapter 13.",
   "color": "#2F5DA6",
   "img": "10.jpg"
  },
  {
   "kicker": "Step 2 · Ward council",
-  "title": "Focus names",
-  "body": "Give each one a next ordinance and what they need. To remove one, swipe it left or tap Remove on its screen.",
+  "title": "Make focus name",
+  "body": "Tap it, and the huddle plans their action item. Their next ordinance and needs come along.",
   "color": "#2F5DA6",
   "img": "11.jpg"
  },
  {
   "kicker": "Step 2 · Ward council",
-  "title": "Never add confidential information",
-  "body": "It sits under Needs, and under the notes in the Huddle. Everyone who receives the huddle report can read it. Keep it to names, ordinances and simple needs.",
-  "color": "#B22A2A",
+  "title": "Focus names",
+  "body": "Give each one a next ordinance and What will help: one step from what’s still open on their report. Swipe a name left to remove it.",
+  "color": "#2F5DA6",
   "img": "12.jpg"
+ },
+ {
+  "kicker": "Step 2 · Ward council",
+  "title": "Never add confidential information",
+  "body": "It sits under What will help, and under the notes in the Huddle. Everyone who receives the huddle report can read it. Keep it to names, ordinances and simple needs.",
+  "color": "#B22A2A",
+  "img": "13.jpg"
  },
  {
   "kicker": "Step 2 · Opportunities to invite",
   "title": "What’s coming up",
   "body": "List each upcoming opportunity and its date. The huddle plans who will invite whom.",
   "color": "#2F5DA6",
-  "img": "13.jpg"
+  "img": "14.jpg"
  },
  {
   "kicker": "Step 3 · The Huddle",
   "title": "How and when",
   "body": "The Huddle is the weekly coordination meeting: brief, focused, and about people.",
   "color": "#B0531A",
-  "img": "14.jpg"
+  "img": "15.jpg"
  },
  {
   "kicker": "Step 3 · The Huddle",
   "title": "Four sections",
   "body": "Return and Report and Sacrament attendance, then the Huddle action plan: Focus names and Opportunities to invite.",
   "color": "#B0531A",
-  "img": "15.jpg"
+  "img": "16.jpg"
  },
  {
   "kicker": "Step 3 · The Huddle",
   "title": "Who came",
   "body": "In Huddle Attendees, tap everyone who attended. Make an extra effort to involve the youth.",
   "color": "#B0531A",
-  "img": "16.jpg"
+  "img": "17.jpg"
  },
  {
   "kicker": "Step 3 · Return and Report",
   "title": "Did it happen?",
   "body": "Last week’s assignments come back here. Tap Yes, Partly or No, and add a short note on how it went.",
   "color": "#B0531A",
-  "img": "17.jpg"
+  "img": "18.jpg"
  },
  {
   "kicker": "Step 3 · Sacrament attendance",
   "title": "One tap each",
   "body": "Tap each person who attended sacrament meeting. One tap each.",
   "color": "#B0531A",
-  "img": "18.jpg"
+  "img": "19.jpg"
  },
  {
   "kicker": "Step 3 · Focus names",
   "title": "One person at a time",
   "body": "Tap each focus name to plan how the ward will help this week.",
   "color": "#B0531A",
-  "img": "19.jpg"
+  "img": "20.jpg"
  },
  {
   "kicker": "Step 3 · Focus names",
   "title": "One action item",
   "body": "What will we do this week to help them prepare for their next ordinance? Who will do it, and when?",
   "color": "#B0531A",
-  "img": "20.jpg"
+  "img": "21.jpg"
  },
  {
   "kicker": "Step 3 · Before everyone leaves",
   "title": "Text this assignment",
   "body": "Send each assignment by text, so the person asked to help knows exactly what, for whom, and when.",
   "color": "#B0531A",
-  "img": "21.jpg"
+  "img": "22.jpg"
  },
  {
   "kicker": "Step 3 · Focus names",
   "title": "A plan for every focus name",
   "body": "Each name now shows its action item, who, and when.",
   "color": "#B0531A",
-  "img": "22.jpg"
+  "img": "23.jpg"
  },
  {
   "kicker": "Step 3 · Opportunities to invite",
   "title": "Love, share, invite",
   "body": "Each opportunity opens on its own screen. Add an assignment, tap a way to invite, then add who and when.",
-  "color": "#B0531A",
-  "img": "23.jpg"
- },
- {
-  "kicker": "Step 3 · How can we help?",
-  "title": "Questions to guide you",
-  "body": "Tap How can we help? for the questions in Preach My Gospel, chapter 13, for that section.",
   "color": "#B0531A",
   "img": "24.jpg"
  },
@@ -184,7 +184,7 @@
  {
   "kicker": "Step 4 · After the huddle",
   "title": "Update the Covenant Path Report",
-  "body": "This page lists what happened for each person. Update the report in Member Tools to match.",
+  "body": "This page lists only what changed. Go back to the Covenant Path Report and update it with the new information.",
   "color": "#6E2F7E",
   "img": "27.jpg"
  },

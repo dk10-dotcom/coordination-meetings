@@ -121,12 +121,9 @@ const huddle = {
     ok((await p.evaluate(() => document.body.dataset.view)) === 'cp' && (await linksShown()) === 3, tag + ': Done returns to the list, links still there');
     await back();
 
-    // ----- The Huddle's Find New People to Teach has its own -----
+    // ----- Opportunities to invite: no How can we help? (the user took it off, Nov 18, 2026); Tips stays -----
     await p.click('[data-action="open-step"][data-a="fn"]'); await p.waitForTimeout(350);
-    ok((await linksShown()) === 1 && await p.isVisible('[data-step="fn"] .how-help-fn') && await p.isVisible('[data-action="find-tips"]'), tag + ': Find New People to Teach has its own link, with the Tips button still there');
-    await p.click('[data-step="fn"] [data-action="how-help"]'); await p.waitForTimeout(350);
-    await checkPanel('fn', 'Opportunities to invite'); await p.screenshot({ path: `${OUT}/${tag}-4-finding.png` });
-    await p.click('#howhelp-sheet [data-action="close-how-help"]'); await p.waitForTimeout(300);
+    ok((await linksShown()) === 0 && !(await p.$('[data-step="fn"] .how-help-fn')) && await p.isVisible('[data-action="find-tips"]'), tag + ': Opportunities to invite has no How can we help?, and the Tips button is still there');
     // Where the finding tips come from
     await p.click('[data-action="find-tips"]'); await p.waitForTimeout(350);
     const ft = await p.evaluate(() => { const a = document.querySelector('#find-tips-source a'); return { text: document.querySelector('#find-tips-source').textContent.trim(), href: a.getAttribute('href'), target: a.target, shown: !!document.querySelector('#find-tips-source').offsetParent }; });
@@ -149,7 +146,7 @@ const huddle = {
     ok(wcHeads.every(x => x.band !== 'rgba(0, 0, 0, 0)' && x.size >= 18) && await noOverflow(), tag + ': Ward council’s lists have the same bold names on bands');
     await p.goBack(); await p.waitForTimeout(300);
     await p.click('[data-action="open-wc-list"][data-a="fn"]'); await p.waitForTimeout(350);
-    ok((await p.evaluate(() => document.body.dataset.view)) === 'wc-fn' && (await linksShown()) === 1 && await p.isVisible('[data-action="find-tips"]'), tag + ': Ward council’s Find New People to Teach has its link too');
+    ok((await p.evaluate(() => document.body.dataset.view)) === 'wc-fn' && (await linksShown()) === 0 && await p.isVisible('[data-action="find-tips"]'), tag + ': Ward council’s Opportunities to invite has no How can we help? either, just Tips');
     await p.goBack(); await p.waitForTimeout(300); await p.goBack(); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(200);
     await p.click('#before-box'); await p.waitForTimeout(350);
     const bwHeads = await p.evaluate(() => ['nm', 'rm', 'bt'].map(g => { const head = document.querySelector('[data-bw="' + g + '"] .list-head'); return head ? { band: getComputedStyle(head).backgroundColor, link: !!head.querySelector('[data-action="how-help"]') } : null; }));
@@ -159,12 +156,12 @@ const huddle = {
     // ----- How to use and the tour say so, and Sources lists all three -----
     await p.click('[data-action="help"]'); await p.waitForSelector('#help-sheet:not([hidden])'); await p.waitForTimeout(250);
     const help = await p.evaluate(() => {
-      const step = Array.prototype.filter.call(document.querySelectorAll('#help-sheet details'), d => d.querySelector('.step-title').textContent === 'Huddle')[0];
+      const step = Array.prototype.filter.call(document.querySelectorAll('#help-sheet details'), d => d.querySelector('.step-title').textContent === 'Ward council')[0];
       const src = document.querySelector('#help-sources');
       return { step: step.textContent, lines: step.querySelectorAll('.help-body > li').length, title: src.querySelector('.step-title').textContent,
         links: Array.prototype.map.call(src.querySelectorAll('a'), a => a.textContent + ' -> ' + a.getAttribute('href') + ' ' + a.target), text: src.querySelector('.help-body').textContent.replace(/\s+/g, ' ').trim() };
     });
-    ok(/tap How can we help\?/.test(help.step) && help.lines <= 5, tag + ': How to use, step 3 mentions the link (still five lines or fewer)');
+    ok(/tap How can we help\?/.test(help.step) && help.lines <= 5, tag + ': How to use, step 2 (Ward council) mentions the link (still five lines or fewer)');
     ok(help.title === 'Sources' && help.links.join('|') === [`Preach My Gospel, chapter 13 -> ${PMG} _blank`, `General Handbook 23.4 -> ${GH} _blank`, `“Ideas for Weekly Missionary Coordination” -> ${IDEAS} _blank`].join('|'), tag + ': How to use has a Sources row linking all three sources');
     await p.click('#help-sources summary'); await p.waitForTimeout(250); await p.$eval('#help-sources', e => e.scrollIntoView({ block: 'center' })); await p.waitForTimeout(150);
     ok(await p.isVisible('#help-sources .help-body a') && await noOverflow() && await p.evaluate(() => { const s = document.querySelector('#help-sheet .sheet'); return s.scrollWidth <= s.clientWidth; }), tag + ': the Sources row opens and fits the screen');

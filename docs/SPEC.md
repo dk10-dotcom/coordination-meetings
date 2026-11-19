@@ -58,8 +58,9 @@ There is no date to set. The huddle is dated the day it is sent.
 | Those being taught | Covenant Path Report | Next ordinance is always "Baptism"; can be marked committed, with a scheduled date |
 | Focus names ("Name Next Ordinance" on the PDF) | Chosen by ward council | Exactly three spots. Not part of the Covenant Path Report |
 
-Every person holds: name, next ordinance, needs, huddle notes, attended sacrament, and one
-assignment (action item, assigned to, when).
+Every person holds: name, next ordinance, What will help (`need`; called Needs before), huddle notes, attended
+sacrament, and one assignment (action item, assigned to, when). People on the Covenant Path Report also hold their
+group's checklist (`checks`: each item done or "doesn't apply"; see Before ward council).
 
 ## Lists of names and a person's screen
 
@@ -191,11 +192,14 @@ From top to bottom:
 The two boxes have no check box to tap. Each is one button that opens its step's screen. The only
 way to mark one done is the **Mark done** button on that screen, which also returns to the opening
 screen. Opening one that is already done shows the button green, reading **Done** with a check;
-tapping it takes the mark off (with Undo in the message). Both clear after a send.
+tapping it keeps it done and goes back. A small **Mark as not done** link under it takes the mark off (with Undo
+in the message). Both clear after a send.
 
 **Mark done is the same everywhere** (Before ward council, each Huddle section, After the huddle): one
-label, pinned just above the bottom bar so it stays in view on a long list, green with a check once done,
-and tapped again to take the mark off.
+label, pinned just above the bottom bar so it stays in view on a long list, green with a check once done.
+**The green Done keeps it done** and goes back (the user decided, Nov 18, 2026: tapping it used to take the mark
+off, which was easy to do by mistake right after a person's own Done). **Mark as not done**, a small link under it,
+is the only way to take the mark off.
 
 **Each of the four steps opens a screen of its own**, with **Back** at the top and the step's name
 beside it. None of them slides up as a sheet. **Each screen starts with one line saying what to do
@@ -203,60 +207,71 @@ there**, in the same place on all four:
 
 | Step | The line |
 | --- | --- |
-| Before ward council | Open the Covenant Path Report in the Member Tools app. Add each person on it with their next ordinance, needs, temple attendance, sacrament attendance and any upcoming lessons with the missionaries. |
-| Ward council | Decide who to focus on, each person's next ordinance, and what they need. |
-| Huddle | Report back on the last huddle, take attendance, and plan one assignment for each person: what, who and when. |
-| After the huddle | Update the Covenant Path Report with what happened, then mark it done so you can send. |
+| Before ward council | Open the Covenant Path Report in Member Tools and make this list match it: add or remove names so everyone is listed, and check off each person's items that are done there. |
+| Ward council | Identify focus names from the Part-Member Families list, the Covenant Path Report, or anyone else ward council feels to focus on. Then add any upcoming opportunities to invite. |
+| Huddle | Report back on the last huddle, take attendance, and plan one assignment for each focus name: what, who and when. Then review the opportunities to invite and make at least one action plan. |
+| After the huddle | Go back to the Covenant Path Report and update it with any new information. Then mark this done so you can send. |
 
 Ward council's line shows on its opening list only, not on a list of names or a person's screen.
 
 ### Before ward council (screen)
 
-Opens from the first box, as a screen of its own with **Back** at the top. The box reads
-"Step 1", "Before ward council", then "Update each person from the Covenant Path Report".
-The screen has:
+Opens from the first box, as a screen of its own with **Back** at the top. Before ward council **mirrors the
+Covenant Path Report** (the user decided, Nov 18, 2026): no decisions are made here. The screen has:
 
-- One line saying what to update for each person: next ordinance, needs, temple attendance and
-  sacrament attendance.
+- One line: "Open the Covenant Path Report in Member Tools and make this list match it: add or remove names so
+  everyone is listed, and check off each person's items that are done there."
 - **Open the Covenant Path Report** (opens Member Tools; see Links).
-- The three Covenant Path Report lists, as the same rows every other list uses. Those being taught show
-  "Committed to baptism · Dec 5" and "Appointment: Wed, Nov 18" (an appointment shows until its day has
-  passed, here, in Ward council, in the Huddle and on the PDF; it carries to next week until then). A row shows the
-  name; one status line ("Next: Baptisms for the dead · Needs: A ride to the temple", with "Needs a next
-  ordinance" in orange and "No needs listed" when those are missing); and tags for attendance: a
-  new member's temple status ("Temple: 18 days left" in red, or "✓ Temple") and "✓ Sacrament".
-  Each list ends in **Add a name**. Focus names are not shown here.
+- The three Covenant Path Report lists, as the same rows every other list uses. A row shows the name, one
+  status line ("3 of 9 done") and tags: a new member's temple status ("Temple: 18 days left" in red, or
+  "✓ Temple"), "Committed to baptism · Dec 5" and "Appointment: Wed, Nov 18" for those being taught (an
+  appointment shows until its day has passed; it carries to next week until then). Each list ends in
+  **Add a name**. Focus names are not shown here.
 - **Mark done** (pinned above the bottom bar), which marks the box done and returns to the opening
   screen, and remembers how each person looks at that moment, so After the huddle can show what changed.
 
-**Tapping a name opens that person on their own screen**, one amber card labeled Covenant Path
-Report: Baptism date (new members), Next ordinance (fixed to Baptism for those being
-taught); for those being taught, **Committed to baptism: date** (left blank until they commit; entering a
-date marks them committed, clearing it takes that off, so no yes/no is needed) and **Next appointment with
-the missionaries** (a date); Needs, **Temple attendance** (new members) and **Attended sacrament**. Nothing else is on
-it. These are the same fields ward council and the huddle show, so nothing is entered twice.
-Checking attendance here does not show the "remember to update the Covenant Path Report" reminder,
-because here it is being copied from the report. **Done**, **Back** and the phone's Back return to
-the list. **Remove from the list** is at the bottom and asks first when the person has details. A
-name already on that list is refused ("… is already on this list."). A name added and left empty
-does not stay.
+**Tapping a name opens that person on their own screen**: the dates first (a new member's **Baptism date**;
+for those being taught, **Baptism date** (entering it marks them committed, clearing it takes that off) and
+**Next scheduled appointment**), then **Check off what's done**, the group's checklist with "3 of 9 done"
+beside it. **A check means done.** Sacrament attendance, next ordinance and needs are not here (sacrament is
+marked in the Huddle; next ordinance and What will help are ward council's).
+
+| New members | Returning members | Those being taught |
+| --- | --- | --- |
+| Scheduled a temple recommend interview with the bishop | Has friends at church | Attended sacrament meeting |
+| Performed baptisms for the dead (red, with the 30-day countdown, until checked) | Aaronic Priesthood ordination | Has friends at church |
+| A calling | Melchizedek Priesthood ordination | Met the bishop |
+| A ministering assignment | A calling | Participated in family history |
+| Assigned ministers | A ministering assignment | |
+| Prepared a family name for the temple | Assigned ministers | |
+| Invited to attend institute | Prepared a family name for the temple | |
+| Invited to mission or temple preparation | Scheduled a temple recommend interview with the bishop | |
+| Interview for patriarchal blessing | Performed baptisms for the dead | |
+| Invited to consider a full-time mission | Received endowment (if applicable) | |
+| | Sealed to parents (if applicable) | |
+| | Sealed to spouse (if applicable) | |
+
+The "if applicable" items have a **Doesn't apply** button beside them; an item that doesn't apply is crossed
+out and left out of the count. A new member's "Performed baptisms for the dead" is the same as temple
+attendance everywhere else (the countdown, the tags, the PDF). The checklist carries to the next huddle with
+the name, and is kept in the PDF's data. **Done**, **Back** and the phone's Back return to the list.
+**Remove from the list** is at the bottom and asks first when the person has details. A name already on that
+list is refused ("… is already on this list."). A name added and left empty does not stay.
 
 ### After the huddle (screen)
 
-Opens from the second box as a screen of its own, like Before ward council. The box reads "Step 4", "After the huddle", then "Update the Covenant
-Path Report, then send". Read-only. For each person on the three Covenant Path Report lists it
-shows what to carry into the report: sacrament attendance, temple attendance (new members),
-baptism commitment (those being taught), next ordinance, needs, how the last assignment went
-(with any note) and the new assignment. Huddle notes are left out: they don't go back into the Covenant Path
-Report (the user decided, Nov 18, 2026). It has the same report button and **Mark done**.
+Opens from the second box as a screen of its own, like Before ward council. The box reads "Step 4", "After the
+huddle", then "Update the Covenant Path Report, then send". Read-only. It has the same report button and
+**Mark done**.
 
-**What changed since step 1 is marked.** Marking Before ward council done remembers each person's
-sacrament attendance, temple attendance, baptism commitment and date, next ordinance and needs. Here,
-anyone different since then (changed in ward council or the huddle) comes first, with a gold
-**Changed** tag and each changed line highlighted and marked **Updated**; a name added since is
-**New since step 1**. A line at the top says how many changed ("1 person changed since step 1…" or
-"Nothing changed since step 1."). Without step 1 marked done, nothing is marked. A new week starts
-without it.
+**It lists only what changed since step 1** (the user decided, Nov 18, 2026). Marking Before ward council done
+remembers each person's sacrament attendance, baptisms for the dead, baptism commitment and date, appointment
+and checklist. Here, only the people different since then are listed, each with a gold **Changed** tag and only
+the lines that changed, marked **Updated** (a checklist item reads "Done", "Doesn't apply" or "Not done"); a name
+added since is **New since step 1**, with what's checked. Next ordinance, What will help and Huddle notes are
+left out: they don't go into the Covenant Path Report. A line at the top says how many changed ("1 person
+changed since step 1. Update these in the Covenant Path Report." or "Nothing changed since step 1."). Without
+step 1 marked done, everyone is listed with sacrament and temple attendance and how the last assignment went.
 
 **Send is blocked until this box is marked done.** Tapping Send early explains why and offers to
 open this screen.
@@ -302,7 +317,7 @@ outside the app (`target="_blank"`), for finding names to discuss. Member Tools 
 it always opens the web page. It shows on the four-row screen only, not on the lists of names.
 "Never add confidential information to this huddle report." is one small gray line with a red "!", placed
 next to the boxes where details are typed rather than under the step card. On a person's Ward council
-screen it sits right under the **Needs** box. In the Huddle it sits under
+screen it sits right under the **What will help** box. In the Huddle it sits under
 the notes: at the end of a person's **Huddle · How & When** (under Huddle notes, or under "+ Add a note for ward
 council") and under **Notes** on each Return and Report item. It is not repeated on the lists. New members' rows show the same temple countdown as in the Huddle
 ("Temple: 14 days left" in red), so the 30-day goal is in front of both meetings.
@@ -318,9 +333,23 @@ Each list of names shows rows (see Lists of names and a person's screen). **A pe
 the mirror of the Huddle's:**
 
 - **Ward Council · Who & What** is on top, open and highlighted: name, baptism date (new
-  members), next ordinance and needs. The empty Needs box on Covenant Path Report names reads "Tap their
-  name in the Covenant Path Report to identify needs"; focus names read "What do they need to get
-  there?".
+  members), **Next ordinance** and **What will help** (called Needs before; the user renamed it, Nov 18, 2026),
+  following Elder Bednar's pattern: name, next ordinance, then one step that helps them get there.
+  - While Next ordinance is empty, a chip **Suggested: {ordinance}** offers what the checklist points to (a new
+    member who hasn't done baptisms for the dead: Baptisms for the dead; a returning member: Priesthood
+    advancement while a priesthood ordination is open, then Baptisms for the dead, Endowment, Sealing). A tap
+    fills it in.
+  - Under What will help (placeholder "One step toward their next ordinance"), **Still open on their Covenant
+    Path Report** lists the person's unchecked items as chips ("A calling", "Prepare a family name for the
+    temple"). A tap fills What will help; the chips hide once something is typed. A focus name finds its chips
+    by name on the Covenant Path Report lists. A name that isn't on the report gets ideas by the next ordinance
+    ward council picks, labeled **Ideas for {ordinance}**: baptism (Attend sacrament meeting, Friends at church,
+    Meet the bishop, Participate in family history); the sacrament (Friends at church, Assigned ministers, A
+    calling); baptisms for the dead (Schedule a temple recommend interview with the bishop, Prepare a family name
+    for the temple); priesthood advancement (Meet the bishop, Friends at church, Assigned ministers, A calling);
+    the endowment (Schedule a temple recommend interview with the bishop, Invite to temple preparation, Prepare a
+    family name for the temple); sealing (Schedule a temple recommend interview with the bishop, Invite to temple
+    preparation). They change when the next ordinance changes.
 - **Huddle · How & When** is under it, closed, as a short summary: sacrament attendance (marked
   this huddle, or as of the last one), temple status (new members), baptism commitment (those
   being taught), this huddle's action item, and huddle notes. **Edit** opens the same fields the
@@ -380,12 +409,13 @@ marked twice. The row on the Huddle screen reads "3 of 6 attended".
 
 Tapping a focus name opens that person's screen, which has two halves:
 
-- **Ward Council · Who & What** is condensed to a short summary: next ordinance, needs, and a new
-  member's baptism date. **Edit** opens the name, baptism date, next ordinance and needs;
+- **Ward Council · Who & What** is condensed to a short summary: next ordinance, What will help, and a new
+  member's baptism date. **Edit** opens the name, baptism date, next ordinance and What will help;
   **Hide** condenses them again. It opens with the fields showing only when there is nothing to
   summarize yet: a new name, or a new member with no baptism date.
-- **Huddle · How & When** is a highlighted block, the part the huddle fills in: attended
-  sacrament, action item, assigned to, when.
+- **Huddle · How & When** is a highlighted block, the part the huddle fills in: action item, assigned to,
+  when. A focus name has no Attended sacrament box (the user took it off, Nov 18, 2026): Sacrament
+  attendance marks everyone once.
 
 Also in the huddle's half:
 
@@ -401,10 +431,11 @@ Also in the huddle's half:
   Drive him to the temple
   For: Daniel Rivera
   When: Saturday 9 am (Nov 14)
-  From the Sample Ward huddle. Please report back. Thank you!
+  From the Sample Ward huddle. Please report back before Sunday, Nov 15. Thank you!
   ```
 
-  The action is the first line. It is a plain text with no link in it. Day names are spelled out
+  The last line asks them to report back before the coming Sunday (a week out when the text is sent on a
+  Sunday), so the next huddle hears how it went. The action is the first line. It is a plain text with no link in it. Day names are spelled out
   ("Sat" becomes "Saturday"), and a weekday, "today", "tonight" or "tomorrow" gets its date, so the
   person reading it does not have to work out which Saturday is meant. A weekday means the next one
   after today (on a Sunday, "Sun" is next Sunday). A date that was typed out ("Nov 14", "11/20") is
@@ -426,7 +457,7 @@ screen above. Swipe one left to remove it (see Ward council). On the PDF the hea
 (Called Find New People to Teach before.) Ward council lists what's coming up; the huddle plans how members
 will invite. The same section opens from Ward council and the Huddle.
 
-- **At the top:** **How can we help?** and **Tips** (the tips sheet, with its source line). The Tip of the week was
+- **At the top:** **Tips** (the tips sheet, with its source line). The Tip of the week and How can we help? were
   taken out (the user decided, Nov 18, 2026).
 - **Opportunities are rows, like the name lists** (the user decided, Nov 18, 2026): under the band **Upcoming**
   (with "2 opportunities"), each row has a date tile (DEC 20), its name, one status line ("Sun, Dec 20 ·
@@ -442,6 +473,15 @@ will invite. The same section opens from Ward council and the Huddle.
   empty, **Ways to invite: tap one** sits under it: Members invite friends and neighbors, Members go on a visit with
   the missionaries, Share it on the ward's activity page. A tap fills Assignment and moves to Assigned to. An older
   huddle's assignment keeps its words in Assignment, with Assigned to empty.
+- **Each assignment is one line** on the opportunity's screen (the user asked, Nov 18, 2026): what, then who and
+  when in gray, a chevron, and for one from an earlier huddle a status tag (**Done**, **Partly**, **Not done** or
+  **Pending**). Tap the line to open its boxes; a new assignment opens by itself. Earlier ones come first.
+- **Text this assignment** sits in each open assignment once it has what and who: the text reads the assignment,
+  "For: Christmas sacrament meeting (Dec 20)", When, and the report-back line.
+- **An opportunity keeps its assignments until its date passes.** At the next huddle each one comes back in Return
+  and Report (with the opportunity in brackets) and also stays on the opportunity, marked **Pending**; marking it
+  Yes, Partly or No in Return and Report shows on the opportunity as Done, Partly or Not done, and it stays that way
+  (an earlier one isn't sent to Return and Report again). On the PDF it reads "From an earlier huddle · Done".
 - **With no opportunities:** "Ward council hasn't listed any opportunities yet." with the starter ideas; a tap
   adds that opportunity and opens it.
 - **No "Other ways to invite"** (the user took it out, Nov 18, 2026). Every assignment sits under an opportunity.
@@ -461,8 +501,8 @@ will invite. The same section opens from Ward council and the Huddle.
 ### How can we help?
 
 Questions to talk through, for the person conducting who is not sure what to ask. The link is in
-the Huddle and in Ward council: under New members, Returning members and Those being taught in the
-Covenant Path Report (Ward council), and at the top of Opportunities to invite. It is not in Before ward council
+Ward council: under New members, Returning members and Those being taught in the Covenant Path Report.
+Opportunities to invite no longer has it (the user took it off, Nov 18, 2026). It is not in Before ward council
 or on a person's screen.
 
 Tapping it slides up a panel with that section's questions and no others:
@@ -492,8 +532,9 @@ referrals still loads; they are kept in its data but not shown.
 
 1. Requires a ward name and something to send.
 2. Requires the after-huddle box to be marked done.
-3. **Ready to send?** lists anything still open (attendance, unmarked report-backs, people with
-   no action, no finding plan). Each line jumps to that spot. **Send anyway** continues.
+3. **Ready to send?** lists anything still open (attendance, unmarked report-backs, focus names with
+   no action item, no opportunities listed). Covenant Path Report names are not counted: action items are planned
+   for focus names only. Each line jumps to that spot. **Send anyway** continues.
 4. The Send screen shows the file name, **Dated {day} · Change date**, who to send to (including
    yourself, so you keep a copy), and the share rule: "Only share via email or text message. Do not share through any other app."
 5. **Share PDF** opens the phone's share menu. On a computer the PDF downloads instead.
@@ -739,7 +780,8 @@ width with nothing to zoom. On letter paper a page prints as a narrow column at 
   Each block: the name; one colored
   line with the temple status (new members), "Committed · {date}" or "Scheduled: {date}" (those
   being taught) and a green tick with "Attended sacrament meeting"; then **Next ordinance**,
-  **Needs**, **Action item** (who and when in gray, "Carried forward from {date}" in italics; "None
+  **What will help**, **Done this week** (focus names only: checklist items checked since step 1, from their
+  Covenant Path Report name; the checklist itself isn't printed), **Action item** (who and when in gray, "Carried forward from {date}" in italics; "None
   yet" when there is no action item) and **Huddle notes**. Empty parts are left out. An empty list
   prints "No one on the Covenant Path Report this week" when confirmed, otherwise "Not reviewed".
 - **Opportunities to invite** *Huddle action plan*: each opportunity as a block (its name, its **Date**, or

@@ -257,6 +257,9 @@
 :where(:root.theme-dark) .splash-name { color: #FFFFFF; }
 :where(:root.theme-dark) .splash-sub { color: #B9C7E2; }
 :where(:root.theme-dark) .hero-link { color: #FFFFFF; text-decoration-color: rgba(255, 255, 255, .6); }
+:where(:root.theme-dark) .ck-li.is-done .ck-box { background: #2E7D4F; border-color: #2E7D4F; color: #FFFFFF; }
+:where(:root.theme-dark) .ck-li.is-temple .ck-t { color: #DC908B; }
+:where(:root.theme-dark) .ck-sub.due { color: #DC908B; }
 /* hand-tuned */
 :where(:root.theme-dark) .focus-box.is-pressing { background: #3A1D1D; border-color: #6E2C2C; }
 :where(:root.theme-dark) .focus-why { color: #FF9C9C; }
