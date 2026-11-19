@@ -24,6 +24,8 @@ module.exports = (async () => {
     shots.push({ id, box });
   };
   const back = async () => { await p.goBack(); await wait(450); };
+  // Mark done goes straight on to the next section, so a section is opened only when it isn't already showing.
+  const openStep = async id => { if (await p.evaluate(() => document.body.dataset.view) === id) return; if (!(await p.isVisible('#steps-home'))) { await p.click('.nav-home'); await wait(300); await p.click('.door-hd'); await wait(500); } await p.click(`[data-action="open-step"][data-a="${id}"]`); await wait(500); };
   const start = async () => { await p.click('#mode-bar [data-action="go-start"]'); await p.waitForSelector('#start-home:not([hidden])'); await wait(400); };
 
   await p.goto('http://127.0.0.1:8765/'); await p.waitForSelector('#start-home:not([hidden])');
@@ -54,7 +56,7 @@ module.exports = (async () => {
   await p.fill('[data-bind="find.opps.0.title"]', 'Christmas sacrament meeting'); await p.fill('[data-bind="find.opps.0.date"]', '2026-12-20');
   await p.evaluate(() => document.activeElement && document.activeElement.blur()); await wait(300);
   await shot('s12b-wc-opp', '#person-card [data-bind$=".date"]', { block: 'center' });
-  await back(); await back();
+  await back(); await p.click('#step-done-btn'); await wait(600); // Done: back to Ward Council
   // Find your focus names
   await p.click('[data-action="open-wc-list"][data-a="cp"]'); await wait(500);
   await shot('s09-wc-cp', '[data-wc="nm"] [data-action="open-person"][data-b="0"]', { scroll: false });
@@ -92,22 +94,23 @@ module.exports = (async () => {
   await p.fill('#rr-list textarea, #rr-list input[data-bind$=".notes"]', 'He came with the youth').catch(() => {}); await wait(200);
   await shot('s16-rr', '[data-action="happened"][data-a="0"][data-b="Yes"]', { block: 'center' });
   await p.click('[data-action="happened"][data-a="1"][data-b="Partly"]'); await p.click('[data-action="happened"][data-a="2"][data-b="Yes"]'); await wait(200);
-  await p.click('[data-action="step-done"]'); await wait(600);
+  await p.click('#step-done-btn'); await wait(600);
   // Sacrament attendance: one tap each
-  await p.click('[data-action="open-step"][data-a="sa"]'); await wait(500);
+  await openStep('sa');
   for (const [g, i] of [['nm', 0], ['rm', 0], ['bt', 0]]) { await p.click(`#sa-list [data-a="${g}"][data-b="${i}"]`); await wait(150); }
   await shot('s17-sa', '#sa-list [data-a="nm"][data-b="0"]', { scroll: false });
-  await p.click('[data-action="step-done"]'); await wait(600);
+  await p.click('#step-done-btn'); await wait(600);
   // Opportunities to invite: the ward council's opportunity opened, an assignment showing the ways to invite
-  await p.click('[data-action="open-step"][data-a="fn"]'); await wait(500);
+  await openStep('fn');
   await p.click('#fn-list [data-a="opp"]'); await wait(500);
   await p.click('#person-card [data-action="add-fn"]'); await wait(300);
   await p.evaluate(() => document.activeElement && document.activeElement.blur());
   await shot('s24-fn', '#person-card .invite-ideas', { block: 'center' });
+  await p.fill('#person-card [data-bind$=".task"]', 'Invite the Ortiz family to the Christmas program'); await wait(200);
   await p.click('#person-view .person-done'); await wait(500);
-  await p.click('[data-action="step-done"]'); await wait(800);
+  await p.click('#step-done-btn'); await wait(800);
   // Focus names: an action item for each
-  await p.click('[data-action="open-step"][data-a="tn"]'); await wait(500);
+  await openStep('tn');
   await p.click('[data-group="tn"] .person-row:has-text("Daniel Rivera")'); await wait(500);
   await shot('s19-person-sac', '#person-card .zone-hd-wrap', { block: 'start' });
   await p.fill('#person-card [data-bind$=".action"]', 'Go with the youth to the temple on Thursday');
@@ -122,7 +125,8 @@ module.exports = (async () => {
     await p.click('#person-view .person-done'); await wait(350);
   }
   await p.evaluate(() => scrollTo(0, 0)); await shot('s23-hd-tn-done');
-  await p.click('[data-action="step-done"]'); await wait(600);
+  await p.click('#step-done-btn'); await wait(600);
+  if (!(await p.isVisible('#steps-home'))) { await p.click('.door-hd'); await wait(600); } // the last Mark done goes home
   await p.evaluate(() => scrollTo(0, 0));
   await shot('s25-huddle-all', '#hd-hero .hero-progress', { scroll: false });
   await start();
@@ -130,6 +134,7 @@ module.exports = (async () => {
   await shot('s26-start-up4', '#after-box', { block: 'center' });
   await p.click('#after-box'); await wait(500); await p.evaluate(() => scrollTo(0, 0));
   await shot('s27-after', '#af-view .btn-tools', { scroll: false });
+  for (let k = 0; k < 12 && await p.$('[data-action="after-upd"][aria-checked="false"]'); k++) { await p.click('[data-action="after-upd"][aria-checked="false"]'); await wait(200); } // tick each changed name
   await shot('s28-after-done', '#after-done-btn', { block: 'end' });
   await p.click('#after-done-btn'); await wait(600);
   if (!(await p.isVisible('#start-home'))) await start();

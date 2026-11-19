@@ -15,12 +15,15 @@ One word for each thing, on every screen, in Help & training and in the step-by-
 | Word | Means |
 | --- | --- |
 | Huddle | The app, the weekly coordination meeting, and that meeting's plan on the phone ("Text this huddle", "Sending finishes the huddle") |
-| Agenda | What is filled in and sent: the PDF ("Send this huddle's agenda", "Sample huddle report") |
-| Opening screen | The first screen: the four steps (Hand off, Home and Send float at the bottom of every screen) |
+| Huddle report | What is filled in and sent: the PDF ("Send the huddle report", "Load a huddle report"). Not "agenda", and "the PDF" only where the file itself is meant |
+| Opening screen | The first screen: the four steps, with Hand off as a line under them (Home and Send float at the bottom of every screen) |
 | Covenant Path Report | The report in Member Tools (always "Member Tools", never "Tools") |
-| Assignment | An action item with who will do it and when. **Action item** is only the name of that field |
-| Focus names | The three names ward council chooses. The PDF heads them "Name Next Ordinance" |
-| Covenant Path Report (the section) | The three lists from the report: New members, Returning members, Those being taught. The PDF heads them "Covenant Path Report Review" |
+| Assignment | What someone will do, with who and when, for a focus name or an event. (It was "action item"; that word is gone.) |
+| Focus names | The names ward council chooses, on every screen and in the huddle report |
+| Covenant Path Report (the section) | The three lists from the report: New members, Returning members, Those being taught. The huddle report heads them "Covenant Path Report" too |
+| Next steps | A person's items not yet done on their Covenant Path Report (in Ward Council, the Huddle's suggestions and the huddle report) |
+| This week's plan | The Huddle's Opportunities to invite and Focus names (it was "Huddle action plan") |
+| Ward Council, Before Ward Council | Capitalized as the names of steps and screens; "ward council" in ordinary sentences, as the Handbook writes it |
 | Carry forward | Moving an unfinished assignment onto this huddle's plan. A carried one is tagged "Carried forward" |
 | The last huddle | Where Return and Report comes from (not "last week") |
 
@@ -291,12 +294,14 @@ Opens to its parts as separate cards, in order, with no numbers (the user decide
 screen, the first one not done is outlined with an **Up next** tag, and a finished one gets a green check:
 
 - **Opportunities to invite** opens the same section the Huddle has. It holds the same data, so what is
-  entered in one meeting shows in the other. Done when it has an event, or **No upcoming events** was tapped.
+  entered in one meeting shows in the other. Done when its button was tapped: **Done** with events listed, **No
+  upcoming events** with none (see the evening changes below).
 - **Find your focus names**: one box, with that heading inside it, holding the two lists the focus names come from,
-  so it's plain they go together (the user asked, Nov 19, 2026). The box is the card: it carries Up next and its check.
+  so it's plain they go together (the user asked, Nov 19, 2026). The box is the card: it carries Up next, and its
+  check sits by the heading, with "Done once you choose a focus name." under it.
   - **Covenant Path Report** opens New members, Returning members and Those being taught, with
     **Open the Covenant Path Report** at the top (the same button the opening screen's step 1 has). Its status
-    counts people ("4 people · 1 needs a next ordinance", in gray). Done (a check) once a focus name is chosen.
+    counts people ("4 people · 1 needs a next ordinance", in gray).
   - **Open Part-Member Families**, a button under it in the same box.
 - **Focus names**, a card with the focus names right in it (there is no Focus names list of its own any more; an old
   `wc-tn` screen still opens). Each is the usual name row, a little smaller: name, "Next: Sealing" or the red
@@ -477,9 +482,9 @@ will invite. The same section opens from Ward council and the Huddle.
   1 assignment", or "Needs an assignment" in orange) and a chevron; **Add an event** is the last row. Above the list,
   one gray line says what an opportunity is: "Ward activities, special meetings and other events to invite friends to."
   The section keeps its name; only the button and the hint say "event" (the user decided, Nov 19, 2026).
-- **No upcoming events:** with none listed, a **No upcoming events** row sits under Add an event. Tapping it shows
-  "No upcoming events" with a green check and **Undo**, and counts as done for Ward Council. Adding an event clears
-  it; a new week starts without it.
+- **No upcoming events:** with none listed, the button pinned at the bottom says **No upcoming events**; tapping it
+  shows "No upcoming events" with a green check in the list and counts as done for Ward Council. Adding an event
+  clears it; a new week starts without it.
 - **In the Huddle each opportunity is a card of its own** (the user asked, Nov 18, 2026): its date tile, name and
   "Sun, Dec 13 · 2 assignments" (or "Needs an assignment" in orange) on top, then one line per assignment (what,
   who and when, and Done, Partly, Not done or Pending for one from an earlier huddle), then **Add an assignment**.
@@ -826,3 +831,49 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
 - **The PDF prints "Next steps"** for each person in the Covenant Path Report Review: their unchecked checklist items
   in two columns, each with an empty box before it (☐ A calling), so ward council can see and tick off what each
   person still needs.
+
+## Changes on Nov 19, 2026, evening: a plainer week (the user asked)
+
+- **Ward Council's Opportunities to invite** has one button pinned at the bottom: **Done** when events are listed,
+  **No upcoming events** when there are none. Either one checks off its card and goes back to Ward Council; adding an
+  event no longer checks it off by itself. A small **Mark as not done** link under it undoes it. (`find.done`,
+  `find.none` in the saved huddle.)
+- **Find your focus names** carries its own check, by its heading, with "Done once you choose a focus name." under
+  it. The Covenant Path Report row in the box has no check of its own, so no one looks for one on Part-Member Families.
+- **A name's Ward Council screen** is plain: Make focus name (with why it's suggested), the baptism date as a line
+  ("Baptized: Nov 8"), the next ordinance with its suggestion, and a closed list, "4 next steps on their Covenant Path
+  Report". Tapping it opens the person's unchecked items with checkboxes; checking one marks it done on their report
+  (the same check as Before Ward Council) and keeps it in view until the screen closes. There is no "Ward Council ·
+  Who & What" label, no Huddle box and no last huddle's assignment: return and report comes after ward council, so it
+  would almost always say Pending. A focus name not on the report has no list.
+- **The Huddle's Mark done waits for what's needed.** Focus names: gray, saying "Marcus Bell needs an assignment"
+  (or "2 focus names need an assignment") until every focus name has an assignment, who and when; tapping it opens
+  the first one missing. Opportunities to invite: gray, "Plan at least one assignment", until an event has an
+  assignment (tapping it opens the first event); with no events it says **No upcoming events** and works.
+- **Mark done goes straight to the next section** not yet done. After the last one, the opening screen shows with
+  "Step 3 done. Next: After the huddle."
+- **A focus name's Huddle screen** shows ward council's part as one line, "Next ordinance: Endowment", with an **i**:
+  "Chosen in Ward Council. To change it, open this name in Ward Council." (No box, label or Edit.)
+- **After the huddle:** each changed name has an **Updated in the report** checkbox. Mark done is gray ("1 person to
+  update"; tapping it scrolls to who's left) until all are ticked, and works right away when nothing changed. The ticks
+  are saved (`afterUpd`) and a new week starts without them.
+- **The little i.** Each step's header card keeps its one line of instructions behind an **i** beside the ward name:
+  open the first time that step opens on the phone, tucked away after that. The same goes for Before Ward Council's
+  note under its list and Opportunities to invite's "Ward activities, special meetings and other events to invite
+  friends to." New ones explain the temple countdown (where a new member is suggested, and under baptisms for the dead
+  in Before Ward Council) and **Changed** in After the huddle.
+- **The opening screen** shows "Huddle", the ward and the date first; "One by One · “Joyfully gathering Israel one
+  by one in Christ”" is a small line under them. In a new week step 1 says **Start here**. Finishing step 1, 3 or 4
+  shows "Step 1 done. Next: Ward Council." (and so on); Ward Council finishing on its own screen says "Step 2 done.
+  Next: Huddle." with a Home button. After sending: "Sent. Next week starts with Before Ward Council." and Done goes
+  to the opening screen.
+- **Hand off** left the bottom bar (now Home and Send). It is a line under the four steps, "Someone else conducting?
+  Hand off", and Help's "What if someone else conducts?" has the steps and a **Hand off now** link.
+- **The first time from the Home Screen** the ward name is asked first ("Welcome! What’s your ward?"); the welcome
+  offering the step-by-step guide follows.
+- **The first list that can be swiped** shows "← Swipe a name left to remove it." with **Got it**, once per phone.
+- **Words:** assignment (not action item), huddle report (not agenda or PDF), Focus names and Covenant Path Report
+  in the huddle report too (no "Name Next Ordinance" or "Review"), "This week's plan", "plan at least one assignment",
+  Next steps, Ward Council and Before Ward Council as step names, "Invite" as the huddle report's side label for
+  opportunities, and **Send the huddle report** on the send panel's button.
+

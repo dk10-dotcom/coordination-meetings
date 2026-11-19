@@ -9,47 +9,47 @@
  {
   "kicker": "The opening screen",
   "title": "Four steps, in order",
-  "body": "1. Before ward council\n2. Ward council\n3. The Huddle\n4. After the huddle\nUp next shows where you are. A finished step gets a green check.",
+  "body": "1. Before Ward Council\n2. Ward Council\n3. The Huddle\n4. After the huddle\nStart here, then Up next, shows where you are. A finished step gets a green check.",
   "color": "#4F5A8C",
   "img": "02.jpg"
  },
  {
-  "kicker": "Step 1 · Before ward council",
+  "kicker": "Step 1 · Before Ward Council",
   "title": "Open the Covenant Path Report",
   "body": "Open the report in Member Tools and make this list match it: add or remove names so everyone is listed.",
   "color": "#4F5A8C",
   "img": "03.jpg"
  },
  {
-  "kicker": "Step 1 · Before ward council",
+  "kicker": "Step 1 · Before Ward Council",
   "title": "Tap each name",
   "body": "Add any dates, and check off what the report shows they’ve done. A check means done.",
   "color": "#4F5A8C",
   "img": "04.jpg"
  },
  {
-  "kicker": "Step 1 · Before ward council",
+  "kicker": "Step 1 · Before Ward Council",
   "title": "Check off what’s done",
   "body": "Each person has the checklist from their report. Baptisms for the dead stays red, with its 30-day countdown, until it’s checked.",
   "color": "#4F5A8C",
   "img": "05.jpg"
  },
  {
-  "kicker": "Step 1 · Before ward council",
+  "kicker": "Step 1 · Before Ward Council",
   "title": "Mark it done",
   "body": "When the names match the report, tap Mark done. It stays at the bottom of the screen.",
   "color": "#4F5A8C",
   "img": "06.jpg"
  },
  {
-  "kicker": "Step 2 · Ward council",
+  "kicker": "Step 2 · Ward Council",
   "title": "Who and what",
-  "body": "Step 1 has its green check. Ward council is up next.",
+  "body": "Step 1 has its green check. Ward Council is up next. Tap the i on any step for what to do there.",
   "color": "#2F5DA6",
   "img": "07.jpg"
  },
  {
-  "kicker": "Step 2 · Ward council",
+  "kicker": "Step 2 · Ward Council",
   "title": "Counsel together",
   "body": "Work down the cards. Up next shows where you are, and a finished card gets a green check.",
   "color": "#2F5DA6",
@@ -58,7 +58,7 @@
  {
   "kicker": "Step 2 · Opportunities to invite",
   "title": "What’s coming up",
-  "body": "Add each upcoming event and its event date. If there are none, tap No upcoming events.",
+  "body": "Add each upcoming event and its event date, then tap Done. If there are none, tap No upcoming events.",
   "color": "#2F5DA6",
   "img": "09.jpg"
  },
@@ -77,9 +77,9 @@
   "img": "11.jpg"
  },
  {
-  "kicker": "Step 2 · Ward council",
+  "kicker": "Step 2 · Ward Council",
   "title": "Make focus name",
-  "body": "Tap it, and the huddle plans their action item. Their next ordinance and needs come along.",
+  "body": "Tap it, and the huddle plans their assignment. Below it, their next steps on the Covenant Path Report can be checked off.",
   "color": "#2F5DA6",
   "img": "12.jpg"
  },
@@ -107,7 +107,7 @@
  {
   "kicker": "Step 3 · The Huddle",
   "title": "Four sections",
-  "body": "Return and Report and Sacrament attendance, then the Huddle action plan: Opportunities to invite and Focus names.",
+  "body": "Return and Report and Sacrament attendance, then this week’s plan: Opportunities to invite and Focus names.",
   "color": "#B0531A",
   "img": "16.jpg"
  },
@@ -148,8 +148,8 @@
  },
  {
   "kicker": "Step 3 · Focus names",
-  "title": "One action item",
-  "body": "What will we do this week to help them toward their next ordinance? Tap something still open on their report or an idea, or type your own. Then who and when.",
+  "title": "One assignment",
+  "body": "What will we do this week to help them toward their next ordinance? Tap a next step on their report or an idea, or type your own. Then who and when.",
   "color": "#B0531A",
   "img": "22.jpg"
  },
@@ -170,14 +170,14 @@
  {
   "kicker": "Step 3 · Focus names",
   "title": "A plan for every focus name",
-  "body": "Each name now shows its action item, who, and when.",
+  "body": "Each name now shows its assignment, who, and when. Mark done works once every name has one.",
   "color": "#B0531A",
   "img": "25.jpg"
  },
  {
   "kicker": "Step 3 · The Huddle",
   "title": "All four sections done",
-  "body": "Mark each section done as you go. The bar fills in.",
+  "body": "Mark done takes you on to the next section. The bar fills in.",
   "color": "#B0531A",
   "img": "26.jpg"
  },
@@ -198,7 +198,7 @@
  {
   "kicker": "Step 4 · After the huddle",
   "title": "Mark it done",
-  "body": "Anyone marked Changed has updates since step 1. Update the report, then tap Mark done.",
+  "body": "Update each changed name in the report and tick Updated in the report. Then Mark done works.",
   "color": "#6E2F7E",
   "img": "29.jpg"
  },
@@ -219,7 +219,7 @@
  {
   "kicker": "Send",
   "title": "Sent",
-  "body": "This week’s assignments move to Return and Report for next time. Names and needs stay for ward council.",
+  "body": "Next week starts with Before Ward Council. This week’s assignments move to Return and Report.",
   "color": "#237445",
   "img": "32.jpg"
  },

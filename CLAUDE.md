@@ -1,7 +1,7 @@
 # Huddle: the One by One app (weekly coordination meeting agenda)
 
-The app's name is **Huddle** (Home Screen icon, browser tab, and small letters above the opening
-screen's title, which is "One by One", with "Joyfully gathering Israel one by one in Christ" under it.
+The app's name is **Huddle** (Home Screen icon, browser tab, and the opening
+screen's title, with "One by One · Joyfully gathering Israel one by one in Christ" as a small line under the ward and date.
 The user decided that line needs no source line: it is the Area Presidency's directive, already known in the stake.)
 
 A phone-first web app that a ward mission leader uses every week. It is live at
@@ -95,11 +95,14 @@ Next ordinance is a menu and When is a date (`datesmenu.js`). Older tests type w
 choice (`selectOption`) and type dates as `YYYY-MM-DD`.
 There is no guided tour or practice week (the user took them out, Nov 18, 2026); `test/obsolete/guided.js` and
 `practice.js` are kept for reference. The first time from the Home Screen, a welcome offers the step-by-step guide.
-The bottom bar (Hand off, a round Home in the middle, Send) floats on every screen. Mark done (step 1, each Huddle
+The bottom bar (a round Home in the middle, Send on the right) floats on every screen; Hand off is a line under the four steps. Mark done (step 1, each Huddle
 section, step 4) is pinned just above it, green with a check once done; the green Done keeps it done and goes back,
 and a small Mark as not done link under it undoes it; on the opening screen Home scrolls back to the top. Each
 training slide shows which part of the week it is in (1-4 and Week).
-`wccards.js` tests Ward Council's cards (Up next, No upcoming events, the focus names right on the screen, Event date).
+`wccards.js` tests Ward Council's cards (Up next, Done or No upcoming events, the Find your focus names box, the focus names right on
+the screen, a name's plain screen with its next steps, Event date). `flow.js` tests the week's flow: the opening screen, the
+"i" instructions, the Huddle's Mark done waiting for what's needed and going on to the next section, After the huddle's
+Updated in the report ticks, Hand off under the steps and the ward asked first.
 `howhelp.js` tests the How can we help? panels, the list names' bands and the source links.
 `lively.js` tests the header cards, icons, initials and the Sent celebration. Keep color and motion
 within those pieces; don't add a "needs attention" list (the user decided it repeats what the sections say).

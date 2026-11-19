@@ -1470,6 +1470,12 @@ body[data-view="start"] .title-text .title-sub { color: #FFFFFF; opacity: .88; }
 /* Find your focus names: one box holding the Covenant Path Report and the Part-Member Families button */
 .wc-find { background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; box-shadow: 0 1px 2px rgba(27,43,75,.05);
   padding: 12px 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.wc-find-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 2px 4px 0; }
+.wc-find-head .wc-group-k { margin: 0; }
+.wc-done-tick[hidden] { display: none; }
+.wc-find-sub { margin: -6px 4px 0; font-size: 14px; color: var(--muted); }
+.wc-find.is-done .wc-find-sub { color: #1F6B3A; font-weight: 600; }
+.mark-done.is-blocked { background: #C9D3E6; border-color: #C9D3E6; color: #2E4A7E; box-shadow: none; }
 .wc-group-k { margin: 2px 4px 0; font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
 .wc-find .steps-list { border-radius: 12px; box-shadow: none; }
 .wc-find .nav-row { padding-left: 12px; }
@@ -1633,3 +1639,61 @@ body.gated { overflow: hidden; }
 .safari-gate::after { content: ''; position: fixed; left: 0; right: 0; bottom: 0; height: calc(84px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to bottom, rgba(27, 43, 75, 0), #1B2B4B 45%); pointer-events: none; z-index: 1; }
 .safari-gate.is-ipad::after { top: 0; bottom: auto; height: 76px; background: linear-gradient(to top, rgba(27, 43, 75, 0), #1B2B4B 45%); }
 .gate-arrow { z-index: 2; }
+
+/* A name's Ward Council screen: plain, no zone label; next steps on their Covenant Path Report in a closed list */
+.person-wc .wc-plain-zone { display: flex; flex-direction: column; gap: 14px; }
+.person-wc .ns-box { background: var(--ground); }
+.person-wc .focus-box, .person-wc .focus-on { margin: 0; }
+.wc-plain { gap: 10px; }
+.wc-bap { margin: 0; }
+.ns-box { border: 1px solid var(--card-line); border-radius: 12px; overflow: hidden; background: var(--card); }
+.ns-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 52px; padding: 10px 14px; border: 0; background: none;
+  font: inherit; font-size: 15.5px; font-weight: 600; color: var(--ink); text-align: left; cursor: pointer; }
+.ns-chev { flex: none; font-size: 22px; color: #B4BBC8; transition: transform .2s ease; }
+.ns-box.is-open .ns-chev { transform: rotate(90deg); }
+.ns-list { margin: 0; padding: 0 10px 10px; }
+.ns-none { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 15px; color: #1F6B3A; font-weight: 600; }
+.ns-none svg { flex: none; width: 16px; height: 16px; }
+
+/* The little "i" and what it shows */
+.info-i { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; margin-left: 6px; padding: 0; vertical-align: middle;
+  border-radius: 50%; border: 1.5px solid currentColor; background: none; color: var(--accent); font: italic 700 13px/1 Georgia, 'Times New Roman', serif; cursor: pointer; opacity: .85; position: relative; }
+.info-i::after { content: ''; position: absolute; inset: -11px; } /* a bigger target for a finger */
+.info-i[aria-expanded="true"] { background: var(--accent); color: #FFFFFF; border-color: var(--accent); opacity: 1; }
+.info-text { margin: 6px 0 0; font-size: 14px; line-height: 1.4; color: var(--muted); }
+.info-text[hidden] { display: none; }
+.wc-line .after-fact { display: flex; align-items: center; flex-wrap: wrap; gap: 0 4px; }
+
+/* After the huddle: each changed name is ticked once it's updated in the Covenant Path Report */
+.after-upd-ck { margin-top: 10px; width: 100%; border-top: 1px solid var(--card-line); padding-top: 10px; }
+.after-upd-ck .ck-t { font-weight: 600; color: var(--ink); }
+.after-upd-ck.is-done .ck-t { color: #1F6B3A; }
+.after-upd-ck.flash { animation: updflash .9s ease; }
+@keyframes updflash { 0%, 100% { background: transparent; } 30% { background: #FFF2C6; } }
+
+.page-intro[hidden] { display: none; }
+.hero-i { color: #FFFFFF; border-color: rgba(255,255,255,.85); margin-left: 8px; width: 21px; height: 21px; font-size: 12.5px; }
+.hero-i[aria-expanded="true"] { background: #FFFFFF; color: var(--accent); border-color: #FFFFFF; }
+.hero-top .hero-kicker { display: inline-flex; align-items: center; }
+.list-fn > .info-text { margin: -2px 12px 2px; }
+.opp-what { display: none; }
+
+/* Opening screen: Huddle, the ward and the date first; the vision a small quiet line under them (Nov 19, 2026) */
+body[data-view="start"] .title-text .title-sub { margin-top: 8px; font-size: 13px; font-weight: 500; opacity: .78; line-height: 1.35; }
+.title-sub-k { font-style: normal; font-weight: 700; }
+.hero-ward:has(.hero-i) { display: flex; align-items: center; gap: 2px; }
+.temple-why { display: flex; align-items: center; gap: 6px; margin: -4px 0 0; font-size: 13.5px; color: var(--muted); }
+.temple-why .info-i { margin-left: 0; }
+.focus-why .info-i { color: inherit; }
+
+/* Hand off: a quiet line under the four steps (it's only for weeks someone else conducts) */
+.handoff-line { margin: 4px 0 0 -34px; text-align: center; font-size: 15px; color: var(--muted); }
+.handoff-line .btn-link { font-size: 15px; font-weight: 700; }
+.nav-spacer { visibility: hidden; }
+@media (max-width: 359px) { .handoff-line { margin-left: -30px; } }
+
+.swipe-hint { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px 10px 16px; font-size: 14px; color: var(--muted); background: var(--accent-soft); }
+.swipe-hint .btn-link { flex: none; font-size: 14px; font-weight: 700; }
+.after-upd-ck .ck-box { display: inline-flex; align-items: center; justify-content: center; }
+.after-upd-ck.is-done .ck-box { background: #1F6B3A; border-color: #1F6B3A; color: #FFFFFF; }
+.after-upd-ck.is-done .ck-box svg { width: 14px; height: 14px; }
