@@ -39,8 +39,7 @@ Buy a domain (about $12/year), then add it under **Settings → Pages → Custom
 
 ## Built-in instructions
 
-- **Help & training** (top of the opening screen) is a short list: Start here (Add Huddle to your Home Screen, the guided tour, the Step-by-step guide (training slides) and a sample huddle report), the steps for every week, an FAQ of six questions, Settings (Appearance, Load from a PDF, Erase everything), and About this app (Privacy and security, Sources, who made it). Tap a row to read it; each step is a few short lines. In a phone's browser it opens by itself the first time, with the first-time step open.
-- **Guided tour:** a practice week with sample names. A card at the bottom gives one task at a time, rings what to tap and moves on once it's done; Finish brings the real huddle back. Start it from **Take the guided tour** in Help & training, or send people the site link plus `#tour`.
+- **Help & training** (top of the opening screen) is a short list: Start here (Add Huddle to your Home Screen, the Step-by-step guide (training slides) and a sample huddle report), the steps for every week, an FAQ of six questions, Settings (Appearance, Load from a PDF, Erase everything), and About this app (Privacy and security, Sources, who made it). Tap a row to read it; each step is a few short lines. In a phone's browser it opens by itself the first time, with the first-time step open.
 - **Look:** each of the four steps opens with a header card in its own color (ward, date, what to do there; the Huddle and Ward council also show progress), section rows have colored icons, names have initials, and sending ends with a short celebration.
 - **Tips for an effective meeting** is a small link in the Huddle's header card. It opens the Principles for Effective Coordination and the Prepare ahead tip.
 - **How can we help?** is a small link under New members, Returning members and Those being taught in Ward council's Covenant Path Report. It slides up that section's questions from *Preach My Gospel*, chapter 13. Nothing is typed there and none of it goes on the PDF.
@@ -93,7 +92,7 @@ New members (blue), Returning members (green), Those being taught (purple) and F
 The PDF is made to read on a phone: its pages are the shape of a phone screen (360 × 780 points), with text large enough to read without zooming. On letter paper each page prints as a narrow column.
 
 - **Top:** "Keep this PDF secure", the title, ward, date, who conducted, and **Attended**: only the people who were there, on one line.
-- **At a glance:** how the last huddle's assignments went (done, partly, not done), every name once with this huddle's action item, and dates coming up (baptisms, the temple countdown, upcoming opportunities to invite).
+- **Coming up:** baptisms, the temple countdown and upcoming opportunities to invite, at the top.
 - **Two parts, each with a colored header named by date:** **1 · Looking back · Nov 1 huddle — Return and Report** (slate) and **2 · Looking ahead · Nov 8 huddle — Huddle action plan** (navy).
 - **One short block per person,** with its section written sideways down a colored band at the left (RETURN & REPORT, NEW MEMBERS, …), so every name shows where it belongs. There are no tables.
 - **Return and Report:** the name with **Yes**, **Partly** or **No** in color at the right (or "Not marked"), the person's list, last huddle's action item with who and when in gray, and notes. Carried-forward items say so.

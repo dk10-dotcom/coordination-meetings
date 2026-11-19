@@ -2559,7 +2559,6 @@
       }
       case 'sa-toggle': setSac(a, +b, !(a === 'tn' ? state.tn[+b] : state.cp[a][+b]).sac); renderSA(); renderSteps(); renderCP(); renderTN(); saveDraft(); break;
       case 'list-done': listDone(a); break;
-      case 'tour': closeHelp(); startPractice(); break; // the guided tour is a practice week with sample names
       case 'go-home-screen': if (stepsOn && view === 'start') { window.scrollTo({ top: 0, behavior: 'smooth' }); break; } if (isPerson(view)) cleanupPerson(); showView('start', 'replace'); break;
       case 'add-hneed': {
         var zone = btn.closest('.card-zone');
@@ -2652,9 +2651,6 @@
       }
       case 'open-details': openDetails(); break;
       case 'edit-ward': openOverlay('#ward-sheet', '#ward'); break;
-      case 'coach-skip': if (coachAt >= 0) { coachAt++; writeCoach(); drawCoach(); } break;
-      case 'coach-finish': removePractice(); break;
-      case 'coach-end': confirmRemovePractice(); break;
       case 'slides': openSlides(); break;
       case 'slide-next': if (slides && slideAt >= slides.length - 1) closeOverlay('#slides-sheet'); else showSlide(slideAt + 1); break;
       case 'slide-prev': showSlide(slideAt - 1); break;
@@ -2745,7 +2741,6 @@
         break;
       }
       case 'load-file': pickFile(); break;
-      case 'practice': ['#handoff-sheet', '#help-sheet'].forEach(function (id) { if (!$(id).hidden) closeOverlay(id); }); startPractice(); break;
       case 'delete-all':
         closeOverlay('#handoff-sheet');
         ask({
@@ -2911,24 +2906,6 @@
     var d = parseISO(state.date) || new Date();
     d.setDate(d.getDate() + days);
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-  }
-  function practiceData() {
-    var card = function (o) { return Object.assign(blankAction(), o); };
-    return {
-      app: APP_ID, v: DATA_VERSION, ward: 'Sample Ward', date: isoShift(-7), conducting: 'wml', attendees: [], rr: [],
-      cp: {
-        nm: [card({ name: 'Daniel Rivera', bap: isoShift(-12), ordinance: 'Baptisms for the dead', need: 'A ride to the temple', action: 'Invite him on the ward temple trip Saturday', assigned: 'Bro. Patel', when: 'Sat' })],
-        rm: [card({ name: 'Olivia Chen', ordinance: 'Endowment', need: 'A friend at church', action: 'Sit with her family at sacrament meeting', assigned: 'Sister Diaz', when: 'Sun' })],
-        bt: [card({ name: 'Marcus Hill', bap: isoShift(10), committed: true, need: 'Get to know ward members', action: 'Invite him to the ward dinner Friday', assigned: 'Elders quorum', when: 'Fri' })]
-      },
-      tn: [
-        card({ name: 'Grace Thompson', ordinance: 'Sealing', need: 'Help preparing family names', action: 'Family history consultant visits to prepare names', assigned: 'Sister Nguyen', when: 'Thu' }),
-        card({ name: 'Samuel Ortiz', ordinance: '', need: 'Someone to study with', action: 'Elders quorum president meets with him', assigned: 'Bro. Young', when: 'Tue' }),
-        card({ name: 'Emma Walsh', ordinance: 'Endowment', need: 'Temple preparation class', action: 'Invite her to the temple prep class', assigned: 'Sister Lee', when: 'Sun' })
-      ],
-      find: { plan: 'Invite friends to the ward Christmas devotional', items: [{ task: 'Each family invites one friend', when: 'Sun', carried: false }] },
-      referrals: [{ name: 'Marcus Bell', by: 'Sister Diaz', notes: 'A friend from work who asked about the Book of Mormon' }]
-    };
   }
   // Tour only: when New members is empty, the tour shows one sample card so the name card stops have fields to point at.
   // It's never saved, and the real list comes back as soon as the tour moves on or ends.
@@ -3156,8 +3133,8 @@
   function sendHandoff() {
     if (handoffBlocked()) return; // the row itself says why (a message here would cover Receive a handoff)
     closeOverlay('#handoff-sheet');
-    if (handoffMsg) { openMessages(handoffMsg); coachMark('handoff'); return; }
-    (handoffBuild || Promise.reject()).then(function (msg) { openMessages(msg); coachMark('handoff'); }, function () { toast('Couldn’t make the handoff. Try again.'); });
+    if (handoffMsg) { openMessages(handoffMsg); return; }
+    (handoffBuild || Promise.reject()).then(function (msg) { openMessages(msg); }, function () { toast('Couldn’t make the handoff. Try again.'); });
   }
   /* A handoff link opened in an iPhone's browser. iPhone opens links in Safari, never in the Home Screen app,
    * and the two keep their data apart, so the handoff can't land in the app. It gets a page of its own
@@ -3223,9 +3200,7 @@
   // Either way, Undo puts this phone's agenda back.
   function confirmApplyAgenda(data, how, after) {
     if (data && data.__practice) {
-      var practiceIn = normalizeState(data);
-      ask({ title: 'Try this practice handoff?', body: 'It opens as a practice week with sample names. Your own huddle is set aside and comes back when you remove the practice week.',
-        primary: 'Load the practice', onPrimary: function () { if (after) after(); loadPracticeHandoff(practiceIn); }, secondary: 'Cancel' });
+      ask({ title: 'This was a practice handoff', body: 'It holds sample names from the practice week, which Huddle no longer has. There’s nothing to load.', primary: 'OK' });
       return;
     }
     // A real huddle never loads over a practice week (that would lose the huddle set aside under it).
@@ -3258,128 +3233,20 @@
   }
 
   function isPractice() { return !!(state.loaded && state.loaded.practice); }
-  // A practice week is guided: a small card at the bottom gives one task at a time and moves on once it's done.
-  function startPractice() {
-    // The practice starts from a blank form with only the sample names, so none of this phone's real names are in it
-    // (or in a practice handoff). The real huddle is set aside whole and comes back when the practice is removed.
-    if (!isPractice()) {
-      var real = JSON.parse(JSON.stringify(state));
-      state = normalizeState(null); state.ward = real.ward; state.practiceSnapshot = real; showBlank = {};
-    }
-    applyLoad(practiceData(), 'Practice week', { practice: true });
-    if (!isPractice()) return;
-    // A fresh week to practice on (the real one, set aside, keeps its own marks).
-    state.verified = { before: false, after: false }; state.stepsDone = {}; state.attendees = [];
-    resetView(); renderAll(); applyView(); saveDraft();
-    startCoach(0);
-  }
+  // (The guided tour and its practice week were taken out, Nov 18, 2026. A phone that was in the middle of one gets its
+  // own huddle back when the app opens; the keys below only clean that up.)
   var COACH_KEY = 'huddle-coach-step', GUIDE_OFFERED_KEY = 'huddle-tour-seen';
-  var COACH = [
-    { k: 'Welcome', t: 'This tour walks you through one week with **sample names**. Each card gives one thing to do and moves on once it’s done. Anything already on this phone is set aside and comes back at the end.', start: true },
-    { k: 'Step 1 · Before ward council', t: 'The opening screen has four steps, in order. Tap **Step 1 · Before ward council**.', target: '#before-box', done: function () { return view === 'bw' || state.verified.before; } },
-    { k: 'Step 1 · Before ward council', t: 'Before ward council mirrors the Covenant Path Report. Tap a name and check off what they’ve done, then tap **Mark done** at the bottom.', target: '#before-done-btn', done: function () { return !!state.verified.before; } },
-    { k: 'Step 2 · Ward council', t: 'Step 1 has its green check. Now tap **Step 2 · Ward council**.', target: '.door-wc', done: function () { return view === 'wc' || isWcList(view) || view === 'p-wc'; } },
-    { k: 'Step 2 · Ward council', t: 'Ward council identifies focus names; **Open Part-Member Families** helps find names, and for ideas tap **How can we help?** on a list. Tap **Focus names**, then **Samuel Ortiz**, choose his next ordinance and add **What will help**. Never add confidential information to this huddle report.', target: ['[data-wc="tn"] [data-b="1"]', '[data-action="open-wc-list"][data-a="tn"]', '#person-card select'], done: function () { var a = state.tn[1]; return !!(a && ORDINANCES.indexOf(str(a.ordinance)) >= 0 && str(a.need).trim()); } },
-    { k: 'Step 2 · Ward council', t: 'Names marked **Suggested focus name** are pressing. Tap **Done**, then **Back**, **Covenant Path Report** and **Daniel Rivera**, and tap **Make focus name**.', target: ['#person-card [data-action="make-focus"]', '[data-wc="nm"] [data-b="0"]', '[data-action="open-wc-list"][data-a="cp"]', '#person-view .person-done', '.step-back'], done: function () { return focusIndex('Daniel Rivera') >= 0; } },
-    { k: 'Step 3 · Huddle', t: 'Every name has a next ordinance, so Step 2 is done. Tap **Home** at the bottom, then **Step 3 · Huddle**.', target: ['.nav-home:not(.is-here)', '.door-hd'], done: function () { return view === 'home'; } },
-    { k: 'Step 3 · Huddle', t: 'Tap **Huddle Attendees** and tap who came. Tap **both youth**, the priests quorum assistant and the Gatherers of Light representative: including the youth matters.', target: ['#attendee-list', '#details-summary'], done: function () { return state.attendees.indexOf('pqa') >= 0 && state.attendees.indexOf('gol') >= 0; } },
-    { k: 'Step 3 · Return and Report', t: 'Tap **Done**, then **Return and Report**. Mark one assignment **Yes**, one **Partly** and one **No**.', target: ['[data-action="open-step"][data-a="rr"]', '#rr-list'], done: function () { var h = state.rr.map(function (r) { return r.happened; }); return h.indexOf('Yes') >= 0 && h.indexOf('Partly') >= 0 && h.indexOf('No') >= 0; } },
-    { k: 'Step 3 · Return and Report', t: 'On the one marked **No**, tap **Carry forward to this huddle**. It moves onto this week’s plan, so it isn’t forgotten.', target: '.btn-carry', done: function () { return state.rr.some(function (r) { return r.carriedFwd; }); } },
-    { k: 'Step 3 · Return and Report', t: 'Tap **Mark done** at the bottom. It turns green once it’s done.', target: '[data-action="step-done"]', done: function () { return !!state.stepsDone.rr; } },
-    { k: 'Step 3 · Sacrament attendance', t: 'Tap **Sacrament attendance** and tap each person who came. Then tap **Mark done**.', target: ['[data-action="step-done"]', '[data-action="open-step"][data-a="sa"]'], done: function () { return !!state.stepsDone.sa; } },
-    { k: 'Step 3 · Focus names', t: 'The huddle plans an action item for each focus name. Tap **Focus names**, then **Daniel Rivera**, and add an action item, who will do it, and a date.', target: ['#person-card .zone-hd-wrap', '[data-group="tn"] .person-row', '[data-action="open-step"][data-a="tn"]', '#steps-this'], done: function () { var a = state.tn[focusIndex('Daniel Rivera')]; return !!(a && str(a.action).trim() && str(a.assigned).trim() && str(a.when).trim()); } },
-    { k: 'Step 3 · Focus names', t: 'Tap **Text this assignment** and send it to yourself. In a real huddle, text each person before everyone leaves.', target: '#person-card [data-action="text-assign"]', done: function () { var a = state.tn[focusIndex('Daniel Rivera')]; return !!(a && a.texted); }, skip: true },
-    { k: 'Step 3 · Focus names', t: 'Tap **Done**, then **Mark done**. Tip 👆 to take someone off Focus names, swipe their name left or tap **Remove from Focus names** on their screen.', target: ['#person-view .person-done', '[data-action="step-done"]'], done: function () { return !!state.stepsDone.tn; } },
-    { k: 'Step 3 · Opportunities to invite', t: 'Open **Opportunities to invite**. Tap the ward council’s opportunity, tap **Add an assignment**, pick a way to invite, add who and when, tap **Done**, then **Mark done**.', target: ['[data-action="step-done"]', '#person-view .person-done', '#person-card [data-action="invite-idea"]', '#person-card [data-action="add-fn"]', '[data-action="open-person"][data-a="opp"]', '[data-action="open-step"][data-a="fn"]'], done: function () { return STEPS.every(function (x) { return state.stepsDone[x.id]; }); } },
-    { k: 'Step 4 · After the huddle', t: 'All four sections are done, so Step 3 is too. Tap **Home** at the bottom, then **Step 4 · After the huddle**.', target: ['.nav-home:not(.is-here)', '#after-box'], done: function () { return view === 'af' || state.verified.after; } },
-    { k: 'Step 4 · After the huddle', t: 'This page lists what happened for each person. Update the Covenant Path Report in Member Tools to match, then tap **Mark done**. Anyone marked **Changed** has updates since Step 1.', target: '#after-done-btn', done: function () { return !!state.verified.after; } },
-    { k: 'Send', t: 'All four steps have green checks. Tap **Send**, then **Share PDF**, and send the sample to yourself.', target: '.nav-send', done: function () { return coachFlag('sent'); } },
-    { k: 'Hand off', t: 'When someone else will conduct, you hand the huddle off. Try it: tap **Hand off**, then **Send a handoff**, and text it to yourself.', target: '.btn-handoff', done: function () { return coachFlag('handoff'); }, skip: true },
-    { k: 'All done', t: 'You’ve practiced a whole week. Tap **Finish** to remove the sample names; anything you had before comes back as it was.', end: true }
-  ];
-  var coachAt = -1, coachEl = null, coachTimer = null, coachMoving = false, coachFlags = {};
-  function coachFlag(k) { return !!coachFlags[k]; }
-  function coachMark(k) { if (coachAt >= 0) coachFlags[k] = true; }
-  function coachText(t) { var d = document.createElement('span'); d.textContent = t; return d.innerHTML.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'); }
-  function startCoach(i) {
-    coachAt = i; coachFlags = {}; writeCoach();
-    if (!coachEl) {
-      coachEl = h('div', { class: 'coach', role: 'status', 'aria-live': 'polite' }, [
-        h('div', { class: 'coach-top' }, [h('span', { class: 'coach-k' }), h('span', { class: 'coach-n' }),
-          h('button', { type: 'button', class: 'coach-end', 'data-action': 'coach-end', text: 'End practice' })]),
-        h('p', { class: 'coach-t' }),
-        h('div', { class: 'coach-btns' }, [h('button', { type: 'button', class: 'btn-link coach-skip', 'data-action': 'coach-skip', text: 'Skip this step' }),
-          h('button', { type: 'button', class: 'btn-primary coach-start', 'data-action': 'coach-skip', text: 'Start' }),
-          h('button', { type: 'button', class: 'btn-primary coach-finish', 'data-action': 'coach-finish', text: 'Finish' })])
-      ]);
-      document.body.appendChild(coachEl);
-    }
-    document.body.classList.add('coaching');
-    drawCoach(); clearInterval(coachTimer); coachTimer = setInterval(coachTick, 400);
-  }
-  function drawCoach() {
-    var c = COACH[coachAt]; if (!c || !coachEl) return;
-    coachEl.classList.remove('done');
-    coachEl.querySelector('.coach-k').textContent = 'Practice · ' + c.k;
-    coachEl.querySelector('.coach-n').textContent = c.start ? '' : coachAt + ' of ' + (COACH.length - 1);
-    coachEl.querySelector('.coach-t').innerHTML = coachText(c.t);
-    coachEl.querySelector('.coach-skip').hidden = !c.skip;
-    coachEl.querySelector('.coach-finish').hidden = !c.end;
-    coachEl.querySelector('.coach-start').hidden = !c.start;
-    coachEl.querySelector('.coach-end').hidden = !!c.end;
-    sizeCoach();
-  }
-  function sizeCoach() { if (coachEl) { document.body.style.setProperty('--coach-h', coachEl.offsetHeight + 'px'); document.documentElement.style.setProperty('--coach-h-root', coachEl.offsetHeight + 'px'); } }
-  function coachTick() {
-    if (coachAt < 0 || !coachEl) return;
-    if (!isPractice()) { stopCoach(); return; }
-    // Out of the way while a panel or the tour is open.
-    coachEl.hidden = !!document.querySelector('.overlay:not([hidden])') || document.body.classList.contains('touring') || document.body.classList.contains('handoff-open');
-    var c = COACH[coachAt];
-    ringTarget(c && !coachMoving && !coachEl.hidden ? c.target : null);
-    if (coachMoving || !c || c.end || c.start || !c.done()) return;
-    coachMoving = true; coachEl.classList.add('done');
-    coachEl.querySelector('.coach-t').innerHTML = '✓ ' + coachText(c.t);
-    setTimeout(function () { coachMoving = false; coachAt++; writeCoach(); drawCoach(); }, 1100);
-  }
-  // A ring around the thing to tap next (the first one of its list that is on screen).
-  var ringed = null;
-  function ringTarget(t) {
-    var el = null;
-    (Array.isArray(t) ? t : t ? [t] : []).some(function (sel) {
-      var all = document.querySelectorAll(sel);
-      for (var k = 0; k < all.length; k++) { var r = all[k].getBoundingClientRect(); if (r.width && r.height) { el = all[k]; return true; } }
-      return false;
-    });
-    if (el === ringed) return;
-    if (ringed) ringed.classList.remove('coach-target');
-    ringed = el; if (el) el.classList.add('coach-target');
-  }
-  function writeCoach() { try { if (coachAt >= 0) localStorage.setItem(COACH_KEY, String(coachAt)); else localStorage.removeItem(COACH_KEY); } catch (e) { /* ignore */ } }
   function stopCoach() {
-    coachAt = -1; writeCoach(); clearInterval(coachTimer); ringTarget(null);
-    if (coachEl) coachEl.remove(); coachEl = null;
+    try { localStorage.removeItem(COACH_KEY); } catch (e) { /* ignore */ }
+    var el = document.querySelector('.coach'); if (el) el.remove();
     document.body.classList.remove('coaching'); document.body.style.removeProperty('--coach-h');
-  }
-  function resumeCoach() { // the app was reopened in the middle of a guided practice
-    var n = null; try { n = localStorage.getItem(COACH_KEY); } catch (e) { /* ignore */ }
-    if (n !== null && isPractice() && COACH[+n]) startCoach(+n); else if (n !== null) { coachAt = -1; writeCoach(); }
-  }
-  // A practice handoff opened on this phone: a practice week too. This phone's own huddle is set aside.
-  function loadPracticeHandoff(incoming) {
-    var snap = isPractice() ? state.practiceSnapshot : JSON.parse(JSON.stringify(state));
-    state = incoming; showBlank = {};
-    state.loaded = { fileName: 'Practice handoff', ward: str(incoming.ward), date: str(incoming.date), count: state.rr.filter(rrShown).length, practice: true };
-    state.practiceSnapshot = snap;
-    resetView(); renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
-    toast('Practice handoff loaded. When you’re done, remove the practice week and your own huddle comes back.', 8000);
   }
   function removePractice() {
     stopCoach();
     var snap = state.practiceSnapshot;
     state = normalizeState(snap || null); state.loaded = null; state.practiceSnapshot = null;
     resetView(); renderAll(); applyView(); saveDraft(); window.scrollTo(0, 0);
-    toast('Practice week removed. Your own names are back the way they were.');
+    toast('The practice week is gone. Your own names are back the way they were.');
   }
   function confirmRemovePractice() {
     ask({ title: 'Remove the practice week?', body: 'The sample names and anything you entered while practicing are cleared, and your own names come back the way they were.',
@@ -3614,16 +3481,10 @@
     state.rr = items.map(function (it) { return rrFromItem(it, ''); });
     state.loaded = { fileName: fileName, ward: str(data.ward), date: str(data.date), count: items.length, practice: !!opts.practice };
     // the practice week has an upcoming opportunity from ward council, ready for the huddle's assignments
-    if (opts.practice && !state.find.opps.length) state.find.opps.push({ id: oppId(), title: 'Ward Christmas devotional', date: isoShift(14) });
     state.practiceSnapshot = snap;
     if (!opts.practice && !state.ward.trim() && data.ward) { state.ward = str(data.ward); $('#ward').value = state.ward; writeWard(state.ward); }
     var carried = carryNames(data);
     if (opts.practice) state.referrals = cleanReferrals(data.referrals);
-    if (opts.practice) { // What will help clears each week; the practice week keeps the sample ones, except Samuel's (the tour asks for it)
-      var pd = practiceData(), keepNeed = function (list, src) { list.forEach(function (a) { var m = src.filter(function (x) { return norm(x.name) === norm(a.name); })[0];
-        if (m && !str(a.need).trim() && norm(a.name) !== norm('Samuel Ortiz')) a.need = m.need; }); };
-      keepNeed(state.tn, pd.tn); GROUPS.forEach(function (g) { keepNeed(state.cp[g.id], pd.cp[g.id] || []); });
-    }
     renderRR(); renderCP(); renderTN(); renderMR(); saveDraft();
     toast(opts.practice ? 'Practice week loaded: sample names, with ' + items.length + ' sample assignments in Return and Report.'
       : 'Loaded ' + items.length + (items.length === 1 ? ' action item' : ' action items') +
@@ -3783,8 +3644,8 @@
       ask({
         title: 'No saved agendas yet',
         body: 'Each agenda you send or save is kept on this phone for 4 weeks. First time? Try a practice week with sample names to see how Load last week works. If last week’s PDF is in your email or Files, choose Load from a file.',
-        primary: 'Try a practice week', onPrimary: startPractice,
-        secondary: 'Load from a file', onSecondary: pickFile
+        primary: 'Load from a file', onPrimary: pickFile,
+        secondary: 'Cancel'
       });
       return;
     }
@@ -4103,65 +3964,32 @@
     hline(L, R, y + 7, C.navy, 1.2);
     y += 8;
 
-    /* ----- At a glance: how the last huddle's assignments went, then every name once with this huddle's action item ----- */
+    /* ----- Coming up, at the top: baptisms, the temple countdown and upcoming opportunities (the user took out the rest
+       of At a glance, Nov 18, 2026: the last huddle's counts and the list of focus names) ----- */
     (function () {
-      var cnt = { Yes: 0, Partly: 0, No: 0 };
-      s.rr.forEach(function (r) { if ((r.prefilled || rrHasInput(r)) && cnt[r.happened] !== undefined) cnt[r.happened]++; });
-      var people = [], soon = [];
-      // the focus names, with their action items; the rest of the Covenant Path names are counted below them.
-      s.tn.forEach(function (a) { if (str(a.name).trim()) people.push({ a: a, gid: 'tn' }); });
-      var others = 0;
-      GROUPS.forEach(function (g) { s.cp[g.id].forEach(function (a) { var n = norm(a.name); if (n && !s.tn.some(function (t) { return norm(t.name) === n; })) others++; }); });
+      var soon = [];
       s.cp.bt.forEach(function (a) { var n = str(a.name).trim(); if (n && a.bap) soon.push({ who: n, what: 'Baptism ' + shortDay(str(a.bap)), color: GROUP_PDF.bt.ink }); });
       s.cp.nm.forEach(function (a) {
         var n = str(a.name).trim(); if (!n || !a.bap) return;
         var st = templeStatus(a, s.date); if (!st.done && st.left !== undefined) soon.push({ who: n, what: 'Temple: ' + st.short, color: TEMPLE_RED });
       });
-      var marked = cnt.Yes + cnt.Partly + cnt.No;
-      lead.push(space(18));
-      lead.push(line(26, function (top) {
-        tx(L, top + 10, 'AT A GLANCE', F.bold, 8.5, C.navy);
-        if (marked) {
-          var sx = R;
-          ['No', 'Partly', 'Yes'].forEach(function (k) {
-            var label = cnt[k] + ' ' + (k === 'Yes' ? 'done' : k === 'Partly' ? 'partly' : 'not done');
-            var w = width(label, F.bold, 8.5) + 12; sx -= w;
-            rbox(sx, top, w, 14, 7, STATUS_FILL[k]); tx(sx + 6, top + 10.2, label, F.bold, 8.5, STATUS_PDF[k]); sx -= 4;
-          });
-          tx(sx - width('Last huddle', F.reg, 8.5) - 2, top + 10.2, 'Last huddle', F.reg, 8.5, C.gray);
-        }
-        hline(L, R, top + 22, C.line, 0.6);
-      }));
-      var rows = [];
-      if (!people.length) rows.push(line(18, function (top) { tx(L, top + 12, 'No focus names this week', F.ital, 10.5, C.gray); }));
-      people.forEach(function (p) {
-        var n = str(p.a.name).trim(), act = str(p.a.action).trim();
-        rows.push(line(18, function (top) {
-          rbox(L, top + 5, 7, 7, 3.5, GROUP_PDF[p.gid].ink);
-          var e = tx(L + 13, top + 12, n, F.bold, 11, C.dark);
-          var room = R - e - 8, t = act || 'No action item yet';
-          if (width(t, F.reg, 9.5) > room) { // shortened to fit one line; the whole item is in the person's block below
-            while (t.length > 3 && width(t + '…', F.reg, 9.5) > room) t = t.slice(0, -1);
-            t = t.replace(/\s+\S*$/, '') + '…';
-          }
-          if (room > 30) tx(e + 8, top + 12, t, act ? F.reg : F.ital, 9.5, C.gray);
-        }));
-      });
-      if (others) rows.push(line(18, function (top) { tx(L, top + 12, others + ' more on the Covenant Path Report, listed below for reference', F.ital, 9.5, C.gray); }));
       // Upcoming opportunities to invite stay on the list until their date passes (rollForward drops them then).
       (s.find.opps || []).filter(function (o) { return str(o.title).trim(); }).forEach(function (o) {
         soon.push({ who: o.title.trim(), what: parseISO(str(o.date)) ? shortDay(str(o.date)) : '', color: GROUP_PDF.fn.ink });
       });
-      if (soon.length) {
-        rows.push(space(4));
-        soon.forEach(function (x, k) {
-          rows.push(line(16, function (top) {
-            if (!k) tx(L, top + 12, 'Coming up', F.reg, 9.5, C.gray);
-            var e = tx(L + 64, top + 12, x.who, F.bold, 10.5, C.dark);
-            tx(e + 6, top + 12, x.what, F.bold, 9.5, x.color);
-          }));
-        });
-      }
+      if (!soon.length) return;
+      lead.push(space(18));
+      lead.push(line(26, function (top) {
+        tx(L, top + 10, 'COMING UP', F.bold, 8.5, C.navy);
+        hline(L, R, top + 22, C.line, 0.6);
+      }));
+      var rows = [];
+      soon.forEach(function (x) {
+        rows.push(line(18, function (top) {
+          var e = tx(L, top + 12, x.who, F.bold, 10.5, C.dark);
+          if (x.what) tx(e + 6, top + 12, x.what, F.bold, 9.5, x.color);
+        }));
+      });
       put(rows);
     })();
 
@@ -4526,7 +4354,6 @@
   }
   // A sample changes nothing: the practice week stays as it was.
   function sampleSent() {
-    coachMark('sent');
     ask({ title: 'Sample sent', success: true, body: 'Open it to see what the weekly huddle report looks like. Nothing changed in your practice week, and your own huddle is still set aside.', primary: 'OK' });
   }
 
@@ -4586,7 +4413,8 @@
       startSend(null, true);
     });
     renderAll();
-    datesForWhens(); renderCP(); renderTN(); renderFN(); resumeCoach();
+    datesForWhens(); renderCP(); renderTN(); renderFN();
+    if (isPractice()) removePractice(); // the guided tour and its practice week were taken out (Nov 18, 2026): a phone left in one gets its own huddle back
     checkHandoffLink();
     window.addEventListener('hashchange', checkHandoffLink);
     // Tapping the date opens the phone's date picker right there.
@@ -4749,14 +4577,14 @@
     // First visit on a device: in a phone’s browser, Help & training opens (it starts with Add to Home Screen).
     // Everywhere else, including the Home Screen app, the guided tour starts once.
     if (location.hash === '#help') openHelp();
-    else if (location.hash === '#tour') startPractice();
+    else if (location.hash === '#tour') openSlides(); // (the guided tour was taken out; the step-by-step guide takes its place)
     else if (!navigator.webdriver && !handoffPending) { // a handoff link comes first; the instructions wait for the next visit
       var phoneBrowser = (isIOS || isAndroid) && !isStandalone();
       if (phoneBrowser) { if (!readFlag(HELP_KEY)) openHelp(); }
-      else if (!readFlag(GUIDE_OFFERED_KEY) && !isPractice()) { // the first time from the Home Screen: offer the guided tour once
+      else if (!readFlag(GUIDE_OFFERED_KEY)) { // the first time from the Home Screen: offer the step-by-step guide once
         writeFlag(GUIDE_OFFERED_KEY);
-        ask({ title: 'Welcome to Huddle', body: 'Take the guided tour? You practice one week with sample names, step by step. It takes about 5 minutes. Anything already on this phone is set aside and comes back at the end.',
-          primary: 'Start the tour', onPrimary: startPractice, secondary: 'Not now' });
+        ask({ title: 'Welcome to Huddle', body: 'The step-by-step guide walks through one week, a few minutes at your own pace.',
+          primary: 'Open the guide', onPrimary: openSlides, secondary: 'Not now' });
       }
     }
     window.addEventListener('hashchange', function () { if (location.hash === '#help') openHelp(); });

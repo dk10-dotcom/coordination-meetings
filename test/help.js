@@ -38,9 +38,9 @@ const ok = (l, c) => console.log((c ? 'PASS ' : 'FAIL ') + l);
   const openHelp = async pg => { await pg.evaluate(() => document.querySelector('[data-action="help"]').click()); await pg.waitForSelector('#help-sheet:not([hidden])'); await pg.waitForTimeout(200); };
   const openIds = pg => pg.$$eval('#help-sheet details[open]', d => d.map(x => x.id || x.querySelector('.step-title').textContent).join('|'));
   await openHelp(p);
-  ok('five short lists: 4 to start, 5 weekly steps, 6 questions, 3 settings, 2 about the app', (await p.$$eval('#help-sheet .help-list', ls => ls.map(l => l.children.length).join())) === '4,5,6,3,2');
+  ok('five short lists: 3 to start, 5 weekly steps, 6 questions, 3 settings, 2 about the app', (await p.$$eval('#help-sheet .help-list', ls => ls.map(l => l.children.length).join())) === '3,5,6,3,2');
   ok('their headings: Start here, Every week, FAQ, Settings, About this app', (await p.$$eval('#help-sheet .help-band', h => h.map(x => x.textContent).join('|'))) === 'Start here|Every week|FAQ|Settings|About this app');
-  ok('Start here: Home Screen, guided tour, training slides, sample report', (await p.$$eval('#help-sheet .help-list >> nth=0 >> .step-title', t => t.map(x => x.textContent).join('|'))) === 'Add Huddle to your Home Screen|Take the guided tour|Step-by-step guide|See a sample huddle report');
+  ok('Start here: Home Screen, training slides, sample report (no guided tour)', (await p.$$eval('#help-sheet .help-list >> nth=0 >> .step-title', t => t.map(x => x.textContent).join('|'))) === 'Add Huddle to your Home Screen|Step-by-step guide|See a sample huddle report');
   ok('FAQ: each a question, most used first', (await p.$$eval('#help-sheet .help-list >> nth=2 >> .step-title', t => t.map(x => x.textContent).join('|'))) === 'How do I add or remove a name?|How do I track baptisms and the temple?|What if someone else conducts?|How do I fix a mistake?|How do I share the PDF again?|New phone? How do I get my names back?');
   ok('each weekly step says to tap Home first', (await p.$$eval('#help-sheet .help-list >> nth=1 >> .help-body li:first-child', l => l.every(x => /^(As people report back, tap|Tap) Home/.test(x.textContent)))));
   ok('Help & training: title with Close at the top; settings: Appearance, Load from a PDF, Erase everything; who made it at the end', (await p.textContent('#help-title')) === 'Help & training' && (await p.textContent('#help-done')).trim() === 'Close' && (await p.$$eval('#help-sheet .help-list >> nth=3 >> .step-title', t => t.map(x => x.textContent).join('|'))) === 'Appearance|Load from a PDF|Erase everything and start over' && (await p.textContent('.help-credits')).includes('Not an official app of The Church of Jesus Christ of Latter-day Saints.') && (await p.textContent('.help-credits')).includes('darrenkirkham@mac.com'));
@@ -102,15 +102,13 @@ const ok = (l, c) => console.log((c ? 'PASS ' : 'FAIL ') + l);
   await q.goto(BASE.replace('#huddle', '')); await q.waitForSelector('#start-home:not([hidden])'); await openHelp(q);
   ok('from the Home Screen app every step starts closed, and the first-time step says it is already done', (await openIds(q)) === '' && (await q.textContent('#help-install-status')).trim() === 'Already done on this phone');
   await q.screenshot({ path: OUT + '/help-se-closed.png' });
-  ok('everything under Start here, down to the guided tour, shows on the first screen of a small phone', await q.evaluate(() => { const r = document.querySelector('#help-sheet [data-action="tour"]').getBoundingClientRect(); return r.bottom <= window.innerHeight; }));
+  ok('everything under Start here, down to the step-by-step guide, shows on the first screen of a small phone', await q.evaluate(() => { const r = document.querySelector('#help-sheet [data-action="slides"]').getBoundingClientRect(); return r.bottom <= window.innerHeight; }));
   await q.evaluate(() => document.querySelectorAll('#help-sheet details').forEach(d => { d.open = true; })); await q.waitForTimeout(150);
   ok('320 px: nothing wider than the screen with every row open', await q.evaluate(() => { const s = document.querySelector('#help-sheet .sheet'); return document.documentElement.scrollWidth <= window.innerWidth && s.scrollWidth <= s.clientWidth && [...s.querySelectorAll('*')].every(e => e.getBoundingClientRect().right <= window.innerWidth + 0.5); }));
   await app.close();
 
-  // The guided tour starts from How to use, with no other message in the way
-  await p.fill('#ward', 'Riverton 5th Ward');
-  await p.evaluate(() => document.querySelector('[data-action="help"]').click()); await p.waitForTimeout(200); await p.click('#help-sheet [data-action="tour"]'); await p.waitForTimeout(500);
-  ok('Take the guided tour starts the practice week with its first card', await p.isHidden('#confirm-sheet') && await p.isVisible('.coach') && /sample names/.test(await p.textContent('.coach-t')));
+  // The guided tour and its practice week were taken out (Nov 18, 2026)
+  ok('there is no guided tour or practice week anywhere', !(await p.$('[data-action="tour"]')) && !(await p.$('[data-action="practice"]')) && !(await p.$('.coach')));
 
   console.log('PROBLEMS:', problems.length ? problems : 'none');
   await browser.close();

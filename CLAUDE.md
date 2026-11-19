@@ -17,14 +17,14 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
 - **The PDF is the only thing that leaves the phone,** and only by email or text. Keep this wording
   wherever sharing is offered: "Only share via email or text message. Do not share through any other app."
 - Keep this warning visible next to the boxes where details are typed (under Needs on a Ward council name;
-  under the notes in the Huddle and on each Return and Report item), and in the tour:
+  under the notes in the Huddle and on each Return and Report item), and in the step-by-step guide:
   "Never add confidential information to this huddle report." (The user decided it no longer sits under the
   step cards. Help & training says it in Privacy and security, with no banner there.)
 - Keep the disclaimer on the opening screen: "Not an official app of The Church of Jesus Christ of
   Latter-day Saints." Keep "Made by Darren Kirkham · darrenkirkham@mac.com" at the end of Help & training.
 - **Fake names only** in samples, tests, screenshots and commit messages
   (Daniel Rivera, Olivia Chen, Grace Thompson, Marcus Bell, Marcus Hill, Emma Walsh, Samuel Ortiz).
-- **Whenever behavior changes, update Help & training (`index.html`) and the guided tour (the `COACH` steps in `app.js`) in the same change.**
+- **Whenever behavior changes, update Help & training (`index.html`) and the step-by-step guide (`test/tools/slides/scenes.js`, then remake the slides) in the same change.**
   Update `docs/SPEC.md` and the tests too.
 - **Keep Help & training short.** It is a list of steps that open when tapped, at most five short lines
   each, saying what to tap. Updating it usually means changing a line, not adding one: leave out
@@ -92,10 +92,12 @@ cards, dates and the PDF keep running; the Huddle no longer has that section).
 Next ordinance is a menu and When is a date (`datesmenu.js`). Older tests type words into them through
 `test/tools/compat-fill.js`, the way a huddle saved before the change holds them; new tests should pick a
 choice (`selectOption`) and type dates as `YYYY-MM-DD`.
-The guided tour is a practice week (`guided.js`): a black card at the bottom gives one task at a time (the `COACH`
-list in `app.js`), rings what to tap, and moves on once it's done; each step ends with that step's green check.
-The bottom bar (Hand off, a round Home in the middle, Send) floats on every screen. Mark done (step 1, each Huddle section, step 4) is pinned just above it, green with a check once done; the green Done keeps it done and goes back, and a small Mark as not done link under it undoes it; on the opening screen Home scrolls back to the top. Each training slide shows which part of the week it is in (1-4 and Week). The bar stays above the card. The old passive tour (`tour.js`) is retired. a sample Send (stamped SAMPLE, no data inside, changes nothing) and a
-practice handoff are allowed; nothing from a practice may ever load over or replace a real huddle.
+There is no guided tour or practice week (the user took them out, Nov 18, 2026); `test/obsolete/guided.js` and
+`practice.js` are kept for reference. The first time from the Home Screen, a welcome offers the step-by-step guide.
+The bottom bar (Hand off, a round Home in the middle, Send) floats on every screen. Mark done (step 1, each Huddle
+section, step 4) is pinned just above it, green with a check once done; the green Done keeps it done and goes back,
+and a small Mark as not done link under it undoes it; on the opening screen Home scrolls back to the top. Each
+training slide shows which part of the week it is in (1-4 and Week).
 `howhelp.js` tests the How can we help? panels, the list names' bands and the source links.
 `lively.js` tests the header cards, icons, initials and the Sent celebration. Keep color and motion
 within those pieces; don't add a "needs attention" list (the user decided it repeats what the sections say).
@@ -118,7 +120,7 @@ within those pieces; don't add a "needs attention" list (the user decided it rep
 ## Open items
 
 - First run: a phone browser opens Help & training (with Add to Home Screen first); the Home Screen app
-  then starts the tour once. These could be combined into one short welcome.
+  then offers the step-by-step guide once. These could be combined into one short welcome.
 - `test/obsolete/` holds tests for removed features (saved agendas, Send & Clear). Do not revive them.
 - `app.js` still carries unused code from saved agendas (`open-agenda`, `share-agenda`, `pick-agenda`,
   `delete-all`, `openLoad`). Nothing on the page calls it; remove it in a cleanup.

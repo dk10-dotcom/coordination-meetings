@@ -130,7 +130,7 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   await F.addInitScript(() => Object.defineProperty(Navigator.prototype, 'webdriver', { get: () => false }));
   const f = await F.newPage(); f.errs = []; f.on('pageerror', e => f.errs.push(e.message));
   await f.goto(url); await f.waitForSelector('#handoff-page:not([hidden])'); await f.waitForTimeout(600);
-  ok(await f.isHidden('#help-sheet') && !(await f.isVisible('.tour')), 'on a first visit, the handoff page shows without How to use or the tour over it');
+  ok(await f.isHidden('#help-sheet') && !(await f.isVisible('#slides-sheet')), 'on a first visit, the handoff page shows without How to use or the guide over it');
   await f.goto('http://127.0.0.1:8765/'); await f.waitForSelector('#help-sheet:not([hidden])');
   ok(await f.isVisible('#help-sheet'), 'How to use still opens on the next visit');
 

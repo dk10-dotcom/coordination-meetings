@@ -188,8 +188,8 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const f = OUT + '/try.pdf'; await dl.saveAs(f);
   const t = execSync(`pdftotext -layout "${f}" -`).toString();
   ok(t.indexOf('Focus names') > 0 && /Christmas sacrament meeting/.test(t) && /Each family invites one friend/.test(t), 'PDF: focus names, the opportunity and its assignment');
-  const glance = t.slice(t.indexOf('AT A GLANCE'), t.indexOf('Return and Report'));
-  ok(/Coming up/.test(glance) && /Christmas sacrament meeting/.test(glance), 'PDF: At a glance lists the upcoming opportunity');
+  const glance = t.slice(t.indexOf('COMING UP'), t.indexOf('Return and Report'));
+  ok(t.indexOf('COMING UP') > 0 && !/AT A GLANCE/.test(t) && /Christmas sacrament meeting/.test(glance), 'PDF: no At a glance; Coming up at the top lists the upcoming opportunity');
   ok(!/Missionary Referrals|Referred by/.test(t), 'PDF: no Missionary Referrals');
   // The next huddle: the assignment comes back in Return and Report, and the opportunity stays until its date
   await p.click('#confirm-primary').catch(() => {}); await w(500);

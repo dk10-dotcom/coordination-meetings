@@ -5,12 +5,12 @@ small letters above the opening screen's title. (The third step is also called t
 opening screen's large title is "One by One" so the two are not confused.)
 
 This describes the behavior of the app as it is today. The code is the final word:
-`app.js` (behavior and PDF), `index.html` (screens and Help & training). The guided tour's steps are the `COACH` list in `app.js`.
+`app.js` (behavior and PDF), `index.html` (screens and Help & training). (There is no guided tour any more.)
 When behavior changes, change this file in the same commit.
 
 ## Words the app uses
 
-One word for each thing, on every screen, in Help & training and in the tour:
+One word for each thing, on every screen, in Help & training and in the step-by-step guide:
 
 | Word | Means |
 | --- | --- |
@@ -31,7 +31,7 @@ mission leader. Ward council decides **who** to focus on and **what** each perso
 is. The huddle decides **how** and **when** to help. The app carries the names from ward council to
 the huddle, records the huddle's assignments, and produces a PDF that is shared by email or text.
 
-The users are not technical. The app must be usable with no training beyond a short tour.
+The users are not technical. The app must be usable with no training beyond the short step-by-step guide.
 It should look and behave like an ordinary iPhone app: lists of rows with a chevron, one screen per
 thing, **Back** at the top left with the screen's name centered beside it, and screens that slide
 in from the right and back out to the left (no slide when the phone asks for reduced motion).
@@ -584,7 +584,6 @@ link clears both from the address bar.
   - **Receive a handoff** reads the copied link from the clipboard (or offers a box to paste it)
     and asks "Load this handoff?".
 
-  Hand off is blocked during a practice week.
 - **A leader who filled in hands the huddle back.** After sending the PDF (which finishes that
   huddle and sets up the next one), they tap **Hand off**, then **Send a handoff**, and text it to
   whoever conducts next week. That leader then has the next huddle, with the last assignments in
@@ -601,7 +600,7 @@ link clears both from the address bar.
   Under the steps, **Don't have Huddle on your Home Screen?** opens to **Show me how to add it**
   and, as a last resort, **Use it in Safari this once** with a warning that it stays in Safari
   (the Home Screen app won't have it, and the phone can erase it after about a week without a
-  visit). **Not now** closes the page and loads nothing. On a first visit, Help & training and the tour
+  visit). **Not now** closes the page and loads nothing. On a first visit, Help & training and the guide
   wait until the next visit so nothing covers this page.
 - **Load from a PDF** (Help & training → Settings) reads the data embedded in a sent PDF
   and sets up the next huddle from it, the same way sending does. It restores a phone that lost its
@@ -615,8 +614,7 @@ link clears both from the address bar.
   five groups of rows, in this order (no confidential banner: Ward council and the Huddle carry it next to
   their Needs and notes boxes, and Privacy and security says it here):
   - **Start here:** Add Huddle to your Home Screen ("Do this once, before you start", or "Already done on
-    this phone" when the app is running from the Home Screen); Take the guided tour ("Practice a week with
-    sample names"); Step-by-step guide ("Read through at your own pace"; the training slides); and See a sample huddle report. None has a step
+    this phone" when the app is running from the Home Screen); Step-by-step guide ("Read through at your own pace"; the training slides); and See a sample huddle report. None has a step
     number, because they are not part of the week. (The ward is set from the opening screen's header.)
   - **Every week:** Before ward council, Ward council, Huddle, After the huddle (numbered 1 to 4, the four
     steps on the opening screen under the same names), then During the week, marked with a calendar instead
@@ -631,8 +629,7 @@ link clears both from the address bar.
     who gets the PDF can read it.
   - **Settings** (between FAQ and About this app): **Appearance**, three choices: Automatic (follows
     the phone), Light and Dark; the choice is kept on this phone (`huddle-theme`), and `theme.js` applies it
-    before the page draws. **Load from a PDF** ("New phone? Choose the last PDF you sent"; left out during a
-    practice week) and **Erase everything and start over** in red ("Clears this phone. The ward name
+    before the page draws. **Load from a PDF** ("New phone? Choose the last PDF you sent") and **Erase everything and start over** in red ("Clears this phone. The ward name
     stays."). Either closes Help & training first.
 
   At the end: "Not an official app of The Church of Jesus Christ of Latter-day Saints." and "Made by
@@ -662,32 +659,17 @@ link clears both from the address bar.
   "Ideas for Weekly Missionary Coordination" in *Sharing the Gospel: Resources for Leaders*.
   The first says "Adapted from" (five points condensed from the page's eight principles); the
   second says "From" (quoted). The **Prepare ahead** tip is the app's own and sits below the line.
-- **The guided tour (a practice week):** Help & training → **Take the guided tour** ("Practice a week with sample
-  names"), a link ending in `#tour`, or, the first time the app is opened from the Home Screen, a "Welcome to
-  Huddle" question offering it. It sets this phone's huddle aside whole and starts a blank week with only sample
-  names. A black card at the bottom gives one task at a time ("Step 3 · Return and Report", "8 of 18"), puts a
-  pulsing gold ring around what to tap, and moves on about a second after the task is done. Hand off and Send
-  sit above the card, never under it; the card hides while a panel is open. Tasks: Start → Step 1 → mark it done →
-  Ward council → choose Samuel Ortiz's next ordinance (with the confidential-information warning) → **Home**, then
-  the Huddle → Huddle Attendees, tapping both youth → in Return and Report one Yes, one Partly, one No → carry the
-  No forward → Mark done → Daniel Rivera's action item, who and date → text it (skippable) → Mark
-  done → the other three sections done (Step 3's check) → Home, then After the huddle → mark it done → Send the
-  sample → a practice handoff (skippable) → **Finish**, which removes the practice and brings the real huddle back.
-  **End practice** asks first. If the app is reopened mid-tour, the card comes back where it was.
+- **No guided tour or practice week** (the user took them out, Nov 18, 2026: the step-by-step guide and Help &
+  training cover it, and a practice week's sample report confused a real one). The first time the app is opened from
+  the Home Screen, "Welcome to Huddle" offers **Open the guide** (the step-by-step guide) or **Not now**, once. A link
+  ending in `#tour` opens the guide. A phone left in a practice week from before gets its own huddle back when the app
+  opens; an old practice handoff link says there's nothing to load.
 - **The bottom bar** floats on every screen: **Hand off** on the left, a round raised **Home** in the middle and
   **Send** on the right. Home is one tap back to the opening screen; on the opening screen itself it scrolls back to
   the top. The bar steps aside while the keyboard is up, and anything scrolled into view stops above it. On a
   person's screen, **Done** stays just above the bar as you scroll, so Done and Home are both always in reach; every
   list ends with enough room for its last row to clear the bar.
-  - **Send during practice** makes a sample: the file is "Huddle SAMPLE - …", every page has a large faint
-    SAMPLE and a red line "SAMPLE · practice names, not a real huddle" at the top, and the PDF carries no
-    huddle data to load. The panel says to send it to yourself. Sending it changes nothing: no "huddle sent",
-    nothing moves to Return and Report; it ends with "Sample sent".
-  - **Texts during practice** (an assignment or a referral) start with "SAMPLE (practice, not a real …)".
-  - **Hand off during practice** sends a practice handoff ("Practice handoff (sample names, not a real
-    huddle)"). On the phone that opens it, "Try this practice handoff?" loads it as a practice week, with that
-    phone's own huddle set aside until the practice week is removed. A real handoff or PDF never loads over a
-    practice week: it asks to remove the practice week first.
+
 
 - **Add to Home Screen** banner whenever the app is open in a phone's browser.
 
@@ -701,7 +683,7 @@ Erases every name, need and assignment and the last sent huddle. The ward name i
 | --- | --- |
 | `#huddle` | Opens straight to the Huddle screen (used by the tests) |
 | `#help` | Opens Help & training |
-| `#tour` | Starts the tour |
+| `#tour` | Opens the step-by-step guide (the tour was taken out) |
 | `#handoff=…` | Offers to load a handed-off huddle |
 
 ### Source links
@@ -754,14 +736,10 @@ width with nothing to zoom. On letter paper a page prints as a narrow column at 
 - Top: "Keep this PDF secure and delete it when it's no longer needed.", title, then Ward, Date,
   Conducting and **Attended**. Attended lists only the people who were there, on one line, in the
   order of the form (a dash when no one was marked).
-- **At a glance**, right under the header: "Last huddle" with three colored counts (2 done, 2 partly,
-  1 not done; left off when nothing was marked), then **every focus name**, one line each: a dot in
-  the focus names' color, the name in bold, and this huddle's action item in gray (shortened with
-  "…" to fit one line; "No action item yet" in italics). Under the names, **Coming up**: a baptism
-  date for those being taught, the 30-day temple countdown for new members who haven't gone yet, and each
-  upcoming opportunity to invite with its date (it stays until its date passes).
-  Nothing is typed for it; it comes from what is already entered. "No focus names this week" when there are
-  none; "4 more on the Covenant Path Report, listed below for reference" counts the rest.
+- **Coming up**, right under the header (the user took out the rest of At a glance, Nov 18, 2026: the last
+  huddle's counts and the list of focus names): a baptism date for those being taught, the 30-day temple countdown
+  for new members who haven't gone yet, and each upcoming opportunity to invite with its date (it stays until its
+  date passes). Nothing is typed for it; it comes from what is already entered. Left out when there's nothing.
 - There are no tables and no Who/What/How/When boxes. **Each person is one short block** with a
   hairline under it. Down its left side runs a band in the color of its section with the section's
   name turned sideways in white (RETURN & REPORT in slate; NEW MEMBERS, RETURNING, BEING TAUGHT,
