@@ -86,7 +86,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
   ok((await p.textContent('[data-action="carry-fwd"][data-a="0"]')).trim() === 'Carry forward to this huddle', 'Carry forward has no date: ' + await p.textContent('[data-action="carry-fwd"][data-a="0"]'));
   await p.click('[data-action="happened"][data-a="0"][data-b="No"]');
   await open('cp');
-  ok(await p.inputValue('[data-bind="cp.nm.0.name"]') === 'Daniel Rivera' && await p.inputValue('[data-bind="cp.nm.0.need"]') === 'A ride' && await p.inputValue('[data-bind="cp.nm.0.action"]') === '', 'names and needs stay; actions clear');
+  ok(await p.inputValue('[data-bind="cp.nm.0.name"]') === 'Daniel Rivera' && await p.inputValue('[data-bind="cp.nm.0.need"]') === '' && await p.inputValue('[data-bind="cp.nm.0.action"]') === '', 'names stay; What will help and actions clear');
   ok((await p.textContent('[data-group="nm"] .source')).trim() === 'From the last huddle', 'kept names are tagged From the last huddle');
   await open('tn');
   ok(await p.inputValue('[data-bind="tn.0.name"]') === 'Grace Thompson', 'focus names stay');

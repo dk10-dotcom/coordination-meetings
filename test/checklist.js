@@ -71,7 +71,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   ok(!(await p.$('#person-card .help-chips')), 'a focus name that isn’t on the report has no chips until it has a next ordinance');
   await p.selectOption('#person-card [data-bind="tn.1.ordinance"]', 'Endowment'); await w(400);
   const ideas = await p.$$eval('#person-card .help-chips .idea-chip', e => e.map(x => x.textContent));
-  ok(/Ideas for the endowment/.test(await p.textContent('#person-card .help-chips')) && ideas.join('|') === 'Schedule a temple recommend interview with the bishop|Invite to temple preparation|Prepare a family name for the temple', 'a name not on the report gets Ideas for its next ordinance: ' + ideas.join(' | '));
+  ok(/Ideas for the endowment/.test(await p.textContent('#person-card .help-chips')) && ideas.join('|') === 'Meet with the bishop|Invite to temple preparation|Prepare a family name for the temple', 'a name not on the report gets Ideas for its next ordinance: ' + ideas.join(' | '));
   await p.click('#person-view .person-done'); await w(300);
 
   // The Huddle: a focus name has no sacrament box
@@ -127,6 +127,8 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   st = await saved();
   const ol2 = (st.cp.rm || []).find(x => x.name === 'Olivia Chen') || {};
   ok(ol2.checks && ol2.checks.melch === true && ol2.checks.calling === true && ol2.checks.aaronic === 'na', 'next huddle: the checklist carries over with the name');
+  const ol3 = (st.tn || []).find(x => x.name === 'Olivia Chen') || {};
+  ok(ol3.ordinance === 'Priesthood advancement' && !ol3.need, 'next huddle: the focus name keeps its next ordinance; What will help clears for ward council to choose again');
   const past = (st.find.items || []).filter(x => x.past);
   const ri = (st.rr || []).findIndex(r => /Each family invites one friend/.test(r.action || ''));
   ok(past.length === 1 && past[0].opp === 'o1' && ri >= 0 && st.rr[ri].fid === past[0].id, 'next huddle: the assignment stays on the opportunity and comes back in Return and Report');

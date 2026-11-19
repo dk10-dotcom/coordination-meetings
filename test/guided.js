@@ -45,7 +45,8 @@ const real = { ward: 'Sample Ward', date: '2026-11-15', conducting: 'wml', atten
   ok(/Never add confidential information/.test(await p.textContent('.coach-t')), 'the Ward council card has the confidential warning');
   await p.click('[data-action="open-wc-list"][data-a="tn"]'); await p.waitForTimeout(300);
   await p.click('[data-wc="tn"] [data-action="open-person"][data-b="1"]'); await p.waitForTimeout(400);
-  await p.selectOption('#person-card select[data-bind$=".ordinance"]', 'Priesthood advancement');
+  await p.selectOption('#person-card select[data-bind$=".ordinance"]', 'Priesthood advancement'); await p.waitForTimeout(300);
+  await p.click('#person-card .help-chips .idea-chip >> nth=0'); await p.waitForTimeout(200);
   ok(await waitCoach(5), 'choosing Samuel Ortiz’s next ordinance moves to task 5 (make a focus name)');
   ok(/Suggested focus name/.test(await p.textContent('.coach-t')), 'task 5 explains Suggested focus name');
   await p.click('#person-view .person-done'); await p.waitForTimeout(400);

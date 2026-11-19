@@ -108,7 +108,9 @@ date on one line, the ward name large (or the step's name when no ward is set), 
 line on what to do. The Huddle and After the huddle show the huddle's date; the other two show
 today's. The two meetings also show progress:
 - **Huddle:** "2 of 5 sections done", with a bar that fills as sections are marked done.
-- **Ward council:** "6 of 7 names have a next ordinance" (Covenant Path lists and focus names).
+- **Ward council:** "2 of 3 focus names have What will help". Ward council (step 2 on the opening screen) is done when
+  every focus name has What will help; since What will help clears after each send, so does the check (the user
+  decided, Nov 18, 2026).
   Hidden while there are no names.
 At the top a full bar reads "✓ All 5 sections done". The ward name is not repeated in Huddle
 Details once it is in the card.
@@ -238,21 +240,22 @@ marked in the Huddle; next ordinance and What will help are ward council's).
 
 | New members | Returning members | Those being taught |
 | --- | --- | --- |
-| Scheduled a temple recommend interview with the bishop | Has friends at church | Attended sacrament meeting |
+| Meet with the bishop | Has friends at church | Attended sacrament meeting |
 | Performed baptisms for the dead (red, with the 30-day countdown, until checked) | Aaronic Priesthood ordination | Has friends at church |
 | A calling | Melchizedek Priesthood ordination | Met the bishop |
 | A ministering assignment | A calling | Participated in family history |
 | Assigned ministers | A ministering assignment | |
 | Prepared a family name for the temple | Assigned ministers | |
 | Invited to attend institute | Prepared a family name for the temple | |
-| Invited to mission or temple preparation | Scheduled a temple recommend interview with the bishop | |
+| Invited to mission or temple preparation | Meet with the bishop | |
 | Interview for patriarchal blessing | Performed baptisms for the dead | |
 | Invited to consider a full-time mission | Received endowment (if applicable) | |
 | | Sealed to parents (if applicable) | |
 | | Sealed to spouse (if applicable) | |
 
 The "if applicable" items have a **Doesn't apply** button beside them; an item that doesn't apply is crossed
-out and left out of the count. A new member's "Performed baptisms for the dead" is the same as temple
+out and left out of the count. A new member's "Performed baptisms for the dead" sits right under the baptism date, in red with the countdown,
+until it's checked; then it moves into the list after Meet with the bishop. It is the same as temple
 attendance everywhere else (the countdown, the tags, the PDF). The checklist carries to the next huddle with
 the name, and is kept in the PDF's data. **Done**, **Back** and the phone's Back return to the list.
 **Remove from the list** is at the bottom and asks first when the person has details. A name already on that
@@ -345,10 +348,10 @@ the mirror of the Huddle's:**
     by name on the Covenant Path Report lists. A name that isn't on the report gets ideas by the next ordinance
     ward council picks, labeled **Ideas for {ordinance}**: baptism (Attend sacrament meeting, Friends at church,
     Meet the bishop, Participate in family history); the sacrament (Friends at church, Assigned ministers, A
-    calling); baptisms for the dead (Schedule a temple recommend interview with the bishop, Prepare a family name
+    calling); baptisms for the dead (Meet with the bishop, Prepare a family name
     for the temple); priesthood advancement (Meet the bishop, Friends at church, Assigned ministers, A calling);
-    the endowment (Schedule a temple recommend interview with the bishop, Invite to temple preparation, Prepare a
-    family name for the temple); sealing (Schedule a temple recommend interview with the bishop, Invite to temple
+    the endowment (Meet with the bishop, Invite to temple preparation, Prepare a
+    family name for the temple); sealing (Meet with the bishop, Invite to temple
     preparation). They change when the next ordinance changes.
 - **Huddle · How & When** is under it, closed, as a short summary: sacrament attendance (marked
   this huddle, or as of the last one), temple status (new members), baptism commitment (those
@@ -546,7 +549,8 @@ The PDF goes to the bishop-approved list, the stake presidency and the full-time
 - One copy of the sent huddle is kept on the phone for **Share again**. It is replaced at the next
   send, removed after 5 weeks, and removed by Erase everything.
 - Every action item moves into Return and Report for the next huddle.
-- Names, next ordinances, needs and huddle notes stay. Baptism dates, temple and commitment stay.
+- Names, next ordinances, huddle notes and the checklist stay. Baptism dates, temple and commitment stay.
+  **What will help clears** (it is ward council's choice for the week; the user decided, Nov 18, 2026).
 - Upcoming opportunities stay until their date passes.
 - Attendance, attended-sacrament marks, assignments, section checks and both boxes clear.
   Each card remembers whether sacrament was marked at the huddle just sent.

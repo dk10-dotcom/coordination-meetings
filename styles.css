@@ -1567,3 +1567,4 @@ html.no-splash .splash { display: none; }
 .fn-line-sub { font-size: 13.5px; color: var(--muted); overflow-wrap: anywhere; }
 .fn-line .wc-status { flex: none; font-weight: 700; }
 .fn-line[open] > .fn-assign { border: 0; border-top: 1px solid var(--card-line); border-radius: 0 0 12px 12px; margin: 0; }
+.ck-up { grid-column: 1 / -1; margin: -2px 0 0; }

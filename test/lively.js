@@ -74,7 +74,7 @@ const seed = {
     await p.click('#mode-bar [data-action="go-start"]'); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(200);
     // Ward council
     await p.click('.door-wc'); await p.waitForTimeout(350);
-    ok(await p.isVisible('#wc-hero') && (await p.textContent('#wc-hero .hero-count')) === '6 of 7 names have a next ordinance' && (await p.$$eval('#wc-rows .row-icon', e => e.length)) === 3 && await fits(), dev + ': Ward council header card and three icons');
+    ok(await p.isVisible('#wc-hero') && /^(\d+ of \d+ focus names have What will help|All \d+ focus names have What will help|The focus name has What will help)$/.test(await p.textContent('#wc-hero .hero-count')) && (await p.$$eval('#wc-rows .row-icon', e => e.length)) === 3 && await fits(), dev + ': Ward council header card and three icons');
     ok(!(await p.$('#wc-note')) && await p.isVisible('#wc-pmf'), dev + ': no confidential line under the step card; Part-Member Families sits above the rows');
     await p.click('#mode-bar [data-action="go-start"]'); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(200);
     // Every page fits

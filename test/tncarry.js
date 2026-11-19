@@ -39,7 +39,7 @@ async function freshWeek(pg) { if (await pg.isVisible('#load-panel [data-action=
   const v = await Promise.all(names);
   ok(v[2] === '', 'third spot stays open: ' + v[2]);
   ok(v[0] === 'Grace Thompson' && v[1] === 'Ethan Walker', 'last week’s focus names stay: ' + v.join(', '));
-  ok(await p.inputValue('[data-bind="tn.0.ordinance"]') === 'Endowment' && await p.inputValue('[data-bind="tn.0.need"]') === 'Temple prep class', 'ordinance and need carried');
+  ok(await p.inputValue('[data-bind="tn.0.ordinance"]') === 'Endowment' && await p.inputValue('[data-bind="tn.0.need"]') === '', 'ordinance carried; What will help clears for ward council');
   ok(await p.inputValue('[data-bind="tn.0.action"]') === '', 'action left blank for this week');
   ok(await p.locator('#tn-list .source', { hasText: 'From the last huddle' }).count() === 2, 'marked From the last huddle');
   ok((await p.textContent('#rr-list')).includes('Grace Thompson'), 'Grace’s action is in Return and Report');

@@ -122,7 +122,7 @@
    * A new member's "Performed baptisms for the dead" is the temple check (a.temple), with its 30-day countdown. */
   var CHECKLISTS = {
     nm: [
-      { k: 'recint', t: 'Scheduled a temple recommend interview with the bishop', help: 'Schedule a temple recommend interview with the bishop' },
+      { k: 'recint', t: 'Meet with the bishop', help: 'Meet with the bishop' },
       { k: 'bfd', t: 'Performed baptisms for the dead', help: 'Perform baptisms for the dead', temple: true },
       { k: 'calling', t: 'A calling', help: 'A calling' },
       { k: 'minassign', t: 'A ministering assignment', help: 'A ministering assignment' },
@@ -141,7 +141,7 @@
       { k: 'minassign', t: 'A ministering assignment', help: 'A ministering assignment' },
       { k: 'ministers', t: 'Assigned ministers', help: 'Assigned ministers' },
       { k: 'famname', t: 'Prepared a family name for the temple', help: 'Prepare a family name for the temple' },
-      { k: 'recint', t: 'Scheduled a temple recommend interview with the bishop', help: 'Schedule a temple recommend interview with the bishop' },
+      { k: 'recint', t: 'Meet with the bishop', help: 'Meet with the bishop' },
       { k: 'bfd', t: 'Performed baptisms for the dead', help: 'Perform baptisms for the dead' },
       { k: 'endow', t: 'Received endowment', help: 'Receive the endowment', opt: true },
       { k: 'sealparents', t: 'Sealed to parents', help: 'Be sealed to parents', opt: true },
@@ -158,10 +158,10 @@
   var ORD_IDEAS = {
     'Baptism': { label: 'Ideas for baptism', items: ['Attend sacrament meeting', 'Friends at church', 'Meet the bishop', 'Participate in family history'] },
     'Sacrament': { label: 'Ideas for the sacrament', items: ['Friends at church', 'Assigned ministers', 'A calling'] },
-    'Baptisms for the dead': { label: 'Ideas for baptisms for the dead', items: ['Schedule a temple recommend interview with the bishop', 'Prepare a family name for the temple'] },
+    'Baptisms for the dead': { label: 'Ideas for baptisms for the dead', items: ['Meet with the bishop', 'Prepare a family name for the temple'] },
     'Priesthood advancement': { label: 'Ideas for priesthood advancement', items: ['Meet the bishop', 'Friends at church', 'Assigned ministers', 'A calling'] },
-    'Endowment': { label: 'Ideas for the endowment', items: ['Schedule a temple recommend interview with the bishop', 'Invite to temple preparation', 'Prepare a family name for the temple'] },
-    'Sealing': { label: 'Ideas for sealing', items: ['Schedule a temple recommend interview with the bishop', 'Invite to temple preparation'] }
+    'Endowment': { label: 'Ideas for the endowment', items: ['Meet with the bishop', 'Invite to temple preparation', 'Prepare a family name for the temple'] },
+    'Sealing': { label: 'Ideas for sealing', items: ['Meet with the bishop', 'Invite to temple preparation'] }
   };
   var CHECK_KEYS = {}; Object.keys(CHECKLISTS).forEach(function (g) { CHECKLISTS[g].forEach(function (c) { CHECK_KEYS[c.k] = 1; }); });
   function cleanChecks(c) {
@@ -964,6 +964,7 @@
         zoneLabel('bw', 'Covenant Path Report'),
         h('div', { class: 'card-grid' }, [
           g === 'nm' ? field('Baptism date', base + 'bap', { type: 'date', full: true }) : null,
+          g === 'nm' && !a.temple ? h('ul', { class: 'ck-list full ck-up' }, [ckRow(g, r.i, a, CHECKLISTS.nm.filter(function (c) { return c.temple; })[0])]) : null,
           // Those being taught: a baptism date means they're committed (left blank until they are)
           g === 'bt' ? field('Baptism date', base + 'bap', { type: 'date', full: true }) : null,
           g === 'bt' ? field('Next scheduled appointment', base + 'appt', { type: 'date', full: true }) : null
@@ -977,7 +978,12 @@
     var cc = checkCount(a, g);
     return h('div', { class: 'card-zone zone-bw-wrap checklist' }, [
       h('div', { class: 'zone-label-row' }, [zoneLabel('bw', 'Check off what’s done'), h('span', { class: 'ck-count', text: cc.done + ' of ' + cc.of + ' done' })]),
-      h('ul', { class: 'ck-list' }, (CHECKLISTS[g] || []).map(function (c) {
+      h('ul', { class: 'ck-list' }, (CHECKLISTS[g] || []).filter(function (c) { return !bfdUp(g, a, c); }).map(function (c) { return ckRow(g, i, a, c); }))
+    ]);
+  }
+  // A new member's baptisms for the dead sits right under the baptism date until it's done (the user decided, Nov 18, 2026).
+  function bfdUp(g, a, c) { return !!c.temple && g === 'nm' && !a.temple; }
+  function ckRow(g, i, a, c) {
         var v = checkOf(a, g, c), sub = null;
         if (c.temple && g === 'nm') { var st = templeStatus(a, state.date); if (!v) sub = h('span', { class: 'ck-sub due', text: st.text }); }
         return h('li', { class: 'ck-li' + (v === true ? ' is-done' : v === 'na' ? ' is-na' : '') + (c.temple && g === 'nm' && !v ? ' is-temple' : '') }, [
@@ -987,8 +993,6 @@
           ]),
           c.opt ? h('button', { type: 'button', class: 'ck-na', 'aria-pressed': v === 'na' ? 'true' : 'false', 'data-action': 'check-na', 'data-a': g + '|' + i, 'data-b': c.k, text: 'Doesn’t apply' }) : null
         ]);
-      }))
-    ]);
   }
   // "Attended sacrament" checkbox in the top right of each name card.
   function sacToggle(path, on) {
@@ -1959,10 +1963,11 @@
       return { done: n, of: STEPS.length, text: n === STEPS.length ? 'All ' + n + ' sections done' : n + ' of ' + STEPS.length + ' sections done' };
     }
     if (key !== 'wc') return null;
-    var named = allNames().map(function (x) { return { a: x.a, g: x.gid }; }).concat(state.tn.filter(function (a) { return str(a.name).trim(); }).map(function (a) { return { a: a, g: 'tn' }; }));
-    if (!named.length) return null;
-    var have = named.filter(function (x) { return ordOf(x.a, x.g); }).length, all = have === named.length;
-    return { done: have, of: named.length, text: all ? (have === 1 ? 'The 1 name has a next ordinance' : 'All ' + have + ' names have a next ordinance') : have + ' of ' + named.length + ' names have a next ordinance' };
+    // Ward council is done when every focus name has What will help (it clears after each send, so the check does too).
+    var fn = state.tn.filter(function (a) { return str(a.name).trim(); });
+    if (!fn.length) return null;
+    var have = fn.filter(function (a) { return str(a.need).trim(); }).length, all = have === fn.length;
+    return { done: have, of: fn.length, text: all ? (have === 1 ? 'The focus name has What will help' : 'All ' + have + ' focus names have What will help') : have + ' of ' + fn.length + ' focus names have What will help' };
   }
   function renderHeroes() {
     Array.prototype.forEach.call(document.querySelectorAll('[data-hero]'), function (el) {
@@ -2288,7 +2293,7 @@
 
   // The two doors on the opening screen say where things stand.
   // The opening screen's four steps as a timeline: each is done, or the first one not done is "Up next".
-  // Ward council is done when every name has a next ordinance; the Huddle when all five sections are marked done.
+  // Ward council is done when every focus name has What will help; the Huddle when all its sections are marked done.
   function stepsDoneState() {
     var wc = heroProgress('wc'), hd = heroProgress('hd');
     return [!!state.verified.before, !!(wc && wc.done === wc.of), !!(hd && hd.done === hd.of), !!state.verified.after];
@@ -3274,7 +3279,7 @@
     { k: 'Step 1 · Before ward council', t: 'The opening screen has four steps, in order. Tap **Step 1 · Before ward council**.', target: '#before-box', done: function () { return view === 'bw' || state.verified.before; } },
     { k: 'Step 1 · Before ward council', t: 'Before ward council mirrors the Covenant Path Report. Tap a name and check off what they’ve done, then tap **Mark done** at the bottom.', target: '#before-done-btn', done: function () { return !!state.verified.before; } },
     { k: 'Step 2 · Ward council', t: 'Step 1 has its green check. Now tap **Step 2 · Ward council**.', target: '.door-wc', done: function () { return view === 'wc' || isWcList(view) || view === 'p-wc'; } },
-    { k: 'Step 2 · Ward council', t: 'Ward council identifies focus names; **Open Part-Member Families** helps find names, and for ideas tap **How can we help?** on a list. Tap **Focus names**, then **Samuel Ortiz**, choose his next ordinance and add **What will help**. Never add confidential information to this huddle report.', target: ['[data-wc="tn"] [data-b="1"]', '[data-action="open-wc-list"][data-a="tn"]', '#person-card select'], done: function () { var a = state.tn[1]; return !!(a && ORDINANCES.indexOf(str(a.ordinance)) >= 0); } },
+    { k: 'Step 2 · Ward council', t: 'Ward council identifies focus names; **Open Part-Member Families** helps find names, and for ideas tap **How can we help?** on a list. Tap **Focus names**, then **Samuel Ortiz**, choose his next ordinance and add **What will help**. Never add confidential information to this huddle report.', target: ['[data-wc="tn"] [data-b="1"]', '[data-action="open-wc-list"][data-a="tn"]', '#person-card select'], done: function () { var a = state.tn[1]; return !!(a && ORDINANCES.indexOf(str(a.ordinance)) >= 0 && str(a.need).trim()); } },
     { k: 'Step 2 · Ward council', t: 'Names marked **Suggested focus name** are pressing. Tap **Done**, then **Back**, **Covenant Path Report** and **Daniel Rivera**, and tap **Make focus name**.', target: ['#person-card [data-action="make-focus"]', '[data-wc="nm"] [data-b="0"]', '[data-action="open-wc-list"][data-a="cp"]', '#person-view .person-done', '.step-back'], done: function () { return focusIndex('Daniel Rivera') >= 0; } },
     { k: 'Step 3 · Huddle', t: 'Every name has a next ordinance, so Step 2 is done. Tap **Home** at the bottom, then **Step 3 · Huddle**.', target: ['.nav-home:not(.is-here)', '.door-hd'], done: function () { return view === 'home'; } },
     { k: 'Step 3 · Huddle', t: 'Tap **Huddle Attendees** and tap who came. Tap **both youth**, the priests quorum assistant and the Gatherers of Light representative: including the youth matters.', target: ['#attendee-list', '#details-summary'], done: function () { return state.attendees.indexOf('pqa') >= 0 && state.attendees.indexOf('gol') >= 0; } },
@@ -3430,7 +3435,7 @@
       var cur = state.cp[g.id].filter(function (a) { return a.sac || hasText(a, CARD_KEYS); });
       names.forEach(function (n) {
         if (cur.some(function (a) { return norm(a.name) === norm(n); })) return;
-        var c = blankAction(); c.name = n; c.ordinance = info[norm(n)].ordinance; c.need = info[norm(n)].need; c.hneed = info[norm(n)].hneed; c.carried = true; c.touched = info[norm(n)].touched; c.lastSac = info[norm(n)].sac; c.checks = info[norm(n)].checks;
+        var c = blankAction(); c.name = n; c.ordinance = info[norm(n)].ordinance; c.hneed = info[norm(n)].hneed; c.carried = true; c.touched = info[norm(n)].touched; c.lastSac = info[norm(n)].sac; c.checks = info[norm(n)].checks;
         if (g.id === 'nm') { c.bap = info[norm(n)].bap; c.temple = info[norm(n)].temple; }
         if (g.id === 'bt') { c.bap = info[norm(n)].bap; c.committed = info[norm(n)].committed; c.appt = apptNote({ appt: info[norm(n)].appt }) ? info[norm(n)].appt : ''; }
         cur.push(c);
@@ -3444,7 +3449,7 @@
       if (!n || state.tn.some(function (t) { return norm(t.name) === norm(n); })) return;
       var slot = state.tn.findIndex(function (t) { return !t.sac && !hasText(t, CARD_KEYS); });
       if (slot < 0) return;
-      var c = blankName(); c.name = n; c.ordinance = str(a.ordinance).trim(); c.need = str(a.need).trim(); c.hneed = str(a.hneed).trim(); c.carried = true; c.lastSac = !!a.sac;
+      var c = blankName(); c.name = n; c.ordinance = str(a.ordinance).trim(); c.hneed = str(a.hneed).trim(); c.carried = true; c.lastSac = !!a.sac;
       c.touched = parseISO(str(a.touched)) ? str(a.touched) : '';
       state.tn[slot] = c;
       added++;
@@ -3614,6 +3619,11 @@
     if (!opts.practice && !state.ward.trim() && data.ward) { state.ward = str(data.ward); $('#ward').value = state.ward; writeWard(state.ward); }
     var carried = carryNames(data);
     if (opts.practice) state.referrals = cleanReferrals(data.referrals);
+    if (opts.practice) { // What will help clears each week; the practice week keeps the sample ones, except Samuel's (the tour asks for it)
+      var pd = practiceData(), keepNeed = function (list, src) { list.forEach(function (a) { var m = src.filter(function (x) { return norm(x.name) === norm(a.name); })[0];
+        if (m && !str(a.need).trim() && norm(a.name) !== norm('Samuel Ortiz')) a.need = m.need; }); };
+      keepNeed(state.tn, pd.tn); GROUPS.forEach(function (g) { keepNeed(state.cp[g.id], pd.cp[g.id] || []); });
+    }
     renderRR(); renderCP(); renderTN(); renderMR(); saveDraft();
     toast(opts.practice ? 'Practice week loaded: sample names, with ' + items.length + ' sample assignments in Return and Report.'
       : 'Loaded ' + items.length + (items.length === 1 ? ' action item' : ' action items') +
@@ -4709,6 +4719,9 @@
       if (top) dismissSheet(top);
     });
     enableSwipeDown(); enableSwipeRemove();
+    // Test copy only: on an iPhone Home Screen app, open Part-Member Families in Safari itself instead of the panel
+    // over the app, using an unofficial link form (x-safari-https://). If the phone ignores it, the link works as before.
+    try { var pmfL = document.getElementById('wc-pmf'); if (pmfL && (navigator.standalone || matchMedia('(display-mode: standalone)').matches) && /iPhone|iPad|iPod/.test(navigator.userAgent) && /^https:/.test(pmfL.href)) { pmfL.href = 'x-safari-' + pmfL.href; pmfL.removeAttribute('target'); } } catch (e) { /* ignore */ }
     // The opening picture stays a moment (about a second and a half from launch), then fades away.
     var splash = $('#splash');
     if (splash) setTimeout(function () { splash.classList.add('out'); setTimeout(function () { splash.remove(); }, 450); }, 1100);
