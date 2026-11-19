@@ -96,6 +96,10 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.click('#person-card .fn-line summary'); await w(300);
   ok(await p.locator('#person-card .fn-line').count() === 1 && /Elders quorum/.test(await p.textContent('#person-card .fn-line summary')), 'closed, the assignment is one line with who');
   await p.click('#person-view .person-done'); await w(300);
+  ok(await p.locator('#fn-list .opp-panel').count() === 1 && /Each family invites one friend/.test(await p.textContent('#fn-list .opp-panel .asg-row')) && /Elders quorum/.test(await p.textContent('#fn-list .opp-panel .asg-row')), 'in the Huddle the opportunity is a card, with the assignment as one line under it');
+  await p.click('#fn-list .asg-row'); await w(500);
+  ok(await p.isVisible('#person-view') && await p.locator('#person-card details.fn-line[open]').count() === 1, 'tapping the line opens just that assignment');
+  await p.click('#person-view .person-done'); await w(300);
 
   // Something done this week: Olivia got her calling... and Melchizedek Priesthood
   await p.click('.nav-home'); await w(400); await p.click('#before-box'); await w(400);

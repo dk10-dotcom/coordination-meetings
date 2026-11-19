@@ -1514,6 +1514,27 @@
       h('span', { class: 'step-chev', 'aria-hidden': 'true', text: '›' })
     ])]);
   }
+  // In the Huddle each opportunity is a card of its own (the user asked, Nov 18, 2026): its name and date at the top
+  // (tap to open it), then one line per assignment (what, who and when, how it went), then Add an assignment.
+  // Tapping a line opens the opportunity with just that assignment open.
+  function oppCard(o, k) {
+    var t = str(o.title).trim(), d = parseISO(str(o.date));
+    var tile = h('span', { class: 'avatar opp-tile' + (d ? '' : ' is-blank'), 'aria-hidden': 'true' }, d ? [h('span', { class: 'opp-tile-m', text: d.toLocaleDateString('en-US', { month: 'short' }) }), h('span', { class: 'opp-tile-d', text: String(d.getDate()) })] : ['+']);
+    var mine = oppItems(o.id).filter(function (m) { return assignHasText(m.x); }).sort(function (p, q) { return (q.x.past ? 1 : 0) - (p.x.past ? 1 : 0); });
+    var head = h('button', { type: 'button', class: 'nav-row opp-card-head', 'data-action': 'open-person', 'data-a': 'opp', 'data-b': k, 'data-kind': 'hd', 'aria-label': (t || 'New opportunity') + '. Open it' }, [
+      tile, h('span', { class: 'step-text' }, [h('span', { class: 'step-title person-name', text: t || 'New opportunity' }),
+        h('span', { class: 'step-status' + (mine.length ? '' : ' warn'), text: (d ? whenShow(o.date) + ' · ' : '') + (mine.length ? plural(mine.length, 'assignment', 'assignments') : 'Needs an assignment') })]),
+      h('span', { class: 'step-chev', 'aria-hidden': 'true', text: '›' })]);
+    var lines = mine.map(function (m) {
+      var x = m.x, sub = [str(x.who).trim(), whenShow(x.when)].filter(Boolean).join(' · ');
+      return h('li', {}, [h('button', { type: 'button', class: 'nav-row asg-row', 'data-action': 'open-asg', 'data-a': k, 'data-b': x.id, 'aria-label': (str(x.task).trim() || 'Assignment') + (sub ? '. ' + sub : '') }, [
+        h('span', { class: 'step-text' }, [h('span', { class: 'step-title', text: str(x.task).trim() || 'New assignment' }), sub ? h('span', { class: 'step-status', text: sub }) : null]),
+        x.past ? h('span', { class: 'wc-status', 'data-status': statusOf(x.status) || 'pending', text: STATUS_WORD[x.status] || 'Pending' }) : null,
+        h('span', { class: 'step-chev', 'aria-hidden': 'true', text: '›' })])]);
+    });
+    lines.push(h('li', {}, [h('button', { type: 'button', class: 'nav-row add-row', 'data-action': 'add-asg', 'data-a': k, 'aria-label': 'Add an assignment to ' + (t || 'this opportunity') }, [icon('plus'), h('span', { text: 'Add an assignment' })])]));
+    return h('section', { class: 'list-panel rows list-fn opp-panel', 'data-opp': o.id, 'aria-label': t || 'Opportunity' }, [h('ul', { class: 'steps-list person-rows' }, [h('li', { class: 'opp-card-top' }, [head])].concat(lines))]);
+  }
   // One opportunity's own screen: what's coming up, its date, and its assignments.
   function oppScreen(k) {
     var o = state.find.opps[k], base = 'find.opps.' + k + '.', t = str(o.title).trim(), n = 0;
@@ -1549,6 +1570,11 @@
     }
     if (rowsOn) {
       var kind = view === 'wc-fn' ? 'wc' : 'hd';
+      if (kind === 'hd' && opps.length) { // the Huddle: one card per opportunity, its assignments as lines under it
+        wrap.replaceChildren.apply(wrap, opps.map(function (o, k) { return oppCard(o, k); }).concat([
+          h('button', { type: 'button', class: 'btn-outline full btn-add-opp', 'data-action': 'add-opp' }, ['+ Add an opportunity'])]));
+        return;
+      }
       var rows = opps.map(function (o, k) { return oppRow(kind, o, k); });
       if (!opps.length) rows.push(h('li', { class: 'list-empty opp-empty' }, [
         h('p', { class: 'list-empty-text', text: 'Ward council hasn’t listed any opportunities yet.' }),
@@ -2821,6 +2847,15 @@
       }
       case 'help-chip': case 'ord-suggest': { // a tapped open item fills What will help; a suggestion fills Next ordinance
         setPath(a, b); saveDraft(); renderPerson(); renderTN(); renderCP();
+        break;
+      }
+      case 'open-asg': case 'add-asg': { // from an opportunity's card in the Huddle: open it with that one assignment open
+        var ao = state.find.opps[+a]; if (!ao) break;
+        var aid = b;
+        if (act === 'add-asg') { var na = blankAssign(); na.opp = ao.id; state.find.items.push(na); aid = na.id; saveDraft(); }
+        asgOpen = {}; asgOpen[aid] = true;
+        openPerson('hd', 'opp', +a);
+        setTimeout(function () { var dd = document.querySelector('#person-card [data-fid="' + aid + '"]'); if (dd) { dd.scrollIntoView({ block: 'center' }); if (act === 'add-asg') { var tf = dd.querySelector('[data-bind$=".task"]'); if (tf) tf.focus({ preventScroll: true }); } } }, 80);
         break;
       }
       case 'swipe-remove-opp': { // swiped left: the same question as Remove this opportunity

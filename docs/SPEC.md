@@ -468,6 +468,12 @@ will invite. The same section opens from Ward council and the Huddle.
 - **Opportunities are rows, like the name lists** (the user decided, Nov 18, 2026): under the band **Upcoming**
   (with "2 opportunities"), each row has a date tile (DEC 20), its name, one status line ("Sun, Dec 20 ·
   1 assignment", or "Needs an assignment" in orange) and a chevron; **Add an opportunity** is the last row.
+- **In the Huddle each opportunity is a card of its own** (the user asked, Nov 18, 2026): its date tile, name and
+  "Sun, Dec 13 · 2 assignments" (or "Needs an assignment" in orange) on top, then one line per assignment (what,
+  who and when, and Done, Partly, Not done or Pending for one from an earlier huddle), then **Add an assignment**.
+  Tapping the top opens the opportunity; tapping an assignment opens it with just that assignment open; Add an
+  assignment opens it with a new one ready to type. **+ Add an opportunity** sits under the cards. Ward council keeps
+  the list of rows (dates only).
 - **Each opportunity opens on its own screen** (Back, Done and the phone's Back return to the list): what's coming
   up and its **Date**, then its assignments and **Add an assignment**, then **Remove this opportunity** at the
   bottom (asks first when anything is typed; its assignments go with it). An opportunity left empty is dropped on

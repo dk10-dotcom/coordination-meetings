@@ -1569,6 +1569,13 @@ html.no-splash .splash { display: none; }
 .fn-line .wc-status { flex: none; font-weight: 700; }
 .fn-line[open] > .fn-assign { border: 0; border-top: 1px solid var(--card-line); border-radius: 0 0 12px 12px; margin: 0; }
 .ck-up { grid-column: 1 / -1; margin: -2px 0 0; }
+/* The Huddle's opportunities: one card each, the opportunity on top and its assignments as lines under it */
+.opp-panel + .opp-panel { margin-top: 12px; }
+.opp-panel .opp-card-head { border-bottom: 1px solid var(--card-line); }
+.opp-panel .opp-card-head .step-title { font-weight: 700; }
+.asg-row .wc-status { flex: none; font-weight: 700; margin-left: 6px; }
+.asg-row { padding-left: 16px; }
+.asg-row .step-title { font-weight: 500; }
 
 /* Test copy only */
 .test-tag { color: #FFD5D5; }
