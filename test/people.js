@@ -48,7 +48,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     // this week: load and carry forward
     await nextWeek(p, '2026-11-01');
     const heads = await p.$$eval('#rr-list .card-item', e => e.map(x => x.textContent.trim()));
-    ok(heads.join('|') === 'Daniel Rivera|Marcus Bell|Grace Thompson|Finding new people', 'Return and Report headers show names: ' + heads.join('|'));
+    ok(heads.join('|') === 'Daniel Rivera|Marcus Bell|Grace Thompson|Opportunities to invite', 'Return and Report headers show names: ' + heads.join('|'));
     for (const i of [0, 2, 3]) { await p.click(`[data-action="happened"][data-a="${i}"][data-b="No"]`); await p.click(`[data-action="carry-fwd"][data-a="${i}"]`); }
     await p.click('[data-action="happened"][data-a="1"][data-b="Yes"]');
     const nmCard = p.locator('[data-group="nm"] .card').filter({ has: p.locator('[data-bind="cp.nm.0.name"]') });

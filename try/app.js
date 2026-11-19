@@ -37,7 +37,7 @@
     { id: 'rm', title: 'Returning members' },
     { id: 'bt', title: 'Those being taught' }
   ];
-  var SOURCE = { nm: 'New members', rm: 'Returning members', bt: 'Those being taught', tn: 'Name Next Ordinance', fn: 'Finding new people' };
+  var SOURCE = { nm: 'New members', rm: 'Returning members', bt: 'Those being taught', tn: 'Name Next Ordinance', fn: 'Opportunities to invite' };
   /* "How can we help?": the discussion items Preach My Gospel, chapter 13 suggests for the weekly coordination
    * meeting ("Participate in the Weekly Coordination Meeting"), one set per section, in the manual's words.
    * They open on request in the Huddle and in ward council. Nothing is typed or saved, and none of it goes on the PDF. */
@@ -1038,7 +1038,7 @@
       var r = x.r;
       if (open === x.i) return openOneRow('rr', x.i, rrCard(r, x.i, many), rrPerson(r) || 'this item');
       var gid = r.prefilled ? groupOf(r) : '';
-      var name = gid === 'fn' ? 'Finding new people' : r.prefilled ? (str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim()) : '';
+      var name = gid === 'fn' ? 'Opportunities to invite' : r.prefilled ? (str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim()) : '';
       var what = r.prefilled ? str(r.action).trim() : str(r.plan).trim();
       var ans = r.happened ? h('span', { class: 'fold-tag ans-' + statusOf(r.happened), text: r.happened }) : h('span', { class: 'fold-tag due', text: 'Not marked' });
       var row = foldButton('rr', x.i, name || what || 'this item', [
@@ -3326,7 +3326,7 @@
 
   function groupOf(r) {
     if (r.group) return r.group;
-    return { 'New members': 'nm', 'Returning members': 'rm', 'Those being taught': 'bt', 'Three Names': 'tn', '3 Names': 'tn', 'Name Next Ordinance': 'tn', 'Finding new people': 'fn' }[r.source] || '';
+    return { 'New members': 'nm', 'Returning members': 'rm', 'Those being taught': 'bt', 'Three Names': 'tn', '3 Names': 'tn', 'Name Next Ordinance': 'tn', 'Finding new people': 'fn', 'Opportunities to invite': 'fn' }[r.source] || '';
   }
   // Copies an unfinished item from last week into this week's plan for the same person.
   // Fills only the empty fields on an existing card and remembers which ones, so Undo can clear exactly those.
@@ -4000,7 +4000,7 @@
     if (!rrItems.length) emptyRow('Nothing to report from the last huddle.');
     rrItems.forEach(function (r) {
       var gid = r.prefilled ? groupOf(r) : '';
-      var name = gid === 'fn' ? 'Finding new people' : r.prefilled ? (str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim()) : '';
+      var name = gid === 'fn' ? 'Opportunities to invite' : r.prefilled ? (str(r.pname).trim() || str(r.person).split(' · Next: ')[0].trim()) : '';
       var who = [str(r.assigned).trim(), whenShow(r.when)].filter(Boolean).join(' · ');
       var action = r.prefilled ? str(r.action).trim() : str(r.plan).trim();
       var notes = str(r.notes).trim(), note = str(r.hneed).trim();
