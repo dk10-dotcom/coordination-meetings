@@ -3972,6 +3972,28 @@
       return rows;
     }
 
+    // The Covenant Path Report items not done yet: "Next steps", then two columns with an empty box before each
+    // item, so the list can be ticked off on paper or read at a glance.
+    function nextSteps(items) {
+      var x0 = L + IN, gap = 10, colW = (R - x0 - gap) / 2, bx = 8, tw = colW - bx - 5, rows = [];
+      rows.push(line(14, function (top) { tx(x0, top + 10.5, 'Next steps', F.bold, 9.5, C.gray); }));
+      for (var i = 0; i < items.length; i += 2) {
+        var pair = [items[i], items[i + 1]].map(function (t) { return t ? wrap(t, F.reg, FS, tw) : []; });
+        var n = Math.max(pair[0].length, pair[1].length);
+        (function (pair, n) {
+          rows.push(line(n * LH + 2, function (top) {
+            pair.forEach(function (lns, c) {
+              if (!lns.length) return;
+              var x = x0 + c * (colW + gap);
+              box(x, top + 3.2, bx, bx, { borderColor: C.gray, borderWidth: 0.9 });
+              lns.forEach(function (ln, k) { tx(x + bx + 5, top + 11.5 + k * LH, ln, F.reg, FS, C.dark); });
+            });
+          }));
+        })(pair, n);
+      }
+      rows.push(space(2));
+      return rows;
+    }
     // One person from the Covenant Path lists or Name Next Ordinance.
     function cardBlock(a, gid) {
       var name = str(a.name).trim(), tags = [];
@@ -3991,7 +4013,7 @@
       if (ord) rows = rows.concat(field('Next ordinance', ord));
       if (need) rows = rows.concat(field('What will help', need));
       if (gid !== 'tn' && CHECKLISTS[gid]) { var so = (CHECKLISTS[gid] || []).filter(function (c) { return checkOf(a, gid, c) === false; }).map(function (c) { return c.help; });
-        if (so.length) rows = rows.concat(field('Still open', so.join(', '))); }
+        if (so.length) rows = rows.concat(nextSteps(so)); }
       if (gid === 'tn') { var src = (function () { var n = norm(a.name), hit = null; GROUPS.forEach(function (g) { (s.cp[g.id] || []).forEach(function (c) { if (!hit && n && norm(c.name) === n) hit = { a: c, gid: g.id }; }); }); return hit; })();
         var dw = src ? doneThisWeek(src.a, src.gid, s.bwSnap) : [];
         if (dw.length) rows = rows.concat(field('Done this week', dw.join(', '))); }

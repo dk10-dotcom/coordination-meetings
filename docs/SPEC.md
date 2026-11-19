@@ -810,5 +810,6 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
   ordinance}** (now including a ride to church, sitting with them in sacrament meeting, an invitation to a ward
   activity, going with them to the temple, and so on). A tap fills the action item and moves to Assigned to; typing
   hides them. One action item per person. A What will help saved before stays on the PDF and in Return and Report.
-- **The PDF prints "Still open"** for each person in the Covenant Path Report Review: their unchecked checklist items,
-  so ward council can see what each person still needs.
+- **The PDF prints "Next steps"** for each person in the Covenant Path Report Review: their unchecked checklist items
+  in two columns, each with an empty box before it (☐ A calling), so ward council can see and tick off what each
+  person still needs.

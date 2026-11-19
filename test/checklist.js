@@ -129,7 +129,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#share-btn')]);
   const f = OUT + '/checklist.pdf'; await dl.saveAs(f);
   const t = execSync(`pdftotext "${f}" -`).toString().replace(/\s+/g, ' ');
-  ok(/Done this week Melchizedek Priesthood ordination|Done this week/.test(t) && /Still open/.test(t) && /Melchizedek Priesthood ordination/.test(t), 'PDF: Done this week under the focus name, What will help, and no checklist');
+  ok(/Done this week Melchizedek Priesthood ordination|Done this week/.test(t) && /Next steps/.test(t) && !/Still open/.test(t) && /Melchizedek Priesthood ordination/.test(t), 'PDF: Done this week under the focus name, What will help, and no checklist');
 
   // Next huddle: the checklist comes along with the name
   await p.click('#confirm-primary').catch(() => {}); await w(600);
