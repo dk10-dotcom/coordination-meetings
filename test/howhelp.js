@@ -156,7 +156,7 @@ const huddle = {
     // ----- How to use and the tour say so, and Sources lists all three -----
     await p.click('[data-action="help"]'); await p.waitForSelector('#help-sheet:not([hidden])'); await p.waitForTimeout(250);
     const help = await p.evaluate(() => {
-      const step = Array.prototype.filter.call(document.querySelectorAll('#help-sheet details'), d => d.querySelector('.step-title').textContent === 'Ward council')[0];
+      const step = Array.prototype.filter.call(document.querySelectorAll('#help-sheet details'), d => d.querySelector('.step-title').textContent === 'Ward Council')[0];
       const src = document.querySelector('#help-sources');
       return { step: step.textContent, lines: step.querySelectorAll('.help-body > li').length, title: src.querySelector('.step-title').textContent,
         links: Array.prototype.map.call(src.querySelectorAll('a'), a => a.textContent + ' -> ' + a.getAttribute('href') + ' ' + a.target), text: src.querySelector('.help-body').textContent.replace(/\s+/g, ' ').trim() };

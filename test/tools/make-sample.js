@@ -32,9 +32,9 @@ const huddle = {
     bt: [card({ name: 'Marcus Hill', bap: '2026-11-21', committed: true, sac: true })]
   },
   cpNone: {},
-  tn: [card({ name: 'Grace Thompson', ordinance: 'Sealing', need: 'Help preparing family names', action: 'Family history consultant visits to prepare names', assigned: 'Sister Nguyen', when: 'Thu', actionCarried: true }),
-    card({ name: 'Samuel Ortiz', ordinance: 'Priesthood advancement', need: 'Meet with the bishop', action: 'Elders quorum president sets up his interview', assigned: 'Bro. Young', when: 'Tue' }),
-    card({ name: 'Emma Walsh', ordinance: 'Baptisms for the dead', need: 'Perform baptisms for the dead', action: 'Go with the youth to the temple on Thursday', assigned: 'Sister Lee', when: 'Thu', sac: true })],
+  tn: [card({ name: 'Grace Thompson', ordinance: 'Sealing', action: 'Family history consultant visits to prepare names', assigned: 'Sister Nguyen', when: 'Thu', actionCarried: true }),
+    card({ name: 'Samuel Ortiz', ordinance: 'Priesthood advancement', action: 'Elders quorum president sets up his interview', assigned: 'Bro. Young', when: 'Tue' }),
+    card({ name: 'Emma Walsh', ordinance: 'Baptisms for the dead', action: 'Go with the youth to the temple on Thursday', assigned: 'Sister Lee', when: 'Thu', sac: true })],
   find: { plan: '', opps: [{ id: 'o1', title: 'Ward Christmas devotional', date: '2026-12-13' }],
     items: [{ task: 'Each family invites one friend', who: 'Elders quorum and Relief Society', when: 'Sun', carried: true, opp: 'o1' }, { task: 'Members go on a visit with the missionaries', who: 'The Rivera family', when: 'Wed', opp: 'o1' }] },
   referrals: [{ name: 'Marcus Bell', by: 'Sister Diaz', notes: 'A friend from work who asked about the Book of Mormon' }],

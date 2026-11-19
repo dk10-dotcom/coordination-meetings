@@ -260,6 +260,18 @@
 :where(:root.theme-dark) .ck-li.is-done .ck-box { background: #2E7D4F; border-color: #2E7D4F; color: #FFFFFF; }
 :where(:root.theme-dark) .ck-li.is-temple .ck-t { color: #DC908B; }
 :where(:root.theme-dark) .ck-sub.due { color: #DC908B; }
+:where(:root.theme-dark) .safari-gate { background: #1B2B4B; color: #FFFFFF; }
+:where(:root.theme-dark) .gate-icon { box-shadow: 0 10px 24px rgba(0, 0, 0, .35); }
+:where(:root.theme-dark) .gate-title { color: #FFFFFF; }
+:where(:root.theme-dark) .gate-body { color: #DCE4F2; }
+:where(:root.theme-dark) .gate-k { color: #9FB3D9; }
+:where(:root.theme-dark) .gate-steps { color: #FFFFFF; }
+:where(:root.theme-dark) .gate-steps strong { color: #FFFFFF; }
+:where(:root.theme-dark) .gate-ic { background: rgba(26, 30, 38, .16); }
+:where(:root.theme-dark) .gate-fine { color: #9FB3D9; }
+:where(:root.theme-dark) .gate-arrow { color: #FFD25A; }
+:where(:root.theme-dark) .safari-gate::after { background: linear-gradient(to bottom, rgba(27, 43, 75, 0), #1B2B4B 45%); }
+:where(:root.theme-dark) .safari-gate.is-ipad::after { background: linear-gradient(to top, rgba(27, 43, 75, 0), #1B2B4B 45%); }
 /* hand-tuned */
 :where(:root.theme-dark) .focus-box.is-pressing { background: #3A1D1D; border-color: #6E2C2C; }
 :where(:root.theme-dark) .focus-why { color: #FF9C9C; }

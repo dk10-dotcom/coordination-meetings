@@ -53,33 +53,38 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.click('#person-view .person-done'); await w(300);
   await p.click('#before-done-btn'); await w(500); // step 1 done: remembers how everyone looks
 
-  // Ward council: a focus name gets its next ordinance suggested and its open items as chips
+  // Ward Council: a focus name gets its next ordinance suggested; What will help isn't here any more (Nov 19, 2026)
   await p.click('.door-wc'); await w(400); await p.click('[data-action="open-wc-list"][data-a="tn"]'); await w(400);
   await p.click('#wc-list [data-action="open-person"][data-a="tn"][data-b="0"]'); await w(500);
   ok(/Suggested: Priesthood advancement/.test(await p.textContent('#person-card .ord-suggest')), 'Olivia’s next ordinance is suggested from her checklist (Melchizedek Priesthood still open)');
-  const chips = await p.$$eval('#person-card .help-chips .idea-chip', e => e.map(x => x.textContent));
-  ok(/Still open on their Covenant Path Report/.test(await p.textContent('#person-card .help-chips')) && chips.includes('Melchizedek Priesthood ordination') && !chips.includes('A calling') && !chips.includes('Friends at church') && !chips.includes('Aaronic Priesthood ordination'),
-    'under What will help: only what’s still open on her report: ' + chips.join(' | '));
+  ok(!(await p.$('#person-card [data-bind$=".need"]')) && !(await p.$('#person-card .help-chips')), 'Ward Council has no What will help box or chips');
   await p.click('#person-card .ord-suggest .idea-chip'); await w(300);
-  await p.click('#person-card .help-chips .idea-chip >> text=Melchizedek Priesthood ordination'); await w(300);
   st = await saved();
-  ok(st.tn[0].ordinance === 'Priesthood advancement' && st.tn[0].need === 'Melchizedek Priesthood ordination' && !(await p.isVisible('#person-card .help-chips')), 'tapping fills Next ordinance and What will help; the chips hide');
+  ok(st.tn[0].ordinance === 'Priesthood advancement', 'tapping the suggestion fills Next ordinance');
   ok(await wide(), 'ward council’s screen fits a small iPhone');
   await p.screenshot({ path: OUT + '/wc-focus.png', fullPage: true });
   await p.click('#person-view .person-done'); await w(300);
   await p.click('#wc-list [data-action="open-person"][data-a="tn"][data-b="1"]'); await w(400);
-  ok(!(await p.$('#person-card .help-chips')), 'a focus name that isn’t on the report has no chips until it has a next ordinance');
   await p.selectOption('#person-card [data-bind="tn.1.ordinance"]', 'Endowment'); await w(400);
-  const ideas = await p.$$eval('#person-card .help-chips .idea-chip', e => e.map(x => x.textContent));
-  ok(/Ideas for the endowment/.test(await p.textContent('#person-card .help-chips')) && ideas.join('|') === 'Meet with the bishop|Invite to temple preparation|Prepare a family name for the temple', 'a name not on the report gets Ideas for its next ordinance: ' + ideas.join(' | '));
   await p.click('#person-view .person-done'); await w(300);
 
-  // The Huddle: a focus name has no sacrament box
+  // The Huddle: no sacrament box; the action item offers what's still open on her report, then ideas for her next ordinance
   await p.click('.nav-home'); await w(400); await p.click('.door-hd'); await w(400);
   await p.click('[data-action="open-step"][data-a="tn"]'); await w(400);
   await p.click('#tn-list [data-action="open-person"][data-b="0"]'); await w(400);
   ok(!(await p.$('#person-card .sac-toggle')), 'a focus name in the Huddle has no Attended sacrament box');
+  const ach = await p.$$eval('#person-card .action-chips .idea-chip', e => e.map(x => x.textContent));
+  const atext = await p.textContent('#person-card .action-chips');
+  ok(/Still open on their Covenant Path Report/.test(atext) && /Ideas for priesthood advancement/.test(atext) && ach.includes('Melchizedek Priesthood ordination') && !ach.includes('A calling') && !ach.includes('Friends at church') && !ach.includes('Aaronic Priesthood ordination'),
+    'under Action item: only what’s still open on her report, then ideas for her next ordinance: ' + ach.join(' | '));
+  await p.click('#person-card .action-chips .idea-chip >> text=Melchizedek Priesthood ordination'); await w(400);
+  st = await saved();
+  ok(st.tn[0].action === 'Melchizedek Priesthood ordination' && !(await p.isVisible('#person-card .action-chips')) && await p.evaluate(() => /assigned$/.test(document.activeElement.dataset.bind || '')), 'tapping one fills the Action item, the chips hide, and the cursor moves to Assigned to');
   await p.fill('#person-card [data-bind="tn.0.action"]', 'Meet with the elders quorum president'); await p.evaluate(() => document.activeElement.blur()); await w(200);
+  await p.click('#person-view .person-done'); await w(300);
+  await p.click('#tn-list [data-action="open-person"][data-b="1"]'); await w(400);
+  const gi = await p.$$eval('#person-card .action-chips .idea-chip', e => e.map(x => x.textContent));
+  ok(/Ideas for the endowment/.test(await p.textContent('#person-card .action-chips')) && !/Still open/.test(await p.textContent('#person-card .action-chips')) && gi.includes('Meet with the bishop'), 'a name not on the report gets only Ideas for its next ordinance: ' + gi.join(' | '));
   await p.click('#person-view .person-done'); await w(300);
 
   // Opportunities to invite: an assignment is one line; texting it names the opportunity
@@ -124,7 +129,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#share-btn')]);
   const f = OUT + '/checklist.pdf'; await dl.saveAs(f);
   const t = execSync(`pdftotext "${f}" -`).toString().replace(/\s+/g, ' ');
-  ok(/Done this week/.test(t) && (t.match(/Melchizedek Priesthood ordination/g) || []).length >= 2 && /What will help/.test(t) && !/Interview for patriarchal blessing|Assigned ministers/.test(t), 'PDF: Done this week under the focus name, What will help, and no checklist');
+  ok(/Done this week Melchizedek Priesthood ordination|Done this week/.test(t) && /Still open/.test(t) && /Melchizedek Priesthood ordination/.test(t), 'PDF: Done this week under the focus name, What will help, and no checklist');
 
   // Next huddle: the checklist comes along with the name
   await p.click('#confirm-primary').catch(() => {}); await w(600);
@@ -132,7 +137,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const ol2 = (st.cp.rm || []).find(x => x.name === 'Olivia Chen') || {};
   ok(ol2.checks && ol2.checks.melch === true && ol2.checks.calling === true && ol2.checks.aaronic === 'na', 'next huddle: the checklist carries over with the name');
   const ol3 = (st.tn || []).find(x => x.name === 'Olivia Chen') || {};
-  ok(ol3.ordinance === 'Priesthood advancement' && !ol3.need, 'next huddle: the focus name keeps its next ordinance; What will help clears for ward council to choose again');
+  ok(ol3.ordinance === 'Priesthood advancement' && !ol3.action, 'next huddle: the focus name keeps its next ordinance; its action item moves to Return and Report');
   const past = (st.find.items || []).filter(x => x.past);
   const ri = (st.rr || []).findIndex(r => /Each family invites one friend/.test(r.action || ''));
   ok(past.length === 1 && past[0].opp === 'o1' && ri >= 0 && st.rr[ri].fid === past[0].id, 'next huddle: the assignment stays on the opportunity and comes back in Return and Report');

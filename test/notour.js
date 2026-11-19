@@ -25,7 +25,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
 
   // 2) The first visit from the Home Screen: a welcome offers the step-by-step guide
   const d = await b.newContext({ ...devices['iPhone SE'] });
-  await d.addInitScript(() => { Object.defineProperty(Navigator.prototype, 'webdriver', { get: () => false }); Object.defineProperty(Navigator.prototype, 'standalone', { get: () => true }); });
+  await d.addInitScript(() => { Object.defineProperty(Navigator.prototype, 'webdriver', { get: () => false }); try { localStorage.setItem('huddle-gate-off', '1'); } catch (e) {}; Object.defineProperty(Navigator.prototype, 'standalone', { get: () => true }); });
   const q = await d.newPage();
   await q.goto(BASE); await q.waitForTimeout(2200);
   ok(await q.isVisible('#confirm-sheet') && /Welcome to Huddle/.test(await q.textContent('#confirm-title')) && /Open the guide/.test(await q.textContent('#confirm-primary')), 'the first visit from the Home Screen offers the step-by-step guide');

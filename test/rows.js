@@ -75,16 +75,16 @@ const seed = () => ({
     await openPerson('#cp-groups', 'nm', 0);
     const sum = async () => (await p.textContent('#person-card .wc-summary')).replace(/\s+/g, ' ');
     ok(await vis('#person-card .wc-summary') && await p.locator('#person-card .wc-edit, #person-card .card-name-input, #person-card [data-bind$=".need"], #person-card [data-bind$=".ordinance"]').count() === 0, tag + ': ward council’s half is condensed by default');
-    ok((await sum()).includes('Next ordinanceBaptisms for the dead') && (await sum()).includes('What will helpA ride') && (await sum()).includes('Baptized') && (await p.textContent('#person-card .wc-summary .zone-toggle')) === 'Edit', tag + ': the summary shows next ordinance, needs and the baptism date, with Edit: ' + await sum());
+    ok((await sum()).includes('Next ordinanceBaptisms for the dead') && (await sum()).includes('Baptized') && (await p.textContent('#person-card .wc-summary .zone-toggle')) === 'Edit', tag + ': the summary shows next ordinance, needs and the baptism date, with Edit: ' + await sum());
     ok(await p.evaluate(() => { const c = document.querySelector('#person-card .card'), s = c.querySelector('.wc-summary'), z = c.querySelector('.zone-hd-wrap'); return s.compareDocumentPosition(z) & Node.DOCUMENT_POSITION_FOLLOWING && ['.sac-toggle', '.temple-box', '[data-bind$=".action"]', '[data-bind$=".assigned"]', '[data-bind$=".when"]'].every(q => z.querySelector(q)); }), tag + ': the huddle’s half holds sacrament, temple, action, assigned to and when, right under the summary');
     ok(await noOverflow(), tag + ': the condensed screen fits the phone');
     await p.screenshot({ path: `${OUT}/${tag}-person-condensed.png`, fullPage: true });
     await p.click('#person-card .wc-summary [data-action="wc-edit-toggle"]'); await p.waitForTimeout(150);
-    ok(await p.inputValue('[data-bind="cp.nm.0.name"]') === 'Daniel Rivera' && await p.inputValue('[data-bind="cp.nm.0.need"]') === 'A ride' && await p.inputValue('[data-bind="cp.nm.0.ordinance"]') === 'Baptisms for the dead' && await p.locator('#person-card .wc-summary').count() === 0 && (await p.textContent('#person-card .wc-edit .zone-toggle')) === 'Hide', tag + ': Edit opens the name, baptism date, next ordinance and needs');
-    await fill('cp.nm.0.need', 'A ride to the temple');
+    ok(await p.inputValue('[data-bind="cp.nm.0.name"]') === 'Daniel Rivera' && await p.inputValue('[data-bind="cp.nm.0.ordinance"]') === 'Baptisms for the dead' && await p.locator('#person-card .wc-summary').count() === 0 && (await p.textContent('#person-card .wc-edit .zone-toggle')) === 'Hide', tag + ': Edit opens the name, baptism date, next ordinance and needs');
+    await p.selectOption('[data-bind="cp.nm.0.ordinance"]', 'Priesthood advancement'); await p.waitForTimeout(150);
     ok(await noOverflow(), tag + ': the open screen fits the phone');
     await p.click('#person-card .wc-edit [data-action="wc-edit-toggle"]'); await p.waitForTimeout(150);
-    ok((await sum()).includes('What will helpA ride to the temple') && await p.locator('#person-card .card-name-input').count() === 0, tag + ': Hide condenses it again, with the change showing');
+    ok((await sum()).includes('Next ordinancePriesthood advancement') && await p.locator('#person-card .card-name-input').count() === 0, tag + ': Hide condenses it again, with the change showing');
     // sacrament and temple show on the row afterward
     await p.click('#person-card .sac-toggle'); await p.waitForTimeout(150);
     await p.click('#person-card .temple-box'); await p.waitForTimeout(150);
@@ -128,12 +128,9 @@ const seed = () => ({
     ok(await rowSub('#tn-list', 'tn', 1) === 'Invite to church · Sis. Lee' && (await rowTags('#tn-list', 'tn', 1)).includes('Carried forward') && (await rowNames('#tn-list', 'tn'))[1] === 'Marcus Hill', tag + ': an unfinished assignment carried forward comes back as a focus name, and the row says Carried forward');
     await back();
 
-    // ---- Name Next Ordinance in the huddle: action on the row; a blank spot opens ready to type
+    // ---- Focus names in the huddle: only named ones (Ward Council adds them; the user decided, Nov 19, 2026)
     await p.click('[data-action="open-step"][data-a="tn"]'); await p.waitForTimeout(300);
-    await openPerson('#tn-list', 'tn', 2);
-    ok((await p.textContent('#step-title')) === 'Focus name 3' && await p.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-bind')) === 'tn.2.name' && await vis('#person-card .wc-edit') && await p.locator('#person-card .zone-toggle').count() === 0, tag + ': an empty focus spot opens with its fields showing and the cursor in the name (nothing to condense yet)');
-    await fill('tn.2.name', 'Samuel Ortiz'); await fill('tn.2.action', 'Visit with the bishop'); await back();
-    ok((await rowNames('#tn-list', 'tn')).join('|') === 'Grace Thompson|Marcus Hill|Samuel Ortiz' && await rowSub('#tn-list', 'tn', 2) === 'Visit with the bishop' && (await p.textContent('#tn-list .list-count')) === '3 of 3 names', tag + ': the new focus name is on the list with its action');
+    ok((await rowNames('#tn-list', 'tn')).join('|') === 'Grace Thompson|Marcus Hill' && await p.locator('#tn-list .person-row.is-blank').count() === 0, tag + ': the Huddle shows only named focus names, with no empty spot to add one');
     await back();
 
     // ---- Missionary Referrals are no longer shown (older huddles keep them in their data)
@@ -162,7 +159,7 @@ const seed = () => ({
     await p.click('#person-card .person-remove'); await confirmIfAsked();
     ok(!(await vis('#person-view')) && (await rowNames('#wc-list', 'nm')).join('|') === 'Marcus Hill', tag + ': Remove from the list works from ward council too');
     await back(); await p.click('#mode-bar [data-action="go-start"]'); await p.waitForTimeout(300);
-    ok(await p.evaluate(() => document.body.getAttribute('data-view')) === 'start' && (await p.textContent('#door-wc-sub')).startsWith('4 names'), tag + ': back at the start, the door counts the names left: ' + await p.textContent('#door-wc-sub'));
+    ok(await p.evaluate(() => document.body.getAttribute('data-view')) === 'start' && (await p.textContent('#door-wc-sub')).startsWith('3 names'), tag + ': back at the start, the door counts the names left: ' + await p.textContent('#door-wc-sub'));
     ok(!errs.length, tag + ': no page errors ' + errs.join('; '));
     await ctx.close();
   }

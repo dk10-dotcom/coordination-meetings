@@ -79,14 +79,14 @@
  {
   "kicker": "Step 2 · Ward council",
   "title": "Focus names",
-  "body": "Give each one a next ordinance and What will help: one step from what’s still open on their report. Swipe a name left to remove it.",
+  "body": "Give each one a next ordinance. Tap Suggested to use the one their report points to. Swipe a name left to remove it.",
   "color": "#2F5DA6",
   "img": "12.jpg"
  },
  {
   "kicker": "Step 2 · Ward council",
   "title": "Never add confidential information",
-  "body": "It sits under What will help, and under the notes in the Huddle. Everyone who receives the huddle report can read it. Keep it to names, ordinances and simple needs.",
+  "body": "It sits under the next ordinance, and under the notes in the Huddle. Everyone who receives the huddle report can read it. Keep it to names, ordinances and simple needs.",
   "color": "#B22A2A",
   "img": "13.jpg"
  },
@@ -142,7 +142,7 @@
  {
   "kicker": "Step 3 · Focus names",
   "title": "One action item",
-  "body": "What will we do this week to help them prepare for their next ordinance? Who will do it, and when?",
+  "body": "What will we do this week to help them toward their next ordinance? Tap something still open on their report or an idea, or type your own. Then who and when.",
   "color": "#B0531A",
   "img": "21.jpg"
  },

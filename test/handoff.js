@@ -127,7 +127,7 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   ok(!(await n.isVisible('#handoff-page')) && await n.isVisible('#start-home') && !(await n.evaluate(() => (localStorage.getItem('huddle-agenda-v1') || '').includes('Daniel Rivera'))), 'Not now closes the page and loads nothing');
   // A first visit with a handoff link: the handoff comes first, not How to use or the tour
   const F = await b.newContext({ ...devices['iPhone 13'] });
-  await F.addInitScript(() => Object.defineProperty(Navigator.prototype, 'webdriver', { get: () => false }));
+  await F.addInitScript(() => { Object.defineProperty(Navigator.prototype, 'webdriver', { get: () => false }); try { localStorage.setItem('huddle-gate-off', '1'); } catch (e) {} });
   const f = await F.newPage(); f.errs = []; f.on('pageerror', e => f.errs.push(e.message));
   await f.goto(url); await f.waitForSelector('#handoff-page:not([hidden])'); await f.waitForTimeout(600);
   ok(await f.isHidden('#help-sheet') && !(await f.isVisible('#slides-sheet')), 'on a first visit, the handoff page shows without How to use or the guide over it');

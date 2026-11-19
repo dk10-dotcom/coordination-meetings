@@ -123,6 +123,7 @@
   var CHECKLISTS = {
     nm: [
       { k: 'recint', t: 'Meet with the bishop', help: 'Meet with the bishop' },
+      { k: 'aaronic', t: 'Aaronic Priesthood ordination', help: 'Aaronic Priesthood ordination', opt: true },
       { k: 'bfd', t: 'Performed baptisms for the dead', help: 'Perform baptisms for the dead', temple: true },
       { k: 'calling', t: 'A calling', help: 'A calling' },
       { k: 'minassign', t: 'A ministering assignment', help: 'A ministering assignment' },
@@ -156,12 +157,12 @@
   };
   // For a focus name that isn't on the Covenant Path Report: ideas by the next ordinance ward council picks.
   var ORD_IDEAS = {
-    'Baptism': { label: 'Ideas for baptism', items: ['Attend sacrament meeting', 'Friends at church', 'Meet the bishop', 'Participate in family history'] },
-    'Sacrament': { label: 'Ideas for the sacrament', items: ['Friends at church', 'Assigned ministers', 'A calling'] },
-    'Baptisms for the dead': { label: 'Ideas for baptisms for the dead', items: ['Meet with the bishop', 'Prepare a family name for the temple'] },
-    'Priesthood advancement': { label: 'Ideas for priesthood advancement', items: ['Meet the bishop', 'Friends at church', 'Assigned ministers', 'A calling'] },
-    'Endowment': { label: 'Ideas for the endowment', items: ['Meet with the bishop', 'Invite to temple preparation', 'Prepare a family name for the temple'] },
-    'Sealing': { label: 'Ideas for sealing', items: ['Meet with the bishop', 'Invite to temple preparation'] }
+    'Baptism': { label: 'Ideas for baptism', items: ['A ride to church', 'Sit with them in sacrament meeting', 'Invite them to a ward activity', 'Friends at church', 'Meet with the bishop', 'Participate in family history'] },
+    'Sacrament': { label: 'Ideas for the sacrament', items: ['A ride to church', 'Sit with them in sacrament meeting', 'Invite them to a ward activity', 'Friends at church', 'Assigned ministers', 'A calling'] },
+    'Baptisms for the dead': { label: 'Ideas for baptisms for the dead', items: ['Go with them to the temple', 'A ride to the temple', 'Meet with the bishop', 'Prepare a family name for the temple'] },
+    'Priesthood advancement': { label: 'Ideas for priesthood advancement', items: ['Invite them to elders quorum or a youth activity', 'Meet with the bishop', 'Friends at church', 'Assigned ministers', 'A calling'] },
+    'Endowment': { label: 'Ideas for the endowment', items: ['Go with them to the temple grounds', 'Meet with the bishop', 'Invite to temple preparation', 'Prepare a family name for the temple'] },
+    'Sealing': { label: 'Ideas for sealing', items: ['Visit them as a family', 'Meet with the bishop', 'Invite to temple preparation'] }
   };
   var CHECK_KEYS = {}; Object.keys(CHECKLISTS).forEach(function (g) { CHECKLISTS[g].forEach(function (c) { CHECK_KEYS[c.k] = 1; }); });
   function cleanChecks(c) {
@@ -180,7 +181,7 @@
   function suggestOrd(a, gid) {
     if (gid === 'bt') return '';
     var open = function (k) { var c = (CHECKLISTS[gid] || []).filter(function (x) { return x.k === k; })[0]; return c && checkOf(a, gid, c) === false; };
-    if (gid === 'nm') return !a.temple ? 'Baptisms for the dead' : '';
+    if (gid === 'nm') return !a.temple ? 'Baptisms for the dead' : open('aaronic') ? 'Priesthood advancement' : '';
     if (open('aaronic') || open('melch')) return 'Priesthood advancement';
     if (open('bfd')) return 'Baptisms for the dead';
     if (open('endow')) return 'Endowment';
@@ -784,8 +785,8 @@
         fixedOrd ? h('div', { class: 'field full' }, ['Next ordinance', h('p', { class: 'fixed-value', text: fixedOrd })])
           : ordField('Next ordinance', base + 'ordinance', { full: true }),
         fixedOrd ? null : ordSuggest(base),
-        field('What will help', base + 'need', { full: true, multi: true, placeholder: needPh || 'e.g. A ride to church' }),
-        helpChips(base)
+        // (What will help left Ward Council on Nov 19, 2026; only the cards-open and one-page layouts that older tests use keep it.)
+        rowsOn ? null : field('What will help', base + 'need', { full: true, multi: true, placeholder: needPh || 'e.g. A ride to church' })
       ])
     ]);
   }
@@ -799,6 +800,21 @@
     if (!list.length) return null;
     return h('div', { class: 'full help-chips', hidden: !!str(a.need).trim() }, [h('p', { class: 'idea-k', text: label }),
       h('div', { class: 'idea-chips' }, list.map(function (t) { return h('button', { type: 'button', class: 'idea-chip', 'data-action': 'help-chip', 'data-a': base + 'need', 'data-b': t, text: t }); }))]);
+  }
+  // Under the Huddle's Action item: what's still open on their Covenant Path Report (found by name), then ideas for
+  // their next ordinance (rides, invitations…), to tap; or type your own. Hidden once something is typed.
+  function actionChips(base) {
+    var a = getPath(base.replace(/\.$/, '')); if (!a || !str(a.name).trim()) return null;
+    var m = /^cp\.(\w+)\./.exec(base), src = m ? { a: a, gid: m[1] } : cpOfName(a.name);
+    var open = src ? openChecks(src.a, src.gid).map(function (c) { return c.help; }) : [];
+    var ord = src && FIXED_ORD[src.gid] ? FIXED_ORD[src.gid] : str(a.ordinance).trim(), oi = ORD_IDEAS[ord];
+    var done = src ? (CHECKLISTS[src.gid] || []).filter(function (c) { return checkOf(src.a, src.gid, c) !== false; }).map(function (c) { return c.help; }) : [];
+    var ideas = oi ? oi.items.filter(function (t) { return open.indexOf(t) < 0 && done.indexOf(t) < 0; }) : []; // nothing they've already done
+    if (!open.length && !ideas.length) return null;
+    var chipsFor = function (list) { return h('div', { class: 'idea-chips' }, list.map(function (t) { return h('button', { type: 'button', class: 'idea-chip', 'data-action': 'help-chip', 'data-a': base + 'action', 'data-b': t, text: t }); })); };
+    return h('div', { class: 'full help-chips action-chips', hidden: !!str(a.action).trim() }, [
+      open.length ? h('p', { class: 'idea-k', text: 'Still open on their Covenant Path Report' }) : null, open.length ? chipsFor(open) : null,
+      ideas.length ? h('p', { class: 'idea-k', text: oi.label }) : null, ideas.length ? chipsFor(ideas) : null]);
   }
   // Under Next ordinance while it's empty: what the checklist points to, to tap.
   function ordSuggest(base) {
@@ -819,6 +835,7 @@
       h('div', { class: 'card-grid' }, [
         field('Action item', base + 'action', { full: true, multi: true, rows: '3', placeholder: 'What might you do to assist them in being worthy and prepared for their next ordinance?',
           tag: getPath(base + 'actionCarried') && str(getPath(base + 'action')).trim() ? carriedTag() : null }),
+        actionChips(base),
         // Assigned to gets the wider share of its row; When is usually a day or two words.
         h('div', { class: 'assign-row' }, [
           field('Assigned to', base + 'assigned', { placeholder: 'Who will do it', cap: 'words' }),
@@ -845,7 +862,7 @@
   }
   function wcSummary(r, a) {
     var ord = ordOf(a, r.g), need = str(a.need).trim(), bap = monthDay(a.bap);
-    var facts = [['Next ordinance', ord || 'Not set yet', !ord], ['What will help', need || 'Not chosen yet', !need]];
+    var facts = [['Next ordinance', ord || 'Not set yet', !ord]];
     if (r.g === 'nm') facts.push(['Baptized', bap || 'No date yet', !bap]);
     if (r.g === 'bt' && apptNote(a)) facts.push(['Appointment', whenShow(a.appt)]);
     return h('div', { class: 'wc-summary' }, [
@@ -939,8 +956,6 @@
         FIXED_ORD[g] ? h('div', { class: 'field full' }, ['Next ordinance', h('p', { class: 'fixed-value', text: FIXED_ORD[g] })])
           : ordField('Next ordinance', base + 'ordinance', { full: true }),
         FIXED_ORD[g] ? null : ordSuggest(base),
-        field('What will help', base + 'need', { full: true, multi: true, rows: '2', placeholder: 'One step toward their next ordinance' }),
-        helpChips(base),
         confNote()
       ])
     ]);
@@ -1182,8 +1197,8 @@
       var ord = ordOf(a, gid);
       sub = ord ? 'Next: ' + ord : '';
       if (!sub && name) { sub = 'Needs a next ordinance'; warn = true; }
-      // A focus name without What will help is what's left for ward council's check (shown in red).
-      if (gid === 'tn' && name) { var help = str(a.need).trim(); if (help) sub = (sub ? sub + ' · ' : '') + help; else tags.push(rowTag('Needs What will help', 'due')); }
+      // A focus name without a next ordinance is what's left for Ward Council's check (shown in red).
+      if (gid === 'tn' && name && !ord) { sub = ''; warn = false; tags.push(rowTag('Needs a next ordinance', 'due')); }
     }
     if (!name) sub = sub || 'Tap to add';
     var title = name || (gid === 'tn' ? 'Focus name ' + (i + 1) : 'No name yet');
@@ -1229,14 +1244,15 @@
       ]), h('ul', { class: 'steps-list person-rows' }, rrows)]);
     }
     var isTn = gid === 'tn', list = isTn ? state.tn : state.cp[gid];
-    var rows = list.map(function (a, i) { return { a: a, i: i }; }).filter(function (x) { return isTn || !cardBlank(x.a); })
+    var rows = list.map(function (a, i) { return { a: a, i: i }; }).filter(function (x) { return isTn ? kind !== 'hd' || !!str(x.a.name).trim() : !cardBlank(x.a); }) // the Huddle has no empty focus name spots
       .map(function (x) { return personRow(kind, gid, x.i, x.a); });
+    if (isTn && kind === 'hd' && !rows.length) rows.push(h('li', { class: 'list-empty' }, [h('p', { class: 'list-empty-text', text: 'No focus names yet. Ward Council chooses them.' })]));
     var named = rows.length, ok = !isTn && kind === 'hd' && noneConfirmed(gid);
     if (ok) rows.push(h('li', { class: 'list-empty confirmed' }, [
       h('p', { class: 'list-empty-text' }, [icon('check'), h('span', { text: 'No one on the Covenant Path Report this week' })]),
       h('button', { type: 'button', class: 'btn-link list-empty-undo', 'data-action': 'cp-none-undo', 'data-a': gid, 'aria-label': 'Undo none this week for ' + title, text: 'Undo' })
     ]));
-    if (!isTn) {
+    if (!isTn && kind !== 'wc') { // names are added in Before ward council (the user decided, Nov 19, 2026)
       var add = h('button', { type: 'button', class: 'nav-row add-row', 'data-action': 'add-person', 'data-a': gid, 'data-kind': kind, 'aria-label': 'Add a name to ' + title }, [icon('plus'), h('span', { text: 'Add a name' })]);
       rows.push(h('li', {}, [add]));
       if (kind === 'hd' && !named && !ok) rows.push(h('li', {}, [h('button', { type: 'button', class: 'nav-row none-row', 'data-action': 'cp-none', 'data-a': gid }, [h('span', { text: 'Confirm none this week' })])]));
@@ -1561,6 +1577,7 @@
       document.addEventListener('input', function (e) {
         var t = e.target; if (!t.dataset) return;
         if (/^tn\.\d+\.ordinance$/.test(t.dataset.bind || '') && isPerson(view)) { setTimeout(renderPerson, 0); return; }
+        if (/^(?:cp\.\w+|tn)\.\d+\.action$/.test(t.dataset.bind || '')) { var ag = t.closest('.card-grid'), ac = ag && ag.querySelector('.action-chips'); if (ac) ac.hidden = !!t.value.trim(); return; }
         if (/^(?:cp\.\w+|tn)\.\d+\.need$/.test(t.dataset.bind || '')) { var hg = t.closest('.card-grid'), hc = hg && hg.querySelector('.help-chips'); if (hc) hc.hidden = !!t.value.trim(); return; }
         if (/^find\.opps\.\d+\.title$/.test(t.dataset.bind || '')) { var sc = t.closest('.opp-card'), st0 = sc && sc.querySelector('.opp-starters'); if (st0) st0.hidden = !!t.value.trim(); if (t.closest('#person-card')) { var nm0 = t.value.trim() || 'New opportunity', hn = $('#person-card .person-head-name'); if (hn) hn.textContent = nm0; $('#step-title').textContent = nm0; } return; }
         if (!/^find\.items\.\d+\.task$/.test(t.dataset.bind || '')) return;
@@ -1991,18 +2008,18 @@
       return { done: n, of: STEPS.length, text: n === STEPS.length ? 'All ' + n + ' sections done' : n + ' of ' + STEPS.length + ' sections done' };
     }
     if (key !== 'wc') return null;
-    // Ward council is done when every focus name has What will help (it clears after each send, so the check does too).
+    // Ward Council is done when every focus name has a next ordinance (What will help moved to the Huddle's action item).
     var fn = state.tn.filter(function (a) { return str(a.name).trim(); });
     if (!fn.length) return null;
-    var have = fn.filter(function (a) { return str(a.need).trim(); }).length, all = have === fn.length;
-    return { done: have, of: fn.length, text: all ? (have === 1 ? 'The focus name has What will help' : 'All ' + have + ' focus names have What will help') : have + ' of ' + fn.length + ' focus names have What will help' };
+    var have = fn.filter(function (a) { return str(a.ordinance).trim(); }).length, all = have === fn.length;
+    return { done: have, of: fn.length, text: all ? (have === 1 ? 'The focus name has a next ordinance' : 'All ' + have + ' focus names have a next ordinance') : have + ' of ' + fn.length + ' focus names have a next ordinance' };
   }
   function renderHeroes() {
     Array.prototype.forEach.call(document.querySelectorAll('[data-hero]'), function (el) {
       var key = el.getAttribute('data-hero');
       // The Huddle and After the huddle carry the huddle's own date; the other two happen on the day they're opened.
       var d = (key === 'hd' || key === 'af') && parseISO(state.date) || new Date();
-      el.querySelector('.hero-ward').textContent = state.ward.trim() || { hd: 'Huddle', wc: 'Ward council', bw: 'Before ward council', af: 'After the huddle' }[key];
+      el.querySelector('.hero-ward').textContent = state.ward.trim() || { hd: 'Huddle', wc: 'Ward Council', bw: 'Before ward council', af: 'After the huddle' }[key];
       el.querySelector('.hero-date').textContent = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
       var box = el.querySelector('.hero-progress'); if (!box) return;
       var pr = heroProgress(key); box.hidden = !pr; if (!pr) return;
@@ -2082,7 +2099,7 @@
     var stepShown = view === 'wc-fn' ? 'fn' : view === 'wc-mr' ? 'mr' : view;
     $('#start-home').hidden = !start; $('#wc-view').hidden = !wc && !(!all && isWcNames(view)); $('#mode-bar').hidden = all || !(view === 'home' || wc || bw || af);
     $('#bw-view').hidden = !bw; $('#af-view').hidden = !af;
-    $('#mode-title').textContent = wc ? 'Ward council' : bw ? 'Before ward council' : af ? 'After the huddle' : 'Huddle';
+    $('#mode-title').textContent = wc ? 'Ward Council' : bw ? 'Before ward council' : af ? 'After the huddle' : 'Huddle';
     $('#hd-hero').hidden = all || view !== 'home'; // the Huddle's header card, with its one line on what to do there
     var stp = STEPS.filter(function (x) { return x.id === view; })[0] || WC_LISTS.filter(function (x) { return 'wc-' + x.id === view; })[0];
     $('#step-title').textContent = person ? personTitle(personRef) : stp ? stp.title : '';
@@ -2182,10 +2199,6 @@
     if (!named.length) return { text: id === 'tn' ? 'None chosen yet' : 'No names yet' };
     var missing = named.filter(function (x) { return !ordOf(x.a, x.g); }).length;
     var lead = id === 'tn' ? tnCountText() : plural(named.length, 'person', 'people');
-    if (id === 'tn') { // focus names: what's left before ward council's check is What will help
-      var noHelp = named.filter(function (x) { return !str(x.a.need).trim(); }).length;
-      if (noHelp) return { text: lead + ' · ' + noHelp + (noHelp === 1 ? ' needs' : ' need') + ' What will help', warn: true };
-    }
     return { text: lead + ' · ' + (missing ? missing + (missing === 1 ? ' needs' : ' need') + ' a next ordinance' : 'everyone has a next ordinance'), warn: missing > 0 };
   }
   function renderWC() {
@@ -2845,8 +2858,9 @@
         renderPerson(); renderBefore(); renderCP(); saveDraft();
         break;
       }
-      case 'help-chip': case 'ord-suggest': { // a tapped open item fills What will help; a suggestion fills Next ordinance
+      case 'help-chip': case 'ord-suggest': { // a tapped suggestion fills the Action item (or What will help); a suggested ordinance fills Next ordinance
         setPath(a, b); saveDraft(); renderPerson(); renderTN(); renderCP();
+        if (/\.action$/.test(a)) { var tb = a.replace(/action$/, ''); refreshTextButton(tb); setTimeout(function () { var af = document.querySelector('#person-card [data-bind="' + tb + 'assigned"]'); if (af) af.focus(); }, 60); }
         break;
       }
       case 'open-asg': case 'add-asg': { // from an opportunity's card in the Huddle: open it with that one assignment open
@@ -2884,7 +2898,7 @@
         break;
       case 'hp-install': openInstallSteps(); break;
       // Loading it here keeps it in the browser's storage, apart from the Home Screen app. The page stays until it's confirmed.
-      case 'hp-safari': if (handoffHere) confirmApplyAgenda(handoffHere.s, 'handoff', closeHandoffPage); break;
+      case 'hp-safari': if (handoffHere) { writeJSON('sessionStorage', 'huddle-safari-once', true); confirmApplyAgenda(handoffHere.s, 'handoff', closeHandoffPage); } break;
       case 'hp-close': closeHandoffPage(); break;
       case 'close-install': closeOverlay('#install-sheet'); break;
       case 'dismiss-install':
@@ -3976,6 +3990,8 @@
       var rows = titleLines(name, 'No name').concat(tagLines(tags), [space(3)]);
       if (ord) rows = rows.concat(field('Next ordinance', ord));
       if (need) rows = rows.concat(field('What will help', need));
+      if (gid !== 'tn' && CHECKLISTS[gid]) { var so = (CHECKLISTS[gid] || []).filter(function (c) { return checkOf(a, gid, c) === false; }).map(function (c) { return c.help; });
+        if (so.length) rows = rows.concat(field('Still open', so.join(', '))); }
       if (gid === 'tn') { var src = (function () { var n = norm(a.name), hit = null; GROUPS.forEach(function (g) { (s.cp[g.id] || []).forEach(function (c) { if (!hit && n && norm(c.name) === n) hit = { a: c, gid: g.id }; }); }); return hit; })();
         var dw = src ? doneThisWeek(src.a, src.gid, s.bwSnap) : [];
         if (dw.length) rows = rows.concat(field('Done this week', dw.join(', '))); }
@@ -4614,10 +4630,19 @@
     // Erase saved agendas older than 4 weeks each time the app opens.
     listAgendas();
 
+    // iPhone and iPad Safari: only the way to the Home Screen app (the user decided, Nov 19, 2026). What's typed in
+    // Safari stays in Safari, apart from the app. A handoff link still opens here (its page moves the huddle into the app,
+    // or "Use it in Safari this once" lets it run here for this visit). Tests turn it on with the huddle-gate-test flag.
+    var gated = isIOS && !isStandalone() && (!navigator.webdriver || readFlag('huddle-gate-test')) && !readFlag('huddle-gate-off') && !handoffPending && !readJSON('sessionStorage', 'huddle-safari-once');
+    if (gated) {
+      $('#safari-gate').hidden = false; document.body.classList.add('gated');
+      $('#safari-gate').classList.toggle('is-ipad', /iPad/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+    }
     // Instructions: open on the first visit on this device, or when the link ends in #help.
     // First visit on a device: in a phone’s browser, Help & training opens (it starts with Add to Home Screen).
-    // Everywhere else, including the Home Screen app, the guided tour starts once.
-    if (location.hash === '#help') openHelp();
+    // The first time from the Home Screen app, the step-by-step guide is offered once.
+    if (gated) { /* nothing over the Safari screen */ }
+    else if (location.hash === '#help') openHelp();
     else if (location.hash === '#tour') openSlides(); // (the guided tour was taken out; the step-by-step guide takes its place)
     else if (!navigator.webdriver && !handoffPending) { // a handoff link comes first; the instructions wait for the next visit
       var phoneBrowser = (isIOS || isAndroid) && !isStandalone();

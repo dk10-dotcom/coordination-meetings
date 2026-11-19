@@ -16,7 +16,7 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
   The page's security settings block outside connections; keep it that way.
 - **The PDF is the only thing that leaves the phone,** and only by email or text. Keep this wording
   wherever sharing is offered: "Only share via email or text message. Do not share through any other app."
-- Keep this warning visible next to the boxes where details are typed (under Needs on a Ward council name;
+- Keep this warning visible next to the boxes where details are typed (under Next ordinance on a Ward Council name;
   under the notes in the Huddle and on each Return and Report item), and in the step-by-step guide:
   "Never add confidential information to this huddle report." (The user decided it no longer sits under the
   step cards. Help & training says it in Privacy and security, with no banner there.)

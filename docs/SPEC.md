@@ -108,10 +108,9 @@ date on one line, the ward name large (or the step's name when no ward is set), 
 line on what to do. The Huddle and After the huddle show the huddle's date; the other two show
 today's. The two meetings also show progress:
 - **Huddle:** "2 of 5 sections done", with a bar that fills as sections are marked done.
-- **Ward council:** "2 of 3 focus names have What will help". On Ward council's Focus names list, a focus name without
-  What will help carries a red **Needs What will help** tag (with it, the row reads "Next: Sealing · Help preparing family
-  names"), and the Focus names row says "3 of 3 names · 2 need What will help" in orange, so what's left is plain.
-  (The rest of this line:) Ward council (step 2 on the opening screen) is done when
+- **Ward council:** "2 of 3 focus names have What will help". On Ward Council's Focus names list, a focus name without a
+  next ordinance carries a red **Needs a next ordinance** tag, and the Focus names row says "3 of 3 names · 1 needs a next
+  ordinance" in orange, so what's left is plain. Ward council (step 2 on the opening screen) is done when
   every focus name has What will help; since What will help clears after each send, so does the check (the user
   decided, Nov 18, 2026).
   Hidden while there are no names.
@@ -789,3 +788,27 @@ format readable by future versions. `referrals` was added later as an optional l
 handoff link without it loads with no referrals (referrals are no longer shown, but are kept). `find.opps`
 (each `{id, title, date}`) and an assignment's `opp` were added later too; without them, typed opportunities
 (`find.plan`) become one card. `tn` may hold more than three names; `stepsDone.sa` is Sacrament attendance.
+
+
+## Changes on Nov 19, 2026 (the user asked)
+
+- **iPhone and iPad Safari show only the way to the Home Screen app.** What's typed in Safari is kept apart from the
+  Home Screen app, so a full screen says "Open Huddle from your Home Screen" with the Add to Home Screen steps (the
+  ··· or Share button, Add to Home Screen, Add) and "Already added? Close Safari and tap the Huddle icon", and a
+  gold arrow bobs toward Safari's toolbar (bottom right on iPhone, top right on iPad). Nothing else of the app shows.
+  A handoff link still opens its page in Safari, and "Use it in Safari this once" lets that visit run in Safari.
+  Android and computers are not blocked. (Tests turn the screen on with the `huddle-gate-test` flag; it is off while
+  a test browser runs.)
+- **"Ward Council"** is capitalized in its screen's title and header card.
+- **No Add a name in Ward Council's Covenant Path Report lists** (names come in during Before ward council), and the
+  Huddle's Focus names shows only named focus names (no empty spots to add one).
+- **New members' checklist adds Aaronic Priesthood ordination**, after Meet with the bishop, with Doesn't apply. A
+  new member who has done baptisms for the dead gets Priesthood advancement suggested while it's open.
+- **What will help is out of Ward Council** (every name, the Covenant Path Report lists and focus names). Ward Council
+  chooses the name and next ordinance; the Huddle chooses the step. Under the Huddle's **Action item**, chips offer
+  **Still open on their Covenant Path Report** (the person's unchecked items, found by name) and **Ideas for {next
+  ordinance}** (now including a ride to church, sitting with them in sacrament meeting, an invitation to a ward
+  activity, going with them to the temple, and so on). A tap fills the action item and moves to Assigned to; typing
+  hides them. One action item per person. A What will help saved before stays on the PDF and in Return and Report.
+- **The PDF prints "Still open"** for each person in the Covenant Path Report Review: their unchecked checklist items,
+  so ward council can see what each person still needs.

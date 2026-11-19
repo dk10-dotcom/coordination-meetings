@@ -59,7 +59,7 @@ module.exports = (async () => {
   await back(); await back();
   await p.click('[data-action="open-wc-list"][data-a="tn"]'); await wait(500);
   await p.click('[data-wc="tn"] [data-action="open-person"][data-b="1"]'); await wait(500); await p.evaluate(() => scrollTo(0, 0));
-  await p.selectOption('#person-card [data-bind$=".ordinance"]', 'Baptism'); await p.fill('#person-card [data-bind$=".need"]', 'Someone to sit with at church'); await wait(200);
+  await p.selectOption('#person-card [data-bind$=".ordinance"]', 'Baptism'); await wait(200);
   await shot('s11-wc-focus-person', '#person-card [data-bind$=".ordinance"]');
   await shot('s12-wc-note', '#person-card .need-note', { block: 'center' }); // the reminder sits right under Needs
   await back(); await back();
