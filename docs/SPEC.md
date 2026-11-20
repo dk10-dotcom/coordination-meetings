@@ -955,5 +955,5 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
 - During the week ends with "Help each person take their next step": a person's checklist beside a sample huddle report page
   (make.js draws two screens side by side when a scene has `pair`). Ward council members work with their presidencies
   and tell the ward mission leader at ward council what happened.
-- The last slide: "We are joyfully gathering Israel one by one in Christ. Every name here is someone the Lord knows and loves.
+- The last slide (no confidential line under it; slide 20 carries it): "We are joyfully gathering Israel one by one in Christ. Every name here is someone the Lord knows and loves.
   Thank you for helping each one take their next step on the covenant path."
