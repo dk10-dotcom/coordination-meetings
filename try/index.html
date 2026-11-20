@@ -209,14 +209,9 @@
     <div class="wc-cards" id="wc-rows" hidden>
       <ul class="steps-list wc-step" id="wc-step-fn"></ul>
       <ul class="steps-list wc-step" id="wc-step-ask"></ul>
-      <section class="wc-find" id="wc-find" aria-labelledby="wc-find-k">
-        <p class="wc-group-k" id="wc-find-k">Find your focus names</p>
-        <ul class="steps-list" id="wc-step-cp"></ul>
-        <a class="wc-pmf" id="wc-pmf" href="https://lcr.churchofjesuschrist.org/mlt/report/part-member-households?lang=eng" target="_blank" rel="noopener noreferrer">
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 3h6v6"/><path d="M17 3l-8 8"/><path d="M15 12v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4"/></svg>
-          <span class="wc-pmf-text">Open Part-Member Families<span class="wc-pmf-sub">In Leader and Clerk Resources, on the web</span></span>
-        </a>
-      </section>
+      <!-- Find your focus names lives inside the Focus names card now (the user asked, Nov 19, 2026, night): two small
+           buttons under its heading. The Part-Member Families link keeps its id (the test copy opens it in Safari). -->
+      <div hidden id="wc-hold"><a class="btn-outline wc-mini wc-pmf" id="wc-pmf" href="https://lcr.churchofjesuschrist.org/mlt/report/part-member-households?lang=eng" target="_blank" rel="noopener noreferrer">Part-Member Families</a></div>
       <section class="wc-step wc-focus" id="wc-step-tn" aria-label="Focus names"></section>
     </div>
     <div class="stack" id="wc-list"></div>
@@ -642,7 +637,7 @@
         <summary class="nav-row"><span class="help-num" aria-hidden="true">1</span><span class="step-text"><span class="step-title">Before Ward Council</span><span class="step-status">Match Member Tools</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
         <ul class="help-body">
           <li>Tap <strong>Home</strong> at the bottom, then <strong>Before Ward Council</strong>, then <strong>Open the Covenant Path Report</strong>.</li>
-          <li>Tap each name; add dates and check off what’s done.</li>
+          <li>Tap a name to open its steps and check off what’s done. <strong>Edit details</strong> changes dates.</li>
           <li>Add anyone new. Remove anyone no longer listed.</li>
           <li>Tap <strong>Mark done</strong>.</li>
         </ul>
@@ -652,9 +647,9 @@
         <ul class="help-body">
           <li>Tap <strong>Home</strong>, then <strong>Ward Council</strong>. Work down the cards; the next one says <strong>Up next</strong>.</li>
           <li><strong>Opportunities to invite:</strong> tap <strong>Add an event</strong>, then <strong>Done</strong> (or <strong>No upcoming events</strong>).</li>
-          <li><strong>Ask ward council:</strong> check off steps done this week (tap How can we help? for questions), then <strong>Done</strong>.</li>
-          <li><strong>Find your focus names:</strong> tap <strong>Add to focus names</strong> beside a name, or <strong>Open Part-Member Families</strong>.</li>
-          <li><strong>Focus names:</strong> tap each one and choose its next ordinance, then tap <strong>Keep these focus names</strong>.</li>
+          <li><strong>Ask ward council:</strong> tap a name to see what’s still open, check off what’s done, then <strong>Done</strong>.</li>
+          <li><strong>Focus names:</strong> tap <strong>Covenant Path Report</strong> (then <strong>Add to focus names</strong>) or <strong>Part-Member Families</strong> to find names.</li>
+          <li>Tap each focus name, choose its next ordinance, then <strong>Keep these focus names</strong>. For ideas, tap How can we help?</li>
         </ul>
       </details></li>
       <li><details class="help-item">

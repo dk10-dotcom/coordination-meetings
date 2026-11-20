@@ -1761,5 +1761,27 @@ body[data-view="start"] .title-text .title-sub { margin-top: 8px; font-size: 13p
 .pick-row .person-name { overflow-wrap: normal; }
 .pick-row .pick-add, .pick-row .pick-on { margin-left: auto; }
 
+/* Focus names and suggested ones: a thin bar down the row's left edge and one line of words (Nov 19, 2026, night) */
+.person-rows > li.flag-sug, .person-rows > li.flag-focus { position: relative; }
+.person-rows > li.flag-sug::after, .person-rows > li.flag-focus::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: #C62828; z-index: 2; pointer-events: none; }
+.person-rows > li.flag-focus::after { background: #B5790A; }
+.row-flag { display: block; margin-top: 1px; font-size: 13.5px; font-weight: 700; line-height: 1.3; color: #B3261E; }
+li.flag-focus .row-flag { color: #8A5A00; }
+.person-rows > li.flag-sug + li::before, .person-rows > li.flag-focus + li::before { position: relative; z-index: 3; }
+/* Find names in: two small buttons under the Focus names heading */
+.wc-finds { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 0 14px 12px 16px; }
+.wc-finds-k { width: 100%; font-size: 13px; font-weight: 600; color: var(--muted); }
+.wc-mini { display: inline-flex; align-items: center; min-height: 36px; padding: 4px 12px; border-radius: 999px; font-size: 14px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.wc-cards #wc-hold { display: none; }
+
+/* A name that opens its steps right in the list */
+.exp-chev { transition: transform .2s ease; transform: rotate(90deg); }
+.exp-li.is-open .exp-chev { transform: rotate(-90deg); }
+.exp-li.is-open > .person-row { background: var(--accent-soft); }
+.exp-body { padding: 4px 14px 10px 16px; background: var(--card); }
+.exp-body .ck-list { margin: 0; }
+.exp-edit { display: inline-block; margin-top: 6px; min-height: 40px; font-size: 15px; font-weight: 700; }
+.exp-none { margin: 6px 0; font-size: 15px; color: #1F6B3A; font-weight: 600; }
+
 /* Test copy only */
 .test-tag { color: #FFD5D5; }
