@@ -1785,3 +1785,16 @@ li.flag-focus .row-flag { color: #8A5A00; }
 .exp-body .ck-list { margin: 0; }
 .exp-edit { display: inline-block; margin-top: 6px; min-height: 40px; font-size: 15px; font-weight: 700; }
 .exp-none { margin: 6px 0; font-size: 15px; color: #1F6B3A; font-weight: 600; }
+
+/* The baptism date's own calendar (Nov 20, 2026): the date box opens it; nothing is saved until Apply */
+.date-tap { position: absolute; left: 0; right: 0; bottom: 0; height: 44px; border: 0; background: transparent; cursor: pointer; z-index: 1; }
+.cal { display: flex; flex-direction: column; gap: 6px; }
+.cal-head { display: flex; align-items: center; justify-content: space-between; }
+.cal-month { font-size: 16px; font-weight: 700; color: var(--ink); }
+.cal-nav { width: 44px; height: 40px; border: 0; border-radius: 10px; background: var(--accent-soft); color: var(--accent); font: inherit; font-size: 24px; line-height: 1; cursor: pointer; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; text-align: center; }
+.cal-wd { font-size: 12px; font-weight: 700; color: var(--muted); padding: 4px 0; }
+.cal-day { height: 40px; border: 0; border-radius: 20px; background: transparent; color: var(--ink); font: inherit; font-size: 16px; cursor: pointer; }
+.cal-day.is-today { box-shadow: inset 0 0 0 1.5px var(--accent-line); }
+.cal-day.is-sel { background: var(--accent); color: #FFFFFF; font-weight: 700; box-shadow: none; }
+.cal-picked { margin: 2px 0 0; text-align: center; font-size: 14px; font-weight: 600; color: var(--muted); }

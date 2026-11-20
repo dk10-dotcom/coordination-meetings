@@ -245,20 +245,21 @@ marked in the Huddle; next ordinance and What will help are ward council's).
 | New members | Returning members | Those being taught |
 | --- | --- | --- |
 | Meet with the bishop | Has friends at church | Attended sacrament meeting |
-| Performed baptisms for the dead (red, with the 30-day countdown, until checked) | Aaronic Priesthood ordination | Has friends at church |
-| A calling | Melchizedek Priesthood ordination | Met the bishop |
+| Performed baptisms for the dead (red, with the 30-day countdown, until checked) | Aaronic Priesthood ordination (if applicable) | Has friends at church |
+| A calling | Melchizedek Priesthood ordination (if applicable) | Met the bishop |
 | A ministering assignment | A calling | Participated in family history |
 | Assigned ministers | A ministering assignment | |
 | Prepared a family name for the temple | Assigned ministers | |
 | Invited to attend institute | Prepared a family name for the temple | |
 | Invited to mission or temple preparation | Meet with the bishop | |
 | Interview for patriarchal blessing | Performed baptisms for the dead | |
-| Invited to consider a full-time mission | Received endowment (if applicable) | |
-| | Sealed to parents (if applicable) | |
+| Invited to consider a full-time mission | Received endowment | |
+| | Sealed to parents | |
 | | Sealed to spouse (if applicable) | |
 
 The "if applicable" items have a **Doesn't apply** button beside them; an item that doesn't apply is crossed
-out and left out of the count. A new member's "Performed baptisms for the dead" sits right under the baptism date, in red with the countdown,
+out and left out of the count. (Nov 20, 2026: the priesthood ordinations offer it; Received endowment and Sealed to parents
+no longer do, and an older "Doesn't apply" on those two counts as still open.) A new member's "Performed baptisms for the dead" sits right under the baptism date, in red with the countdown,
 until it's checked; then it moves into the list after Meet with the bishop. It is the same as temple
 attendance everywhere else (the countdown, the tags, the PDF). The checklist carries to the next huddle with
 the name, and is kept in the PDF's data. **Done**, **Back** and the phone's Back return to the list.
@@ -966,3 +967,11 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
 - Nov 20, 2026, later: the guide is now an overview in 10 slides (the user's limit): title, one slide per step (two for
   Ward Council, two for the Huddle), Send, During the week, and the closing message. Each says what the step is for,
   not every tap. `test/help.js` checks there are ten at most.
+
+## Baptism date: Huddle's own calendar (Nov 20, 2026)
+
+- Tapping a baptism date (new members; those being taught) opens a sheet titled with the field's name ("Baptism date"),
+  with a month calendar (‹ ›, today ringed, the picked day filled), the day picked written under it, and **Apply**,
+  **Clear** and **Cancel**. Nothing is saved until Apply; Clear empties the date; Cancel and tapping outside leave it.
+  (The phone's own date picker filled in today's date just from opening it.) `test/bapdate.js` covers it.
+- The other date boxes (When, Event date, Next appointment) still use the phone's picker.

@@ -42,6 +42,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   ok((await p.textContent('#before-list [data-bw="rm"] .person-row')).includes('1 of 11 done'), 'a row counts what’s done, leaving out what doesn’t apply');
   if (!(await p.isVisible('#before-list [data-bw="rm"] .exp-edit'))) { await p.click('#before-list [data-bw="rm"] [data-action="row-toggle"]'); await w(300); } await p.click('#before-list [data-bw="rm"] .exp-edit'); await w(400); // opens in place; Edit details opens the screen
   ok(await p.locator('#person-card .ck-li.is-na').count() === 1 && await p.locator('#person-card .ck-na').count() === 3, 'Aaronic Priesthood is marked Doesn’t apply; three items offer it');
+  ok((await p.$$eval('#person-card [data-action="check-na"]', e => e.map(x => x.dataset.b))).join('|') === 'aaronic|melch|sealspouse', 'Doesn’t apply is offered on the priesthood ordinations and Sealed to spouse, not on endowment or Sealed to parents');
   await p.click('[data-action="check-na"][data-b="sealspouse"]'); await w(200);
   await p.click('[data-action="check-item"][data-b="calling"]'); await w(200);
   ok((await p.textContent('#person-card .ck-count')).trim() === '2 of 10 done' && await wide(), 'Doesn’t apply takes an item out of the count; a check counts as done');
