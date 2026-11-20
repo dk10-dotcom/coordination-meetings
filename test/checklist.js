@@ -130,6 +130,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#share-btn')]);
   const f = OUT + '/checklist.pdf'; await dl.saveAs(f);
   const t = execSync(`pdftotext "${f}" -`).toString().replace(/\s+/g, ' ');
+  ok(t.includes('Ward council organizations: As you help the people on this list take their next steps, please let the ward mission leader know so he can mark them off on the Covenant Path Report and keep our efforts aligned.'), 'the PDF asks ward council organizations to tell the ward mission leader about next steps taken');
   ok(/Done this week Melchizedek Priesthood ordination|Done this week/.test(t) && /Next steps/.test(t) && !/Still open/.test(t) && /Melchizedek Priesthood ordination/.test(t), 'PDF: Done this week under the focus name, What will help, and no checklist');
 
   // Next huddle: the checklist comes along with the name

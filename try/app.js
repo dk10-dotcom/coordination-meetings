@@ -4379,6 +4379,20 @@
 
     /* ----- Covenant Path Report Review ----- */
     heading('Covenant Path Report', 'For reference');
+    // A note to ward council organizations (the user's wording, Nov 20, 2026): tell the ward mission leader as people take
+    // their next steps, so he can mark them off on the Covenant Path Report.
+    (function () {
+      var k = 'Ward council organizations: ', pad = 10, sz = 10.5, lh = 14;
+      var lns = wrap(k + WC_NOTE, F.reg, sz, R - L - pad * 2), hh = lns.length * lh + pad * 2 - 3;
+      put([line(hh, function (top) {
+        rbox(L, top, R - L, hh, 8, rgb(0.925, 0.945, 0.98));
+        lns.forEach(function (ln, i) {
+          var yy = top + pad + 10 + i * lh;
+          if (!i && ln.indexOf(k) === 0) { var e = tx(L + pad, yy, k.trim(), F.bold, sz, C.navy); tx(e + width(' ', F.reg, sz), yy, ln.slice(k.length), F.reg, sz, C.dark); }
+          else tx(L + pad, yy, ln, F.reg, sz, C.dark);
+        });
+      }), space(10)]);
+    })();
     GROUPS.forEach(function (g) {
       groupLabel(g.title, g.id);
       var filled = s.cp[g.id].filter(function (a) { return a.sac || hasText(a, CARD_KEYS); });
@@ -4593,6 +4607,7 @@
     try { return !!(navigator.canShare && navigator.share && navigator.canShare({ files: [file] })); } catch (e) { return false; }
   }
 
+  var WC_NOTE = 'As you help the people on this list take their next steps, please let the ward mission leader know so he can mark them off on the Covenant Path Report and keep our efforts aligned.';
   var SHARE_HINT = 'Only share via email or text message. Do not share through any other app.';
   function resetSendSheet() {
     sendFile = null; sendPayload = null;

@@ -957,3 +957,9 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
   and tell the ward mission leader at ward council what happened.
 - The last slide (no confidential line under it; slide 20 carries it): "We are joyfully gathering Israel one by one in Christ. Every name here is someone the Lord knows and loves.
   Thank you for helping each one take their next step on the covenant path."
+
+## Huddle report: a note to ward council organizations (Nov 20, 2026)
+
+- Under the PDF's "Covenant Path Report · For reference" heading, a light blue box: "Ward council organizations: As you help
+  the people on this list take their next steps, please let the ward mission leader know so he can mark them off on the
+  Covenant Path Report and keep our efforts aligned." (`WC_NOTE` in app.js; `test/checklist.js` checks it.)
