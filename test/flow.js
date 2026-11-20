@@ -57,10 +57,7 @@ const flags = ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen',
   await p.click('#step-done-btn'); await w(500);
   ok(await view() === 'home' && !(await p.isVisible('#confirm-sheet')), 'with an assignment it’s marked done without asking, and goes back to the list');
   await p.click('[data-action="open-step"][data-a="tn"]'); await w(400);
-  ok(await blocked() && (await p.textContent('#step-gate-hint')) === 'Marcus Bell needs an assignment first.', 'Focus names: gray, with a line saying who still needs an assignment');
-  await p.click('#step-done-btn'); await w(400);
-  ok(await p.isVisible('#confirm-sheet') && /Marcus Bell needs an assignment first/.test(await p.textContent('#confirm-title')) && await view() === 'tn', 'tapping it shows a message saying what’s needed (it doesn’t jump anywhere)');
-  await p.click('#confirm-primary'); await w(300);
+  ok(!(await p.isVisible('#step-done-btn')) && /Tap each name, then Mark done\./.test(await p.textContent('#step-gate-hint')), 'Focus names has no Mark done of its own: a line says to mark each name done (Nov 20, 2026)');
   await p.click('[data-group="tn"] .person-row:has-text("Marcus Bell")'); await w(400);
   // The focus name's screen: ward council's part is one line with an i
   ok(await p.locator('#person-card .wc-line').count() === 1 && /Next ordinance\s*Endowment/.test((await p.textContent('#person-card .wc-line')).replace(/:/g, '')) && !(await p.$('#person-card .zone-wc-wrap')) && !/Who & What/.test(await p.textContent('#person-card .wc-line')), 'ward council’s part is one line, Next ordinance: Endowment, with no box or label');
@@ -68,13 +65,16 @@ const flags = ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen',
   ok(/Chosen in Ward Council\. To change it, open this name in Ward Council\./.test(await p.textContent('#person-card [data-info="wc-ord"]')), 'its i says it was chosen in Ward Council and where to change it');
   ok((await p.textContent('#person-card')).includes('Assignment') && !(await p.textContent('#person-card')).includes('Action item'), 'it says Assignment, not Action item');
   await p.fill('#person-card [data-bind$=".action"]', 'Sit with him at church'); await p.fill('#person-card [data-bind$=".assigned"]', 'Bro. Hill'); await p.fill('#person-card [data-bind$=".when"]', '2026-11-22');
+  ok((await p.textContent('#person-view .person-done')).trim() === 'Mark done', 'a focus name’s screen has Mark done');
   await p.click('#person-view .person-done'); await w(400);
-  ok(!(await blocked()) && await btn() === 'Mark done', 'once every focus name has an assignment, who and when, Mark done works');
-  // Finish the other sections, then the last Mark done goes home with what's next
-  for (const id of ['rr', 'sa']) { await p.click('.nav-home'); await w(250); await p.click('.door-hd'); await w(400); await p.click(`[data-action="open-step"][data-a="${id}"]`); await w(300); if (!(await blocked())) { await p.click('#step-done-btn'); await w(400); } }
-  if (await view() !== 'tn') { await p.click('.nav-home'); await w(250); await p.click('.door-hd'); await w(400); await p.click('[data-action="open-step"][data-a="tn"]'); await w(300); }
-  await p.click('#step-done-btn'); await w(800);
-  ok(await view() === 'home' && /Step 3 done\. Next: After the huddle\./.test(await p.textContent('#toast')), 'the last section done goes back to the list: Step 3 done. Next: After the huddle.');
+  // Finish the other sections (Return and Report waits for each assignment's status), then mark the other focus names
+  for (const id of ['rr', 'sa']) { await p.click('.nav-home'); await w(250); await p.click('.door-hd'); await w(400); await p.click(`[data-action="open-step"][data-a="${id}"]`); await w(300);
+    if (id === 'rr') { for (const b of await p.$$('[data-action="happened"][data-b="Yes"][aria-pressed="false"]')) { await b.click(); await w(150); } }
+    if (!(await blocked())) { await p.click('#step-done-btn'); await w(400); } }
+  await p.click('.nav-home'); await w(250); await p.click('.door-hd'); await w(400); await p.click('[data-action="open-step"][data-a="tn"]'); await w(300);
+  for (let k = 0; k < 4; k++) { const row = await p.$('#tn-list .person-row:not(:has(.row-ok))'); if (!row) break; await row.click(); await w(400); await p.click('#person-view .person-done'); await w(600); }
+  await p.click('.nav-home').catch(() => {}); await w(300); await p.click('.door-hd'); await w(500);
+  ok(await view() === 'home' && await p.evaluate(() => ['rr', 'sa', 'fn', 'tn'].every(k => JSON.parse(localStorage.getItem('huddle-agenda-v1')).stepsDone[k])), 'marking the last focus name done finishes the Huddle: all four sections done');
   // After the huddle: tick each changed name
   await p.click('.nav-home'); await w(300); await p.click('#after-box'); await w(500);
   ok(await p.evaluate(() => document.querySelector('#after-done-btn').classList.contains('is-blocked')) && /1 person to update/.test(await p.textContent('#after-done-btn')), 'After the huddle: Mark done waits for the changed name');

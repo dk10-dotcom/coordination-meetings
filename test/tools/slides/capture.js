@@ -131,8 +131,8 @@ module.exports = (async () => {
     await p.click('#person-view .person-done'); await wait(350);
   }
   await p.evaluate(() => scrollTo(0, 0)); await shot('s23-hd-tn-done');
-  await p.click('#step-done-btn'); await wait(600);
-  if (!(await p.isVisible('#steps-home'))) { await p.click('.door-hd'); await wait(600); } // the last Mark done goes home
+  // (Focus names is done once each name is marked done: no Mark done of its own, Nov 20, 2026)
+  if (!(await p.isVisible('#steps-home'))) { await p.click('[data-action="steps-home"]').catch(() => {}); await wait(600); } // back to the Huddle's list
   await p.evaluate(() => scrollTo(0, 0));
   await shot('s25-huddle-all', '#hd-hero .hero-progress', { scroll: false });
   await start();

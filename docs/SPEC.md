@@ -1020,3 +1020,11 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
 - **A focus name counts as planned only with all three**: an assignment, who and when. Until then its row says what's
   missing in red ("Needs who and when"), with no green check; Mark done on Focus names already waited for all three.
   Once Focus names is marked done, its card in the Huddle has **Mark as not done** beside How can we help?.
+- **(Later, Nov 20) Focus names in the Huddle is done name by name.** Each focus name's screen ends with **Mark done** (no
+  fields required); it goes back and the name's row gets a green check. Marked, the button is a green **Done** with
+  **Mark as not done** under it. Focus names has no Mark done of its own: it is checked off once every focus name is marked
+  done (and unchecked when one is unmarked); its page says "Tap each name, then Mark done. N names to go." The marks are
+  for this huddle only and don't carry to next week. (Replaces the "all three fields" rule above and the card's Mark as
+  not done.)
+- **Return and Report's Mark done waits** until every assignment is marked Yes, Partly or No: gray, with "Mark each
+  assignment Yes, Partly or No first." above it; tapping it says how many aren't marked.

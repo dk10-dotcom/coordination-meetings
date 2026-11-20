@@ -1844,3 +1844,7 @@ li.flag-focus .row-flag { color: #8A5A00; }
 .find-lead { margin: 4px 0 12px; font-size: 15.5px; font-weight: 600; color: var(--ink); }
 .wc-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; width: 100%; padding: 2px 4px 0; }
 .wc-card-foot .wc-undone { margin: 0; }
+/* A focus name marked done in the Huddle (Nov 20, 2026) */
+.person-done.is-done { background: #1F6B3A; border-color: #1F6B3A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.person-done.is-done svg { width: 18px; height: 18px; }
+.person-undone { display: block; margin: 8px auto 0; }

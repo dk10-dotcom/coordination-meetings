@@ -40,6 +40,12 @@ const huddle = {
   ok(!(await p.isVisible('#step-done-btn')) && !(await p.isVisible('#step-foot .undone-link')), 'from Assignments there is no Mark done (marks are kept as they’re tapped)');
   await p.click('[data-action="happened"][data-a="0"][data-b="Yes"]'); await w(400);
   ok((await p.textContent('#asg-count')).trim() === '1', 'marking one leaves 1 in the count');
+  await p.click('.nav-home'); await w(300); await p.click('.door-hd'); await w(400); await p.click('[data-action="open-step"][data-a="rr"]'); await w(400);
+  ok(await p.evaluate(() => document.querySelector('#step-done-btn').classList.contains('is-blocked')) && /Mark each assignment Yes, Partly or No first/.test(await p.textContent('#step-gate-hint')), 'Return and Report’s Mark done waits until every assignment is marked');
+  await p.click('#step-done-btn'); await w(300);
+  ok(await p.isVisible('#confirm-sheet') && /1 assignment from the last huddle isn’t marked yet/.test(await p.textContent('#confirm-body')) && !(await saved()).stepsDone.rr, 'tapping it says what’s left, and doesn’t mark it done');
+  await p.click('#confirm-primary'); await w(300);
+  await p.click('.actionbar [data-action="open-assignments"]'); await w(400);
   ok(await fits(), 'Assignments fits a small iPhone');
 
   // ----- The Huddle: each section its own card; Up next outlined in green; Focus names lists its names -----
@@ -54,18 +60,9 @@ const huddle = {
   ok(names.join('|') === 'Emma Walsh|Olivia Chen', 'the Focus names card lists each focus name: ' + names.join('|'));
   const oc = await p.textContent(tnCard + ' .person-row:has-text("Olivia Chen")'), ew = await p.textContent(tnCard + ' .person-row:has-text("Emma Walsh")');
   ok(/Returning member/.test(oc) && /New member/.test(ew), 'each says which list they came from (New member, Returning member)');
-  ok(/Sit with her family, Visit them as a family/.test(oc) && await p.locator(tnCard + ' .person-row:has-text("Olivia Chen") .row-ok').count() === 1, 'a planned name shows its assignments and a green check');
+  ok(/Sit with her family, Visit them as a family/.test(oc) && await p.locator(tnCard + ' .person-row:has-text("Olivia Chen") .row-ok').count() === 0, 'a name shows its assignments; no check until it’s marked done');
   ok(/Needs an assignment/.test(ew) && await p.locator(tnCard + ' .person-row:has-text("Emma Walsh") .row-ok').count() === 0, 'an unplanned name says Needs an assignment');
   ok(await p.isVisible(tnCard + ' [data-action="how-help"][data-a="focus"]'), 'the Huddle’s Focus names card has How can we help?');
-  // A name counts as planned only with an assignment, who and when
-  await p.evaluate(() => { const s = JSON.parse(localStorage.getItem('huddle-agenda-v1')); s.tn[0].action = 'Go with her to the temple grounds'; s.stepsDone = { tn: true }; localStorage.setItem('__seed', JSON.stringify(s)); });
-  await p.reload(); await w(800); if (!(await p.isVisible('#steps-home'))) { await p.click('.door-hd').catch(() => {}); await w(500); }
-  if (!(await p.isVisible('#steps-home'))) { await p.click('.nav-home'); await w(300); await p.click('.door-hd'); await w(500); }
-  const ew2 = await p.textContent(tnCard + ' .person-row:has-text("Emma Walsh")');
-  ok(/Needs who and when/.test(ew2) && await p.locator(tnCard + ' .person-row:has-text("Emma Walsh") .row-ok').count() === 0, 'an assignment with no who or when says Needs who and when, with no check');
-  ok(await p.isVisible(tnCard + ' [data-action="hd-tn-undone"]'), 'once Focus names is marked done, its card has Mark as not done');
-  await p.click(tnCard + ' [data-action="hd-tn-undone"]'); await w(400);
-  ok(!(await saved()).stepsDone.tn && !(await p.isVisible(tnCard + ' [data-action="hd-tn-undone"]')), 'Mark as not done takes the check off Focus names');
   await p.click(tnCard + ' [data-action="how-help"]'); await w(400);
   ok((await p.textContent('#howhelp-title')).trim() === 'How can we help?' && await p.locator('#howhelp-list .howhelp-group').count() === 3, 'it opens the one list, with three headers');
   await p.click('#howhelp-sheet [data-action="close-how-help"]'); await w(300);
@@ -82,7 +79,20 @@ const huddle = {
   await p.click(tnCard + ' .person-row:has-text("Emma Walsh")'); await w(500);
   ok((await p.textContent('#person-card .person-head-list')).trim() === 'Focus name · New member', 'the screen says Focus name · New member');
   ok(await p.locator('#person-card .zone-label').count() === 0, 'no “Huddle · How & When” label above Assignment');
-  await p.click('#person-view .person-done'); await w(400);
+  // Each focus name is marked done on its own screen; Focus names is done once they all are
+  ok((await p.textContent('#person-view .person-done')).trim() === 'Mark done', 'a focus name’s screen has Mark done');
+  await p.click('#person-view .person-done'); await w(500);
+  ok((await p.evaluate(() => document.body.dataset.view)) === 'home' && await p.locator(tnCard + ' .person-row:has-text("Emma Walsh") .row-ok').count() === 1 && !(await saved()).stepsDone.tn, 'Mark done goes back and checks the name; Focus names waits for the other name');
+  await p.click('[data-action="open-step"][data-a="tn"]'); await w(400);
+  ok(!(await p.isVisible('#step-done-btn')) && /1 name to go/.test(await p.textContent('#step-gate-hint')), 'the Focus names page has no Mark done of its own: it says 1 name to go');
+  await p.click('#tn-list .person-row:has-text("Olivia Chen")'); await w(400);
+  await p.click('#person-view .person-done'); await w(500);
+  ok((await saved()).stepsDone.tn === true, 'with every name marked done, Focus names is marked done');
+  await p.click('#tn-list .person-row:has-text("Olivia Chen")'); await w(400);
+  ok((await p.textContent('#person-view .person-done')).trim() === 'Done' && await p.isVisible('#person-view [data-action="tn-name-undone"]'), 'a name marked done shows a green Done and Mark as not done');
+  await p.click('#person-view [data-action="tn-name-undone"]'); await w(400);
+  ok(!(await saved()).tn[1].hdDone && !(await saved()).stepsDone.tn && (await p.textContent('#person-view .person-done')).trim() === 'Mark done', 'Mark as not done takes the check off the name and off Focus names');
+  await p.click('#person-view .person-done'); await w(400); await p.goBack(); await w(400);
 
   // ----- Ward Council's Focus names card: suggested names to add, How can we help?, Mark as not done -----
   await p.click('.nav-home'); await w(400); await p.click('.door-wc'); await w(500);

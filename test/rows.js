@@ -125,7 +125,7 @@ const seed = () => ({
     await p.click(`[data-action="happened"][data-a="${mi}"][data-b="No"]`); await p.waitForTimeout(200);
     await p.click(`[data-action="carry-fwd"][data-a="${mi}"]`); await p.waitForTimeout(300);
     await back(); await p.click('[data-action="open-step"][data-a="tn"]'); await p.waitForTimeout(300);
-    ok(await rowSub('#tn-list', 'tn', 1) === 'Invite to church · Sis. Lee · Needs when' && (await rowTags('#tn-list', 'tn', 1)).includes('Carried forward') && (await rowNames('#tn-list', 'tn'))[1] === 'Marcus Hill', tag + ': an unfinished assignment carried forward comes back as a focus name, and the row says Carried forward');
+    ok(await rowSub('#tn-list', 'tn', 1) === 'Invite to church · Sis. Lee' && (await rowTags('#tn-list', 'tn', 1)).includes('Carried forward') && (await rowNames('#tn-list', 'tn'))[1] === 'Marcus Hill', tag + ': an unfinished assignment carried forward comes back as a focus name, and the row says Carried forward');
     await back();
 
     // ---- Focus names in the huddle: only named ones (Ward Council adds them; the user decided, Nov 19, 2026)
