@@ -40,7 +40,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   // A real huddle saved by the live app on the same website is never touched.
   await p.evaluate(s => { localStorage.setItem('huddle-agenda-v1', '{"live":true}'); localStorage.setItem('__seed', JSON.stringify(s)); }, seed);
   await p.reload(); await w(700);
-  ok(/Test version/.test(await p.textContent('.title-text .app-name')), 'the opening screen says Test version');
+  ok(/Test version/.test(await p.textContent('.title-text')), 'the opening screen says Test version');
 
   // Before ward council: pressing names are suggested (not returning members, not a new member who has been to the temple)
   await p.click('#before-box'); await w(500);
@@ -117,7 +117,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const oppRow = await p.textContent('#fn-list [data-action="open-person"][data-a="opp"]');
   ok(/Christmas sacrament meeting/.test(oppRow) && !/assignment/.test(oppRow) && !(await p.$('#fn-list [data-a="opp"] .warn')) && await p.locator('#fn-list .opp-tile-d').count() === 1, 'Done returns to the list: a row like a name, with a date tile, its name and date, and no warning in ward council: ' + oppRow.trim());
   ok(await p.locator('#fn-list .swipe-li [data-action="swipe-remove-opp"]').count() === 1, 'an opportunity can be swiped left to remove it');
-  ok(/Covenant Path Report/.test(await p.textContent('#step-next')) && await p.isHidden('#step-prev') && await p.isHidden('#step-done-btn'), 'ward council’s first list leads on to the Covenant Path Report, with no Mark done');
+  ok(/Covenant Path Report/.test(await p.textContent('#step-next')) && await p.isHidden('#step-prev') && (await p.textContent('#step-done-btn')).trim() === 'Done', 'ward council’s first list leads on to the Covenant Path Report, with Done at the bottom');
   await p.click('#step-next'); await w(400);
   ok((await p.textContent('#step-prev')).trim() === '‹ Opportunities to invite' && await p.isHidden('#step-next'), 'the Covenant Path Report links back to Opportunities to invite');
   await p.click('#step-prev'); await w(400);
@@ -133,7 +133,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const plan = await p.$$eval('#steps-this [data-action="open-step"]', els => els.map(e => e.getAttribute('data-a')));
   ok(last.join(',') === 'rr,sa' && plan.join(',') === 'fn,tn', 'the Huddle: rr,sa then fn,tn: ' + last + ' / ' + plan);
   ok(/Christmas sacrament meeting · 1 needs an assignment/.test(await p.textContent('#steps-this')), 'the Huddle row names the opportunity and what still needs an assignment');
-  ok(!(await p.isVisible('#band-rr')) && (await p.textContent('#band-plan')).trim() === 'Huddle action plan', 'no “From the last huddle” heading; “Huddle action plan” over the plan');
+  ok(!(await p.isVisible('#band-rr')) && (await p.textContent('#band-plan')).trim() === 'This week’s plan', 'no “From the last huddle” heading; “This week’s plan” over the plan');
   await p.screenshot({ path: OUT + '/huddle.png' });
 
   // Sacrament attendance: one tap per name, and a focus name is marked once
