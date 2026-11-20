@@ -9,11 +9,12 @@ async function nextWeek(pg, date) {
   if (await pg.isVisible('#confirm-sheet') && /Ready to send/.test(await pg.textContent('#confirm-title'))) await pg.click('#confirm-primary');
   await pg.waitForSelector('#share-btn:not([disabled])'); await pg.click('#share-btn');
   await pg.waitForSelector('#confirm-sheet:not([hidden])'); await pg.click('#confirm-primary'); await pg.waitForTimeout(300);
+  if (await pg.isVisible('.door-hd')) { await pg.click('.door-hd'); await pg.waitForTimeout(300); } // Sent's Done goes to the opening screen now
   await pg.evaluate(() => { navigator.canShare = window.__sh[0]; navigator.share = window.__sh[1]; });
   if (date) await setDate(pg, date);
 }
 // After a send (which already set up the next huddle), just pick the date.
-async function setDate(pg, date) { await pg.fill('#date', date); await pg.waitForTimeout(150); }
+async function setDate(pg, date) { await pg.evaluate(d => { const e = document.querySelector('#date'); e.value = d; e.dispatchEvent(new Event('input', { bubbles: true })); e.dispatchEvent(new Event('change', { bubbles: true })); }, date); await pg.waitForTimeout(150); } // (Sent's Done now goes to the opening screen)
 
 // Sending no longer clears the form; to test loading last week, start from a clear form like another conductor would.
 async function freshWeek(pg) { if (await pg.isVisible('#load-panel [data-action="load"]')) return; await pg.evaluate(() => document.querySelector('.clear-link').click()); await pg.click('#confirm-primary'); await pg.waitForTimeout(250); }

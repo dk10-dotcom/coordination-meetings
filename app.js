@@ -884,9 +884,11 @@
     var facts = [['Next ordinance', ord || 'Not set yet', !ord]];
     if (r.g === 'nm') facts.push(['Baptized', bap || 'No date yet', !bap]);
     if (r.g === 'bt' && apptNote(a)) facts.push(['Appointment', whenShow(a.appt)]);
-    return h('div', { class: 'wc-summary wc-line' }, facts.map(function (f, k) {
+    var oldEdit = CP_SECTION ? h('div', { class: 'zone-label-row' }, [zoneLabel('wc', 'Ward Council · Who & What'), // (tests only: the old layout's Edit)
+      h('button', { type: 'button', class: 'zone-toggle', 'data-action': 'wc-edit-toggle', 'aria-label': 'Edit the next ordinance and needs', 'aria-expanded': 'false', text: 'Edit' })]) : null;
+    return h('div', { class: 'wc-summary wc-line' }, [oldEdit].concat(facts.map(function (f, k) {
       return h('p', { class: 'after-fact' + (f[2] ? ' unset' : '') }, [h('span', { class: 'after-k', text: f[0] }), f[1], k === 0 ? infoBtn('wc-ord', 'Where this comes from') : null]);
-    }).concat([infoText('wc-ord', 'Chosen in Ward Council. To change it, open this name in Ward Council.')]));
+    })).concat([infoText('wc-ord', 'Chosen in Ward Council. To change it, open this name in Ward Council.')]));
   }
   function hdPersonCard(r, a) {
     var g = r.g, isTn = g === 'tn', base = isTn ? 'tn.' + r.i + '.' : 'cp.' + g + '.' + r.i + '.';

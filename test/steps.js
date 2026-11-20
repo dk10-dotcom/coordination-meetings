@@ -47,24 +47,27 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     // Back gesture returns to list; status updates
     await p.goBack(); await p.waitForTimeout(200);
     ok(await vis('#steps-home') && !(await vis('[data-step="cp"]')), 'Back returns to the step list');
-    ok((await p.textContent('[data-a="cp"] .step-status')).includes('1 person · 1 needs an action'), 'status counts people and missing actions');
+    ok((await p.textContent('[data-a="cp"] .step-status')).includes('1 person · 1 needs an assignment'), 'status counts people and missing assignments');
     // Mark complete
     await p.click('[data-action="open-step"][data-a="cp"]');
     await p.fill('[data-bind="cp.nm.0.action"]', 'Drive him to the temple');
     await p.click('[data-action="step-done"]'); await p.waitForTimeout(200);
     ok(!(await p.isVisible('#confirm-sheet')), 'marking done doesn’t ask about Tools (that reminder is on Send now)');
-    ok(await vis('#steps-home'), 'Mark section done returns to the list');
+    ok(await p.evaluate(() => document.body.dataset.view) === 'fn', 'Mark section done goes straight on to the next section (Nov 19, 2026)');
     ok(await p.isVisible('#toast .toast-action') && (await p.textContent('#toast')).includes('marked done'), 'Undo shows right after marking done');
     await p.click('#toast .toast-action'); await p.waitForTimeout(150);
+    await p.click('[data-action="steps-home"]'); await p.waitForTimeout(200);
     ok(await p.locator('[data-a="cp"].step-row.done').count() === 0, 'Undo takes the check off');
     await p.click('[data-action="open-step"][data-a="cp"]'); await p.click('[data-action="step-done"]'); await p.waitForTimeout(200);
     if (await p.isVisible('#confirm-sheet')) { await p.click('#confirm-primary'); await p.waitForTimeout(200); }
+    if (!(await vis('#steps-home'))) { await p.click('[data-action="steps-home"]'); await p.waitForTimeout(200); }
     await p.click('[data-action="open-step"][data-a="cp"]');
     ok((await p.getAttribute('#step-done-btn', 'class')).includes('is-done') && (await p.textContent('#step-done-label')) === 'Done', 'a done section shows a green Done');
     ok(await p.isVisible('#step-foot .undone-link'), 'a small Mark as not done link sits under it');
     await p.click('#step-foot .undone-link'); await p.waitForTimeout(150);
     ok(!(await p.getAttribute('#step-done-btn', 'class')).includes('is-done') && (await p.textContent('#step-done-label')) === 'Mark done', 'Mark as not done takes the mark off');
     await p.click('[data-action="step-done"]'); await p.waitForTimeout(200); if (await p.isVisible('#confirm-sheet')) { await p.click('#confirm-primary'); await p.waitForTimeout(200); }
+    if (!(await vis('#steps-home'))) { await p.click('[data-action="steps-home"]'); await p.waitForTimeout(200); } // Mark done went on to the next section
     ok(await p.locator('[data-a="cp"].step-row.done').count() === 1 && await p.locator('.step-row.done').count() === 1, 'section gets a green check');
     // Next step link
     await p.click('[data-action="open-step"][data-a="fn"]'); // Opportunities to invite comes before Focus names (Nov 19, 2026)
@@ -86,7 +89,9 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     if (process.env.DBG) { console.log(await p.evaluate(() => { const r = e => JSON.stringify(document.querySelector(e).getBoundingClientRect()); return [r('.actionbar'), r('.fine-notes'), innerHeight, scrollY, document.documentElement.scrollHeight, document.body.className].join(' | '); })); await p.screenshot({ path: OUT + '/dbg.png' }); }
     await p.evaluate(async () => { const settle = () => new Promise(r => setTimeout(r, 150)); const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) { g.click(); await settle(); } const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); await settle(); document.querySelector('[data-action="after-done"]').click(); await settle(); } }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#share-btn:not([disabled])'); await p.click('#share-btn');
     await p.waitForSelector('#confirm-sheet:not([hidden])'); await p.click('#confirm-primary');
-    ok(await p.locator('.step-row.done').count() === 0 && await vis('#steps-home') && (await p.textContent('#sent-line')).includes('huddle sent'), 'after sending, the next huddle starts with no checks and the sent line shows');
+    await p.waitForTimeout(300);
+    ok(await p.locator('.step-row.done').count() === 0 && await vis('#start-home') && (await p.textContent('#sent-line')).includes('huddle sent'), 'after sending, Done goes to the opening screen: the next huddle starts with no checks and the sent line shows');
+    await p.click('.door-hd'); await p.waitForTimeout(300);
     // Missing ward on send opens details
     await p.fill('#ward', '').catch(() => {});
     // Clear keeps the ward name

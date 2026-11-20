@@ -28,6 +28,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await d.addInitScript(() => { Object.defineProperty(Navigator.prototype, 'webdriver', { get: () => false }); try { localStorage.setItem('huddle-gate-off', '1'); } catch (e) {}; Object.defineProperty(Navigator.prototype, 'standalone', { get: () => true }); });
   const q = await d.newPage();
   await q.goto(BASE); await q.waitForTimeout(2200);
+  if (await q.isVisible('#ward-sheet')) { await q.fill('#ward', 'Sample Ward'); await q.click('#ward-sheet [data-action="close-ward"]'); await q.waitForTimeout(700); } // the ward comes first (Nov 19, 2026)
   ok(await q.isVisible('#confirm-sheet') && /Welcome to Huddle/.test(await q.textContent('#confirm-title')) && /Open the guide/.test(await q.textContent('#confirm-primary')), 'the first visit from the Home Screen offers the step-by-step guide');
   await q.click('#confirm-primary'); await q.waitForTimeout(500);
   ok(await q.isVisible('#slides-sheet'), 'Open the guide opens it');

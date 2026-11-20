@@ -154,7 +154,7 @@ const seed = () => ({
     await fill('cp.nm.0.name', 'Daniel Rivera Jr'); await p.locator('[data-bind="cp.nm.0.ordinance"]').focus(); await p.waitForTimeout(300);
     ok(await vis('#confirm-sheet') && (await p.textContent('#confirm-title')).includes('Is this the same person?'), tag + ': changing a name with a last-huddle assignment asks if it’s the same person');
     await p.click('#confirm-primary'); await p.waitForTimeout(300);
-    ok((await p.textContent('#person-card .wc-last:not(.wc-details)')).includes('Drive him to the temple') && (await p.textContent('#step-title')) === 'Daniel Rivera Jr', tag + ': Same person keeps the last assignment under the corrected name');
+    ok((await p.textContent('#step-title')) === 'Daniel Rivera Jr' && JSON.stringify((await saved()).rr).includes('Daniel Rivera Jr'), tag + ': Same person keeps the last assignment under the corrected name (Ward Council’s screen no longer shows it)');
     ok(await noOverflow(), tag + ': ward council’s person screen fits the phone');
     await p.click('#person-card .person-remove'); await confirmIfAsked();
     ok(!(await vis('#person-view')) && (await rowNames('#wc-list', 'nm')).join('|') === 'Marcus Hill', tag + ': Remove from the list works from ward council too');

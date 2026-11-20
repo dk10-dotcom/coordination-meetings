@@ -94,9 +94,9 @@ function words(v) { return v.replace(/[“”]/g, '').split(/\s+/).filter(Boolea
     const att = (/ Attended (.*?) (?:COMING UP|1 · LOOKING BACK)/.exec(text) || [])[1];
     ok('only the people who attended are listed', att === ATT.filter(a => s.attendees.includes(a)).join(', '), att);
     // Fixed agenda text
-    const fixed = ['Keep this PDF secure', 'Weekly', 'Huddle Report', 'Return and Report', 'LOOKING BACK', 'Did it happen?', 'LOOKING AHEAD · NOV 1 HUDDLE',
-      'Covenant Path Report Review', 'Name Next Ordinance', 'Focus names', 'Opportunities to invite', 'Huddle action plan',
-      'NEW MEMBERS', 'RETURNING MEMBERS', 'THOSE BEING TAUGHT', 'Next ordinance', 'Action item'];
+    const fixed = ['Keep this huddle report secure', 'Weekly', 'Huddle Report', 'Return and Report', 'LOOKING BACK', 'Did it happen?', 'LOOKING AHEAD · NOV 1 HUDDLE',
+      'Covenant Path Report', 'Focus names', 'Opportunities to invite', 'This week’s plan',
+      'NEW MEMBERS', 'RETURNING MEMBERS', 'THOSE BEING TAUGHT', 'Next ordinance', 'Assignment'];
     const fixedMissing = fixed.filter(f => !text.includes(f));
     ok('all section headings printed', fixedMissing.length === 0, fixedMissing.join(' | '));
     ok('how-to lines left off the PDF', !text.includes('Open the Covenant Path Report') && !text.includes('Open the 3 Names Next Ordinance spreadsheet') && !text.includes('Make a plan'));
@@ -121,7 +121,7 @@ function words(v) { return v.replace(/[“”]/g, '').split(/\s+/).filter(Boolea
     // (This test uses the one-page layout, which has no opening screen; hand the PDF to the file picker directly.)
     await p.setInputFiles('#file-input', file);
     await p.waitForSelector('#confirm-sheet:not([hidden])');
-    ok('Load from a PDF asks first', (await p.textContent('#confirm-title')).includes('Set up the next huddle from this PDF'));
+    ok('Load a huddle report asks first', (await p.textContent('#confirm-title')).includes('Set up the next huddle from this huddle report'));
     await p.click('#confirm-primary'); await p.waitForTimeout(400);
     // Names and needs stay on the cards; the actions, assignees and whens are in Return and Report.
     const vals = await p.$$eval('#cp-groups input, #cp-groups textarea, #cp-groups select, #tn-list input, #tn-list textarea, #tn-list select', els => els.map(e => e.value).join(' | '));

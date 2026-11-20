@@ -75,8 +75,8 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   ok(!(await p.$('#person-card .sac-toggle')), 'a focus name in the Huddle has no Attended sacrament box');
   const ach = await p.$$eval('#person-card .action-chips .idea-chip', e => e.map(x => x.textContent));
   const atext = await p.textContent('#person-card .action-chips');
-  ok(/Still open on their Covenant Path Report/.test(atext) && /Ideas for priesthood advancement/.test(atext) && ach.includes('Melchizedek Priesthood ordination') && !ach.includes('A calling') && !ach.includes('Friends at church') && !ach.includes('Aaronic Priesthood ordination'),
-    'under Action item: only what’s still open on her report, then ideas for her next ordinance: ' + ach.join(' | '));
+  ok(/Next steps on their Covenant Path Report/.test(atext) && /Ideas for priesthood advancement/.test(atext) && ach.includes('Melchizedek Priesthood ordination') && !ach.includes('A calling') && !ach.includes('Friends at church') && !ach.includes('Aaronic Priesthood ordination'),
+    'under Assignment: only her next steps on her report, then ideas for her next ordinance: ' + ach.join(' | '));
   await p.click('#person-card .action-chips .idea-chip >> text=Melchizedek Priesthood ordination'); await w(400);
   st = await saved();
   ok(st.tn[0].action === 'Melchizedek Priesthood ordination' && !(await p.isVisible('#person-card .action-chips')) && await p.evaluate(() => /assigned$/.test(document.activeElement.dataset.bind || '')), 'tapping one fills the Action item, the chips hide, and the cursor moves to Assigned to');
@@ -119,6 +119,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const ol = (await p.textContent('#after-list')).replace(/\s+/g, ' ');
   ok(names.join('|') === 'Olivia Chen' && /Melchizedek Priesthood ordination\s*Done/.test(ol) && !/What will help|Next ordinance/.test(ol), 'After the huddle lists only who changed, and only what goes into the report: ' + names.join('|'));
   await p.screenshot({ path: OUT + '/after.png', fullPage: true });
+  for (let k = 0; k < 12 && await p.$('[data-action="after-upd"][aria-checked="false"]'); k++) { await p.click('[data-action="after-upd"][aria-checked="false"]'); await w(150); } // tick each changed name
   await p.click('#after-done-btn'); await w(500);
 
   // The PDF: Done this week under Olivia's focus name; the checklist itself isn't printed

@@ -89,6 +89,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.screenshot({ path: OUT + '/after.png' });
 
   // Mark done toggles: green Done, tapped again takes it off
+  for (let k = 0; k < 12 && await p.$('[data-action="after-upd"][aria-checked="false"]'); k++) { await p.click('[data-action="after-upd"][aria-checked="false"]'); await w(150); } // tick each changed name (Nov 19, 2026)
   await p.click('#after-done-btn'); await p.waitForSelector('#start-home:not([hidden])'); await w(300);
   await p.click('#after-box'); await w(500);
   ok((await p.getAttribute('#after-done-btn', 'class')).includes('is-done') && (await p.textContent('#after-done-btn')).trim() === 'Done', 'once done it is green and says Done');
