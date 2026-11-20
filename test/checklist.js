@@ -40,7 +40,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   // Before ward council: Olivia's checklist, with Doesn't apply on the "if applicable" items
   await p.click('#before-box'); await w(500);
   ok((await p.textContent('#before-list [data-bw="rm"] .person-row')).includes('1 of 11 done'), 'a row counts what’s done, leaving out what doesn’t apply');
-  await p.click('#before-list [data-bw="rm"] [data-action="open-person"]'); await w(400);
+  if (!(await p.isVisible('#before-list [data-bw="rm"] .exp-edit'))) { await p.click('#before-list [data-bw="rm"] [data-action="row-toggle"]'); await w(300); } await p.click('#before-list [data-bw="rm"] .exp-edit'); await w(400); // opens in place; Edit details opens the screen
   ok(await p.locator('#person-card .ck-li.is-na').count() === 1 && await p.locator('#person-card .ck-na').count() === 3, 'Aaronic Priesthood is marked Doesn’t apply; three items offer it');
   await p.click('[data-action="check-na"][data-b="sealspouse"]'); await w(200);
   await p.click('[data-action="check-item"][data-b="calling"]'); await w(200);
@@ -108,7 +108,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
 
   // Something done this week: Olivia got her calling... and Melchizedek Priesthood
   await p.click('.nav-home'); await w(400); await p.click('#before-box'); await w(400);
-  await p.click('#before-list [data-bw="rm"] [data-action="open-person"]'); await w(400);
+  if (!(await p.isVisible('#before-list [data-bw="rm"] .exp-edit'))) { await p.click('#before-list [data-bw="rm"] [data-action="row-toggle"]'); await w(300); } await p.click('#before-list [data-bw="rm"] .exp-edit'); await w(400); // opens in place; Edit details opens the screen
   await p.click('[data-action="check-item"][data-b="melch"]'); await w(200);
   await p.click('#person-view .person-done'); await w(300);
   await p.click('.nav-home'); await w(400);

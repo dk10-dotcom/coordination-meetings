@@ -53,10 +53,10 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     await p.fill('[data-bind="cp.nm.0.action"]', 'Drive him to the temple');
     await p.click('[data-action="step-done"]'); await p.waitForTimeout(200);
     ok(!(await p.isVisible('#confirm-sheet')), 'marking done doesn’t ask about Tools (that reminder is on Send now)');
-    ok(await p.evaluate(() => document.body.dataset.view) === 'fn', 'Mark section done goes straight on to the next section (Nov 19, 2026)');
+    ok(await p.evaluate(() => document.body.dataset.view) === 'home', 'Mark section done goes back to the list (it never jumps ahead)');
     ok(await p.isVisible('#toast .toast-action') && (await p.textContent('#toast')).includes('marked done'), 'Undo shows right after marking done');
     await p.click('#toast .toast-action'); await p.waitForTimeout(150);
-    await p.click('[data-action="steps-home"]'); await p.waitForTimeout(200);
+    if (await p.isVisible('[data-action="steps-home"]')) { await p.click('[data-action="steps-home"]'); await p.waitForTimeout(200); }
     ok(await p.locator('[data-a="cp"].step-row.done').count() === 0, 'Undo takes the check off');
     await p.click('[data-action="open-step"][data-a="cp"]'); await p.click('[data-action="step-done"]'); await p.waitForTimeout(200);
     if (await p.isVisible('#confirm-sheet')) { await p.click('#confirm-primary'); await p.waitForTimeout(200); }

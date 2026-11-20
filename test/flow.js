@@ -44,22 +44,24 @@ const flags = ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen',
   ok(/This week’s plan/.test(await p.textContent('#band-plan')), 'the plan’s heading is This week’s plan');
   ok(await p.evaluate(() => document.querySelector('#details-summary').classList.contains('is-next')) && await p.locator('.step-row.is-next').count() === 0, 'Up next: Huddle Attendees comes first');
   await p.click('[data-action="open-details"]'); await w(300); await p.click('#attendee-list button >> nth=0'); await w(150); await p.click('[data-action="details-done"]'); await w(500);
-  ok(await view() === 'rr', 'Attendees’ Done goes straight on to Return and Report');
-  await p.click('[data-action="steps-home"]'); await w(300);
+  ok(await view() === 'home', 'Attendees’ Done goes back to the Huddle’s list (it never jumps ahead)');
   ok(await p.locator('[data-action="open-step"][data-a="rr"].is-next .row-next').count() === 1 && !(await p.evaluate(() => document.querySelector('#details-summary').classList.contains('is-next'))), 'then Return and Report is Up next');
   // Opportunities to invite: gray until an event has an assignment
   await p.click('[data-action="open-step"][data-a="fn"]'); await w(400);
-  ok(await blocked() && await btn() === 'Mark done' && (await p.textContent('#step-gate-hint')) === 'Plan at least one assignment first.' && await p.isVisible('#step-gate-hint'), 'Opportunities to invite: Mark done is gray, with a plain gray line saying an event needs an assignment');
+  ok(!(await blocked()) && await btn() === 'Mark done', 'Opportunities to invite: Mark done is never gray');
   await p.click('#step-done-btn'); await w(400);
-  ok(await view() === 'p-hd', 'tapping it opens the event');
-  await p.click('#person-card [data-action="add-fn"]'); await w(300);
+  ok(await p.isVisible('#confirm-sheet') && /Mark done without an assignment\?/.test(await p.textContent('#confirm-title')), 'with an event but no assignment, it asks first');
+  await p.click('#confirm-secondary'); await w(300);
+  await p.click('#fn-list [data-action="add-asg"]'); await w(400);
   await p.fill('#person-card [data-bind$=".task"]', 'Invite the Ortiz family'); await p.click('#person-view .person-done'); await w(400);
-  ok(!(await blocked()) && await btn() === 'Mark done', 'with an assignment, Mark done works');
   await p.click('#step-done-btn'); await w(500);
-  ok(await view() === 'tn', 'Mark done goes straight on to the next section (Focus names)');
+  ok(await view() === 'home' && !(await p.isVisible('#confirm-sheet')), 'with an assignment it’s marked done without asking, and goes back to the list');
+  await p.click('[data-action="open-step"][data-a="tn"]'); await w(400);
   ok(await blocked() && (await p.textContent('#step-gate-hint')) === 'Marcus Bell needs an assignment first.', 'Focus names: gray, with a line saying who still needs an assignment');
-  await p.click('#step-done-btn'); await w(500);
-  ok(await view() === 'p-hd' && (await p.textContent('#step-title')) === 'Marcus Bell', 'tapping it opens that focus name');
+  await p.click('#step-done-btn'); await w(400);
+  ok(await p.isVisible('#confirm-sheet') && /Marcus Bell needs an assignment first/.test(await p.textContent('#confirm-title')) && await view() === 'tn', 'tapping it shows a message saying what’s needed (it doesn’t jump anywhere)');
+  await p.click('#confirm-primary'); await w(300);
+  await p.click('[data-group="tn"] .person-row:has-text("Marcus Bell")'); await w(400);
   // The focus name's screen: ward council's part is one line with an i
   ok(await p.locator('#person-card .wc-line').count() === 1 && /Next ordinance\s*Endowment/.test((await p.textContent('#person-card .wc-line')).replace(/:/g, '')) && !(await p.$('#person-card .zone-wc-wrap')) && !/Who & What/.test(await p.textContent('#person-card .wc-line')), 'ward council’s part is one line, Next ordinance: Endowment, with no box or label');
   await p.click('#person-card .info-i[data-a="wc-ord"]'); await w(150);
@@ -72,14 +74,15 @@ const flags = ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen',
   for (const id of ['rr', 'sa']) { await p.click('.nav-home'); await w(250); await p.click('.door-hd'); await w(400); await p.click(`[data-action="open-step"][data-a="${id}"]`); await w(300); if (!(await blocked())) { await p.click('#step-done-btn'); await w(400); } }
   if (await view() !== 'tn') { await p.click('.nav-home'); await w(250); await p.click('.door-hd'); await w(400); await p.click('[data-action="open-step"][data-a="tn"]'); await w(300); }
   await p.click('#step-done-btn'); await w(800);
-  ok(await view() === 'start' && /Step 3 done\. Next: After the huddle\./.test(await p.textContent('#toast')), 'the last section done goes home: Step 3 done. Next: After the huddle.');
+  ok(await view() === 'home' && /Step 3 done\. Next: After the huddle\./.test(await p.textContent('#toast')), 'the last section done goes back to the list: Step 3 done. Next: After the huddle.');
   // After the huddle: tick each changed name
-  await p.click('#after-box'); await w(500);
+  await p.click('.nav-home'); await w(300); await p.click('#after-box'); await w(500);
   ok(await p.evaluate(() => document.querySelector('#after-done-btn').classList.contains('is-blocked')) && /1 person to update/.test(await p.textContent('#after-done-btn')), 'After the huddle: Mark done waits for the changed name');
   await p.click('#after-list .info-i[data-a="changed"]'); await w(150);
   ok(/since Before Ward Council/.test(await p.textContent('#after-list [data-info="changed"]')), 'the i by Changed says what it means');
   await p.click('#after-done-btn'); await w(300);
-  ok(await view() === 'af', 'tapping the gray button stays here (it points to who’s left)');
+  ok(await view() === 'af' && /Update the report first/.test(await p.textContent('#confirm-title')), 'tapping the gray button shows a message saying what’s needed');
+  await p.click('#confirm-primary'); await w(300);
   await p.click('[data-action="after-upd"]'); await w(300);
   ok(/Mark done/.test(await p.textContent('#after-done-btn')) && !(await p.evaluate(() => document.querySelector('#after-done-btn').classList.contains('is-blocked'))), 'ticking Updated in the report lets Mark done work');
   await p.click('#after-done-btn'); await w(600);
@@ -95,8 +98,10 @@ const flags = ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen',
   await q.goto(BASE); await q.waitForTimeout(900); await q.click('[data-action="dismiss-install"]').catch(() => {});
   ok((await q.textContent('.tl-step[data-tl="1"] .up-next')).trim() === 'Start here' && await q.isVisible('.tl-step[data-tl="1"] .up-next'), 'a new week: step 1 says Start here');
   await q.click('.door-hd'); await q.waitForTimeout(400); await q.click('[data-action="open-step"][data-a="fn"]'); await q.waitForTimeout(300);
-  ok((await q.textContent('#step-done-btn')).trim() === 'No upcoming events', 'the Huddle’s Opportunities to invite with no events: No upcoming events');
+  ok((await q.textContent('#step-done-btn')).trim() === 'Mark done', 'the Huddle’s Opportunities to invite with no events: Mark done');
   await q.click('#step-done-btn'); await q.waitForTimeout(400);
+  ok(/No upcoming events\?/.test(await q.textContent('#confirm-title')), 'it asks: No upcoming events?');
+  await q.click('#confirm-primary'); await q.waitForTimeout(400);
   ok(await q.evaluate(() => JSON.parse(localStorage.getItem('huddle-agenda-v1')).stepsDone.fn === true), 'it marks the section done');
   await d.close();
 

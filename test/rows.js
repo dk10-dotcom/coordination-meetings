@@ -44,7 +44,7 @@ const seed = () => ({
     const openPerson = async (scope, g, i) => { await p.click(`${scope} [data-action="open-person"][data-a="${g}"][data-b="${i}"]`); await p.waitForSelector('#person-view:not([hidden])'); await p.waitForTimeout(250); };
     const back = async () => { await p.click('[data-action="steps-home"]'); await p.waitForTimeout(300); };
     const rowNames = (scope, g) => p.$$eval(`${scope} [data-${scope === '#wc-list' ? 'wc' : 'group'}="${g}"] .person-row .person-name`, e => e.map(x => x.textContent));
-    const row = (scope, g, i) => `${scope} [data-action="open-person"][data-a="${g}"][data-b="${i}"]`;
+    const row = (scope, g, i) => scope === '#wc-list' ? `${scope} [data-action="row-toggle"][data-a="wc|${g}|${i}"]` : `${scope} [data-action="open-person"][data-a="${g}"][data-b="${i}"]`; // Ask ward council's names open in place
     const rowSub = async (scope, g, i) => (await p.textContent(row(scope, g, i) + ' .step-status')).trim();
     const rowTags = (scope, g, i) => p.$$eval(row(scope, g, i) + ' .fold-tag', e => e.map(x => x.textContent));
     const saved = () => p.evaluate(() => JSON.parse(localStorage.getItem('huddle-agenda-v1')));
@@ -64,7 +64,7 @@ const seed = () => ({
     ok((await rowNames('#cp-groups', 'nm')).join('|') === 'Daniel Rivera|Emma Walsh' && (await rowNames('#cp-groups', 'rm')).join('|') === 'Olivia Chen' && (await rowNames('#cp-groups', 'bt')).join('|') === 'Marcus Hill', tag + ': each list shows its names, one row each');
     ok(/^Temple prep lesson · Sis\. Park · Wed(, [A-Z][a-z]{2} \d{1,2})?$/.test(await rowSub('#cp-groups', 'rm', 0)) && await p.locator(row('#cp-groups', 'rm', 0) + ' .step-status.warn').count() === 0, tag + ': a row with an action shows the action, who and when');
     const danTags = await rowTags('#cp-groups', 'nm', 0), emmaTags = await rowTags('#cp-groups', 'nm', 1), marcusTags = await rowTags('#cp-groups', 'bt', 0);
-    ok(danTags.join('|') === 'Suggested focus name' && (await rowSub('#cp-groups', 'nm', 0)).includes('Temple: 20 days left'), tag + ': a new member’s row counts down the 30-day temple goal in its gray line (one tag at most): ' + danTags.join('|') + ' / ' + await rowSub('#cp-groups', 'nm', 0));
+    ok(danTags.length === 0 && (await p.textContent(row('#cp-groups', 'nm', 0) + ' .row-flag')) === 'Suggested focus name · Temple: 20 days left', tag + ': a new member’s row counts down the 30-day temple goal in its red line (no pill)');
     ok(emmaTags.includes('Not updated in 4 weeks'), tag + ': a name not updated in 4 weeks says so on its row: ' + emmaTags.join('|'));
     ok((await rowSub('#cp-groups', 'bt', 0)).includes('Committed to baptism'), tag + ': someone committed to baptism says so on their row: ' + await rowSub('#cp-groups', 'bt', 0));
     ok(await p.locator('#cp-groups .temple-goal').count() === 1 && await vis('#cp-groups [data-group="nm"] .temple-goal'), tag + ': the 30-day temple goal is stated once, under New members');
@@ -145,21 +145,12 @@ const seed = () => ({
     await p.click('.door-wc'); await p.waitForTimeout(250);
     ok(!(await vis('[data-action="open-wc-list"][data-a="mr"]')), tag + ': ward council has no Missionary Referrals row');
     await p.click('[data-action="open-wc-list"][data-a="cp"]'); await p.waitForTimeout(300);
-    ok((await rowTags('#wc-list', 'rm', 0)).includes('Not updated in 4 weeks') && /of \d+ done/.test(await rowSub('#wc-list', 'rm', 0)) && !/Next:/.test(await rowSub('#wc-list', 'rm', 0)), tag + ': ward council’s row shows how far along the report is (no next ordinance) and the 4-week flag');
-    await openPerson('#wc-list', 'rm', 0);
-    ok(await vis('#person-card .stale-note'), tag + ': ward council’s screen asks the 4-week question too');
-    await p.click('#person-card [data-action="stale-remove"]'); await p.waitForTimeout(450);
-    ok(!(await vis('#person-view')) && await vis('#wc-list') && (await rowNames('#wc-list', 'rm')).length === 0 && (await saved()).cp.rm.every(a => !a.name), tag + ': Remove takes the name off and returns to ward council’s list');
-    await openPerson('#wc-list', 'nm', 0);
-    await fill('cp.nm.0.name', 'Daniel Rivera Jr'); await p.evaluate(() => document.activeElement && document.activeElement.blur()); await p.waitForTimeout(300);
-    ok(await vis('#confirm-sheet') && (await p.textContent('#confirm-title')).includes('Is this the same person?'), tag + ': changing a name with a last-huddle assignment asks if it’s the same person');
-    await p.click('#confirm-primary'); await p.waitForTimeout(300);
-    ok((await p.textContent('#step-title')) === 'Daniel Rivera Jr' && JSON.stringify((await saved()).rr).includes('Daniel Rivera Jr'), tag + ': Same person keeps the last assignment under the corrected name (Ward Council’s screen no longer shows it)');
-    ok(await noOverflow(), tag + ': ward council’s person screen fits the phone');
-    await p.click('#person-card .person-remove'); await confirmIfAsked();
-    ok(!(await vis('#person-view')) && (await rowNames('#wc-list', 'nm')).join('|') === 'Marcus Hill', tag + ': Remove from the list works from ward council too');
+    ok((await rowTags('#wc-list', 'rm', 0)).includes('Not updated in 4 weeks') && /steps? open|Every step done/.test(await rowSub('#wc-list', 'rm', 0)) && !/Next:/.test(await rowSub('#wc-list', 'rm', 0)), tag + ': ward council’s row shows how far along the report is (no next ordinance) and the 4-week flag');
+    // (Ward Council's Covenant Path names open in place now: their steps, no screen of their own. Nov 19, 2026, night)
+    await p.click(row('#wc-list', 'rm', 0)); await p.waitForTimeout(300);
+    ok(await vis('#wc-list [data-wc="rm"] .exp-body') && !(await vis('#person-view')), tag + ': a name opens its open steps right in the list');
     await back(); await p.click('#mode-bar [data-action="go-start"]'); await p.waitForTimeout(300);
-    ok(await p.evaluate(() => document.body.getAttribute('data-view')) === 'start' && (await p.textContent('#door-wc-sub')).startsWith('3 names'), tag + ': back at the start, the door counts the names left: ' + await p.textContent('#door-wc-sub'));
+    ok(await p.evaluate(() => document.body.getAttribute('data-view')) === 'start' && /^\d+ names/.test(await p.textContent('#door-wc-sub')), tag + ': back at the start, the door counts the names left: ' + await p.textContent('#door-wc-sub'));
     ok(!errs.length, tag + ': no page errors ' + errs.join('; '));
     await ctx.close();
   }

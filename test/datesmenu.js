@@ -51,12 +51,11 @@ const seed = {
     await p.goBack(); await p.waitForTimeout(300); await p.click('#mode-bar [data-action="go-start"]'); await p.waitForTimeout(300);
     // Ward council: only focus names have a next ordinance (Nov 19, 2026, evening), chosen from a menu
     await p.click('.door-wc'); await p.waitForTimeout(300); await p.click('#wc-step-ask [data-action="open-wc-list"]'); await p.waitForTimeout(300); // (Find your focus names opens the picker now)
-    await p.click('[data-wc="nm"] [data-action="open-person"][data-b="1"]'); await p.waitForTimeout(400);
-    ok(await p.locator('#person-card select[data-bind$=".ordinance"]').count() === 0, tag + ': a Covenant Path name has no next ordinance menu');
-    await p.click('#person-view .person-done'); await p.waitForTimeout(300);
-    await p.click('[data-wc="bt"] [data-action="open-person"][data-b="0"]'); await p.waitForTimeout(400);
-    ok((await p.locator('#person-card select[data-bind$=".ordinance"], #person-card .fixed-value').count()) === 0, tag + ': nor does someone being taught');
-    await p.click('#person-view .person-done'); await p.waitForTimeout(300); await p.click('[data-action="steps-home"]'); await p.waitForTimeout(300);
+    await p.click('[data-wc="nm"] [data-action="row-toggle"][data-a="wc|nm|1"]'); await p.waitForTimeout(400); // a name opens in place
+    ok(await p.locator('#wc-list select[data-bind$=".ordinance"]').count() === 0 && await p.isVisible('[data-wc="nm"] .exp-body'), tag + ': a Covenant Path name has no next ordinance menu, just its open steps');
+    await p.click('[data-wc="bt"] [data-action="row-toggle"]'); await p.waitForTimeout(400);
+    ok((await p.locator('#wc-list select[data-bind$=".ordinance"], #wc-list .fixed-value').count()) === 0 && await p.locator('#wc-list .exp-body').count() === 1, tag + ': nor does someone being taught (and one name is open at a time)');
+    await p.click('[data-action="steps-home"]'); await p.waitForTimeout(300);
     await p.click('#wc-step-tn .person-row:has-text("Grace Thompson")'); await p.waitForTimeout(400);
     const opts = await p.$eval('#person-card select[data-bind$=".ordinance"]', e => [...e.options].map(o => o.text).join(', '));
     ok(opts === 'Choose one, Baptism, Sacrament, Baptisms for the dead, Priesthood advancement, Endowment, Sealing', tag + ': a focus name’s Next ordinance is a menu of six: ' + opts);

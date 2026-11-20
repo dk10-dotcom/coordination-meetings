@@ -37,7 +37,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
 
   // Those being taught (step 1): a baptism date marks them committed; the next missionary appointment shows on the row
   await p.click('#before-box'); await w(500);
-  await p.locator('[data-bw="bt"] [data-action="open-person"]').first().click(); await w(500);
+  if (!(await p.locator('[data-bw="bt"] .exp-edit').first().isVisible().catch(() => false))) { await p.locator('[data-bw="bt"] [data-action="row-toggle"]').first().click(); await w(300); } await p.locator('[data-bw="bt"] .exp-edit').first().click(); await w(500); // opens in place; Edit details opens the screen
   const soon = (() => { const d = new Date(); d.setDate(d.getDate() + 3); return iso(d); })();
   ok(await p.isVisible('[data-bind="cp.bt.0.bap"]') && await p.isVisible('[data-bind="cp.bt.0.appt"]'), 'step 1, someone being taught: a committed-to-baptism date and a next appointment');
   await p.fill('[data-bind="cp.bt.0.bap"]', ago(-20)); await p.fill('[data-bind="cp.bt.0.appt"]', soon); await p.evaluate(() => document.activeElement.blur()); await w(300);
@@ -45,7 +45,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.goBack(); await w(500);
   const btRow = await p.textContent('[data-bw="bt"]');
   ok(btRow.includes('Committed to baptism') && btRow.includes('Appointment:'), 'the row shows Committed to baptism and the appointment');
-  await p.locator('[data-bw="bt"] [data-action="open-person"]').first().click(); await w(500);
+  if (!(await p.locator('[data-bw="bt"] .exp-edit').first().isVisible().catch(() => false))) { await p.locator('[data-bw="bt"] [data-action="row-toggle"]').first().click(); await w(300); } await p.locator('[data-bw="bt"] .exp-edit').first().click(); await w(500); // opens in place; Edit details opens the screen
   await p.fill('[data-bind="cp.bt.0.bap"]', ''); await p.evaluate(() => document.activeElement.blur()); await w(300);
   ok(await p.evaluate(() => JSON.parse(localStorage.getItem('huddle-agenda-v1')).cp.bt[0].committed === false), 'clearing the date takes Committed off');
   await p.fill('[data-bind="cp.bt.0.appt"]', ''); await p.evaluate(() => document.activeElement.blur()); await w(300);
@@ -58,9 +58,10 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   ok((await p.textContent('#wc-list')).includes('Temple:'), 'Ward council: new members show the temple countdown');
 
   // A person's name header opens the name to edit
-  await p.locator('#wc-list [data-action="open-person"]').first().click(); await w(500);
+  ok(await p.locator('#wc-list [data-action="open-person"], #wc-list [data-bind$=".ordinance"]').count() === 0, 'Ward Council: Covenant Path names open in place, with no next ordinance (only focus names have one; Nov 19, 2026)');
+  await p.click('[data-action="steps-home"]'); await w(300); await p.click('.nav-home'); await w(300); await p.click('#before-box'); await w(400);
+  await p.locator('#before-list [data-action="row-toggle"]').first().click(); await w(300); await p.locator('#before-list .exp-edit').first().click(); await w(500);
   ok(await p.isVisible('#person-view .avatar-pencil'), 'the initials carry a small pencil');
-  ok(await p.evaluate(() => !document.querySelector('#person-card .need-note') && !document.querySelector('#person-card [data-bind$=".ordinance"]')), 'Ward Council: no confidential reminder and no next ordinance on a Covenant Path name (only focus names have one; Nov 19, 2026)');
   await p.click('.person-head'); await w(600);
   ok(await p.evaluate(() => { const a = document.activeElement; return !!a && a.tagName === 'INPUT' && /\.name$/.test(a.getAttribute('data-bind') || '') && a.value === 'Daniel Rivera'; }), 'tapping the name header puts the cursor in the name box');
   await p.evaluate(() => document.activeElement.blur()); await w(600);

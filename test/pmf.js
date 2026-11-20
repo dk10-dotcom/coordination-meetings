@@ -17,11 +17,10 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   ok(await link.isVisible(), 'shows on Ward council');
   ok(await link.getAttribute('href') === URL, 'opens the Part-Member Families report');
   ok(await link.getAttribute('target') === '_blank' && /noopener/.test(await link.getAttribute('rel')), 'opens outside the app');
-  ok(/Open Part-Member Families/.test(await link.innerText()), 'says Open Part-Member Families');
-  const cpB = await p.locator('#wc-step-cp').boundingBox(), boxB = await p.locator('#wc-find').boundingBox(), lb = await link.boundingBox();
-  ok(await link.evaluate(e => !!e.closest('#wc-find')) && lb.y >= cpB.y + cpB.height - 1 && lb.y + lb.height <= boxB.y + boxB.height + 1 && /Find your focus names/i.test(await p.textContent('#wc-find-k')), 'a button in the Find your focus names box, under the Covenant Path Report');
+  ok(/Part-Member Families/.test(await link.innerText()), 'says Part-Member Families');
+  ok(await link.evaluate(e => !!e.closest('#wc-step-tn .wc-finds')) && await p.isVisible('#wc-step-tn .wc-finds [data-a="pick"]'), 'a small button in the Focus names card, beside Covenant Path Report (Nov 19, 2026, night)');
   ok(await p.evaluate(() => document.documentElement.scrollWidth) <= 320, 'fits a 320 px screen');
-  await p.locator('#wc-step-cp [data-action="open-wc-list"]').click(); await p.waitForTimeout(400);
+  await p.locator('#wc-step-tn [data-a="pick"]').click(); await p.waitForTimeout(400);
   ok(!(await link.isVisible()), 'hidden on a list of names');
   await p.goBack(); await p.waitForTimeout(500);
   ok(await link.isVisible(), 'back on Ward council, it shows again');
