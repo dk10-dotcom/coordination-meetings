@@ -922,3 +922,24 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
 - **Up next in the Huddle:** Huddle Attendees, then Return and Report, Sacrament attendance, Opportunities to invite
   and Focus names. The first not done is highlighted (Attendees outlined with an Up next tag; a section row tinted
   with an Up next pill). Attendees' **Done** goes straight on to the next section once attendance is taken.
+
+## Changes on Nov 19, 2026, late night (the user asked)
+
+- **Gray buttons explain themselves** instead of jumping somewhere: Focus names' Mark done in the Huddle shows "Marcus
+  Bell needs an assignment first" with OK; After the huddle's shows "Update the report first"; Keep these focus names
+  shows "Choose a next ordinance first" with who still needs one.
+- **The Huddle's Opportunities to invite can always be marked done.** With no events it asks "No upcoming events?";
+  with events but no assignment, "Mark done without an assignment?" (Mark done or Cancel).
+- **Done never jumps ahead.** Mark done in the Huddle, and Attendees' Done, go back to the Huddle's list (Up next shows
+  what's next); after the last section the message says "Step 3 done. Next: After the huddle."
+- **Focus names and suggested names** have a thin bar down the row's left edge and one line of words instead of a
+  pill: gold "★ Focus name", red "Suggested focus name · Temple: 3 days left". The same everywhere names are listed
+  (Before Ward Council, Ask ward council, the picker, the Huddle).
+- **Find your focus names moved into the Focus names card:** under its heading, "Find names in" with two small buttons,
+  **Covenant Path Report** (the Add to focus names picker) and **Part-Member Families**. Ward Council has three cards,
+  each with its own check; the Focus names check sits by its heading.
+- **Ask ward council's lists open in place:** tapping a name opens what's still open on their report, with
+  checkboxes, right in the list ("3 steps open" in the gray line, an arrow that turns). One name open at a time.
+  The question ends "Tap a name to see what's still open."
+- **Before Ward Council's lists open in place too,** showing every step (to fix a mistake either way) and **Edit
+  details ›**, which opens the person's full screen (name, dates, remove). Add a name still opens a new screen.

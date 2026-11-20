@@ -23,7 +23,7 @@
  {
   "kicker": "Step 1 · Before Ward Council",
   "title": "Tap each name",
-  "body": "Add any dates, and check off what the report shows they’ve done. A check means done.",
+  "body": "Its steps open right in the list. Check off what the report shows they’ve done; Edit details changes dates.",
   "color": "#4F5A8C",
   "img": "04.jpg"
  },
@@ -79,7 +79,7 @@
  {
   "kicker": "Step 2 · Ask ward council",
   "title": "Check off what’s done",
-  "body": "Tap a name to check off a step that’s done. Then tap Done, or No changes this week. Find your focus names has Add to focus names beside each name.",
+  "body": "Tap a name to see what’s still open and check off what the council knows is done. Then tap Done, or No changes this week.",
   "color": "#2F5DA6",
   "img": "12.jpg"
  },
@@ -177,7 +177,7 @@
  {
   "kicker": "Step 3 · The Huddle",
   "title": "All four sections done",
-  "body": "Follow Up next: Attendees, then each section. Mark done takes you on to the next one.",
+  "body": "Follow Up next: Attendees, then each section. Mark done brings you back here.",
   "color": "#B0531A",
   "img": "26.jpg"
  },

@@ -37,11 +37,10 @@ module.exports = (async () => {
   // Step 1
   await p.click('#before-box'); await wait(500); await p.evaluate(() => scrollTo(0, 0));
   await shot('s03-bw', '#bw-view .btn-tools', { scroll: false });
-  await shot('s04-bw-list', '[data-bw="nm"] [data-action="open-person"][data-b="0"]');
-  await p.click('[data-bw="nm"] [data-action="open-person"][data-b="0"]'); await wait(500); await p.evaluate(() => scrollTo(0, 0));
-  for (const k of ['calling', 'ministers']) { await p.click(`#person-card [data-action="check-item"][data-b="${k}"]`); await wait(200); }
-  await shot('s05-bw-person', '#person-card .checklist', { block: 'start' });
-  await back();
+  await shot('s04-bw-list', '[data-bw="nm"] [data-action="row-toggle"] >> nth=0');
+  await p.click('[data-bw="nm"] [data-action="row-toggle"] >> nth=0'); await wait(500); // a name opens its steps right in the list
+  for (const k of ['calling', 'ministers']) { await p.click(`[data-bw="nm"] .exp-body [data-action="check-item"][data-b="${k}"]`); await wait(200); }
+  await shot('s05-bw-person', '[data-bw="nm"] .exp-li.is-open', { block: 'start' });
   await shot('s06-bw-done', '#before-done-btn', { block: 'end' });
   await p.click('#before-done-btn'); await wait(600);
   if (!(await p.isVisible('#start-home'))) await start();
@@ -63,11 +62,14 @@ module.exports = (async () => {
   await p.click('[data-wc="nm"] [data-action="how-help"]'); await wait(500);
   await shot('s18-howhelp');
   await p.click('#howhelp-sheet [data-action="close-how-help"]'); await wait(400);
-  await p.click('[data-wc="nm"] [data-action="open-person"][data-b="0"]'); await wait(500); await p.evaluate(() => scrollTo(0, 0));
-  await p.click('#person-card .ns-list [data-action="check-item"][aria-checked="false"]'); await wait(300);
-  await shot('s10-wc-person', '#person-card [data-action="make-focus"]');
-  await p.click('#person-card [data-action="make-focus"]'); await wait(500);
-  await back(); await p.click('#step-done-btn'); await wait(600); // Done: back to Ward Council
+  await p.click('[data-wc="nm"] [data-action="row-toggle"] >> nth=0'); await wait(500); // its open steps, right in the list
+  await p.click('[data-wc="nm"] .exp-body [data-action="check-item"][aria-checked="false"]'); await wait(300);
+  await shot('s10-wc-person', '[data-wc="nm"] .exp-li.is-open', { block: 'start' });
+  await p.click('#step-done-btn'); await wait(600); // Done: back to Ward Council
+  // Find names: the Covenant Path Report button in the Focus names card, then Add to focus names
+  await p.click('#wc-step-tn [data-a="pick"]'); await wait(500);
+  if (await p.isVisible('[data-action="pick-focus"]')) { await p.click('[data-action="pick-focus"] >> nth=0'); await wait(500); }
+  await back();
   // The focus names sit right on Ward Council: a next ordinance for each, then Keep these focus names
   for (let k = 0; k < 6; k++) {
     const row = await p.$('#wc-step-tn .person-row:has(.fold-tag.due)'); if (!row) break;
