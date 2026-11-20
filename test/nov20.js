@@ -37,6 +37,7 @@ const huddle = {
   ok(await p.isVisible('.actionbar [data-action="open-assignments"]') && (await p.textContent('#asg-count')).trim() === '2', 'the bottom bar has Assignments, with 2 not marked yet');
   await p.click('.actionbar [data-action="open-assignments"]'); await w(500);
   ok((await p.evaluate(() => document.body.dataset.view)) === 'rr' && (await p.textContent('#step-title')).trim() === 'Assignments', 'Assignments opens Return and Report’s page, titled Assignments');
+  ok(!(await p.isVisible('#step-done-btn')) && !(await p.isVisible('#step-foot .undone-link')), 'from Assignments there is no Mark done (marks are kept as they’re tapped)');
   await p.click('[data-action="happened"][data-a="0"][data-b="Yes"]'); await w(400);
   ok((await p.textContent('#asg-count')).trim() === '1', 'marking one leaves 1 in the count');
   ok(await fits(), 'Assignments fits a small iPhone');
@@ -45,7 +46,7 @@ const huddle = {
   await p.click('.nav-home'); await w(400); await p.click('.door-hd'); await w(500);
   ok(await p.locator('#steps-home li.hd-card').count() === 4, 'the Huddle’s four sections are cards of their own');
   await p.click('[data-action="open-step"][data-a="rr"]'); await w(400);
-  ok((await p.textContent('#step-title')).trim() === 'Return and Report', 'from the Huddle, the same page is titled Return and Report');
+  ok((await p.textContent('#step-title')).trim() === 'Return and Report' && await p.isVisible('#step-done-btn'), 'from the Huddle, the same page is titled Return and Report, with Mark done');
   await p.goBack(); await w(400);
   await p.evaluate(() => { document.querySelector('#details-summary') && null; });
   const tnCard = '#steps-home li.hd-card:has([data-action="open-step"][data-a="tn"])';

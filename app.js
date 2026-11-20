@@ -2211,6 +2211,9 @@
       if (gate) { btn.classList.add('is-blocked'); btn.setAttribute('data-action', 'step-gate'); btn.setAttribute('aria-label', 'Mark done. ' + gate.text + ' first. Tap to go there.'); if (hint) { hint.textContent = gate.text + ' first.'; hint.hidden = false; } }
     }
     var ul = $('#step-foot .undone-link'); if (ul && wcSec && view !== 'wc-fn' && view !== 'wc-cp') ul.hidden = true;
+    // Opened from the bottom bar's Assignments (the user asked, Nov 20, 2026): no Mark done. Each mark is kept as it's
+    // tapped; Return and Report is checked off in the Huddle itself.
+    if (view === 'rr' && rrFromBar) { btn.hidden = true; if (ul) ul.hidden = true; if (hint) hint.hidden = true; }
     var sn = $('#step-next'), sp = $('#step-prev'); // (kept on the page, always hidden now)
     if (nxt) { sn.textContent = 'Next: ' + nxt.title + ' ›'; sn.setAttribute('aria-label', 'Next: ' + nxt.title); }
     if (prv) { sp.textContent = '‹ ' + prv.title; sp.setAttribute('aria-label', 'Go to ' + prv.title); }
@@ -2250,6 +2253,7 @@
     if (view !== 'rr') rrFromBar = false;
     $('#step-title').textContent = person ? personTitle(personRef) : view === 'rr' && rrFromBar ? 'Assignments' : stp ? stp.title : '';
     var nb = $('.nav-asg'); if (nb) nb.classList.toggle('is-here', view === 'rr' && rrFromBar);
+    if (view === 'rr' && $('#step-done-btn')) renderStepFoot();
     // Leaving a person's screen: drop a name left empty, then redraw the lists it appears on.
     if (isPerson(shownView) && !person) { cleanupPerson(); renderCP(); renderTN(); renderFN(); }
     // Names edited in ward council show up on the huddle's cards.

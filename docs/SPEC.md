@@ -1005,8 +1005,8 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
   red bar (their reason under each) and an Add button. Once kept, "Mark as not done" sits beside How can we help? and
   takes the check off.
 - **Assignments, on the left of the bottom bar**, with a red count of last huddle's assignments not marked yet. It opens
-  Return and Report's page, titled "Assignments"; from the Huddle the same page is titled "Return and Report". It doesn't
-  change the huddle's date.
+  Return and Report's page, titled "Assignments", with no Mark done (each mark is kept as it's tapped; Back or Home
+  leaves); from the Huddle the same page is titled "Return and Report", with Mark done. It doesn't change the huddle's date.
 - **Send turns green** once all four steps are done, with one gentle pulse the moment it becomes ready (none with
   Reduce Motion).
 - **Doesn't apply on the priesthood steps** already stops the Priesthood advancement suggestion (Suggested: … under Next
