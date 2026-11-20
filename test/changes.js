@@ -1,5 +1,5 @@
 // Step 4 marks what changed since step 1; a person's name header edits the name; Ward council shows the temple
-// countdown; Mark done is pinned above the bottom bar and toggles; the confidential line sits under both step cards.
+// countdown; Mark done sits at the end of the list and toggles; the confidential line sits under both step cards.
 const { chromium, devices } = require('playwright');
 const fs = require('fs');
 const OUT = 'test/out-changes'; fs.mkdirSync(OUT, { recursive: true });
@@ -27,10 +27,15 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const w = t => p.waitForTimeout(t);
   await p.goto(BASE); await p.evaluate(s => localStorage.setItem('__seed', JSON.stringify(s)), seed()); await p.reload(); await w(600);
 
-  // Step 1: Mark done is pinned above the bottom bar, then remembers everyone
+  // Step 1: Mark done sits at the end of the list, then remembers everyone
   await p.click('#before-box'); await w(500);
-  const pinned = await p.evaluate(() => { const b = document.querySelector('#before-done-btn').getBoundingClientRect(), bar = document.querySelector('.actionbar').getBoundingClientRect(); return b.bottom <= bar.top + 30 && b.bottom > innerHeight / 2; });
-  ok(pinned, 'Mark done stays in view just above the bottom bar on a long list');
+  const atEnd = await p.evaluate(() => { const b = document.querySelector('#before-done-btn'), l = document.querySelector('#before-list'); return getComputedStyle(b).position === 'static' && b.getBoundingClientRect().top >= l.getBoundingClientRect().bottom - 1; });
+  ok(atEnd, 'Mark done sits at the end of the list, after the last name, so it never covers one (Nov 20, 2026)');
+  // An opened name scrolls up so all its steps show
+  await p.click('#before-list [data-action="row-toggle"] >> nth=-1'); await w(700);
+  const shown = await p.evaluate(() => { const li = document.querySelector('#before-list .exp-li.is-open'); if (!li) return false; const r = li.getBoundingClientRect(), bar = document.querySelector('.actionbar').getBoundingClientRect(); return r.top >= 0 && (r.bottom <= bar.top + 2 || r.top < 140); });
+  ok(shown, 'opening the last name scrolls it up so its steps show above the bottom bar');
+  await p.click('#before-list .exp-li.is-open [data-action="row-toggle"]'); await w(300);
   ok((await p.textContent('#before-done-btn')).trim() === 'Mark done', 'it says Mark done');
   await p.click('#before-done-btn'); await p.waitForSelector('#start-home:not([hidden])'); await w(300);
   ok(await p.evaluate(() => !!JSON.parse(localStorage.getItem('huddle-agenda-v1')).bwSnap), 'marking step 1 done remembers how each person looked');

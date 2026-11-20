@@ -3264,7 +3264,8 @@
         expOpen = expOpen === a ? '' : a;
         if (expOpen) { var rp = a.split('|'), ra = state.cp[rp[1]] && state.cp[rp[1]][+rp[2]]; expKeys = ra ? openChecks(ra, rp[1]).map(function (c) { return c.k; }) : []; }
         if (a.indexOf('bw|') === 0) renderBefore(); else renderWC();
-        var rl = document.querySelector('[data-action="row-toggle"][data-a="' + a + '"]'); if (rl && expOpen) rl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        // An opened name scrolls up under the top bar, so all its steps show (Nov 20, 2026)
+        var rl = document.querySelector('[data-action="row-toggle"][data-a="' + a + '"]'); if (rl && expOpen) { var rli = rl.closest('li') || rl; setTimeout(function () { rli.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 30); }
         break;
       }
       case 'swipe-hint-ok': swipeLearned(); break;

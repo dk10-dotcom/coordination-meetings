@@ -1038,3 +1038,6 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
 - **(Nov 20, later) A focus name's Mark done needs an assignment, who and when.** Until then it is gray; tapping it says
   what to add ("Add who and when first") and leaves the name unmarked (Back leaves the screen). Clearing any of the three
   after Mark done takes the mark off right away, and Focus names' check with it.
+- **Before Ward Council and After the huddle: Mark done sits at the end of the list**, after the last name, instead of
+  floating above the bottom bar, so it never covers a name's steps. Opening a name in a list scrolls it up under the top
+  bar so its steps show.

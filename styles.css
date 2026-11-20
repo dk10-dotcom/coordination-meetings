@@ -1851,3 +1851,7 @@ li.flag-focus .row-flag { color: #8A5A00; }
 .details-summary.is-done:not(.is-next) { border-color: var(--green-line); }
 .details-summary .details-ok { margin-left: auto; }
 .person-done.is-blocked { background: #C9D3E6; border-color: #C9D3E6; color: #2E4A7E; box-shadow: none; }
+
+/* Before Ward Council and After the huddle: Mark done sits at the end of the list, so it never covers a name (Nov 20, 2026) */
+#before-done-btn, #after-done-btn { position: static; margin-top: 6px; box-shadow: none; }
+.exp-li { scroll-margin-top: 78px; }

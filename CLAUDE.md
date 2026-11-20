@@ -95,8 +95,8 @@ Next ordinance is a menu and When is a date (`datesmenu.js`). Older tests type w
 choice (`selectOption`) and type dates as `YYYY-MM-DD`.
 There is no guided tour or practice week (the user took them out, Nov 18, 2026); `test/obsolete/guided.js` and
 `practice.js` are kept for reference. The first time from the Home Screen, a welcome offers the step-by-step guide.
-The bottom bar (a round Home in the middle, Send on the right) floats on every screen; Hand off is a line under the four steps. Mark done (step 1, each Huddle
-section, step 4) is pinned just above it, green with a check once done; the green Done keeps it done and goes back,
+The bottom bar (a round Home in the middle, Send on the right) floats on every screen; Hand off is a line under the four steps. Mark done (each Huddle section) is pinned just above it
+(step 1 and step 4 have it at the end of their list, Nov 20, 2026), green with a check once done; the green Done keeps it done and goes back,
 and a small Mark as not done link under it undoes it; on the opening screen Home scrolls back to the top. Each
 training slide shows which part of the week it is in (1-4 and Week).
 `wccards.js` tests Ward Council's cards (Up next, Done or No upcoming events, Ask ward council, the Find your focus names tool box,
