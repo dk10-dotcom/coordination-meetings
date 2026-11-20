@@ -317,6 +317,7 @@
 :where(:root.theme-dark) .wc-sugs-k { color: #D58282; }
 :where(:root.theme-dark) .nav-send.is-ready { color: #A0DEBA; }
 :where(:root.theme-dark) .person-done.is-done { background: #1F6B3A; border-color: #59B57A; color: #FFFFFF; }
+:where(:root.theme-dark) .person-done.is-blocked { background: #273042; border-color: #354159; color: #A7B7D5; }
 /* hand-tuned */
 :where(:root.theme-dark) .focus-box.is-pressing { background: #3A1D1D; border-color: #6E2C2C; }
 :where(:root.theme-dark) .focus-why { color: #FF9C9C; }

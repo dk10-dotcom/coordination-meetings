@@ -1035,3 +1035,6 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
   badge) and gets a green check once attendance is taken. The phone's Back works too.
 - **After the huddle: a name new since step 1 has every line highlighted**, each tagged **New**, the way a changed name's
   changed lines are tagged **Updated**.
+- **(Nov 20, later) A focus name's Mark done needs an assignment, who and when.** Until then it is gray; tapping it says
+  what to add ("Add who and when first") and leaves the name unmarked (Back leaves the screen). Clearing any of the three
+  after Mark done takes the mark off right away, and Focus names' check with it.

@@ -87,11 +87,11 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.click(`#person-card .action-chips .idea-chip >> text="${second}"`); await w(400);
   ok((await saved()).tn[0].action === first, 'tapping it again takes it back out');
   await p.fill('#person-card [data-bind="tn.0.action"]', 'Meet with the elders quorum president'); await p.evaluate(() => document.activeElement.blur()); await w(200);
-  await p.click('#person-view .person-done'); await w(300);
+  await p.click('#step-bar [data-action="steps-home"]'); await w(300); // Back (Mark done waits for who and when)
   await p.click('#tn-list [data-action="open-person"][data-b="1"]'); await w(400);
   const gi = await p.$$eval('#person-card .action-chips .idea-chip', e => e.map(x => x.textContent));
   ok(/Ideas for the endowment/.test(await p.textContent('#person-card .action-chips')) && !/Still open/.test(await p.textContent('#person-card .action-chips')) && gi.includes('Meet with the bishop'), 'a name not on the report gets only Ideas for its next ordinance: ' + gi.join(' | '));
-  await p.click('#person-view .person-done'); await w(300);
+  await p.click('#step-bar [data-action="steps-home"]'); await w(300);
 
   // Opportunities to invite: an assignment is one line; texting it names the opportunity
   await p.click('#step-foot [data-action="steps-home"], .step-back'); await w(400);

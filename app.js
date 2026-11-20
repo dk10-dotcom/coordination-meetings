@@ -1320,6 +1320,23 @@
       h('span', { class: 'step-chev', 'aria-hidden': 'true', text: '›' })
     ])]);
   }
+  // A focus name in the Huddle (Nov 20, 2026): Mark done needs an assignment, who and when; once marked, a green Done
+  // with Mark as not done under it. Clearing any of the three takes the mark off (syncTnDone).
+  function tnMissing(a) { return [str(a.action).trim() ? '' : 'an assignment', str(a.assigned).trim() ? '' : 'who', str(a.when).trim() ? '' : 'when'].filter(Boolean); }
+  function andList(l) { return l.length > 1 ? l.slice(0, -1).join(', ') + ' and ' + l[l.length - 1] : l[0] || ''; }
+  function nameDoneEls(r, a) {
+    var done = h('button', { type: 'button', class: 'btn-primary full person-done' }), undo = null;
+    if (a.hdDone) { done.classList.add('is-done'); done.setAttribute('data-action', 'steps-home'); done.replaceChildren(icon('check'), h('span', { text: 'Done' }));
+      undo = h('button', { type: 'button', class: 'btn-link undone-link person-undone', 'data-action': 'tn-name-undone', 'data-a': r.i }, ['Mark as not done']); }
+    else { var miss = tnMissing(a); done.setAttribute('data-action', 'tn-name-done'); done.setAttribute('data-a', r.i); done.textContent = 'Mark done'; if (miss.length) { done.classList.add('is-blocked'); done.setAttribute('aria-label', 'Mark done. Add ' + andList(miss) + ' first.'); } }
+    return [done, undo];
+  }
+  function refreshNameDone() {
+    if (view !== 'p-hd' || !personRef || personRef.g !== 'tn') return;
+    var a = state.tn[personRef.i]; if (!a) return;
+    var old = $('#person-card > .person-done'), oldU = $('#person-card > .person-undone'), nd = nameDoneEls(personRef, a);
+    if (old) old.replaceWith(nd[0]); if (oldU) oldU.remove(); if (nd[1]) nd[0].after(nd[1]);
+  }
   // Which Covenant Path Report list a focus name is on: "New member", "Returning member" or "Being taught".
   function tnOrigin(a) {
     var src = cpOfName(a.name); return src ? { nm: 'New member', rm: 'Returning member', bt: 'Being taught' }[src.gid] || '' : '';
@@ -1403,10 +1420,7 @@
     attrs[r.kind === 'wc' ? 'data-wc' : r.kind === 'bw' ? 'data-bw' : 'data-group'] = r.g;
     var done = h('button', { type: 'button', class: 'btn-primary full person-done', 'data-action': 'steps-home' }, ['Done']);
     var undoName = null;
-    if (r.kind === 'hd' && r.g === 'tn' && !CP_SECTION && str(a.name).trim()) { // the Huddle: each focus name is marked done here (Nov 20, 2026)
-      if (a.hdDone) { done.classList.add('is-done'); done.replaceChildren(icon('check'), h('span', { text: 'Done' })); undoName = h('button', { type: 'button', class: 'btn-link undone-link person-undone', 'data-action': 'tn-name-undone', 'data-a': r.i }, ['Mark as not done']); }
-      else { done.setAttribute('data-action', 'tn-name-done'); done.setAttribute('data-a', r.i); done.textContent = 'Mark done'; }
-    }
+    if (r.kind === 'hd' && r.g === 'tn' && !CP_SECTION && str(a.name).trim()) { var nd = nameDoneEls(r, a); done = nd[0]; undoName = nd[1]; }
     // Ward council's screen asks the 4-week question too (the huddle's card carries its own).
     var note = (r.kind === 'wc' || r.kind === 'bw') && !isRef ? staleNote(base, a, r.g === 'tn') : null;
     // The top of the screen is tinted with their list's color: initials, name, and which list they're on.
@@ -2384,6 +2398,7 @@
   function syncTnDone() {
     if (CP_SECTION) return;
     var named = focusNamed();
+    named.forEach(function (x) { if (x.a.hdDone && tnMissing(x.a).length) x.a.hdDone = false; }); // a field cleared after Mark done
     if (named.length) { if (named.every(function (x) { return x.a.hdDone; })) state.stepsDone.tn = true; else delete state.stepsDone.tn; }
     // Return and Report isn't done while an assignment still has no Yes, Partly or No (a huddle saved before the rule, too).
     if (state.stepsDone.rr && state.rr.filter(rrShown).some(function (r) { return !r.happened; })) delete state.stepsDone.rr;
@@ -2949,7 +2964,9 @@
       case 'make-focus': state.tnKept = true; makeFocus(a, +b); break;
       case 'pick-focus': state.tnKept = true; makeFocus(a, +b); renderWC(); break;
       case 'tn-keep-gate': { var nd = focusNeeds(); ask({ title: 'Choose a next ordinance first', body: nd.length === 1 ? str(nd[0].a.name).trim() + ' needs a next ordinance.' : nd.map(function (x) { return str(x.a.name).trim(); }).join(', ') + ' need a next ordinance.', primary: 'OK' }); break; }
-      case 'tn-name-done': { var tnd = state.tn[+a]; if (!tnd) break; tnd.hdDone = true; saveDraft(); renderTN();
+      case 'tn-name-done': { var tnd = state.tn[+a]; if (!tnd) break;
+        var tmiss = tnMissing(tnd); if (tmiss.length) { ask({ title: 'Add ' + andList(tmiss) + ' first', body: 'Each focus name needs an assignment, who will do it, and when.', primary: 'OK' }); break; }
+        tnd.hdDone = true; saveDraft(); renderTN();
         var allDone = focusNamed().every(function (x) { return x.a.hdDone; });
         leavePerson(); toast(allDone ? (STEPS.every(function (x) { return state.stepsDone[x.id]; }) ? 'Step 3 done. Next: After the huddle.' : 'Every focus name is done. Focus names is marked done.') : str(tnd.name).trim() + ' marked done.', 6000, { label: 'Undo', run: function () { tnd.hdDone = false; saveDraft(); renderTN(); renderSteps(); } }); break; }
       case 'tn-name-undone': { var tnu = state.tn[+a]; if (!tnu) break; tnu.hdDone = false; saveDraft(); renderTN(); renderPerson(); break; }
@@ -4963,6 +4980,7 @@
         val = str(t._nameWas); t.value = val;
       }
       setPath(path, val);
+      if (/^tn\.\d+\.(action|assigned|when)$/.test(path)) { syncTnDone(); refreshNameDone(); } // Mark done follows the three fields
       if (t.tagName === 'SELECT') t.classList.toggle('is-empty', !t.value);
       if (path === 'ward') { writeWard(String(val).trim()); if (view === 'start') renderDoors(); }
       if (path === 'date') { state.dateManual = true; renderDateHint(); }
