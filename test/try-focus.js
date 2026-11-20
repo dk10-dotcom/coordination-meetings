@@ -117,11 +117,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const oppRow = await p.textContent('#fn-list [data-action="open-person"][data-a="opp"]');
   ok(/Christmas sacrament meeting/.test(oppRow) && !/assignment/.test(oppRow) && !(await p.$('#fn-list [data-a="opp"] .warn')) && await p.locator('#fn-list .opp-tile-d').count() === 1, 'Done returns to the list: a row like a name, with a date tile, its name and date, and no warning in ward council: ' + oppRow.trim());
   ok(await p.locator('#fn-list .swipe-li [data-action="swipe-remove-opp"]').count() === 1, 'an opportunity can be swiped left to remove it');
-  ok(/Covenant Path Report/.test(await p.textContent('#step-next')) && await p.isHidden('#step-prev') && (await p.textContent('#step-done-btn')).trim() === 'Done', 'ward council’s first list leads on to the Covenant Path Report, with Done at the bottom');
-  await p.click('#step-next'); await w(400);
-  ok((await p.textContent('#step-prev')).trim() === '‹ Opportunities to invite' && await p.isHidden('#step-next'), 'the Covenant Path Report links back to Opportunities to invite');
-  await p.click('#step-prev'); await w(400);
-  ok(await p.isVisible('#fn-list [data-a="opp"]'), 'the link goes back to Opportunities to invite');
+  ok(await p.isHidden('#step-next') && await p.isHidden('#step-prev') && (await p.textContent('#step-done-btn')).trim() === 'Done', 'ward council’s Opportunities to invite has just Done at the bottom (no Next or Back links)');
   await p.click('.step-back'); await w(400);
   ok(!/needs? an assignment/.test(await p.textContent('#wc-rows')) && /Christmas sacrament meeting \(/.test(await p.textContent('#wc-rows')), 'ward council’s row lists the opportunity and its date, no warning');
   await p.click('[data-action="open-wc-list"][data-a="fn"]'); await w(400);
