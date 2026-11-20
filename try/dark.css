@@ -307,6 +307,7 @@
 :where(:root.theme-dark) .row-flag { color: #DC908B; }
 :where(:root.theme-dark) li.flag-focus .row-flag { color: #F1D49D; }
 :where(:root.theme-dark) .exp-none { color: #B0DEC1; }
+:where(:root.theme-dark) .cal-day.is-sel { color: #FFFFFF; }
 /* hand-tuned */
 :where(:root.theme-dark) .focus-box.is-pressing { background: #3A1D1D; border-color: #6E2C2C; }
 :where(:root.theme-dark) .focus-why { color: #FF9C9C; }

@@ -136,16 +136,16 @@
     ],
     rm: [
       { k: 'friends', t: 'Has friends at church', help: 'Friends at church' },
-      { k: 'aaronic', t: 'Aaronic Priesthood ordination', help: 'Aaronic Priesthood ordination' },
-      { k: 'melch', t: 'Melchizedek Priesthood ordination', help: 'Melchizedek Priesthood ordination' },
+      { k: 'aaronic', t: 'Aaronic Priesthood ordination', help: 'Aaronic Priesthood ordination', opt: true },
+      { k: 'melch', t: 'Melchizedek Priesthood ordination', help: 'Melchizedek Priesthood ordination', opt: true },
       { k: 'calling', t: 'A calling', help: 'A calling' },
       { k: 'minassign', t: 'A ministering assignment', help: 'A ministering assignment' },
       { k: 'ministers', t: 'Assigned ministers', help: 'Assigned ministers' },
       { k: 'famname', t: 'Prepared a family name for the temple', help: 'Prepare a family name for the temple' },
       { k: 'recint', t: 'Meet with the bishop', help: 'Meet with the bishop' },
       { k: 'bfd', t: 'Performed baptisms for the dead', help: 'Perform baptisms for the dead' },
-      { k: 'endow', t: 'Received endowment', help: 'Receive the endowment', opt: true },
-      { k: 'sealparents', t: 'Sealed to parents', help: 'Be sealed to parents', opt: true },
+      { k: 'endow', t: 'Received endowment', help: 'Receive the endowment' },
+      { k: 'sealparents', t: 'Sealed to parents', help: 'Be sealed to parents' },
       { k: 'sealspouse', t: 'Sealed to spouse', help: 'Be sealed to spouse', opt: true }
     ],
     bt: [
@@ -171,7 +171,7 @@
     return o;
   }
   // An item's state: true (done), 'na' (doesn't apply) or false (still open).
-  function checkOf(a, gid, c) { if (c.temple && gid === 'nm') return !!a.temple; var v = a.checks && a.checks[c.k]; return v === true || v === 'na' ? v : false; }
+  function checkOf(a, gid, c) { if (c.temple && gid === 'nm') return !!a.temple; var v = a.checks && a.checks[c.k]; return v === true || (v === 'na' && c.opt) ? v : false; } // Doesn't apply only counts where it's offered (Nov 20, 2026: the priesthood steps, not endowment or sealed to parents)
   function openChecks(a, gid) { return (CHECKLISTS[gid] || []).filter(function (c) { return checkOf(a, gid, c) === false; }); }
   function checkCount(a, gid) {
     var l = (CHECKLISTS[gid] || []).filter(function (c) { return checkOf(a, gid, c) !== 'na'; });
@@ -502,8 +502,40 @@
         type: opts.type || 'text', 'data-bind': path, value: str(getPath(path)), placeholder: opts.placeholder || '',
         autocomplete: 'off', autocapitalize: opts.cap || 'sentences', enterkeyhint: 'next', maxlength: '300'
       }),
-      isDate ? h('span', { class: 'date-ph', 'aria-hidden': 'true', text: 'Pick a date' }) : null
+      isDate ? h('span', { class: 'date-ph', 'aria-hidden': 'true', text: 'Pick a date' }) : null,
+      // A baptism date opens Huddle's own calendar (Nov 20, 2026): the phone's picker fills in today's date just from
+      // looking, so the date is only kept when Apply is tapped, and Clear empties it.
+      isDate && /\.bap$/.test(path) ? h('button', { type: 'button', class: 'date-tap', 'data-action': 'date-pick', 'data-a': path, 'data-b': typeof label === 'string' ? label : 'Baptism date', 'aria-label': (typeof label === 'string' ? label : 'Baptism date') + ': ' + (hasV ? whenShow(getPath(path)) : 'none. Pick a date') }) : null
     ]);
+  }
+  // The calendar sheet: a month at a time; the day picked is only saved with Apply.
+  function pickDate(path, label) {
+    var input = document.querySelector('[data-bind="' + path + '"]'), cur = str(getPath(path)).trim();
+    var sel = ISO_DAY.test(cur) ? cur : '', base = parseISO(sel) || new Date(), vy = base.getFullYear(), vm = base.getMonth();
+    var iso = function (y, m, d) { return y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'); };
+    var t = new Date(), today = iso(t.getFullYear(), t.getMonth(), t.getDate());
+    var box = h('div', { class: 'cal' });
+    function draw() {
+      var first = new Date(vy, vm, 1).getDay(), days = new Date(vy, vm + 1, 0).getDate(), cells = [];
+      for (var k = 0; k < first; k++) cells.push(h('span', { class: 'cal-gap' }));
+      for (var d = 1; d <= days; d++) (function (d) {
+        var v = iso(vy, vm, d);
+        var b = h('button', { type: 'button', class: 'cal-day' + (v === sel ? ' is-sel' : '') + (v === today ? ' is-today' : ''), 'aria-pressed': v === sel ? 'true' : 'false', 'data-day': v, text: String(d) });
+        b.addEventListener('click', function () { sel = v; draw(); });
+        cells.push(b);
+      })(d);
+      var prev = h('button', { type: 'button', class: 'cal-nav', 'aria-label': 'Previous month', text: '‹' }), next = h('button', { type: 'button', class: 'cal-nav', 'aria-label': 'Next month', text: '›' });
+      prev.addEventListener('click', function () { vm--; if (vm < 0) { vm = 11; vy--; } draw(); });
+      next.addEventListener('click', function () { vm++; if (vm > 11) { vm = 0; vy++; } draw(); });
+      box.replaceChildren(
+        h('div', { class: 'cal-head' }, [prev, h('span', { class: 'cal-month', text: new Date(vy, vm, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) }), next]),
+        h('div', { class: 'cal-grid' }, ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(function (w) { return h('span', { class: 'cal-wd', text: w }); }).concat(cells)),
+        h('p', { class: 'cal-picked', text: sel ? whenShow(sel) : 'No date picked' }));
+    }
+    draw();
+    var put = function (v) { if (!input) { setPath(path, v); saveDraft(); renderAll(); return; } input.value = v; input.dispatchEvent(new Event('input', { bubbles: true })); input.dispatchEvent(new Event('change', { bubbles: true })); };
+    ask({ title: label || 'Baptism date', plain: true, custom: box, primary: 'Apply', onPrimary: function () { if (sel && sel !== cur) put(sel); },
+      secondary: 'Clear', onSecondary: function () { if (cur) put(''); }, tertiary: { label: 'Cancel', run: function () {} } });
   }
   function markDateEmpty(e) {
     var t = e.target; if (!t || t.type !== 'date') return;
@@ -2469,7 +2501,7 @@
     if (!was) return [];
     var wc = was.checks || {};
     return (CHECKLISTS[gid] || []).filter(function (c) { return !c.temple; }).map(function (c) {
-      var then = wc[c.k] === true || wc[c.k] === 'na' ? wc[c.k] : false, now = checkOf(a, gid, c);
+      var then = wc[c.k] === true || (wc[c.k] === 'na' && c.opt) ? wc[c.k] : false, now = checkOf(a, gid, c);
       return then !== now ? { c: c, now: now } : null;
     }).filter(Boolean);
   }
@@ -2676,7 +2708,7 @@
   function ask(opts) {
     $('#confirm-title').textContent = opts.title;
     // A green check for good news; the amber warning for everything else.
-    $('#confirm-sheet .warn-icon').hidden = !!opts.success;
+    $('#confirm-sheet .warn-icon').hidden = !!opts.success || !!opts.plain;
     $('#confirm-sheet .ok-icon').hidden = !opts.success;
     $('#confirm-body').textContent = opts.body || '';
     $('#confirm-body').hidden = !opts.body;
@@ -2692,6 +2724,8 @@
         return h('div', { class: 'compare-row' }, [h('span', { text: row[0] }), h('span', { text: row[1] })]);
       }));
       cmp.hidden = false;
+    } else if (opts.custom) {
+      cmp.replaceChildren(opts.custom); cmp.hidden = false;
     } else if (opts.dateField) {
       cmp.replaceChildren(h('label', { class: 'confirm-field' }, [opts.dateField.label,
         h('input', { type: 'date', id: 'confirm-date', value: opts.dateField.value })]));
@@ -2710,7 +2744,7 @@
       cmp.hidden = false;
     } else { cmp.hidden = true; cmp.replaceChildren(); }
     cmp.classList.toggle('jumps', !!(opts.jumps && opts.jumps.length));
-    cmp.classList.toggle('fieldwrap', !!(opts.dateField || opts.textField));
+    cmp.classList.toggle('fieldwrap', !!(opts.dateField || opts.textField || opts.custom));
     // The explanation reads first when there's a list to tap; a ward/date comparison reads before it.
     var cb = $('#confirm-body'); if (opts.jumps && opts.jumps.length) cb.after(cmp); else cb.before(cmp);
     var p = $('#confirm-primary'), s = $('#confirm-secondary');
@@ -2840,6 +2874,7 @@
       case 'list-open': listOpen(a); break;
       case 'open-step': showView(a, 'push'); break;
       case 'open-wc': showView('wc', 'push'); break;
+      case 'date-pick': pickDate(a, b); break;
       case 'open-wc-list': showView('wc-' + a, 'push'); break;
       case 'open-huddle': syncDate(); showView('home', 'push'); break;
       case 'go-start': goStart(); break;
