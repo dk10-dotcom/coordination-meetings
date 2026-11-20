@@ -62,12 +62,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   ok(!(await p.isVisible('.swipe-hint')), 'Got it puts the hint away');
   await p.click('#wc-step-tn .person-row:has-text("Marcus Bell")'); await w(500);
   ok(await view() === 'p-wc' && !(await p.$('#person-card .need-note')) && !(await p.$('#person-card .zone-label')) && !(await p.$('#person-card .wc-summary, #person-card .zone-hd-wrap, #person-card .hd-summary')), 'a focus name’s Ward Council screen has no zone label, no Huddle box and no confidential note');
-  ok(/next steps? on their Covenant Path Report/.test(await p.textContent('#person-card .ns-head')) && await p.locator('#person-card .ns-list').count() === 0, 'their next steps on the Covenant Path Report sit in a closed list');
-  await p.click('#person-card [data-action="ns-toggle"]'); await w(200);
-  const before = (await p.textContent('#person-card .ns-head')).match(/\d+/)[0];
-  await p.click('#person-card .ns-list [data-action="check-item"][data-b="calling"]'); await w(250);
-  const st1 = await p.evaluate(() => JSON.parse(localStorage.getItem('huddle-agenda-v1')));
-  ok(+((await p.textContent('#person-card .ns-head')).match(/\d+/)[0]) === before - 1 && st1.cp.rm[0].checks && st1.cp.rm[0].checks.calling === true && await p.isVisible('#person-card .ns-list [data-b="calling"]'), 'checking one off marks it done on their Covenant Path Report, and it stays in view');
+  ok(await p.locator('#person-card .ns-box, #person-card .ns-none').count() === 0, 'a focus name’s screen has no next steps list (just the next ordinance)');
   const opts = await p.$$eval('#person-card [data-bind$=".ordinance"] option', o => o.map(x => x.value).filter(Boolean));
   await p.selectOption('#person-card [data-bind$=".ordinance"]', opts[0]); await w(200);
   await p.click('#person-card .person-done'); await w(500);

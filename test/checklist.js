@@ -69,18 +69,23 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.selectOption('#person-card [data-bind="tn.1.ordinance"]', 'Endowment'); await w(400);
   await p.click('#person-view .person-done'); await w(300);
 
-  // The Huddle: no sacrament box; the action item offers what's still open on her report, then ideas for her next ordinance
+  // The Huddle: no sacrament box; the Assignment offers ideas for her next ordinance, and can hold more than one
   await p.click('.nav-home'); await w(400); await p.click('.door-hd'); await w(400);
   await p.click('[data-action="open-step"][data-a="tn"]'); await w(400);
   await p.click('#tn-list [data-action="open-person"][data-b="0"]'); await w(400);
   ok(!(await p.$('#person-card .sac-toggle')), 'a focus name in the Huddle has no Attended sacrament box');
   const ach = await p.$$eval('#person-card .action-chips .idea-chip', e => e.map(x => x.textContent));
   const atext = await p.textContent('#person-card .action-chips');
-  ok(/Next steps on their Covenant Path Report/.test(atext) && /Ideas for priesthood advancement/.test(atext) && ach.includes('Melchizedek Priesthood ordination') && !ach.includes('A calling') && !ach.includes('Friends at church') && !ach.includes('Aaronic Priesthood ordination'),
-    'under Assignment: only her next steps on her report, then ideas for her next ordinance: ' + ach.join(' | '));
-  await p.click('#person-card .action-chips .idea-chip >> text=Melchizedek Priesthood ordination'); await w(400);
+  ok(!/Next steps on their Covenant Path Report/.test(atext) && /Ideas for priesthood advancement/.test(atext) && ach.length >= 2 && !ach.includes('A calling') && !ach.includes('Friends at church'),
+    'under Assignment: ideas for her next ordinance only (no next steps list), leaving out what she has done: ' + ach.join(' | '));
+  const first = ach[0], second = ach[1];
+  await p.click(`#person-card .action-chips .idea-chip >> text="${first}"`); await w(400);
   st = await saved();
-  ok(st.tn[0].action === 'Melchizedek Priesthood ordination' && !(await p.isVisible('#person-card .action-chips')) && await p.evaluate(() => /assigned$/.test(document.activeElement.dataset.bind || '')), 'tapping one fills the Action item, the chips hide, and the cursor moves to Assigned to');
+  ok(st.tn[0].action === first && await p.isVisible('#person-card .action-chips') && await p.locator('#person-card .action-chips .idea-chip.is-on').count() === 1, 'tapping one fills the Assignment, and the ideas stay with that one checked');
+  await p.click(`#person-card .action-chips .idea-chip >> text="${second}"`); await w(400);
+  ok((await saved()).tn[0].action === first + '\n' + second && await p.locator('#person-card .action-chips .idea-chip.is-on').count() === 2, 'tapping another adds it on a line of its own: ' + second);
+  await p.click(`#person-card .action-chips .idea-chip >> text="${second}"`); await w(400);
+  ok((await saved()).tn[0].action === first, 'tapping it again takes it back out');
   await p.fill('#person-card [data-bind="tn.0.action"]', 'Meet with the elders quorum president'); await p.evaluate(() => document.activeElement.blur()); await w(200);
   await p.click('#person-view .person-done'); await w(300);
   await p.click('#tn-list [data-action="open-person"][data-b="1"]'); await w(400);

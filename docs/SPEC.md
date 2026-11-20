@@ -975,3 +975,14 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
   **Clear** and **Cancel**. Nothing is saved until Apply; Clear empties the date; Cancel and tapping outside leave it.
   (The phone's own date picker filled in today's date just from opening it.) `test/bapdate.js` covers it.
 - The other date boxes (When, Event date, Next appointment) still use the phone's picker.
+
+## Focus names: ideas, more than one assignment, green Up next (Nov 20, 2026)
+
+- A focus name's screens no longer list their next steps on the Covenant Path Report: not in the Huddle under
+  Assignment, and not on Ward Council's screen for a focus name. (A Covenant Path name in Ask ward council still opens
+  its open steps.)
+- Under Assignment, the ideas for their next ordinance stay in view after one is tapped. Each tapped idea goes on a line of
+  its own, so an Assignment can hold more than one; a tapped idea shows a check, and tapping it again takes it back out.
+  Tapping an idea no longer jumps to Assigned to.
+- Up next and Start here are green (#1E8A4C): the badge and the card's border, on the opening screen, Ward Council and the
+  Huddle.
