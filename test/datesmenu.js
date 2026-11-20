@@ -50,7 +50,7 @@ const seed = {
     await p.click('#person-view .person-done'); await p.waitForTimeout(300);
     await p.goBack(); await p.waitForTimeout(300); await p.click('#mode-bar [data-action="go-start"]'); await p.waitForTimeout(300);
     // Ward council: only focus names have a next ordinance (Nov 19, 2026, evening), chosen from a menu
-    await p.click('.door-wc'); await p.waitForTimeout(300); await p.click('#wc-step-cp [data-action="open-wc-list"]'); await p.waitForTimeout(300);
+    await p.click('.door-wc'); await p.waitForTimeout(300); await p.click('#wc-step-ask [data-action="open-wc-list"]'); await p.waitForTimeout(300); // (Find your focus names opens the picker now)
     await p.click('[data-wc="nm"] [data-action="open-person"][data-b="1"]'); await p.waitForTimeout(400);
     ok(await p.locator('#person-card select[data-bind$=".ordinance"]').count() === 0, tag + ': a Covenant Path name has no next ordinance menu');
     await p.click('#person-view .person-done'); await p.waitForTimeout(300);

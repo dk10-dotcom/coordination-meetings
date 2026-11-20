@@ -299,6 +299,9 @@
 :where(:root.theme-dark) .list-panel.rows { box-shadow: 0 1px 2px rgba(119, 142, 187, .05); }
 :where(:root.theme-dark) .list-panel.rows > .steps-list { border-top: 1px solid #343B49; }
 :where(:root.theme-dark) .list-panel.rows .list-head + .person-rows, :where(:root.theme-dark) .list-panel.rows .list-head + .info-text + .person-rows { border-top: 1px solid #343B49; }
+:where(:root.theme-dark) .row-next { color: #FFFFFF; }
+:where(:root.theme-dark) .details-summary.is-next::after { color: #FFFFFF; }
+:where(:root.theme-dark) .pick-on { color: #B0DEC1; }
 /* hand-tuned */
 :where(:root.theme-dark) .focus-box.is-pressing { background: #3A1D1D; border-color: #6E2C2C; }
 :where(:root.theme-dark) .focus-why { color: #FF9C9C; }
