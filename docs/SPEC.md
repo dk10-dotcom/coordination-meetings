@@ -907,3 +907,18 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
 - **Words:** Before Ward Council says **Match Member Tools** (step 1's line, its instructions and Help), so it reads
   as copying the official report, and Ask ward council as asking people.
 - An event's own screen keeps its fields in a white block, like a person's screen.
+
+## Changes on Nov 19, 2026, night: a lighter Huddle and a focus name picker (the user asked)
+
+- **Find your focus names → Covenant Path Report** opens a picker of its own, titled "Find your focus names": the three
+  lists with each name, a **Suggested focus name** tag with its reason in red ("Temple: 3 days left", a baptism date),
+  and **Add to focus names** on the right (it wraps under the name on a small phone). Once added the row says
+  "✓ Focus name". Nothing else: the Ask ward council question and the report link stay on Ask ward council's screen.
+- **One big button per screen.** The "Next: …" button and "‹ …" link under Mark done are gone (Mark done already moves
+  on). When something is still needed, Mark done is gray with a plain gray line above it ("Plan at least one
+  assignment first."); tapping it still opens what's missing.
+- **The Huddle's Opportunities to invite:** "+ Add an event" is a small link under the events, and each event's
+  **Add an assignment** row is tinted so it stands out.
+- **Up next in the Huddle:** Huddle Attendees, then Return and Report, Sacrament attendance, Opportunities to invite
+  and Focus names. The first not done is highlighted (Attendees outlined with an Up next tag; a section row tinted
+  with an Up next pill). Attendees' **Done** goes straight on to the next section once attendance is taken.

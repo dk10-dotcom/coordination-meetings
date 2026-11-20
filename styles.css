@@ -1736,3 +1736,27 @@ body[data-view="start"] .title-text .title-sub { margin-top: 8px; font-size: 13p
 .card-grid > .ord-done { grid-column: 1 / -1; }
 /* An event's own screen: its fields in a white block, like a person's screen */
 #person-view .opp-screen > .card-grid { background: var(--card); border-radius: 12px; padding: 14px 16px; margin-top: 14px; }
+
+/* The Huddle: the section up next is highlighted (Attendees first), the way Ward Council's cards are */
+.step-row.is-next { background: var(--accent-soft); box-shadow: inset 4px 0 0 var(--accent); }
+.row-next { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: var(--accent); color: #FFFFFF; font-size: 11px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; vertical-align: 2px; }
+.details-summary.is-next { border: 2px solid var(--accent); box-shadow: 0 10px 22px -14px var(--accent); position: relative; }
+.details-summary.is-next::after { content: 'Up next'; position: absolute; top: -10px; right: 14px; padding: 2px 9px; border-radius: 999px; background: var(--accent); color: #FFFFFF; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+/* One big button per Huddle screen: what's still needed is a plain gray line above a gray Mark done */
+.step-gate-hint { margin: 0 0 6px; text-align: center; font-size: 14px; color: var(--muted); }
+.step-gate-hint[hidden] { display: none; }
+.quiet-add { align-self: center; margin-top: 2px; font-size: 15px; font-weight: 600; }
+/* Ward Council's picker: each name with Add to focus names */
+.pick-row { cursor: default; }
+.pick-row:active { background: none; }
+.pick-add { flex: none; min-height: 40px; padding: 6px 12px; font-size: 14px; font-weight: 700; border-radius: 999px; white-space: nowrap; }
+.pick-on { flex: none; display: inline-flex; align-items: center; gap: 5px; font-size: 14px; font-weight: 700; color: #1F6B3A; }
+.pick-on svg { width: 16px; height: 16px; }
+@media (max-width: 359px) { .pick-add { padding: 6px 10px; font-size: 13px; } }
+.step-gate-hint { position: sticky; z-index: 4; bottom: calc(max(14px, env(safe-area-inset-bottom, 0px)) + 82px + 58px); }
+/* In the Huddle, an event's Add an assignment is what stands out */
+.add-asg-strong { background: var(--accent-soft); font-weight: 700; }
+.pick-row { flex-wrap: wrap; row-gap: 6px; }
+.pick-row .step-text { flex: 1 1 120px; }
+.pick-row .person-name { overflow-wrap: normal; }
+.pick-row .pick-add, .pick-row .pick-on { margin-left: auto; }

@@ -1587,7 +1587,7 @@
         x.past ? h('span', { class: 'wc-status', 'data-status': statusOf(x.status) || 'pending', text: STATUS_WORD[x.status] || 'Pending' }) : null,
         h('span', { class: 'step-chev', 'aria-hidden': 'true', text: '›' })])]);
     });
-    lines.push(h('li', {}, [h('button', { type: 'button', class: 'nav-row add-row', 'data-action': 'add-asg', 'data-a': k, 'aria-label': 'Add an assignment to ' + (t || 'this opportunity') }, [icon('plus'), h('span', { text: 'Add an assignment' })])]));
+    lines.push(h('li', {}, [h('button', { type: 'button', class: 'nav-row add-row add-asg-strong', 'data-action': 'add-asg', 'data-a': k, 'aria-label': 'Add an assignment to ' + (t || 'this opportunity') }, [icon('plus'), h('span', { text: 'Add an assignment' })])]));
     return h('section', { class: 'list-panel rows list-fn opp-panel', 'data-opp': o.id, 'aria-label': t || 'Opportunity' }, [h('ul', { class: 'steps-list person-rows' }, [h('li', { class: 'opp-card-top' }, [head])].concat(lines))]);
   }
   // One opportunity's own screen: what's coming up, its date, and its assignments.
@@ -1628,7 +1628,7 @@
       var kind = view === 'wc-fn' ? 'wc' : 'hd';
       if (kind === 'hd' && opps.length) { // the Huddle: one card per opportunity, its assignments as lines under it
         wrap.replaceChildren.apply(wrap, opps.map(function (o, k) { return oppCard(o, k); }).concat([
-          h('button', { type: 'button', class: 'btn-outline full btn-add-opp', 'data-action': 'add-opp' }, ['+ Add an event'])]));
+          h('button', { type: 'button', class: 'btn-link btn-add-opp quiet-add', 'data-action': 'add-opp' }, ['+ Add an event'])])); // a small link: the Huddle plans assignments
         return;
       }
       var rows = opps.map(function (o, k) { return oppRow(kind, o, k); });
@@ -2082,15 +2082,18 @@
     if (!$('#steps-home')) return;
     renderHeroes();
     var fc = $('#fn-count'); if (fc) fc.textContent = plural(state.find.items.filter(function (x) { return str(x.task).trim(); }).length, 'assignment', 'assignments');
+    // Up next (the user asked, Nov 19, 2026, night): Attendees, then each section in order; the first not done is highlighted.
+    var upNext = !state.attendees.length ? 'att' : (STEPS.filter(function (x) { return !state.stepsDone[x.id]; })[0] || {}).id || '';
+    var ds = $('#details-summary'); if (ds) { ds.classList.toggle('is-next', upNext === 'att'); ds.classList.toggle('is-done', !!state.attendees.length); }
     var row = function (st) {
-      var isDone = !!state.stepsDone[st.id], status = stepStatus(st.id);
+      var isDone = !!state.stepsDone[st.id], status = stepStatus(st.id), isNext = upNext === st.id;
       var num = null;
       if (isDone) { num = h('span', { class: 'step-num' + (justDone && justDone.id === st.id && Date.now() - justDone.at < 1500 ? ' pop' : ''), 'aria-hidden': 'true' }); num.appendChild(icon('check')); }
-      return h('li', {}, [h('button', { type: 'button', class: 'nav-row step-row' + (isDone ? ' done' : ''), 'data-action': 'open-step', 'data-a': st.id,
-        'aria-label': st.title + (isDone ? ', done' : '') + '. ' + status.text }, [
+      return h('li', { class: isNext ? 'is-next' : null }, [h('button', { type: 'button', class: 'nav-row step-row' + (isDone ? ' done' : '') + (isNext ? ' is-next' : ''), 'data-action': 'open-step', 'data-a': st.id,
+        'aria-label': st.title + (isDone ? ', done' : isNext ? ', up next' : '') + '. ' + status.text }, [
         tile(st.id),
         h('span', { class: 'step-text' }, [
-          h('span', { class: 'step-title', text: st.title }),
+          h('span', { class: 'step-title' }, [st.title, isNext ? h('span', { class: 'row-next', text: 'Up next' }) : null]),
           h('span', { class: 'step-status' + (status.warn ? ' warn' : ''), text: status.text })
         ]),
         num,
@@ -2105,6 +2108,10 @@
   function footList() { return isWcList(view) ? WC_LISTS.map(function (l) { return { id: 'wc-' + l.id, title: l.title }; }) : STEPS; }
   function renderStepFoot() {
     var list = footList(), i = list.findIndex(function (st) { return st.id === view; });
+    var hint = $('#step-gate-hint'); if (hint) hint.hidden = true;
+    // One big button per screen (the user asked, Nov 19, 2026, night): no Next and Back links under it.
+    $('#step-next').hidden = true; $('#step-prev').hidden = true;
+    if (view === 'wc-pick') { $('#step-done-btn').hidden = true; var ul0 = $('#step-foot .undone-link'); if (ul0) ul0.hidden = true; return; }
     if (i < 0) return;
     var nxt = list[i + 1], prv = list[i - 1], wcSec = isWcList(view), btn = $('#step-done-btn');
     btn.hidden = wcSec && view !== 'wc-fn' && view !== 'wc-cp'; // Opportunities to invite and the Covenant Path Report (Ask ward council) have the button
@@ -2114,12 +2121,11 @@
     else if (!wcSec) {
       var gate = state.stepsDone[view] ? null : stepGate(view);
       markDoneBtn(btn, !!state.stepsDone[view], 'step-undone', 'steps-home', view === 'fn' && !oppsTitled() ? 'No upcoming events' : 'Mark done', 'step-done');
-      if (gate) { btn.classList.add('is-blocked'); btn.setAttribute('data-action', 'step-gate'); btn.querySelector('.mark-label').textContent = gate.text; btn.setAttribute('aria-label', gate.text + '. Tap to go there.'); }
+      // What's still needed is a plain gray line above a gray Mark done (tapping it still opens what's missing).
+      if (gate) { btn.classList.add('is-blocked'); btn.setAttribute('data-action', 'step-gate'); btn.setAttribute('aria-label', 'Mark done. ' + gate.text + ' first. Tap to go there.'); if (hint) { hint.textContent = gate.text + ' first.'; hint.hidden = false; } }
     }
     var ul = $('#step-foot .undone-link'); if (ul && wcSec && view !== 'wc-fn' && view !== 'wc-cp') ul.hidden = true;
-    var sn = $('#step-next'), sp = $('#step-prev');
-    sn.hidden = !nxt; sp.hidden = !prv;
-    // A quiet shortcut line, not steps: "‹ Return and Report · Name Next Ordinance ›"
+    var sn = $('#step-next'), sp = $('#step-prev'); // (kept on the page, always hidden now)
     if (nxt) { sn.textContent = 'Next: ' + nxt.title + ' ›'; sn.setAttribute('aria-label', 'Next: ' + nxt.title); }
     if (prv) { sp.textContent = '‹ ' + prv.title; sp.setAttribute('aria-label', 'Go to ' + prv.title); }
   }
@@ -2154,7 +2160,7 @@
     $('#bw-view').hidden = !bw; $('#af-view').hidden = !af;
     $('#mode-title').textContent = wc ? 'Ward Council' : bw ? 'Before Ward Council' : af ? 'After the huddle' : 'Huddle';
     $('#hd-hero').hidden = all || view !== 'home'; // the Huddle's header card, with its one line on what to do there
-    var stp = STEPS.filter(function (x) { return x.id === view; })[0] || WC_LISTS.filter(function (x) { return 'wc-' + x.id === view; })[0];
+    var stp = STEPS.filter(function (x) { return x.id === view; })[0] || WC_LISTS.filter(function (x) { return 'wc-' + x.id === view; })[0] || (view === 'wc-pick' ? { title: 'Find your focus names' } : null);
     $('#step-title').textContent = person ? personTitle(personRef) : stp ? stp.title : '';
     // Leaving a person's screen: drop a name left empty, then redraw the lists it appears on.
     if (isPerson(shownView) && !person) { cleanupPerson(); renderCP(); renderTN(); renderFN(); }
@@ -2292,8 +2298,8 @@
     var next = order.filter(function (id) { return !done[id]; })[0] || '';
     return { done: done, next: next };
   }
-  function isWcList(v) { return v === 'wc-cp' || v === 'wc-tn' || v === 'wc-fn' || v === 'wc-mr'; }
-  function isWcNames(v) { return v === 'wc-cp' || v === 'wc-tn'; }
+  function isWcList(v) { return v === 'wc-cp' || v === 'wc-tn' || v === 'wc-fn' || v === 'wc-mr' || v === 'wc-pick'; }
+  function isWcNames(v) { return v === 'wc-cp' || v === 'wc-tn' || v === 'wc-pick'; }
   function wcStatus(id) {
     if (id === 'fn') { // ward council lists what's coming up; the huddle makes the assignments, so no warning here
       var wn = state.find.opps.filter(function (o) { return str(o.title).trim(); });
@@ -2334,7 +2340,7 @@
       ul.classList.toggle('is-next', parts.next === l.id); ul.classList.toggle('is-done', !!parts.done[l.id]);
       ul.replaceChildren(wcPartRow(l, parts));
     });
-    var cpUl = $('#wc-step-cp'); if (cpUl) cpUl.replaceChildren(wcPartRow(WC_LISTS[1], { done: {}, next: '' }, true));
+    var cpUl = $('#wc-step-cp'); if (cpUl) cpUl.replaceChildren(wcPartRow({ id: 'cp', open: 'pick', title: 'Covenant Path Report' }, { done: {}, next: '' }, true)); // opens the picker
     // The focus names, right on the screen: tap one to open it, swipe left to take it off.
     var sec = $('#wc-step-tn'); if (!sec) return;
     var named = focusNamed(), done = parts.done.tn, next = parts.next === 'tn';
@@ -2356,6 +2362,26 @@
       ]), done ? icon('check', 'wc-done-tick') : null]),
       h('ul', { class: 'steps-list person-rows', 'data-wc': 'tn' }, rows), keep ? h('div', { class: 'wc-keep-wrap' }, [keep]) : null].filter(Boolean));
   }
+  // Find your focus names → the Covenant Path Report (the user asked, Nov 19, 2026, night): just each name, a Suggested
+  // focus name tag with its reason (the temple countdown, a baptism date), and Add to focus names. No question, no
+  // report link: those belong to Ask ward council.
+  function pickPanel(gid, title) {
+    var rows = state.cp[gid].map(function (a, i) { return { a: a, i: i }; }).filter(function (x) { return str(x.a.name).trim(); }).map(function (x) {
+      var name = str(x.a.name).trim(), on = focusIndex(name) >= 0, pr = on ? '' : pressingReason(x.a, gid);
+      return h('li', { class: 'pick-li' }, [h('div', { class: 'nav-row pick-row' }, [
+        initialsDot(name),
+        h('span', { class: 'step-text' }, [h('span', { class: 'step-title person-name', text: name }),
+          pr ? h('span', { class: 'row-tags' }, [rowTag('Suggested focus name', 'due')]) : null,
+          pr ? h('span', { class: 'step-status' }, [h('span', { class: 'row-due', text: pr })]) : null]),
+        on ? h('span', { class: 'pick-on' }, [icon('check'), h('span', { text: 'Focus name' })])
+          : h('button', { type: 'button', class: 'btn-outline pick-add', 'data-action': 'pick-focus', 'data-a': gid, 'data-b': x.i, 'aria-label': 'Add ' + name + ' to focus names' }, ['Add to focus names'])
+      ])]);
+    });
+    if (!rows.length) rows.push(h('li', { class: 'list-empty' }, [h('p', { class: 'list-empty-text', text: 'No names yet.' })]));
+    var attrs = { class: 'list-panel rows list-' + gid, 'aria-label': title, 'data-pick': gid };
+    return h('section', attrs, [h('div', { class: 'list-head' }, [h('h3', { class: 'list-title', text: title }), h('span', { class: 'list-count', text: countText(countNamed(gid)) })]),
+      h('ul', { class: 'steps-list person-rows' }, rows)]);
+  }
   function renderWC() {
     var wrap = $('#wc-list'), rows = $('#wc-rows'); if (!wrap || !rows) return;
     rows.hidden = !(stepsOn && view === 'wc');
@@ -2363,7 +2389,7 @@
     if (!rows.hidden) renderWcCards();
     if (rowsOn) { // one row per name; the fields are on the person's own screen
       if (!isWcNames(view)) { wrap.replaceChildren(); return; }
-      wrap.replaceChildren.apply(wrap, view === 'wc-tn' ? [rowsPanel('wc', 'tn', 'Focus names')] : [reportLink()].concat(GROUPS.map(function (g) { return rowsPanel('wc', g.id, g.title); })));
+      wrap.replaceChildren.apply(wrap, view === 'wc-tn' ? [rowsPanel('wc', 'tn', 'Focus names')] : view === 'wc-pick' ? GROUPS.map(function (g) { return pickPanel(g.id, g.title); }) : [reportLink()].concat(GROUPS.map(function (g) { return rowsPanel('wc', g.id, g.title); })));
       return;
     }
     // (Cards-open layout.) The names are only built while their list is on screen, so each field exists once on the page.
@@ -2768,6 +2794,7 @@
         focusLast('[data-group="' + a + '"] input[data-bind$=".name"]'); break;
       case 'convert-nm': convertToNewMember(+a); break;
       case 'make-focus': state.tnKept = true; makeFocus(a, +b); break;
+      case 'pick-focus': state.tnKept = true; makeFocus(a, +b); renderWC(); break;
       case 'tn-keep': if (!focusNeeds().length) { state.tnKept = true; saveDraft(); renderWC(); renderDoors(); renderHeroes(); } break;
       case 'wc-ask-done': state.ask = state.ask || {}; state.ask.done = true; saveDraft(); renderStepFoot();
         { var hs1 = null; try { hs1 = history.state; } catch (e) { /* ignore */ } if (hs1 && isWcList(hs1.hv) && hs1.pushed) { try { history.back(); } catch (e) { showView('wc', 'replace'); } } else showView('wc', 'replace'); }
@@ -2897,7 +2924,13 @@
       case 'slide-prev': showSlide(slideAt - 1); break;
       case 'close-slides': closeOverlay('#slides-sheet'); break;
       case 'close-ward': closeOverlay('#ward-sheet'); renderDoors(); renderSteps(); wardClosed(); break;
-      case 'close-details': detailsOpen = false; renderDetails(); window.scrollTo(0, 0); break;
+      case 'close-details': detailsOpen = false; renderDetails(); renderSteps(); window.scrollTo(0, 0); break;
+      case 'details-done': { // Attendees done: straight on to the next section not done yet (Nov 19, 2026, night)
+        detailsOpen = false; renderDetails(); renderSteps(); window.scrollTo(0, 0);
+        var nx1 = state.attendees.length ? STEPS.filter(function (x) { return !state.stepsDone[x.id]; })[0] : null;
+        if (nx1) showView(nx1.id, 'push');
+        break;
+      }
       case 'edit-one': {
         state.openOne[a] = +b; rerenderList(a);
         var oc = document.querySelector('.fold-open .card');

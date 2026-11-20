@@ -95,6 +95,11 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.click('[data-action="add-focus"]'); await w(500); await p.keyboard.type('Samuel Ortiz'); await p.keyboard.press('Enter'); await w(200);
   await p.click('#person-card .person-done'); await w(500);
   ok((await p.$$eval('#wc-step-tn .person-name', e => e.map(x => x.textContent))).join('|') === 'Emma Walsh|Marcus Bell|Samuel Ortiz' && !(await p.isVisible('[data-action="add-focus"]')), 'Add a focus name adds a third, and the button goes once there are three');
+  // Find your focus names → the Covenant Path Report: a picker with Add to focus names, and nothing else
+  await p.click('#wc-step-cp [data-action="open-wc-list"]'); await w(400);
+  ok(await view() === 'wc-pick' && (await p.textContent('#step-title')) === 'Find your focus names' && await p.locator('#wc-list .ask-q, #wc-list .quiet-link').count() === 0, 'Find your focus names opens a picker, without the Ask ward council question or report link');
+  ok(await p.locator('#wc-list [data-pick="rm"] .pick-on').count() === 1 && await p.locator('#wc-list [data-action="pick-focus"]').count() === 0, 'names already focus names say so (Emma and Marcus here)');
+  ok(!(await p.isVisible('#step-done-btn')) && await fits(), 'no button at the bottom, and it fits a small phone');
   ok(!errs.length, 'no page errors ' + errs.join('; '));
   await b.close();
   console.log(passed + '/' + (passed + failed) + ' checks passed');

@@ -42,9 +42,14 @@ const flags = ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen',
   await p.click('#hd-hero .hero-i'); await w(150);
   ok(await p.isVisible('#hd-intro'), 'tapping the i shows them');
   ok(/This week’s plan/.test(await p.textContent('#band-plan')), 'the plan’s heading is This week’s plan');
+  ok(await p.evaluate(() => document.querySelector('#details-summary').classList.contains('is-next')) && await p.locator('.step-row.is-next').count() === 0, 'Up next: Huddle Attendees comes first');
+  await p.click('[data-action="open-details"]'); await w(300); await p.click('#attendee-list button >> nth=0'); await w(150); await p.click('[data-action="details-done"]'); await w(500);
+  ok(await view() === 'rr', 'Attendees’ Done goes straight on to Return and Report');
+  await p.click('[data-action="steps-home"]'); await w(300);
+  ok(await p.locator('[data-action="open-step"][data-a="rr"].is-next .row-next').count() === 1 && !(await p.evaluate(() => document.querySelector('#details-summary').classList.contains('is-next'))), 'then Return and Report is Up next');
   // Opportunities to invite: gray until an event has an assignment
   await p.click('[data-action="open-step"][data-a="fn"]'); await w(400);
-  ok(await blocked() && await btn() === 'Plan at least one assignment', 'Opportunities to invite: Mark done is gray until an event has an assignment');
+  ok(await blocked() && await btn() === 'Mark done' && (await p.textContent('#step-gate-hint')) === 'Plan at least one assignment first.' && await p.isVisible('#step-gate-hint'), 'Opportunities to invite: Mark done is gray, with a plain gray line saying an event needs an assignment');
   await p.click('#step-done-btn'); await w(400);
   ok(await view() === 'p-hd', 'tapping it opens the event');
   await p.click('#person-card [data-action="add-fn"]'); await w(300);
@@ -52,7 +57,7 @@ const flags = ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen',
   ok(!(await blocked()) && await btn() === 'Mark done', 'with an assignment, Mark done works');
   await p.click('#step-done-btn'); await w(500);
   ok(await view() === 'tn', 'Mark done goes straight on to the next section (Focus names)');
-  ok(await blocked() && await btn() === 'Marcus Bell needs an assignment', 'Focus names: gray, saying who still needs an assignment');
+  ok(await blocked() && (await p.textContent('#step-gate-hint')) === 'Marcus Bell needs an assignment first.', 'Focus names: gray, with a line saying who still needs an assignment');
   await p.click('#step-done-btn'); await w(500);
   ok(await view() === 'p-hd' && (await p.textContent('#step-title')) === 'Marcus Bell', 'tapping it opens that focus name');
   // The focus name's screen: ward council's part is one line with an i

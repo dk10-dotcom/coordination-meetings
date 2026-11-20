@@ -78,8 +78,8 @@
  },
  {
   "kicker": "Step 2 · Ask ward council",
-  "title": "Check off, or make a focus name",
-  "body": "Tap a name to check off a step that’s done. Make focus name adds them to this week’s focus names. Then tap Done, or No changes this week.",
+  "title": "Check off what’s done",
+  "body": "Tap a name to check off a step that’s done. Then tap Done, or No changes this week. Find your focus names has Add to focus names beside each name.",
   "color": "#2F5DA6",
   "img": "12.jpg"
  },
@@ -177,7 +177,7 @@
  {
   "kicker": "Step 3 · The Huddle",
   "title": "All four sections done",
-  "body": "Mark done takes you on to the next section. The bar fills in.",
+  "body": "Follow Up next: Attendees, then each section. Mark done takes you on to the next one.",
   "color": "#B0531A",
   "img": "26.jpg"
  },
