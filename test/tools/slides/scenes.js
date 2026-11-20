@@ -29,5 +29,6 @@ module.exports = [
   { shot: 's30-send', k: 'Send', c: 'red', title: 'Send the huddle report', body: 'Tap Send. Share it with the bishop-approved list, the stake presidency and the full-time missionaries, and include yourself. Only share via email or text message. Do not share through any other app.', t: 10 },
   { shot: 's31-sent', k: 'Send', c: 'green', title: 'Sent', body: 'Next week starts again with Before Ward Council. This week’s assignments will be waiting in Return and Report.', t: 7 },
   { shot: 's32-next-week-rr', k: 'During the week', c: 'teal', title: 'Follow up', body: 'As people report back, mark each assignment Yes, Partly or No, and offer help where it’s needed.', t: 7 },
-  { shot: 's01-start', kind: 'end', title: 'One by one', sub: '', body: 'Helping each person take the next step on the covenant path, together as a ward.', t: 7 }
+  { shot: 's05-bw-person', pair: ['s05-bw-person', 'sample/page-2.png'], k: 'During the week', c: 'teal', title: 'Help each person take their next step', body: 'The checklist and the huddle report show each person’s next steps. Ward council members, work with your presidencies to help. Each week at ward council, let the ward mission leader know what happened.', t: 10 },
+  { shot: 's01-start', kind: 'end', title: 'One by one', sub: '', body: 'We are joyfully gathering Israel one by one in Christ. Every name here is someone the Lord knows and loves. Thank you for helping each one take their next step on the covenant path.', t: 9 }
 ];

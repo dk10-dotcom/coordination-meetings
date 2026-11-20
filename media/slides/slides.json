@@ -189,11 +189,18 @@
   "img": "27.jpg"
  },
  {
+  "kicker": "During the week",
+  "title": "Help each person take their next step",
+  "body": "The checklist and the huddle report show each person’s next steps. Ward council members, work with your presidencies to help. Each week at ward council, let the ward mission leader know what happened.",
+  "color": "#1F6F78",
+  "img": "28.jpg"
+ },
+ {
   "kicker": "Huddle",
   "title": "One by one",
-  "body": "Helping each person take the next step on the covenant path, together as a ward.",
+  "body": "We are joyfully gathering Israel one by one in Christ. Every name here is someone the Lord knows and loves. Thank you for helping each one take their next step on the covenant path.",
   "fine": "Never add confidential information to this huddle report.",
   "color": "#2F5DA6",
-  "img": "28.jpg"
+  "img": "29.jpg"
  }
 ]

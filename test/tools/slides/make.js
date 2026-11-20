@@ -33,9 +33,20 @@ const PH = 640, SCALE = PH / 664, PW = Math.round(390 * SCALE); // the phone scr
       .screen img{width:${PW}px;height:${PH}px;display:block}
       .ring{position:absolute;border:4px solid ${col};border-radius:14px;box-shadow:0 0 0 6px ${col}33}
       </style></head><body><div class="screen"><img src="${img}">${ring}</div></body></html>`);
+    if (sc.pair) { // two screens side by side: an app screen (a shot) and a picture from the repo (e.g. a sample huddle report page)
+      const src = f => 'data:image/' + (f.endsWith('.png') ? 'png' : 'jpeg') + ';base64,' + fs.readFileSync(f.includes('/') ? path.join(__dirname, '..', '..', '..', f) : `${WORK}/cap/${f}.jpg`).toString('base64');
+      await p.setViewportSize({ width: PW * 2 + 56, height: PH + 20 });
+      await p.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>
+        *{box-sizing:border-box;margin:0} html,body{background:transparent} body{display:flex;gap:16px;width:${PW * 2 + 56}px}
+        .ph{width:${PW + 20}px;height:${PH + 20}px;background:#16213A;border-radius:44px;overflow:hidden;padding:10px}
+        .screen{width:${PW}px;height:${PH}px;border-radius:34px;overflow:hidden;background:#FFFFFF}
+        .screen img{width:${PW}px;height:${PH}px;display:block;object-fit:cover;object-position:center top}
+        </style></head><body>${sc.pair.map(f => `<div class="ph"><div class="screen"><img src="${src(f)}"></div></div>`).join('')}</body></html>`);
+    }
     await p.waitForTimeout(60);
     const file = String(i + 1).padStart(2, '0') + '.jpg';
     await p.screenshot({ path: path.join(OUT, file), type: 'jpeg', quality: 78, omitBackground: true });
+    if (sc.pair) await p.setViewportSize({ width: PW + 20, height: PH + 20 });
     slides.push(sc.kind === 'title'
       ? { kicker: 'Huddle', title: 'One by One', body: sc.sub + '. ' + sc.body, color: '#2F5DA6', img: file }
       : sc.kind === 'end'
