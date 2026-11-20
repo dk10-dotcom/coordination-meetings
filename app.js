@@ -1160,7 +1160,7 @@
     // Each question on its own line, so a card with three questions doesn't read as one block.
     // (A space between them keeps the words read aloud and copied as the manual has them.)
     list.replaceChildren.apply(list, q.items.map(function (t) {
-      var parts = t.split(/(?<=\?)\s+(?=[A-Z])/), kids = [];
+      var parts = t.replace(/\?\s+(?=[A-Z])/g, '?\n').split('\n'), kids = []; // (no lookbehind: older iPhones can't read it)
       parts.forEach(function (x, k) { if (k) kids.push(' '); kids.push(h('span', { class: 'howhelp-q', text: x })); });
       return h('li', { class: parts.length > 1 ? 'many' : null }, kids);
     }));
@@ -4869,6 +4869,7 @@
       if (top) dismissSheet(top);
     });
     enableSwipeDown(); enableSwipeRemove();
+    window.__huddleReady = true; // theme.js shows a message instead of a blank screen if this never happens
     // The opening picture stays a moment (about a second and a half from launch), then fades away.
     var splash = $('#splash');
     if (splash) setTimeout(function () { splash.classList.add('out'); setTimeout(function () { splash.remove(); }, 450); }, 1100);
