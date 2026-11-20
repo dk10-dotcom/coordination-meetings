@@ -92,10 +92,11 @@
   function readJSON(kind, key) {
     try { var s = getStore(kind); var v = s && s.getItem(key); return v ? JSON.parse(v) : null; } catch (e) { return null; }
   }
-  function writeJSON(kind, key, val) { try { var s = getStore(kind); if (s) s.setItem(key, JSON.stringify(val)); } catch (e) { /* storage unavailable */ } }
+  var erasing = false; // Erase everything is reloading the page: nothing in memory is saved again on the way out
+  function writeJSON(kind, key, val) { if (erasing) return; try { var s = getStore(kind); if (s) s.setItem(key, JSON.stringify(val)); } catch (e) { /* storage unavailable */ } }
   function removeKey(kind, key) { try { var s = getStore(kind); if (s) s.removeItem(key); } catch (e) { /* ignore */ } }
   function readWard() { try { var s = getStore('localStorage'); return (s && s.getItem(WARD_KEY)) || ''; } catch (e) { return ''; } }
-  function writeWard(w) { try { var s = getStore('localStorage'); if (s && w) s.setItem(WARD_KEY, w); } catch (e) { /* ignore */ } }
+  function writeWard(w) { if (erasing) return; try { var s = getStore('localStorage'); if (s && w) s.setItem(WARD_KEY, w); } catch (e) { /* ignore */ } }
   // Who is conducting is remembered on this phone, like the ward name.
   function readConducting() {
     var v = readJSON('localStorage', 'huddle-conducting') || {};
@@ -3301,6 +3302,7 @@
           title: 'Erase everything?',
           body: 'Every name, need and assignment on this phone will be erased, with the ward name and the last huddle you sent. Huddle starts over as if it were new. This can’t be undone.',
           primary: 'Erase everything', onPrimary: function () {
+            erasing = true; clearTimeout(draftTimer);
             var pre = LIVE_KEY.slice(0, LIVE_KEY.indexOf('-') + 1), keep = [THEME_KEEP, 'gate-test', 'gate-off', 'cards-open', 'cp-section', 'view-all'].map(function (k) { return pre + k; });
             ['localStorage', 'sessionStorage'].forEach(function (where) {
               try { var st = window[where], ks = []; for (var k = 0; k < st.length; k++) ks.push(st.key(k)); ks.forEach(function (k) { if (k && k.indexOf(pre) === 0 && keep.indexOf(k) < 0) st.removeItem(k); }); } catch (e) { /* storage blocked */ }

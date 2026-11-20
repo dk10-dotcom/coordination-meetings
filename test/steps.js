@@ -92,8 +92,10 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     await p.fill('#ward', 'Sample Ward').catch(() => {});
     await p.click('[data-action="open-details"]').catch(() => {}); await p.fill('#ward', 'Sample Ward'); await p.fill('[data-bind="find.plan"]', 'x').catch(() => {});
     await p.click('[data-action="open-step"][data-a="fn"]').catch(() => {}); await p.click('[data-action="add-opp"]'); await p.fill('[data-bind="find.opps.0.title"]', 'Plan'); await p.click('[data-action="steps-home"]'); await p.waitForTimeout(200);
-    await p.evaluate(() => document.querySelector('.clear-link').click()); await p.click('#confirm-primary'); await p.waitForTimeout(200);
-    ok(await p.inputValue('#ward') === 'Sample Ward', 'Clear keeps the ward name');
+    await p.evaluate(() => document.querySelector('.clear-link').click());
+    await Promise.all([p.waitForNavigation().catch(() => {}), p.click('#confirm-primary')]); await p.waitForTimeout(600);
+    ok(!(await p.evaluate(() => localStorage.getItem('huddle-ward'))) && !/Plan/.test(await p.evaluate(() => localStorage.getItem('huddle-agenda-v1') || '')), 'Erase everything starts over: the ward name and the huddle are gone (Nov 20, 2026)');
+    await p.goto('about:blank'); await p.goto('http://127.0.0.1:8765/#huddle'); await p.waitForSelector('.chip', { state: 'attached' }); await p.click('[data-action="dismiss-install"]').catch(() => {}); if (await p.isVisible('#ward-sheet')) await p.click('[data-action="close-ward"]');
     ok(await p.locator('.btn-done:visible').count() === 0, 'no list Done buttons in the step view');
     // View-all flag shows the classic long page
     await p.evaluate(() => localStorage.setItem('huddle-view-all', '1')); await p.reload(); await p.waitForSelector('.chip', { state: 'attached' });

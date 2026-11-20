@@ -64,8 +64,11 @@ const OUT = 'test/out-empty'; fs.mkdirSync(OUT, { recursive: true });
   // All three confirmed -> status
   await p.keyboard.press('Escape'); await p.waitForTimeout(300);
   if (await p.isVisible('[data-action="steps-home"]')) await p.click('[data-action="steps-home"]');
-  await p.evaluate(() => document.querySelector('.clear-link').click()); await p.click('#confirm-primary'); await p.waitForTimeout(300);
-  ok(await p.locator('.step-row').count() === 5, 'back on the home list after Send & Clear');
+  await p.evaluate(() => document.querySelector('.clear-link').click());
+  await Promise.all([p.waitForNavigation().catch(() => {}), p.click('#confirm-primary')]); await p.waitForTimeout(500); // Erase everything starts over (Nov 20, 2026): the page reloads
+  await p.goto('about:blank'); await p.goto('http://127.0.0.1:8765/#huddle'); await p.waitForSelector('.chip', { state: 'attached' }); await p.click('[data-action="dismiss-install"]').catch(() => {}); await p.waitForTimeout(300);
+  if (await p.isVisible('#ward-sheet')) { await p.click('[data-action="close-ward"]'); await p.waitForTimeout(300); } // a fresh start asks for the ward name
+  ok(await p.locator('.step-row').count() === 5, 'back on the home list after Erase everything');
   {
     await p.click('[data-action="open-step"][data-a="cp"]');
     for (const g of ['nm', 'rm', 'bt']) await p.click(`[data-action="cp-none"][data-a="${g}"]`);

@@ -119,6 +119,8 @@ const huddle = {
   await Promise.all([p.waitForNavigation().catch(() => {}), p.click('#confirm-primary')]); await w(1200);
   const keys = await p.evaluate(() => Object.keys(localStorage).sort());
   ok(!keys.includes('huddle-help-seen') && !keys.includes('huddle-tour-seen') && !keys.includes('huddle-ward') && !keys.includes('huddle-names-hint-seen') && keys.includes('huddle-theme'), 'it clears the ward name and the first-time screens, keeping Appearance: ' + keys.join(','));
+  const after = await p.evaluate(() => { const s = JSON.parse(localStorage.getItem('huddle-agenda-v1') || '{}'); return { names: JSON.stringify([s.tn, s.cp]).match(/"name":"[^"]+"/g) || [], ward: s.ward || '', rr: (s.rr || []).length }; });
+  ok(!after.names.length && !after.ward && !after.rr && !(await p.evaluate(() => /Sample Ward/.test(document.body.textContent))), 'nothing comes back after the reload: no names, no ward, no assignments');
   ok(!errs.length, 'no page errors ' + errs.join('; '));
   await b.close();
   console.log(`${passed}/${passed + failed} checks passed`); process.exit(failed ? 1 : 0);

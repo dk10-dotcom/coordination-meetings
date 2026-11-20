@@ -351,9 +351,12 @@
     <p class="credit">Not an official app of The Church of Jesus Christ of Latter-day Saints.</p>
   </div>
 
-  <nav class="actionbar" aria-label="Home and Send">
+  <nav class="actionbar" aria-label="Assignments, Home and Send">
     <div class="actionbar-row">
-      <span class="nav-side nav-spacer" aria-hidden="true"></span><!-- Hand off moved to the opening screen (Nov 19, 2026) -->
+      <button type="button" class="nav-side nav-asg" data-action="open-assignments" aria-label="Assignments"><!-- this week's assignments, to mark as people report back (Nov 20, 2026) -->
+        <span class="nav-asg-ic"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3" width="13" height="14.5" rx="2"/><path d="M7 7.5h6M7 10.5h6M7 13.5h3.5"/></svg><span class="nav-count" id="asg-count" hidden></span></span>
+        <span>Assignments</span>
+      </button>
       <button type="button" class="nav-home" data-action="go-home-screen" aria-label="Home">
         <svg width="28" height="28" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2.6l7.6 6.5a.8.8 0 0 1-1 1.2l-.6-.5V16a1.5 1.5 0 0 1-1.5 1.5h-2.6v-4.3H8.1v4.3H5.5A1.5 1.5 0 0 1 4 16V9.8l-.6.5a.8.8 0 0 1-1-1.2z"/></svg>
       </button>
@@ -546,13 +549,14 @@
 <div class="overlay" id="find-tips-sheet" hidden>
   <div class="sheet help" role="dialog" aria-modal="true" aria-labelledby="find-tips-title">
     <div class="grab" aria-hidden="true"></div>
-    <h2 id="find-tips-title">Tips for Finding New People to Teach</h2>
+    <h2 id="find-tips-title">Tips for opportunities to invite</h2>
+    <p class="find-lead">For each event, plan who will invite and how. These ideas help members love, share and invite.</p>
 
     <ul class="principle-list find-list">
-      <li><strong>Consider part-member families</strong> you can serve and help. The bishopric, ward clerk, or others on the ward council can help provide lists of these families and individuals that you could visit, serve, and invite to participate.</li>
       <li><strong>Look at upcoming activities, meetings, and classes that the ward could invite people to attend.</strong> Consider publishing those activities on your ward web page, where available (see “Share Ward Activities”), and encourage members to invite those who are less familiar with the Church to attend.</li>
-      <li><strong>Plan which members or ward organizations you could encourage</strong> to follow Christ by living the principles of love, share, and invite (see <em>Preach My Gospel</em>, 168). Plan how to and who can share those principles with them and how to follow up and continually support them (see “Ways to Love, Share, and Invite”).</li>
       <li><strong>Encourage members to simply invite people to attend church</strong> with us.</li>
+      <li><strong>Plan which members or ward organizations you could encourage</strong> to follow Christ by living the principles of love, share, and invite (see <em>Preach My Gospel</em>, 168). Plan how to and who can share those principles with them and how to follow up and continually support them (see “Ways to Love, Share, and Invite”).</li>
+      <li><strong>Consider part-member families</strong> you can serve and help. The bishopric, ward clerk, or others on the ward council can help provide lists of these families and individuals that you could visit, serve, and invite to participate.</li>
     </ul>
 
     <p class="find-note">Avoid turning the principles of love, share, and invite into a program. Find ways to encourage members to make those principles an ongoing part of how they live because of their love and discipleship of the Savior. More ideas on how to do this are included below.</p>
@@ -648,7 +652,7 @@
           <li>Tap <strong>Home</strong>, then <strong>Ward Council</strong>. Work down the cards; the next one says <strong>Up next</strong>.</li>
           <li><strong>Opportunities to invite:</strong> tap <strong>Add an event</strong>, then <strong>Done</strong> (or <strong>No upcoming events</strong>).</li>
           <li><strong>Ask ward council:</strong> tap a name to see what’s still open, check off what’s done, then <strong>Done</strong>.</li>
-          <li><strong>Focus names:</strong> tap <strong>Covenant Path Report</strong> (then <strong>Add to focus names</strong>) or <strong>Part-Member Families</strong> to find names.</li>
+          <li><strong>Focus names:</strong> tap <strong>Add</strong> on a suggested name, or find names in <strong>Covenant Path Report</strong> or <strong>Part-Member Families</strong>.</li>
           <li>Tap each focus name, choose its next ordinance, then <strong>Keep these focus names</strong>. For ideas, tap How can we help?</li>
         </ul>
       </details></li>
@@ -675,7 +679,7 @@
       <li><details class="help-item">
         <summary class="nav-row"><span class="help-num help-week" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3"/></svg></span><span class="step-text"><span class="step-title">During the week</span><span class="step-status">Mark assignments as people report back</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
         <ul class="help-body">
-          <li>As people report back, tap <strong>Home</strong>, then <strong>Huddle</strong>, then <strong>Return and Report</strong>, and mark <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>.</li>
+          <li>As people report back, tap <strong>Assignments</strong> at the bottom and mark <strong>Yes</strong>, <strong>Partly</strong> or <strong>No</strong>.</li>
           <li>Keep the Covenant Path Report up to date.</li>
         </ul>
       </details></li>
@@ -744,7 +748,7 @@
         <span class="step-text"><span class="step-title">Load a huddle report</span><span class="step-status">New phone? Choose the last one you sent</span></span><span class="step-chev" aria-hidden="true">›</span>
       </button></li>
       <li><button type="button" class="nav-row danger-row clear-link" data-action="clear">
-        <span class="step-text"><span class="step-title">Erase everything and start over</span><span class="step-status">Clears this phone. The ward name stays.</span></span><span class="step-chev" aria-hidden="true">›</span>
+        <span class="step-text"><span class="step-title">Erase everything and start over</span><span class="step-status">Clears this phone and starts over as new.</span></span><span class="step-chev" aria-hidden="true">›</span>
       </button></li>
     </ul>
 
