@@ -285,7 +285,7 @@
       keys.forEach(function (k) { o[k] = str(x[k]); });
       o.sac = !!x.sac; o.temple = !!x.temple; o.committed = !!x.committed; o.actionCarried = !!x.actionCarried; o.texted = !!x.texted;
       o.lastSac = x.lastSac === true ? true : x.lastSac === false ? false : null;
-      o.doneMid = !!x.doneMid; o.touched = parseISO(str(x.touched)) ? str(x.touched) : '';
+      o.doneMid = !!x.doneMid; o.hdDone = !!x.hdDone; o.touched = parseISO(str(x.touched)) ? str(x.touched) : '';
       o.checks = cleanChecks(x.checks);
       return o;
     });
@@ -388,6 +388,7 @@
   var draftTimer = null;
   function saveDraft() {
     clearTimeout(draftTimer);
+    if (typeof syncTnDone === 'function' && state && state.tn) syncTnDone();
     if (typeof renderSteps === 'function') renderSteps();
     if (tourDemo) return; // the tour's sample card is never saved
     if (typeof renderSent === 'function') { renderSent(); renderLoadState(); }
@@ -1282,10 +1283,7 @@
       sub = [str(a.action).trim().split(/\n+/).join(', '), str(a.assigned).trim(), whenShow(a.when)].filter(Boolean).join(' · ');
       if (isCp && !CP_SECTION) { var hcc = checkCount(a, gid); sub = isFocus ? 'Assignment under Focus names' : name ? hcc.done + ' of ' + hcc.of + ' done' : ''; } // the rest of the report, for reference
       else if (!sub && name) { sub = 'Needs an assignment'; warn = true; }
-      else if (gid === 'tn' && name) { // a focus name is planned only with all three (Nov 20, 2026): an assignment, who and when
-        var miss = [str(a.action).trim() ? '' : 'an assignment', str(a.assigned).trim() ? '' : 'who', str(a.when).trim() ? '' : 'when'].filter(Boolean);
-        if (miss.length) { warn = true; sub = sub + ' · Needs ' + (miss.length > 1 ? miss.slice(0, -1).join(', ') + ' and ' + miss[miss.length - 1] : miss[0]); }
-      }
+
     } else if (kind === 'bw' || (kind === 'wc' && isCp)) {
       // Before Ward Council and Ward Council's Covenant Path Report: how far along their report is, at a glance.
       temple();
@@ -1306,7 +1304,7 @@
     var title = name || (gid === 'tn' ? 'Focus name ' + (i + 1) : 'No name yet');
     var swipe = gid === 'tn' && name && kind !== 'bw';
     var origin = gid === 'tn' && kind === 'hd' && name ? tnOrigin(a) : ''; // which list a focus name came from (Nov 20, 2026)
-    var planned = gid === 'tn' && kind === 'hd' && name && !warn;
+    var planned = gid === 'tn' && kind === 'hd' && name && !!a.hdDone; // each focus name is marked done on its own screen (Nov 20, 2026)
     return h('li', { class: [swipe ? 'swipe-li' : '', flag ? flag.cls : ''].join(' ').trim() || null }, [swipe ? h('button', { type: 'button', class: 'swipe-del', 'data-action': 'swipe-remove-tn', 'data-a': i, 'aria-label': 'Remove ' + name + ' from Focus names', text: 'Remove' }) : null,
       h('button', { type: 'button', class: 'nav-row person-row' + (name ? '' : ' is-blank'), 'data-action': 'open-person', 'data-a': gid, 'data-b': i, 'data-kind': kind,
       'aria-label': title + (flag ? '. ' + flag.text : '') + '. ' + sub + (due ? '. ' + due : '') }, [
@@ -1404,6 +1402,11 @@
     var attrs = { class: 'list-panel person-panel list-' + r.g, 'aria-label': personTitle(r) };
     attrs[r.kind === 'wc' ? 'data-wc' : r.kind === 'bw' ? 'data-bw' : 'data-group'] = r.g;
     var done = h('button', { type: 'button', class: 'btn-primary full person-done', 'data-action': 'steps-home' }, ['Done']);
+    var undoName = null;
+    if (r.kind === 'hd' && r.g === 'tn' && !CP_SECTION && str(a.name).trim()) { // the Huddle: each focus name is marked done here (Nov 20, 2026)
+      if (a.hdDone) { done.classList.add('is-done'); done.replaceChildren(icon('check'), h('span', { text: 'Done' })); undoName = h('button', { type: 'button', class: 'btn-link undone-link person-undone', 'data-action': 'tn-name-undone', 'data-a': r.i }, ['Mark as not done']); }
+      else { done.setAttribute('data-action', 'tn-name-done'); done.setAttribute('data-a', r.i); done.textContent = 'Mark done'; }
+    }
     // Ward council's screen asks the 4-week question too (the huddle's card carries its own).
     var note = (r.kind === 'wc' || r.kind === 'bw') && !isRef ? staleNote(base, a, r.g === 'tn') : null;
     // The top of the screen is tinted with their list's color: initials, name, and which list they're on.
@@ -1416,7 +1419,7 @@
       autocomplete: 'off', autocapitalize: 'words', enterkeyhint: 'done', maxlength: '300' });
     var head = h('div', { class: 'person-head', 'data-action': 'edit-name', role: 'button', tabindex: '0', 'aria-label': 'Edit the name: ' + personTitle(r) }, [dot, h('div', { class: 'person-head-text' }, [
       h('p', { class: 'person-head-name', text: personTitle(r) }), h('p', { class: 'person-head-list', text: LIST_LABEL[r.g] + (r.g === 'tn' && tnOrigin(a) ? ' · ' + tnOrigin(a) : '') })]), nameBox]);
-    wrap.replaceChildren(h('section', attrs, [head, note, card]), done, remove);
+    wrap.replaceChildren.apply(wrap, [h('section', attrs, [head, note, card]), done, undoName, remove].filter(Boolean));
     if (r.g === 'nm') updateTemple();
   }
   // Missionary Referrals: one section, shown in the Huddle and in ward council.
@@ -2162,11 +2165,13 @@
   // Sections open in any order; a finished one gets a green check.
   function renderSteps() {
     if (!$('#steps-home')) return;
+    syncTnDone(); // what's checked follows the names and the marks, also for a huddle saved before these rules
     renderHeroes();
     var fc = $('#fn-count'); if (fc) fc.textContent = plural(state.find.items.filter(function (x) { return str(x.task).trim(); }).length, 'assignment', 'assignments');
     // Up next (the user asked, Nov 19, 2026, night): Attendees, then each section in order; the first not done is highlighted.
     var upNext = !state.attendees.length ? 'att' : (STEPS.filter(function (x) { return !state.stepsDone[x.id]; })[0] || {}).id || '';
-    var ds = $('#details-summary'); if (ds) { ds.classList.toggle('is-next', upNext === 'att'); ds.classList.toggle('is-done', !!state.attendees.length); }
+    var ds = $('#details-summary'); if (ds) { ds.classList.toggle('is-next', upNext === 'att'); ds.classList.toggle('is-done', !!state.attendees.length);
+      var dk = ds.querySelector('.details-ok'); if (state.attendees.length && !dk) { dk = h('span', { class: 'step-num details-ok', 'aria-hidden': 'true' }, [icon('check')]); ds.insertBefore(dk, ds.querySelector('.step-chev')); } else if (!state.attendees.length && dk) dk.remove(); }
     var row = function (st) {
       var isDone = !!state.stepsDone[st.id], status = stepStatus(st.id), isNext = upNext === st.id;
       var num = null;
@@ -2192,8 +2197,7 @@
       .map(function (x) { var li = personRow('hd', 'tn', x.i, x.a); li.classList.remove('swipe-li'); var sd = li.querySelector('.swipe-del'); if (sd) sd.remove(); return li; });
     return h('div', { class: 'hd-tn-names' }, [
       rows.length ? h('ul', { class: 'steps-list person-rows' }, rows) : h('p', { class: 'hd-tn-empty', text: 'No focus names yet. Ward Council chooses them.' }),
-      h('div', { class: 'wc-card-foot' }, [howHelpLink('focus'),
-        state.stepsDone.tn ? h('button', { type: 'button', class: 'btn-link wc-undone', 'data-action': 'hd-tn-undone' }, ['Mark as not done']) : null])]);
+      h('div', { class: 'wc-card-foot' }, [howHelpLink('focus')])]);
   }
   // The sections in order, for Next and the link back: the Huddle's, or ward council's three lists.
   function footList() { return isWcList(view) ? WC_LISTS.map(function (l) { return { id: 'wc-' + l.id, title: l.title }; }) : STEPS; }
@@ -2219,6 +2223,12 @@
     // Opened from the bottom bar's Assignments (the user asked, Nov 20, 2026): no Mark done. Each mark is kept as it's
     // tapped; Return and Report is checked off in the Huddle itself.
     if (view === 'rr' && rrFromBar) { btn.hidden = true; if (ul) ul.hidden = true; if (hint) hint.hidden = true; }
+    // The Huddle's Focus names: no Mark done for the section; it's done once each name is marked done (Nov 20, 2026).
+    if (view === 'tn' && !CP_SECTION && focusNamed().length) {
+      btn.hidden = true; if (ul) ul.hidden = true;
+      var left = focusNamed().filter(function (x) { return !x.a.hdDone; }).length;
+      if (hint) { hint.textContent = left ? 'Tap each name, then Mark done. ' + plural(left, 'name', 'names') + ' to go.' : 'Every focus name is done.'; hint.hidden = false; }
+    }
     var sn = $('#step-next'), sp = $('#step-prev'); // (kept on the page, always hidden now)
     if (nxt) { sn.textContent = 'Next: ' + nxt.title + ' ›'; sn.setAttribute('aria-label', 'Next: ' + nxt.title); }
     if (prv) { sp.textContent = '‹ ' + prv.title; sp.setAttribute('aria-label', 'Go to ' + prv.title); }
@@ -2246,7 +2256,8 @@
     if (!all && isPerson(view) && !personOk(personRef)) { view = personRef ? personListView(personRef) : 'home'; personRef = null; return applyView(); }
     var person = !all && isPerson(view);
     // The one-line disclaimer sits on the opening screen only.
-    $('header.top').hidden = !home && !start; $('.start-here').hidden = !home && !start; $('.fine-notes').hidden = !all && !start;
+    var att = !all && view === 'att'; // Huddle Attendees: a page of its own, like the sections (Nov 20, 2026)
+    $('header.top').hidden = !home && !start && !att; $('.start-here').hidden = !home && !start; $('.fine-notes').hidden = !all && !start;
     $('#person-view').hidden = !person;
     // Find New People to Teach and Missionary Referrals are one section each, shown in the Huddle and in ward council.
     var stepShown = view === 'wc-fn' ? 'fn' : view === 'wc-mr' ? 'mr' : view;
@@ -2256,7 +2267,7 @@
     $('#hd-hero').hidden = all || view !== 'home'; // the Huddle's header card, with its one line on what to do there
     var stp = STEPS.filter(function (x) { return x.id === view; })[0] || WC_LISTS.filter(function (x) { return 'wc-' + x.id === view; })[0] || (view === 'wc-pick' ? { title: 'Find your focus names' } : null);
     if (view !== 'rr') rrFromBar = false;
-    $('#step-title').textContent = person ? personTitle(personRef) : view === 'rr' && rrFromBar ? 'Assignments' : stp ? stp.title : '';
+    $('#step-title').textContent = person ? personTitle(personRef) : att ? 'Huddle Attendees' : view === 'rr' && rrFromBar ? 'Assignments' : stp ? stp.title : '';
     var nb = $('.nav-asg'); if (nb) nb.classList.toggle('is-here', view === 'rr' && rrFromBar);
     if (view === 'rr' && $('#step-done-btn')) renderStepFoot();
     // Leaving a person's screen: drop a name left empty, then redraw the lists it appears on.
@@ -2269,7 +2280,7 @@
     renderWC(); renderMR(); renderPerson(); renderChecks(); renderBefore(); if (af) renderAfter();
     if (start) renderDoors();
     $('#steps-home').hidden = all || view !== 'home';
-    $('#step-bar').hidden = all || home || start || wc || bw || af; $('#step-foot').hidden = all || home || start || wc || person || bw || af;
+    $('#step-bar').hidden = all || home || start || wc || bw || af; $('#step-foot').hidden = all || home || start || wc || person || bw || af || att;
     var bar = $('.actionbar'); if (bar) bar.hidden = false; // Hand off, Home and Send: on every screen (Home itself only away from the opening screen)
     var hb = $('.nav-home'); if (hb) hb.classList.toggle('is-here', start || all); // shown everywhere; on the opening screen it scrolls back to the top
     Array.prototype.forEach.call(document.querySelectorAll('[data-step]'), function (el) { el.hidden = !all && el.getAttribute('data-step') !== stepShown; });
@@ -2369,9 +2380,22 @@
   // What a Huddle section still needs before Mark done works: null when it can be marked done, or
   // { text, go } (go opens the first thing missing). Focus names need an assignment, who and when on every name;
   // Opportunities to invite needs one event with an assignment, unless there are no upcoming events.
+  // The Huddle's Focus names is done once every focus name is marked done (the user decided, Nov 20, 2026).
+  function syncTnDone() {
+    if (CP_SECTION) return;
+    var named = focusNamed();
+    if (named.length) { if (named.every(function (x) { return x.a.hdDone; })) state.stepsDone.tn = true; else delete state.stepsDone.tn; }
+    // Return and Report isn't done while an assignment still has no Yes, Partly or No (a huddle saved before the rule, too).
+    if (state.stepsDone.rr && state.rr.filter(rrShown).some(function (r) { return !r.happened; })) delete state.stepsDone.rr;
+  }
   function focusMissing() { return state.tn.map(function (a, i) { return { a: a, i: i }; }).filter(function (x) { return str(x.a.name).trim() && !(str(x.a.action).trim() && str(x.a.assigned).trim() && str(x.a.when).trim()); }); }
   function stepGate(id) {
-    if (id === 'tn') {
+    if (id === 'rr') { // Return and Report waits until each assignment is marked Yes, Partly or No (Nov 20, 2026)
+      var un = state.rr.filter(rrShown).filter(function (r) { return !r.happened; }).length;
+      if (un) return { text: 'Mark each assignment Yes, Partly or No', why: (un === 1 ? '1 assignment from the last huddle isn’t marked yet.' : un + ' assignments from the last huddle aren’t marked yet.') };
+      return null;
+    }
+    if (id === 'tn' && CP_SECTION) { // (tests' old layout only; now each name is marked done on its own)
       var m = focusMissing(); if (!m.length) return null;
       return { text: m.length === 1 ? str(m[0].a.name).trim() + ' needs an assignment' : m.length + ' focus names need an assignment', why: 'Each focus name needs an assignment, who will do it, and when.' };
     }
@@ -2713,8 +2737,9 @@
   function renderDetails() {
     var full = $('#details-full'), sum = $('#details-summary');
     if (!full) return;
-    var open = !stepsOn || detailsOpen;
-    full.hidden = !open; sum.hidden = open;
+    var open = !stepsOn || view === 'att';
+    full.hidden = !open; sum.hidden = open || view !== 'home';
+    var hdh = full.querySelector('.details-head'); if (hdh) hdh.hidden = stepsOn; // its page has Back and the title at the top
     var doneBtn = full.querySelector('.details-done'); if (doneBtn) doneBtn.hidden = !stepsOn;
     var d = parseISO(state.date);
     $('#details-line').replaceChildren(h('b', { text: state.ward.trim() || 'Ward not set' }));
@@ -2723,7 +2748,8 @@
     // Attendance shows in the same dark orange as other steps that still need action, until it's taken.
     $('#details-sub').replaceChildren(conductingLabel(state) ? conductingLabel(state) + ' · ' : '', n ? n + ' attended' : h('span', { class: 'warn', text: 'Attendance not taken yet' }));
   }
-  function openDetails() { detailsOpen = true; if (view !== 'home') showView('home', 'replace'); renderDetails(); }
+  function openDetails() { detailsOpen = true; if (stepsOn) showView('att', 'push'); else renderDetails(); }
+  function closeDetails() { detailsOpen = false; if (view === 'att') goHome(); else { renderDetails(); renderSteps(); } }
   window.HuddleView = {
     show: function (v, details) { detailsOpen = !!details; showView(v || 'home', 'replace'); },
     openDetails: openDetails,
@@ -2921,7 +2947,10 @@
       case 'make-focus': state.tnKept = true; makeFocus(a, +b); break;
       case 'pick-focus': state.tnKept = true; makeFocus(a, +b); renderWC(); break;
       case 'tn-keep-gate': { var nd = focusNeeds(); ask({ title: 'Choose a next ordinance first', body: nd.length === 1 ? str(nd[0].a.name).trim() + ' needs a next ordinance.' : nd.map(function (x) { return str(x.a.name).trim(); }).join(', ') + ' need a next ordinance.', primary: 'OK' }); break; }
-      case 'hd-tn-undone': delete state.stepsDone.tn; saveDraft(); renderSteps(); toast('Focus names: marked as not done.'); break; // on the Huddle's Focus names card
+      case 'tn-name-done': { var tnd = state.tn[+a]; if (!tnd) break; tnd.hdDone = true; saveDraft(); renderTN();
+        var allDone = focusNamed().every(function (x) { return x.a.hdDone; });
+        leavePerson(); toast(allDone ? (STEPS.every(function (x) { return state.stepsDone[x.id]; }) ? 'Step 3 done. Next: After the huddle.' : 'Every focus name is done. Focus names is marked done.') : str(tnd.name).trim() + ' marked done.', 6000, { label: 'Undo', run: function () { tnd.hdDone = false; saveDraft(); renderTN(); renderSteps(); } }); break; }
+      case 'tn-name-undone': { var tnu = state.tn[+a]; if (!tnu) break; tnu.hdDone = false; saveDraft(); renderTN(); renderPerson(); break; }
       case 'tn-undone': state.tnKept = false; saveDraft(); renderWC(); renderDoors(); renderHeroes(); break; // Mark as not done, under the green check
       case 'tn-keep': if (!focusNeeds().length) { state.tnKept = true; saveDraft(); renderWC(); renderDoors(); renderHeroes(); } break;
       case 'wc-ask-done': state.ask = state.ask || {}; state.ask.done = true; saveDraft(); renderStepFoot();
@@ -3054,11 +3083,8 @@
       case 'slide-prev': showSlide(slideAt - 1); break;
       case 'close-slides': closeOverlay('#slides-sheet'); break;
       case 'close-ward': closeOverlay('#ward-sheet'); renderDoors(); renderSteps(); wardClosed(); break;
-      case 'close-details': detailsOpen = false; renderDetails(); renderSteps(); window.scrollTo(0, 0); break;
-      case 'details-done': { // Attendees done: straight on to the next section not done yet (Nov 19, 2026, night)
-        detailsOpen = false; renderDetails(); renderSteps(); window.scrollTo(0, 0); // back to the Huddle's list; Up next shows what's next
-        break;
-      }
+      case 'close-details': closeDetails(); break;
+      case 'details-done': closeDetails(); break; // back to the Huddle's list; Up next shows what's next
       case 'edit-one': {
         state.openOne[a] = +b; rerenderList(a);
         var oc = document.querySelector('.fold-open .card');
@@ -4918,7 +4944,7 @@
       var v = e.state && e.state.hv;
       if (!stepsOn) return;
       if (isPerson(v)) { personRef = (e.state && e.state.ref) || null; personWcOpen = wcOpenDefault(personRef); }
-      view = v === 'home' || v === 'wc' || v === 'bw' || v === 'af' || isWcList(v) || isPerson(v) || v === 'start' || STEPS.some(function (st) { return st.id === v; }) ? v : START;
+      view = v === 'home' || v === 'att' || v === 'wc' || v === 'bw' || v === 'af' || isWcList(v) || isPerson(v) || v === 'start' || STEPS.some(function (st) { return st.id === v; }) ? v : START;
       applyView(); window.scrollTo(0, 0);
     });
 
