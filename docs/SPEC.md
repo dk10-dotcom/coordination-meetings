@@ -945,3 +945,10 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
   The question ends "Tap a name to see what's still open."
 - **Before Ward Council's lists open in place too,** showing every step (to fix a mistake either way) and **Edit
   details ›**, which opens the person's full screen (name, dates, remove). Add a name still opens a new screen.
+
+## Step-by-step guide wording (Nov 20, 2026)
+
+- The guide speaks to the person using the app: what to tap and why. It leaves out how the app works inside.
+- 26 slides (was 34). Merged or dropped: the second check-off slide, Who and what, How and when, One person at a time,
+  A plan for every focus name, Up next: After the huddle, the second Mark it done, and All four steps done.
+- It still carries "Never add confidential information to this huddle report." and the sharing rule word for word.
