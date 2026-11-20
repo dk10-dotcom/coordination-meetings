@@ -19,7 +19,7 @@ const OUT = 'test/out-empty'; fs.mkdirSync(OUT, { recursive: true });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
   await p.goto('http://127.0.0.1:8765/#huddle'); await p.waitForSelector('.chip', { state: 'attached' }); await p.click('[data-action="dismiss-install"]').catch(() => {});
   await p.click('#details-summary'); await p.fill('#ward', 'Test Ward'); await p.fill('#date', '2026-11-08'); await p.click('[data-action="conducting"][data-a="wml"]');
-  await p.click('[data-action="close-details"]');
+  await p.click('#details-full .details-done'); await p.waitForTimeout(250);
   await p.click('[data-action="open-step"][data-a="cp"]');
   ok(await p.locator('#cp-groups .list-panel.is-empty').count() === 3, 'fresh form: all three lists show the empty state');
   ok(await p.locator('#cp-groups .card').count() === 0, 'no blank cards on empty lists');

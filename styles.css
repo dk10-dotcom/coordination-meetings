@@ -1848,3 +1848,5 @@ li.flag-focus .row-flag { color: #8A5A00; }
 .person-done.is-done { background: #1F6B3A; border-color: #1F6B3A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .person-done.is-done svg { width: 18px; height: 18px; }
 .person-undone { display: block; margin: 8px auto 0; }
+.details-summary.is-done:not(.is-next) { border-color: var(--green-line); }
+.details-summary .details-ok { margin-left: auto; }

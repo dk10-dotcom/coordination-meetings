@@ -39,7 +39,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
   const today = daysAgo(0);
   await fill('date', today); await p.waitForTimeout(100);
   ok((await p.textContent('#meeting-date .md-text')) === longD(today), 'changing the date updates the label');
-  await p.click('#details-summary'); await fill('ward', 'Test Ward'); await p.click('[data-action="conducting"][data-a="wml"]'); await p.click('#details-full .btn-collapse');
+  await p.click('#details-summary'); await fill('ward', 'Test Ward'); await p.click('[data-action="conducting"][data-a="wml"]'); await p.click('#details-full .details-done'); await p.waitForTimeout(250);
 
   await open('cp'); await p.click('[data-action="cp-add-first"][data-a="nm"]');
   await fill('cp.nm.0.name', 'Daniel Rivera'); await fill('cp.nm.0.ordinance', 'Temple baptisms'); await fill('cp.nm.0.need', 'A ride');
@@ -59,7 +59,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
   await p.screenshot({ path: `${OUT}/ready.png` });
   await p.click('#confirm-compare .jump-row'); await p.waitForTimeout(200);
   ok(await p.isVisible('#details-full'), 'tapping a row goes to it (attendance)');
-  await p.click('[data-action="toggle-att"][data-a="wml"]'); await p.click('#details-full .btn-collapse');
+  await p.click('[data-action="toggle-att"][data-a="wml"]'); await p.click('#details-full .details-done'); await p.waitForTimeout(250);
   await p.click('[data-action="open-step"][data-a="fn"]'); await p.click('[data-action="step-done"]'); await p.waitForTimeout(200);
   if (await p.isVisible('#confirm-sheet')) await p.click('#confirm-primary');
   ok(await p.locator('.step-row.done').count() === 1, 'one section checked before sending');

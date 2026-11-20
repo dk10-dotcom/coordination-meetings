@@ -18,7 +18,7 @@ const OUT = 'test/out-scen'; fs.mkdirSync(OUT, { recursive: true });
     await ctx.addInitScript(() => { try { ['huddle-tour-seen', 'huddle-help-seen', 'huddle-cp-section', 'huddle-names-hint-seen', 'huddle-cards-open'].forEach(k => localStorage.setItem(k, '1')); } catch (e) {} });
     const p = await ctx.newPage(); p.errs = []; p.on('pageerror', e => p.errs.push(e.message));
     await p.goto('http://127.0.0.1:8765/'); await p.waitForSelector('.chip', { state: 'attached' }); await p.click('[data-action="dismiss-install"]').catch(() => {});
-    await p.click('.door-hd'); await p.click('#details-summary'); await p.fill('#ward', 'Sample Ward'); await p.click('[data-action="conducting"][data-a="wml"]'); await p.click('[data-action="toggle-att"][data-a="wml"]'); await p.click('#details-full .btn-collapse'); await p.click('#mode-bar [data-action="go-start"]');
+    await p.click('.door-hd'); await p.click('#details-summary'); await p.fill('#ward', 'Sample Ward'); await p.click('[data-action="conducting"][data-a="wml"]'); await p.click('[data-action="toggle-att"][data-a="wml"]'); await p.click('#details-full .details-done'); await p.waitForTimeout(250); await p.click('#mode-bar [data-action="go-start"]');
     return p;
   };
   const st = async p => { await p.waitForTimeout(350); return p.evaluate(() => JSON.parse(localStorage.getItem('huddle-agenda-v1'))); };

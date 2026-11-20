@@ -29,7 +29,7 @@ async function freshWeek(pg) { if (await pg.isVisible('#load-panel [data-action=
   await p.goto('http://127.0.0.1:8765/#huddle'); await p.click('[data-action="dismiss-install"]').catch(() => {});
   const fill = (k, v) => p.fill(`[data-bind="${k}"]`, v);
   if (await p.isVisible('[data-action="open-details"]')) await p.click('[data-action="open-details"]'); await fill('ward', 'Test Ward'); await fill('date', '2026-10-25'); await p.click('[data-action="conducting"][data-a="wml"]');
-  await p.click('[data-action="close-details"]');
+  await p.click('#details-full .details-done'); await p.waitForTimeout(250);
   await p.click('[data-action="open-step"][data-a="tn"]');
   await fill('tn.0.name', 'Grace Thompson'); await fill('tn.0.ordinance', 'Endowment'); await fill('tn.0.need', 'Temple prep class'); await fill('tn.0.action', 'Invite to temple prep');
   await fill('tn.1.name', 'Ethan Walker'); await fill('tn.1.ordinance', 'Melchizedek Priesthood');

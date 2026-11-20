@@ -51,6 +51,11 @@ const huddle = {
   // ----- The Huddle: each section its own card; Up next outlined in green; Focus names lists its names -----
   await p.click('.nav-home'); await w(400); await p.click('.door-hd'); await w(500);
   ok(await p.locator('#steps-home li.hd-card').count() === 4, 'the Huddle’s four sections are cards of their own');
+  ok(await p.evaluate(() => document.querySelector('#details-summary').classList.contains('is-next')) && await p.evaluate(() => getComputedStyle(document.querySelector('#details-summary'), '::after').content.includes('Up next')), 'Huddle Attendees is Up next first, with the green badge');
+  await p.click('#details-summary'); await w(400);
+  ok((await p.evaluate(() => document.body.dataset.view)) === 'att' && (await p.textContent('#step-title')).trim() === 'Huddle Attendees' && !(await p.isVisible('#steps-home')) && await p.isVisible('#attendee-list'), 'Huddle Attendees opens on a page of its own, like the sections');
+  await p.goBack(); await w(400);
+  ok((await p.evaluate(() => document.body.dataset.view)) === 'home' && await p.isVisible('#steps-home'), 'the phone’s Back returns to the Huddle’s list');
   ok(await p.locator('#steps-home li.hd-card.is-done').count() === 0, 'a huddle saved with Focus names and Return and Report checked loses those checks while a name isn’t marked done and an assignment isn’t marked');
   await p.click('[data-action="open-step"][data-a="rr"]'); await w(400);
   ok((await p.textContent('#step-title')).trim() === 'Return and Report' && await p.isVisible('#step-done-btn'), 'from the Huddle, the same page is titled Return and Report, with Mark done');

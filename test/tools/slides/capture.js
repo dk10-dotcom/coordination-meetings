@@ -94,7 +94,7 @@ module.exports = (async () => {
   await p.click('#details-summary'); await wait(400);
   for (const t of ['Priests quorum assistant', 'Relief Society', 'Elders Quorum', 'Ward missionaries', 'Full-time missionaries', 'Ward mission leader']) { await p.click(`#attendee-list button:has-text("${t}")`); await wait(80); }
   await shot('s15-attendance', '#attendee-list button:has-text("Priests quorum assistant")', { block: 'center' });
-  await p.click('#details-full [data-action="close-details"]'); await wait(400); await p.evaluate(() => scrollTo(0, 0));
+  await p.click('#details-full .details-done'); await wait(400); await p.evaluate(() => scrollTo(0, 0));
   await p.click('[data-action="open-step"][data-a="rr"]'); await wait(500);
   await p.click('[data-action="happened"][data-a="0"][data-b="Yes"]'); await wait(250);
   await p.fill('#rr-list textarea, #rr-list input[data-bind$=".notes"]', 'He came with the youth').catch(() => {}); await wait(200);

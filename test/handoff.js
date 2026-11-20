@@ -25,7 +25,7 @@ const OUT = 'test/out-handoff'; fs.mkdirSync(OUT, { recursive: true });
   const A = await mk('iPhone 13'); const p = A.p;
   await p.goto('http://127.0.0.1:8765/#huddle'); await p.waitForSelector('.chip', { state: 'attached' }); await p.click('[data-action="dismiss-install"]').catch(() => {});
   await p.fill('#date', '2026-11-15');
-  await p.click('#details-summary'); await p.fill('#ward', 'Sample Ward'); await p.click('[data-action="conducting"][data-a="wml"]'); await p.click('[data-action="toggle-att"][data-a="rs"]'); await p.click('#details-full .btn-collapse');
+  await p.click('#details-summary'); await p.fill('#ward', 'Sample Ward'); await p.click('[data-action="conducting"][data-a="wml"]'); await p.click('[data-action="toggle-att"][data-a="rs"]'); await p.click('#details-full .details-done'); await p.waitForTimeout(250);
   await p.click('[data-action="open-step"][data-a="cp"]'); await p.click('[data-action="cp-add-first"][data-a="nm"]');
   await p.fill('[data-bind="cp.nm.0.name"]', 'Daniel Rivera'); await p.fill('[data-bind="cp.nm.0.ordinance"]', 'Temple baptisms'); await p.fill('[data-bind="cp.nm.0.action"]', 'Drive him to the temple'); await p.fill('[data-bind="cp.nm.0.assigned"]', 'Bro. Patel');
   await p.click('[data-action="steps-home"]'); await p.click('[data-action="open-step"][data-a="tn"]');

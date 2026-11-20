@@ -1030,3 +1030,6 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
   assignment Yes, Partly or No first." above it; tapping it says how many aren't marked.
 - Both checks follow the marks whenever the Huddle draws, so a huddle saved earlier with Focus names or Return and Report
   checked loses the check while a name isn't marked done or an assignment isn't marked.
+- **Huddle Attendees opens on a page of its own** (Back and "Huddle Attendees" at the top, like the sections): who's
+  conducting and who attended, then Done back to the Huddle's list. On the list it is Up next first (the green outline and
+  badge) and gets a green check once attendance is taken. The phone's Back works too.

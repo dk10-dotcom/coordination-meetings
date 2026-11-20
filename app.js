@@ -2170,7 +2170,8 @@
     var fc = $('#fn-count'); if (fc) fc.textContent = plural(state.find.items.filter(function (x) { return str(x.task).trim(); }).length, 'assignment', 'assignments');
     // Up next (the user asked, Nov 19, 2026, night): Attendees, then each section in order; the first not done is highlighted.
     var upNext = !state.attendees.length ? 'att' : (STEPS.filter(function (x) { return !state.stepsDone[x.id]; })[0] || {}).id || '';
-    var ds = $('#details-summary'); if (ds) { ds.classList.toggle('is-next', upNext === 'att'); ds.classList.toggle('is-done', !!state.attendees.length); }
+    var ds = $('#details-summary'); if (ds) { ds.classList.toggle('is-next', upNext === 'att'); ds.classList.toggle('is-done', !!state.attendees.length);
+      var dk = ds.querySelector('.details-ok'); if (state.attendees.length && !dk) { dk = h('span', { class: 'step-num details-ok', 'aria-hidden': 'true' }, [icon('check')]); ds.insertBefore(dk, ds.querySelector('.step-chev')); } else if (!state.attendees.length && dk) dk.remove(); }
     var row = function (st) {
       var isDone = !!state.stepsDone[st.id], status = stepStatus(st.id), isNext = upNext === st.id;
       var num = null;
@@ -2255,7 +2256,8 @@
     if (!all && isPerson(view) && !personOk(personRef)) { view = personRef ? personListView(personRef) : 'home'; personRef = null; return applyView(); }
     var person = !all && isPerson(view);
     // The one-line disclaimer sits on the opening screen only.
-    $('header.top').hidden = !home && !start; $('.start-here').hidden = !home && !start; $('.fine-notes').hidden = !all && !start;
+    var att = !all && view === 'att'; // Huddle Attendees: a page of its own, like the sections (Nov 20, 2026)
+    $('header.top').hidden = !home && !start && !att; $('.start-here').hidden = !home && !start; $('.fine-notes').hidden = !all && !start;
     $('#person-view').hidden = !person;
     // Find New People to Teach and Missionary Referrals are one section each, shown in the Huddle and in ward council.
     var stepShown = view === 'wc-fn' ? 'fn' : view === 'wc-mr' ? 'mr' : view;
@@ -2265,7 +2267,7 @@
     $('#hd-hero').hidden = all || view !== 'home'; // the Huddle's header card, with its one line on what to do there
     var stp = STEPS.filter(function (x) { return x.id === view; })[0] || WC_LISTS.filter(function (x) { return 'wc-' + x.id === view; })[0] || (view === 'wc-pick' ? { title: 'Find your focus names' } : null);
     if (view !== 'rr') rrFromBar = false;
-    $('#step-title').textContent = person ? personTitle(personRef) : view === 'rr' && rrFromBar ? 'Assignments' : stp ? stp.title : '';
+    $('#step-title').textContent = person ? personTitle(personRef) : att ? 'Huddle Attendees' : view === 'rr' && rrFromBar ? 'Assignments' : stp ? stp.title : '';
     var nb = $('.nav-asg'); if (nb) nb.classList.toggle('is-here', view === 'rr' && rrFromBar);
     if (view === 'rr' && $('#step-done-btn')) renderStepFoot();
     // Leaving a person's screen: drop a name left empty, then redraw the lists it appears on.
@@ -2278,7 +2280,7 @@
     renderWC(); renderMR(); renderPerson(); renderChecks(); renderBefore(); if (af) renderAfter();
     if (start) renderDoors();
     $('#steps-home').hidden = all || view !== 'home';
-    $('#step-bar').hidden = all || home || start || wc || bw || af; $('#step-foot').hidden = all || home || start || wc || person || bw || af;
+    $('#step-bar').hidden = all || home || start || wc || bw || af; $('#step-foot').hidden = all || home || start || wc || person || bw || af || att;
     var bar = $('.actionbar'); if (bar) bar.hidden = false; // Hand off, Home and Send: on every screen (Home itself only away from the opening screen)
     var hb = $('.nav-home'); if (hb) hb.classList.toggle('is-here', start || all); // shown everywhere; on the opening screen it scrolls back to the top
     Array.prototype.forEach.call(document.querySelectorAll('[data-step]'), function (el) { el.hidden = !all && el.getAttribute('data-step') !== stepShown; });
@@ -2735,8 +2737,9 @@
   function renderDetails() {
     var full = $('#details-full'), sum = $('#details-summary');
     if (!full) return;
-    var open = !stepsOn || detailsOpen;
-    full.hidden = !open; sum.hidden = open;
+    var open = !stepsOn || view === 'att';
+    full.hidden = !open; sum.hidden = open || view !== 'home';
+    var hdh = full.querySelector('.details-head'); if (hdh) hdh.hidden = stepsOn; // its page has Back and the title at the top
     var doneBtn = full.querySelector('.details-done'); if (doneBtn) doneBtn.hidden = !stepsOn;
     var d = parseISO(state.date);
     $('#details-line').replaceChildren(h('b', { text: state.ward.trim() || 'Ward not set' }));
@@ -2745,7 +2748,8 @@
     // Attendance shows in the same dark orange as other steps that still need action, until it's taken.
     $('#details-sub').replaceChildren(conductingLabel(state) ? conductingLabel(state) + ' · ' : '', n ? n + ' attended' : h('span', { class: 'warn', text: 'Attendance not taken yet' }));
   }
-  function openDetails() { detailsOpen = true; if (view !== 'home') showView('home', 'replace'); renderDetails(); }
+  function openDetails() { detailsOpen = true; if (stepsOn) showView('att', 'push'); else renderDetails(); }
+  function closeDetails() { detailsOpen = false; if (view === 'att') goHome(); else { renderDetails(); renderSteps(); } }
   window.HuddleView = {
     show: function (v, details) { detailsOpen = !!details; showView(v || 'home', 'replace'); },
     openDetails: openDetails,
@@ -3079,11 +3083,8 @@
       case 'slide-prev': showSlide(slideAt - 1); break;
       case 'close-slides': closeOverlay('#slides-sheet'); break;
       case 'close-ward': closeOverlay('#ward-sheet'); renderDoors(); renderSteps(); wardClosed(); break;
-      case 'close-details': detailsOpen = false; renderDetails(); renderSteps(); window.scrollTo(0, 0); break;
-      case 'details-done': { // Attendees done: straight on to the next section not done yet (Nov 19, 2026, night)
-        detailsOpen = false; renderDetails(); renderSteps(); window.scrollTo(0, 0); // back to the Huddle's list; Up next shows what's next
-        break;
-      }
+      case 'close-details': closeDetails(); break;
+      case 'details-done': closeDetails(); break; // back to the Huddle's list; Up next shows what's next
       case 'edit-one': {
         state.openOne[a] = +b; rerenderList(a);
         var oc = document.querySelector('.fold-open .card');
@@ -4943,7 +4944,7 @@
       var v = e.state && e.state.hv;
       if (!stepsOn) return;
       if (isPerson(v)) { personRef = (e.state && e.state.ref) || null; personWcOpen = wcOpenDefault(personRef); }
-      view = v === 'home' || v === 'wc' || v === 'bw' || v === 'af' || isWcList(v) || isPerson(v) || v === 'start' || STEPS.some(function (st) { return st.id === v; }) ? v : START;
+      view = v === 'home' || v === 'att' || v === 'wc' || v === 'bw' || v === 'af' || isWcList(v) || isPerson(v) || v === 'start' || STEPS.some(function (st) { return st.id === v; }) ? v : START;
       applyView(); window.scrollTo(0, 0);
     });
 

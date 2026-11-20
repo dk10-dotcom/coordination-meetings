@@ -16,7 +16,7 @@ const { chromium, devices } = require('playwright');
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
   await p.clock.setFixedTime(new Date('2026-11-08T10:00:00')); // Sunday, Nov 8, 2026
   await p.goto('http://127.0.0.1:8765/#huddle'); await p.waitForSelector('.chip', { state: 'attached' }); await p.click('[data-action="dismiss-install"]').catch(() => {});
-  await p.click('#details-summary'); await p.fill('#ward', 'Sample Ward'); await p.click('[data-action="close-details"]');
+  await p.click('#details-summary'); await p.fill('#ward', 'Sample Ward'); await p.click('#details-full .details-done'); await p.waitForTimeout(250);
   await p.click('[data-action="open-step"][data-a="cp"]'); await p.click('[data-action="cp-add-first"][data-a="nm"]');
   const btn = '.btn-text-assign[data-a="cp.nm.0."]';
   await p.fill('[data-bind="cp.nm.0.name"]', 'Daniel Rivera'); await p.fill('[data-bind="cp.nm.0.ordinance"]', 'Temple baptisms');

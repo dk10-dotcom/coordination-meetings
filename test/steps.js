@@ -26,14 +26,14 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     ok(!(await vis('[data-step="rr"]')) && !(await vis('[data-step="cp"]')), 'sections hidden on home');
     ok(await p.locator('.step-row.next, .step-tag, #steps-count, .steps-bar').count() === 0 && await p.locator('.step-num').count() === 0, 'no up next, numbers, empty circles or progress bar');
     await p.click('#details-summary');
-    ok(await vis('#details-full .btn-collapse'), 'open details have a Close button at the top');
-    await p.click('#details-full .btn-collapse'); await p.waitForTimeout(150);
-    ok(!(await vis('#details-full')) && await vis('#details-summary'), 'Close at the top collapses the details');
+    ok(await vis('#details-full') && (await p.textContent('#step-title')).trim() === 'Huddle Attendees' && await vis('#step-bar') && !(await vis('#details-full .btn-collapse')) && !(await vis('#steps-home')), 'Huddle Attendees opens on a page of its own, with Back and its name at the top (Nov 20, 2026)');
+    await p.click('#step-bar [data-action="steps-home"]'); await p.waitForTimeout(250);
+    ok(!(await vis('#details-full')) && await vis('#details-summary') && await vis('#steps-home'), 'Back goes back to the Huddle’s list');
     await p.click('#details-summary');
     ok(await vis('#details-full') && await p.evaluate(() => { const cs = getComputedStyle(document.querySelector('#details-full')); return cs.borderTopStyle === 'solid' && cs.borderBottomStyle === 'solid'; }), 'open details have a line above and below');
     await p.fill('#ward', 'Sample Ward'); await p.fill('#date', '2026-11-01'); await p.click('[data-action="conducting"][data-a="wml"]');
     for (const a of ['pqa', 'rs', 'eq', 'wml']) await p.click(`[data-action="toggle-att"][data-a="${a}"]`);
-    await p.click('[data-action="close-details"]');
+    await p.click('#details-full .details-done'); await p.waitForTimeout(250);
     ok(await vis('#details-summary') && (await p.textContent('#details-summary')).includes('4 attended'), 'summary shows ward and attendance');
     ok(await p.locator('#details-sub .warn').count() === 0, 'orange goes away once attendance is taken');
     await p.screenshot({ path: `${OUT}/${tag}-home.png` });
@@ -90,7 +90,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     await p.fill('#ward', '').catch(() => {});
     // Clear keeps the ward name
     await p.fill('#ward', 'Sample Ward').catch(() => {});
-    await p.click('[data-action="open-details"]').catch(() => {}); await p.fill('#ward', 'Sample Ward'); await p.fill('[data-bind="find.plan"]', 'x').catch(() => {});
+    await p.click('[data-action="open-details"]').catch(() => {}); await p.fill('#ward', 'Sample Ward'); await p.fill('[data-bind="find.plan"]', 'x').catch(() => {}); await p.click('#details-full .details-done').catch(() => {}); await p.waitForTimeout(250);
     await p.click('[data-action="open-step"][data-a="fn"]').catch(() => {}); await p.click('[data-action="add-opp"]'); await p.fill('[data-bind="find.opps.0.title"]', 'Plan'); await p.click('[data-action="steps-home"]'); await p.waitForTimeout(200);
     await p.evaluate(() => document.querySelector('.clear-link').click());
     await Promise.all([p.waitForNavigation().catch(() => {}), p.click('#confirm-primary')]); await p.waitForTimeout(600);
