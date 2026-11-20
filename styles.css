@@ -1658,6 +1658,7 @@ body.gated { overflow: hidden; }
 /* The little "i" and what it shows */
 .info-i { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; margin-left: 6px; padding: 0; vertical-align: middle;
   border-radius: 50%; border: 1.5px solid currentColor; background: none; color: var(--accent); font: italic 700 13px/1 Georgia, 'Times New Roman', serif; cursor: pointer; opacity: .85; position: relative; }
+.info-i::before { content: 'i'; }
 .info-i::after { content: ''; position: absolute; inset: -11px; } /* a bigger target for a finger */
 .info-i[aria-expanded="true"] { background: var(--accent); color: #FFFFFF; border-color: var(--accent); opacity: 1; }
 .info-text { margin: 6px 0 0; font-size: 14px; line-height: 1.4; color: var(--muted); }

@@ -60,6 +60,7 @@ const seed = {
     // Mark a section done: its check pops, the bar moves
     await p.click('[data-action="open-step"][data-a="sa"]'); await p.waitForTimeout(300);
     await p.click('[data-action="step-done"]'); await p.waitForTimeout(250);
+    if ((await view()) !== 'home') { await p.click('[data-action="steps-home"]'); await p.waitForTimeout(200); } // Mark done goes on to the next section now
     ok((await view()) === 'home' && await p.$eval('[data-action="open-step"][data-a="sa"] .step-num', e => e.classList.contains('pop')), dev + ': Sacrament attendance marked done: its check pops');
     await p.waitForTimeout(900);
     ok((await p.textContent('#hd-hero .hero-count')) === '3 of 5 sections done' && (await p.$eval('#hd-hero .hero-fill', e => e.style.width)) === '60%', dev + ': the bar moved to 3 of 5');

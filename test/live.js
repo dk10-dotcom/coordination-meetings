@@ -17,7 +17,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
   const fill = (k, v) => p.fill(`[data-bind="${k}"]`, v);
   const home = async () => { if (await p.isVisible('[data-action="steps-home"]')) await p.click('[data-action="steps-home"]'); await p.waitForTimeout(150); };
-  const open = async id => { await home(); await p.click(`[data-action="open-step"][data-a="${id}"]`); };
+  const open = async id => { await home(); if (!(await p.isVisible(`[data-action="open-step"][data-a="${id}"]`)) && await p.isVisible('.door-hd')) { await p.click('.door-hd'); await p.waitForTimeout(250); } await p.click(`[data-action="open-step"][data-a="${id}"]`); }; // (Sent's Done goes to the opening screen)
   const blur = () => p.evaluate(() => document.activeElement && document.activeElement.blur());
   await p.goto('http://127.0.0.1:8765/#huddle'); await p.waitForSelector('.chip', { state: 'attached' }); await p.click('[data-action="dismiss-install"]').catch(() => {});
 
@@ -35,7 +35,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
   ok((await p.textContent('#meeting-date .md-text')) === longD(daysAgo(0)), 'the huddle date is today without setting it: ' + (await p.textContent('#meeting-date .md-text')));
   ok(await p.evaluate(() => { const i = document.querySelector('#meeting-date input[type=date]'); return !!i && i.id === 'date'; }) && !(await p.evaluate(() => !!document.querySelector('#details-full input[type=date]'))), 'the date is set at the top, not in Huddle Attendees');
   ok((await rrRow()).startsWith('Nothing yet. After your first huddle'), 'Return and Report row before the first send: ' + await rrRow());
-  ok(!(await p.$('#band-rr')) && (await p.textContent('#band-plan')).trim() === 'Huddle action plan', 'no heading over Return and Report; Huddle action plan over the plan');
+  ok(!(await p.$('#band-rr')) && (await p.textContent('#band-plan')).trim() === 'This week’s plan', 'no heading over Return and Report; This week’s plan over the plan');
   const today = daysAgo(0);
   await fill('date', today); await p.waitForTimeout(100);
   ok((await p.textContent('#meeting-date .md-text')) === longD(today), 'changing the date updates the label');
@@ -67,7 +67,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
 
   // Send closes the huddle and sets up the next one
   const next = today;
-  ok((await p.textContent('#confirm-title')).trim() === 'Sent successfully' && (await p.textContent('#confirm-body')).includes('set for your next huddle') && (await p.textContent('#confirm-body')).includes('assignments are now in Return and Report'), 'Sent successfully: set for the next huddle, no dates');
+  ok((await p.textContent('#confirm-title')).trim() === 'Sent' && (await p.textContent('#confirm-body')).includes('Next week starts with Before Ward Council') && (await p.textContent('#confirm-body')).includes('assignments are now in Return and Report'), 'Sent: next week starts with Before Ward Council, no dates');
   ok((await p.textContent('#confirm-secondary')).trim() === 'Undo', 'Undo is offered right after sending');
   await p.screenshot({ path: `${OUT}/sent.png` });
   await p.click('#confirm-primary'); await p.waitForTimeout(250);
@@ -75,7 +75,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
   ok(await p.isVisible('#sent-line') && (await p.textContent('#sent-line-text')).trim() === '✓ ' + md(today) + ' huddle sent' && await p.isVisible('[data-action="share-last"]'), 'under the date: ✓ ' + md(today) + ' huddle sent · Share again');
   ok((await p.textContent('#send-label')).trim() === 'Send', 'Send stays Send');
   ok((await rrRow()) === '0 of 3 marked', 'home row: ' + await rrRow());
-  ok((await p.textContent('#band-plan')).trim() === 'Huddle action plan', 'groups have no dates: ' + await p.textContent('#band-plan'));
+  ok((await p.textContent('#band-plan')).trim() === 'This week’s plan', 'groups have no dates: ' + await p.textContent('#band-plan'));
   ok((await p.textContent('#details-sub')).includes('Attendance not taken'), 'attendance cleared');
   ok(await p.locator('.step-row.done').count() === 0, 'section checks cleared');
   await p.locator('header.top').screenshot({ path: `${OUT}/header-next.png` });
@@ -114,7 +114,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
 
   // Undo right after sending puts the huddle back
   await sendNow();
-  ok((await p.textContent('#confirm-body')).includes('set for your next huddle'), 'the next send says the same');
+  ok((await p.textContent('#confirm-body')).includes('Next week starts with Before Ward Council'), 'the next send says the same');
   await p.click('#confirm-secondary'); await p.waitForTimeout(300);
   ok(await p.inputValue('#date') === moved && (await rrRow()).includes('1 of 3 marked') && (await p.textContent('#sent-line-text')).includes(md(today) + ' huddle sent'), 'Undo puts the huddle back, and the earlier sent copy');
   ok((await p.textContent('#toast')).includes('Your huddle is back'), 'Undo says so');

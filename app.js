@@ -454,7 +454,7 @@
   var infoOpen = {};
   var TEMPLE_WHY = 'The goal: every new member performs baptisms for the dead within 30 days of being baptized. The count starts at their baptism date.';
   function infoBtn(key, label) {
-    return h('button', { type: 'button', class: 'info-i', 'data-action': 'info', 'data-a': key, 'aria-expanded': infoOpen[key] ? 'true' : 'false', 'aria-label': label || 'What is this?' }, ['i']);
+    return h('button', { type: 'button', class: 'info-i', 'data-action': 'info', 'data-a': key, 'aria-expanded': infoOpen[key] ? 'true' : 'false', 'aria-label': label || 'What is this?' }); // the "i" is drawn by CSS, so it isn't read as part of a heading's text
   }
   function infoText(key, text) { return h('p', { class: 'info-text full', 'data-info': key, hidden: !infoOpen[key], text: text }); }
   function toggleInfo(key) { setInfo(key, !infoOpen[key]); }
@@ -2292,7 +2292,7 @@
       next ? h('span', { class: 'up-next wc-up-next', 'aria-hidden': 'true', text: 'Up next' }) : null,
       h('span', { class: 'step-text' }, [
         h('span', { class: 'step-title', text: l.title }),
-        h('span', { class: 'step-status' + (st.warn && !done ? ' warn' : ''), text: st.text })
+        h('span', { class: 'step-status' + (st.warn && !done && !inBox ? ' warn' : ''), text: st.text }) // (in the box the focus names carry the warning)
       ]),
       done ? icon('check', 'wc-done-tick') : null,
       h('span', { class: 'step-chev', 'aria-hidden': 'true', text: '›' })

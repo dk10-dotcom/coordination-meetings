@@ -85,9 +85,9 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
     await p.evaluate(async () => { const settle = () => new Promise(r => setTimeout(r, 150)); const m = document.querySelector('#mode-bar'), g = m && !m.hidden && m.querySelector('[data-action="go-start"]'); if (g) { g.click(); await settle(); } const ab = document.querySelector('#after-box'); if (ab && !ab.classList.contains('done')) { document.querySelector('[data-action="open-after"]').click(); await settle(); document.querySelector('[data-action="after-done"]').click(); await settle(); } }).then(() => p.click('.actionbar [data-action="send"]')).then(() => sendAnyway(p)); await p.waitForSelector('#share-btn:not([disabled])');
     await p.click('#share-btn');
     await p.waitForSelector('#confirm-sheet:not([hidden])');
-    ok((await p.textContent('#confirm-title')).trim() === 'Sent successfully', 'sent popup title');
+    ok((await p.textContent('#confirm-title')).trim() === 'Sent', 'sent popup title');
     ok(await p.isVisible('#confirm-sheet .ok-icon') && !(await p.isVisible('#confirm-sheet .warn-icon')), 'green check, no warning icon');
-    ok((await p.textContent('#confirm-sheet')).includes('set for your next huddle') && await p.isVisible('#confirm-secondary') && (await p.textContent('#confirm-secondary')).trim() === 'Undo', 'sent popup: next huddle is set up, with Undo');
+    ok((await p.textContent('#confirm-sheet')).includes('Next week starts with Before Ward Council') && await p.isVisible('#confirm-secondary') && (await p.textContent('#confirm-secondary')).trim() === 'Undo', 'sent popup: next huddle is set up, with Undo');
     await p.screenshot({ path: `${OUT}/${tag}-sent.png` });
     await p.click('#confirm-primary');
     ok(await p.isVisible('#sent-line') && (await p.textContent('#sent-line')).includes('huddle sent') && await p.isVisible('[data-action="share-last"]'), 'shows the huddle was sent, with Share again');

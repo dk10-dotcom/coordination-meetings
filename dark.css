@@ -291,6 +291,7 @@
 :where(:root.theme-dark) .after-upd-ck.is-done .ck-t { color: #B0DEC1; }
 :where(:root.theme-dark) .hero-i { color: #FFFFFF; border-color: rgba(51, 51, 51, .85); }
 :where(:root.theme-dark) .hero-i[aria-expanded="true"] { background: #1A1E26; border-color: #333333; }
+:where(:root.theme-dark) .after-upd-ck.is-done .ck-box { background: #1F6B3A; border-color: #59B57A; color: #FFFFFF; }
 /* hand-tuned */
 :where(:root.theme-dark) .focus-box.is-pressing { background: #3A1D1D; border-color: #6E2C2C; }
 :where(:root.theme-dark) .focus-why { color: #FF9C9C; }
