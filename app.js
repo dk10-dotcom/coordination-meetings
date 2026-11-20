@@ -2625,7 +2625,9 @@
       var moved = function (k) { return !!was && (k === 'bap' ? str(was.bap) !== str(now.bap) || !!was.committed !== !!now.committed : (typeof now[k] === 'boolean' ? !!was[k] !== now[k] : str(was[k]) !== str(now[k]))); };
       var cm = checkMoves(a, x.gid, was);
       var changed = isNew || ['sac', 'temple', 'committed', 'bap', 'appt'].some(moved) || cm.length > 0;
-      var upd = function (k) { return moved(k) ? h('span', { class: 'after-upd', text: 'Updated' }) : null; };
+      // A name new since step 1 has every line marked, like the lines that changed (the user asked, Nov 20, 2026).
+      var newTag = function () { return h('span', { class: 'after-upd', text: 'New' }); };
+      var upd = function (k) { return isNew ? newTag() : moved(k) ? h('span', { class: 'after-upd', text: 'Updated' }) : null; };
       for (var i = 0; i < state.rr.length; i++) { var q = state.rr[i]; if (q.prefilled && groupOf(q) === x.gid && norm(rrPerson(q)) === norm(a.name) && str(q.action).trim()) { r = q; break; } }
       var fact = function (k, v, cls, tag) { return h('p', { class: 'after-fact' + (cls ? ' ' + cls : '') + (tag ? ' is-upd' : '') }, [h('span', { class: 'after-k', text: k }), v, tag || null]); };
       // With step 1's copy to compare against, each person shows only what changed (what goes into the report).
@@ -2644,7 +2646,7 @@
         x.gid === 'bt' && str(a.appt).trim() && show('appt') ? fact('Appointment', whenShow(a.appt), '', upd('appt')) : null
       ].concat(cm.map(function (m) {
         return fact(m.c.t, m.now === true ? 'Done' : m.now === 'na' ? 'Doesn’t apply' : 'Not done', m.now === true ? 'yes' : '', h('span', { class: 'after-upd', text: 'Updated' }));
-      })).concat(newDone.map(function (c) { return fact(c.t, 'Done', 'yes'); })).concat(only ? [] : [
+      })).concat(newDone.map(function (c) { return fact(c.t, 'Done', 'yes', newTag()); })).concat(only ? [] : [
         r ? fact('Reported back', (str(r.action).trim()) + ': ' + ({ Yes: 'Done', Partly: 'Partly done', No: 'Not done' }[r.happened] || 'Pending') + (str(r.notes).trim() ? ' · ' + r.notes.trim() : ''), statusOf(r.happened)) : null
       ]).concat([updBox]));
       return { el: card, changed: changed };

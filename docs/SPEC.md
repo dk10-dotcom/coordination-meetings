@@ -1033,3 +1033,5 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
 - **Huddle Attendees opens on a page of its own** (Back and "Huddle Attendees" at the top, like the sections): who's
   conducting and who attended, then Done back to the Huddle's list. On the list it is Up next first (the green outline and
   badge) and gets a green check once attendance is taken. The phone's Back works too.
+- **After the huddle: a name new since step 1 has every line highlighted**, each tagged **New**, the way a changed name's
+  changed lines are tagged **Updated**.

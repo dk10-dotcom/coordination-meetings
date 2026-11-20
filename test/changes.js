@@ -85,6 +85,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   ok(by('Daniel Rivera').tag === 'Changed' && by('Daniel Rivera').upd.join() === 'Sacrament', 'Daniel: Changed, with Sacrament marked Updated');
   ok(by('Marcus Hill').upd.join() === 'Met the bishop', 'Marcus: Met the bishop marked Updated (a new What will help is not listed: it isn’t in the report)');
   ok(by('Samuel Ortiz').tag === 'New since step 1', 'a name added after step 1 says New since step 1');
+  ok(await p.evaluate(() => { const c = [...document.querySelectorAll('#after-list .after-card')].find(x => x.querySelector('.after-name').firstChild.textContent === 'Samuel Ortiz'); const f = [...c.querySelectorAll('.after-fact')].filter(x => !/Reported back/.test(x.textContent)); return f.length > 0 && f.every(x => x.classList.contains('is-upd') && x.querySelector('.after-upd').textContent === 'New'); }), 'every line of a new name is marked New, like the changed lines (Nov 20, 2026)');
   ok(!cards.some(x => x.name === 'Emma Walsh' || x.name === 'Olivia Chen'), 'people with no changes are not listed');
   ok((await p.textContent('.after-summary')).startsWith('3 people changed since step 1'), 'a line at the top says how many changed');
   await p.screenshot({ path: OUT + '/after.png' });
