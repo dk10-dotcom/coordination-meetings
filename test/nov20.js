@@ -57,6 +57,15 @@ const huddle = {
   ok(/Sit with her family, Visit them as a family/.test(oc) && await p.locator(tnCard + ' .person-row:has-text("Olivia Chen") .row-ok').count() === 1, 'a planned name shows its assignments and a green check');
   ok(/Needs an assignment/.test(ew) && await p.locator(tnCard + ' .person-row:has-text("Emma Walsh") .row-ok').count() === 0, 'an unplanned name says Needs an assignment');
   ok(await p.isVisible(tnCard + ' [data-action="how-help"][data-a="focus"]'), 'the Huddle’s Focus names card has How can we help?');
+  // A name counts as planned only with an assignment, who and when
+  await p.evaluate(() => { const s = JSON.parse(localStorage.getItem('huddle-agenda-v1')); s.tn[0].action = 'Go with her to the temple grounds'; s.stepsDone = { tn: true }; localStorage.setItem('__seed', JSON.stringify(s)); });
+  await p.reload(); await w(800); if (!(await p.isVisible('#steps-home'))) { await p.click('.door-hd').catch(() => {}); await w(500); }
+  if (!(await p.isVisible('#steps-home'))) { await p.click('.nav-home'); await w(300); await p.click('.door-hd'); await w(500); }
+  const ew2 = await p.textContent(tnCard + ' .person-row:has-text("Emma Walsh")');
+  ok(/Needs who and when/.test(ew2) && await p.locator(tnCard + ' .person-row:has-text("Emma Walsh") .row-ok').count() === 0, 'an assignment with no who or when says Needs who and when, with no check');
+  ok(await p.isVisible(tnCard + ' [data-action="hd-tn-undone"]'), 'once Focus names is marked done, its card has Mark as not done');
+  await p.click(tnCard + ' [data-action="hd-tn-undone"]'); await w(400);
+  ok(!(await saved()).stepsDone.tn && !(await p.isVisible(tnCard + ' [data-action="hd-tn-undone"]')), 'Mark as not done takes the check off Focus names');
   await p.click(tnCard + ' [data-action="how-help"]'); await w(400);
   ok((await p.textContent('#howhelp-title')).trim() === 'How can we help?' && await p.locator('#howhelp-list .howhelp-group').count() === 3, 'it opens the one list, with three headers');
   await p.click('#howhelp-sheet [data-action="close-how-help"]'); await w(300);

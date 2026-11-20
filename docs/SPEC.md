@@ -1017,3 +1017,6 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
 - **Erase everything** starts Huddle over as if it were new: every saved key on this phone except Appearance (and the
   test-only flags), the ward name and the first-time screens included, then the page reloads.
 - `test/nov20.js` covers all of these.
+- **A focus name counts as planned only with all three**: an assignment, who and when. Until then its row says what's
+  missing in red ("Needs who and when"), with no green check; Mark done on Focus names already waited for all three.
+  Once Focus names is marked done, its card in the Huddle has **Mark as not done** beside How can we help?.

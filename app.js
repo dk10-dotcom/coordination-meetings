@@ -1282,6 +1282,10 @@
       sub = [str(a.action).trim().split(/\n+/).join(', '), str(a.assigned).trim(), whenShow(a.when)].filter(Boolean).join(' · ');
       if (isCp && !CP_SECTION) { var hcc = checkCount(a, gid); sub = isFocus ? 'Assignment under Focus names' : name ? hcc.done + ' of ' + hcc.of + ' done' : ''; } // the rest of the report, for reference
       else if (!sub && name) { sub = 'Needs an assignment'; warn = true; }
+      else if (gid === 'tn' && name) { // a focus name is planned only with all three (Nov 20, 2026): an assignment, who and when
+        var miss = [str(a.action).trim() ? '' : 'an assignment', str(a.assigned).trim() ? '' : 'who', str(a.when).trim() ? '' : 'when'].filter(Boolean);
+        if (miss.length) { warn = true; sub = sub + ' · Needs ' + (miss.length > 1 ? miss.slice(0, -1).join(', ') + ' and ' + miss[miss.length - 1] : miss[0]); }
+      }
     } else if (kind === 'bw' || (kind === 'wc' && isCp)) {
       // Before Ward Council and Ward Council's Covenant Path Report: how far along their report is, at a glance.
       temple();
@@ -2188,7 +2192,8 @@
       .map(function (x) { var li = personRow('hd', 'tn', x.i, x.a); li.classList.remove('swipe-li'); var sd = li.querySelector('.swipe-del'); if (sd) sd.remove(); return li; });
     return h('div', { class: 'hd-tn-names' }, [
       rows.length ? h('ul', { class: 'steps-list person-rows' }, rows) : h('p', { class: 'hd-tn-empty', text: 'No focus names yet. Ward Council chooses them.' }),
-      howHelpLink('focus')]);
+      h('div', { class: 'wc-card-foot' }, [howHelpLink('focus'),
+        state.stepsDone.tn ? h('button', { type: 'button', class: 'btn-link wc-undone', 'data-action': 'hd-tn-undone' }, ['Mark as not done']) : null])]);
   }
   // The sections in order, for Next and the link back: the Huddle's, or ward council's three lists.
   function footList() { return isWcList(view) ? WC_LISTS.map(function (l) { return { id: 'wc-' + l.id, title: l.title }; }) : STEPS; }
@@ -2916,6 +2921,7 @@
       case 'make-focus': state.tnKept = true; makeFocus(a, +b); break;
       case 'pick-focus': state.tnKept = true; makeFocus(a, +b); renderWC(); break;
       case 'tn-keep-gate': { var nd = focusNeeds(); ask({ title: 'Choose a next ordinance first', body: nd.length === 1 ? str(nd[0].a.name).trim() + ' needs a next ordinance.' : nd.map(function (x) { return str(x.a.name).trim(); }).join(', ') + ' need a next ordinance.', primary: 'OK' }); break; }
+      case 'hd-tn-undone': delete state.stepsDone.tn; saveDraft(); renderSteps(); toast('Focus names: marked as not done.'); break; // on the Huddle's Focus names card
       case 'tn-undone': state.tnKept = false; saveDraft(); renderWC(); renderDoors(); renderHeroes(); break; // Mark as not done, under the green check
       case 'tn-keep': if (!focusNeeds().length) { state.tnKept = true; saveDraft(); renderWC(); renderDoors(); renderHeroes(); } break;
       case 'wc-ask-done': state.ask = state.ask || {}; state.ask.done = true; saveDraft(); renderStepFoot();
