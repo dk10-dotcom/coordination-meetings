@@ -14,7 +14,7 @@ const GH = 'https://www.churchofjesuschrist.org/study/manual/general-handbook/23
 const IDEAS = 'https://www.churchofjesuschrist.org/study/manual/sharing-the-gospel-resources-for-leaders/02-effective-coordination-with-missionaries?lang=eng';
 // What each panel shows: the app's name for the list, the manual's question, how many items, and the first one.
 const PANELS = {
-  nm: { list: 'New members', title: 'How can we help those who were recently baptized?', n: 6, first: 'Which new members in their first year of membership are attending sacrament meeting? How can we help any who are not attending?', last: 'Review My Covenant Path progress for each new member.' },
+  nm: { list: 'New members', title: 'How can we help those who were recently baptized?', n: 4, first: 'Which new members in their first year of membership are attending sacrament meeting? How can we help any who are not attending?', last: 'How can we help new members begin researching their deceased ancestors so temple ordinances can be performed for them? Do new members have a temple recommend? If a temple is nearby, how can we help them go to the temple to perform baptisms for these ancestors?' },
   rm: { list: 'Returning members', title: 'How can we help returning members?', n: 4, first: 'Which part-member families can the missionaries visit and teach?', last: 'How can we help these members?' },
   bt: { list: 'Those being taught', title: 'How can we help those being taught?', n: 3, first: 'Which members could participate in the lessons this coming week? Who will invite them to participate?', last: 'What are the needs for those with a scheduled baptismal date? Has the baptism been planned?' },
   fn: { list: 'Opportunities to invite', title: 'How can we find more people to teach?', n: 2, first: 'How can we help individuals, including youth, and families apply the principles of love, share, and invite?', last: 'How can we help members, including Primary leaders, invite friends to ward activities?' }
@@ -142,9 +142,20 @@ const huddle = {
     await p.click('.door-wc'); await p.waitForTimeout(350);
     await p.click('[data-action="open-wc-list"][data-a="cp"]'); await p.waitForTimeout(350);
     const wcHeads = await p.evaluate(() => ['nm', 'rm', 'bt'].map(g => { const head = document.querySelector('[data-wc="' + g + '"] .list-head'); return { band: getComputedStyle(head).backgroundColor, size: parseFloat(getComputedStyle(head.querySelector('.list-title')).fontSize), link: !!head.querySelector('[data-action="how-help"]') }; }));
-    ok(wcHeads.every(x => x.link) && (await linksShown()) === 3, tag + ': Ward council’s three lists have the link too');
+    ok(wcHeads.every(x => !x.link) && (await linksShown()) === 0, tag + ': Ward council’s three lists have no link (it moved to the Focus names card, Nov 20, 2026)');
     ok(wcHeads.every(x => x.size >= 16) && await noOverflow(), tag + ': Ward council’s lists have the same bold names');
     await p.goBack(); await p.waitForTimeout(300);
+    // One list for focus names: How can we help? on Ward Council's Focus names card, with a header for each list
+    ok(await p.isVisible('#wc-step-tn [data-action="how-help"][data-a="focus"]'), tag + ': Ward Council’s Focus names card has How can we help?');
+    await p.click('#wc-step-tn [data-action="how-help"]'); await p.waitForTimeout(350);
+    const all = await p.evaluate(() => ({ kicker: document.querySelector('#howhelp-kicker').textContent, title: document.querySelector('#howhelp-title').textContent,
+      groups: Array.prototype.map.call(document.querySelectorAll('#howhelp-list .howhelp-group'), x => x.textContent), qs: document.querySelectorAll('#howhelp-list li:not(.howhelp-group)').length,
+      text: document.querySelector('#howhelp-list').textContent, src: document.querySelector('#howhelp-source a').getAttribute('href') }));
+    ok(all.kicker === 'Focus names' && all.title === 'How can we help?' && all.groups.join('|') === 'Helping new members|Helping returning members|Helping those being taught' && all.qs === 11 && all.src === PMG,
+      tag + ': it opens one list: a header for new members, returning members and those being taught, 11 questions, and its source');
+    ok(!/chapter 3/.test(all.text) && !/Review My Covenant Path/.test(all.text), tag + ': the chapter 3 lessons and Review My Covenant Path progress questions are gone');
+    await p.screenshot({ path: `${OUT}/${tag}-6-focus.png` });
+    await p.click('#howhelp-sheet [data-action="close-how-help"]'); await p.waitForTimeout(300);
     await p.click('[data-action="open-wc-list"][data-a="fn"]'); await p.waitForTimeout(350);
     ok((await p.evaluate(() => document.body.dataset.view)) === 'wc-fn' && (await linksShown()) === 0 && await p.isVisible('[data-action="find-tips"]'), tag + ': Ward council’s Opportunities to invite has no How can we help? either, just Tips');
     await p.goBack(); await p.waitForTimeout(300); await p.goBack(); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(200);

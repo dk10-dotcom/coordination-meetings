@@ -1695,6 +1695,10 @@ body[data-view="start"] .title-text .title-sub { margin-top: 8px; font-size: 13p
 .handoff-line { margin: 4px 0 0 -34px; text-align: center; font-size: 15px; color: var(--muted); }
 .handoff-line .btn-link { font-size: 15px; font-weight: 700; }
 .nav-spacer { visibility: hidden; }
+.nav-asg { color: var(--ink); }
+.nav-asg.is-here { color: var(--accent); }
+.nav-asg-ic { position: relative; display: inline-flex; }
+.nav-count { position: absolute; top: -6px; right: -12px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: #C62828; color: #FFFFFF; font-size: 11px; font-weight: 800; line-height: 18px; text-align: center; }
 @media (max-width: 359px) { .handoff-line { margin-left: -30px; } }
 
 .swipe-hint { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px 10px 16px; font-size: 14px; color: var(--muted); background: var(--accent-soft); }
@@ -1805,3 +1809,38 @@ li.flag-focus .row-flag { color: #8A5A00; }
 .action-chips .idea-chip::before { content: '+ '; font-weight: 700; color: var(--accent); }
 .action-chips .idea-chip.is-on::before { content: '✓ '; color: var(--green-ink); }
 .tl-step.tl-next, .wc-step.is-next, .details-summary.is-next { border-color: #1E8A4C; box-shadow: 0 10px 22px -14px #1E8A4C; }
+
+/* How can we help?: one list with a header per Covenant Path list (Nov 20, 2026) */
+.howhelp-list li.howhelp-group { margin-top: 6px; padding: 0 2px; border: 0; background: none; font-size: 13px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--list-ink); }
+.howhelp-list li.howhelp-group:first-child { margin-top: 0; }
+
+/* The Huddle's sections as cards of their own, like Ward Council's (Nov 20, 2026); Up next has the green outline */
+#steps-home #steps-last, #steps-home #steps-this { background: none; border: 0; box-shadow: none; overflow: visible; gap: 12px; }
+#steps-home #steps-last > li + li::before, #steps-home #steps-this > li + li::before { display: none; }
+#steps-home li.hd-card { position: relative; background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; box-shadow: 0 1px 2px rgba(27,43,75,.05); }
+#steps-home li.hd-card > .nav-row { border-radius: 14px; }
+#steps-home li.hd-card.is-next { border: 2px solid #1E8A4C; box-shadow: 0 10px 22px -14px #1E8A4C; }
+#steps-home li.hd-card.is-done { border-color: var(--green-line); }
+#steps-home .step-row.is-next { background: none; box-shadow: none; }
+#steps-home .row-next { position: absolute; top: -10px; right: 14px; z-index: 2; margin: 0; padding: 2px 9px; }
+.hd-tn-names { padding: 0 12px 12px; display: flex; flex-direction: column; gap: 8px; }
+.hd-tn-names .steps-list { border-radius: 12px; box-shadow: none; }
+.hd-tn-empty { margin: 0; font-size: 14px; color: var(--muted); }
+.row-origin { display: block; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.row-ok { flex: none; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: #1F6B3A; color: #FFFFFF; }
+.row-ok svg { width: 13px; height: 13px; }
+.how-help-focus { align-self: flex-start; }
+.wc-sugs { display: flex; flex-direction: column; gap: 6px; padding: 4px 0 2px; }
+.wc-sugs-k { margin: 0 2px; font-size: 13px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #C62828; }
+.wc-sugs .pick-add { flex: none; }
+.wc-undone { align-self: center; margin-top: -2px; font-size: 14px; }
+
+/* Send, once all four steps are done: green, with one gentle pulse when it becomes ready (Nov 20, 2026) */
+.nav-send.is-ready { color: #1E8A4C; }
+@media (prefers-reduced-motion: no-preference) {
+  .nav-send.pulse { animation: send-pulse 1.4s ease-out 1; }
+  @keyframes send-pulse { 0% { box-shadow: 0 0 0 0 rgba(30, 138, 76, .5); transform: scale(1); } 40% { transform: scale(1.08); } 100% { box-shadow: 0 0 0 16px rgba(30, 138, 76, 0); transform: scale(1); } }
+}
+.find-lead { margin: 4px 0 12px; font-size: 15.5px; font-weight: 600; color: var(--ink); }
+.wc-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; width: 100%; padding: 2px 4px 0; }
+.wc-card-foot .wc-undone { margin: 0; }

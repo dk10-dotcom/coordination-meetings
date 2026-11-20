@@ -13,6 +13,7 @@
   var APP_ID = 'huddle-agenda';
   var DATA_VERSION = 1;
   var DRAFT_KEY = 'huddle-draft-v1', LIVE_KEY = 'huddle-agenda-v1';
+  var THEME_KEEP = 'theme'; // Erase everything keeps Appearance (huddle-theme)
   var LAST_SENT_KEY = 'huddle-last-sent';
   var STALE_FLAG = 28, STALE_DROP = 35; // days: ask after 4 weeks untouched, remove after 5
   var WARD_KEY = 'huddle-ward';
@@ -46,9 +47,8 @@
       'Which new members in their first year of membership are attending sacrament meeting? How can we help any who are not attending?',
       'Which new members have friends in the ward? How can ministering brothers and sisters help? How can youth quorums and classes help?',
       'Which new members have an assignment or calling?',
-      'How can we help new members begin researching their deceased ancestors so temple ordinances can be performed for them? Do new members have a temple recommend? If a temple is nearby, how can we help them go to the temple to perform baptisms for these ancestors?',
-      'Which lessons from chapter 3 still need to be taught again? How can members participate?',
-      'Review My Covenant Path progress for each new member.'] },
+      'How can we help new members begin researching their deceased ancestors so temple ordinances can be performed for them? Do new members have a temple recommend? If a temple is nearby, how can we help them go to the temple to perform baptisms for these ancestors?'] },
+      // (The chapter 3 lessons question and "Review My Covenant Path progress" came out, Nov 20, 2026: Before Ward Council does the review.)
     rm: { list: 'Returning members', title: 'How can we help returning members?', items: [
       'Which part-member families can the missionaries visit and teach?',
       'Which returning members can the missionaries visit and teach?',
@@ -616,7 +616,7 @@
   var rrAdding = false;
   function rrNothing() { return rowsOn && !rrAdding && !state.rr.some(rrShown); }
   function renderRR() {
-    reconcileCarries();
+    reconcileCarries(); updateAsgCount();
     var list = $('#rr-list');
     $('#rr-foot').hidden = folded('rr');
     if (folded('rr')) { list.replaceChildren(foldedRR()); renderLoadState(); return; }
@@ -876,13 +876,13 @@
     return h('div', { class: 'full ord-suggest' }, [h('button', { type: 'button', class: 'idea-chip is-suggest', 'data-action': 'ord-suggest', 'data-a': base + 'ordinance', 'data-b': sug }, ['Suggested: ' + sug])]);
   }
   // The huddle's half: one action item, who and when. `top` (optional) sits under the label; `tools` beside it.
-  function hdZone(base, whenPh, top, tools) {
+  function hdZone(base, whenPh, top, tools, noLabel) {
     var hneedVal = str(getPath(base + 'hneed')).trim();
     var hneedField = field('Huddle notes', base + 'hneed', { full: true, multi: true, placeholder: 'Anything to relay back to ward council' });
     if (!hneedVal) hneedField.hidden = true;
     var hneedLink = h('button', { type: 'button', class: 'link-add', 'data-action': 'add-hneed', hidden: !!hneedVal }, ['+ Add a note for ward council']);
     return h('div', { class: 'card-zone zone-hd-wrap' }, [
-      tools ? h('div', { class: 'zone-label-row' }, [zoneLabel('hd', 'Huddle · How & When'), tools]) : zoneLabel('hd', 'Huddle · How & When'),
+      tools ? h('div', { class: 'zone-label-row' }, [zoneLabel('hd', 'Huddle · How & When'), tools]) : noLabel ? null : zoneLabel('hd', 'Huddle · How & When'), // a focus name's screen has no label (Nov 20, 2026)
       top || null,
       h('div', { class: 'card-grid' }, [
         field('Assignment', base + 'action', { full: true, multi: true, rows: '3', placeholder: 'What might you do to assist them in being worthy and prepared for their next ordinance?',
@@ -946,7 +946,7 @@
     return h('div', { class: 'card person-hd' }, [
       staleNote(base, a, isTn),
       top,
-      hdZone(base, 'e.g. Sat 9 am', hdChecks(g, base, r.i, a)),
+      hdZone(base, 'e.g. Sat 9 am', hdChecks(g, base, r.i, a), null, isTn && !CP_SECTION),
       g === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': r.i }, ['Move to New members']) : null
     ]);
   }
@@ -1180,23 +1180,28 @@
   /* ---------- How can we help? ---------- */
   // The small link under a list's name in the Huddle.
   function howHelpLink(id) {
-    return h('button', { type: 'button', class: 'how-help', 'data-action': 'how-help', 'data-a': id, 'aria-haspopup': 'dialog' },
+    return h('button', { type: 'button', class: 'how-help' + (id === 'focus' ? ' how-help-focus' : ''), 'data-action': 'how-help', 'data-a': id, 'aria-haspopup': 'dialog' },
       [h('span', { text: 'How can we help?' }), h('span', { class: 'how-help-chev', 'aria-hidden': 'true', text: '›' })]);
   }
   // The panel that slides up with that section's questions. It closes with the X, a tap outside, or a swipe down.
+  // One list for focus names (the user decided, Nov 20, 2026): a header for each Covenant Path list, then its questions.
   function openHowHelp(id) {
-    var q = HOW_HELP[id]; if (!q) return;
+    var all = id === 'focus', q = all ? { list: 'Focus names', title: 'How can we help?' } : HOW_HELP[id]; if (!q) return;
     var sheet = $('#howhelp-sheet .sheet'), list = $('#howhelp-list');
-    sheet.className = 'sheet help howhelp g-' + id; // the list's own color
+    sheet.className = 'sheet help howhelp g-' + (all ? 'tn' : id); // the list's own color
     $('#howhelp-kicker').textContent = q.list;
     $('#howhelp-title').textContent = q.title;
     // Each question on its own line, so a card with three questions doesn't read as one block.
     // (A space between them keeps the words read aloud and copied as the manual has them.)
-    list.replaceChildren.apply(list, q.items.map(function (t) {
+    var item = function (t, g) {
       var parts = t.replace(/\?\s+(?=[A-Z])/g, '?\n').split('\n'), kids = []; // (no lookbehind: older iPhones can't read it)
       parts.forEach(function (x, k) { if (k) kids.push(' '); kids.push(h('span', { class: 'howhelp-q', text: x })); });
-      return h('li', { class: parts.length > 1 ? 'many' : null }, kids);
-    }));
+      return h('li', { class: [parts.length > 1 ? 'many' : '', g ? 'g-' + g : ''].join(' ').trim() || null }, kids);
+    };
+    var rows = all ? [].concat.apply([], ['nm', 'rm', 'bt'].map(function (g) {
+      return [h('li', { class: 'howhelp-group g-' + g, text: { nm: 'Helping new members', rm: 'Helping returning members', bt: 'Helping those being taught' }[g] })].concat(HOW_HELP[g].items.map(function (t) { return item(t, g); }));
+    })) : q.items.map(function (t) { return item(t); });
+    list.replaceChildren.apply(list, rows);
     openOverlay('#howhelp-sheet', '.sheet-x'); sheet.scrollTop = 0;
   }
   /* ---------- Training slides ----------
@@ -1273,7 +1278,7 @@
       if (gid === 'bt' && apptNote(a)) bits.push(apptNote(a));
       if (a.sac) bits.push('✓ Sacrament');
       if (a.actionCarried && str(a.action).trim() && !tags.length) tags.push(rowTag('Carried forward', 'carried'));
-      sub = [str(a.action).trim(), str(a.assigned).trim(), whenShow(a.when)].filter(Boolean).join(' · ');
+      sub = [str(a.action).trim().split(/\n+/).join(', '), str(a.assigned).trim(), whenShow(a.when)].filter(Boolean).join(' · ');
       if (isCp && !CP_SECTION) { var hcc = checkCount(a, gid); sub = isFocus ? 'Assignment under Focus names' : name ? hcc.done + ' of ' + hcc.of + ' done' : ''; } // the rest of the report, for reference
       else if (!sub && name) { sub = 'Needs an assignment'; warn = true; }
     } else if (kind === 'bw' || (kind === 'wc' && isCp)) {
@@ -1295,18 +1300,26 @@
     if (!name) sub = sub || 'Tap to add';
     var title = name || (gid === 'tn' ? 'Focus name ' + (i + 1) : 'No name yet');
     var swipe = gid === 'tn' && name && kind !== 'bw';
+    var origin = gid === 'tn' && kind === 'hd' && name ? tnOrigin(a) : ''; // which list a focus name came from (Nov 20, 2026)
+    var planned = gid === 'tn' && kind === 'hd' && name && !warn;
     return h('li', { class: [swipe ? 'swipe-li' : '', flag ? flag.cls : ''].join(' ').trim() || null }, [swipe ? h('button', { type: 'button', class: 'swipe-del', 'data-action': 'swipe-remove-tn', 'data-a': i, 'aria-label': 'Remove ' + name + ' from Focus names', text: 'Remove' }) : null,
       h('button', { type: 'button', class: 'nav-row person-row' + (name ? '' : ' is-blank'), 'data-action': 'open-person', 'data-a': gid, 'data-b': i, 'data-kind': kind,
       'aria-label': title + (flag ? '. ' + flag.text : '') + '. ' + sub + (due ? '. ' + due : '') }, [
       initialsDot(name),
       h('span', { class: 'step-text' }, [
         h('span', { class: 'step-title person-name', text: title }),
+        origin ? h('span', { class: 'row-origin', text: origin }) : null,
         flag ? h('span', { class: 'row-flag', text: flag.text }) : null,
         h('span', { class: 'step-status' + (warn ? ' warn' : '') }, [sub, due ? h('span', { class: 'row-due', text: (sub ? ' · ' : '') + due }) : null]),
         tags.length ? h('span', { class: 'row-tags' }, tags) : null
       ]),
+      planned ? h('span', { class: 'row-ok', 'aria-hidden': 'true' }, [icon('check')]) : null,
       h('span', { class: 'step-chev', 'aria-hidden': 'true', text: '›' })
     ])]);
+  }
+  // Which Covenant Path Report list a focus name is on: "New member", "Returning member" or "Being taught".
+  function tnOrigin(a) {
+    var src = cpOfName(a.name); return src ? { nm: 'New member', rm: 'Returning member', bt: 'Being taught' }[src.gid] || '' : '';
   }
   // A list as rows, grouped the way an iPhone groups a list: the names, then "Add a name" as the last row.
   // kind 'hd' = the huddle's list (an empty one can be confirmed as "none this week"), 'wc' = ward council's,
@@ -1354,7 +1367,7 @@
     var kids = [h('div', { class: 'list-head' }, [
       h('h3', { class: 'list-title', text: title }),
       h('span', { class: 'list-count', text: isTn ? tnCountText() : ok ? 'None this week' : countText(countNamed(gid)) }),
-      (kind === 'hd' || kind === 'wc') && HOW_HELP[gid] ? howHelpLink(gid) : null // the Huddle and ward council (not Before ward council)
+      CP_SECTION && kind === 'hd' && HOW_HELP[gid] ? howHelpLink(gid) : null // (now one list, on the Focus names cards; tests' old layout keeps these)
     ]), h('ul', { class: 'steps-list person-rows' }, rows)];
     if (kind === 'hd' && gid === 'nm' && named) kids.push(h('p', { class: 'temple-goal', text: 'Goal: every new member attends the temple for baptisms for the dead within 30 days of their baptism.' }));
     var attrs = { class: 'list-panel rows list-' + gid + (named ? '' : ' is-empty'), 'aria-label': title };
@@ -1397,7 +1410,7 @@
       placeholder: r.g === 'tn' ? 'Focus name' : isRef ? 'Who is being referred' : 'Name, as in the Covenant Path Report',
       autocomplete: 'off', autocapitalize: 'words', enterkeyhint: 'done', maxlength: '300' });
     var head = h('div', { class: 'person-head', 'data-action': 'edit-name', role: 'button', tabindex: '0', 'aria-label': 'Edit the name: ' + personTitle(r) }, [dot, h('div', { class: 'person-head-text' }, [
-      h('p', { class: 'person-head-name', text: personTitle(r) }), h('p', { class: 'person-head-list', text: LIST_LABEL[r.g] })]), nameBox]);
+      h('p', { class: 'person-head-name', text: personTitle(r) }), h('p', { class: 'person-head-list', text: LIST_LABEL[r.g] + (r.g === 'tn' && tnOrigin(a) ? ' · ' + tnOrigin(a) : '') })]), nameBox]);
     wrap.replaceChildren(h('section', attrs, [head, note, card]), done, remove);
     if (r.g === 'nm') updateTemple();
   }
@@ -2131,6 +2144,15 @@
       if (fill.getAttribute('data-w') !== w) { fill.setAttribute('data-w', w); setTimeout(function () { fill.style.width = w; }, 60); }
     });
   }
+  var sendSeen = false; // the first drawing sets Send's state quietly; it pulses only when it becomes ready
+  var rrFromBar = false; // Return and Report opened from the bottom bar's Assignments: titled "Assignments"
+  // The bottom bar's Assignments: how many of last huddle's assignments aren't marked yet.
+  function updateAsgCount() {
+    var el = $('#asg-count'); if (!el) return;
+    var n = state.rr.filter(rrShown).filter(function (r) { return !r.happened; }).length;
+    el.hidden = !n; el.textContent = n > 9 ? '9+' : String(n);
+    var b = el.closest('.nav-asg'); if (b) b.setAttribute('aria-label', n ? 'Assignments, ' + n + ' not marked yet' : 'Assignments');
+  }
   var justDone = { id: '', at: 0 }; // the section marked done a moment ago: its check pops once
   // Sections open in any order; a finished one gets a green check.
   function renderSteps() {
@@ -2144,7 +2166,7 @@
       var isDone = !!state.stepsDone[st.id], status = stepStatus(st.id), isNext = upNext === st.id;
       var num = null;
       if (isDone) { num = h('span', { class: 'step-num' + (justDone && justDone.id === st.id && Date.now() - justDone.at < 1500 ? ' pop' : ''), 'aria-hidden': 'true' }); num.appendChild(icon('check')); }
-      return h('li', { class: isNext ? 'is-next' : null }, [h('button', { type: 'button', class: 'nav-row step-row' + (isDone ? ' done' : '') + (isNext ? ' is-next' : ''), 'data-action': 'open-step', 'data-a': st.id,
+      return h('li', { class: ['hd-card', isNext ? 'is-next' : '', isDone ? 'is-done' : ''].join(' ').trim() }, [h('button', { type: 'button', class: 'nav-row step-row' + (isDone ? ' done' : '') + (isNext ? ' is-next' : ''), 'data-action': 'open-step', 'data-a': st.id,
         'aria-label': st.title + (isDone ? ', done' : isNext ? ', up next' : '') + '. ' + status.text }, [
         tile(st.id),
         h('span', { class: 'step-text' }, [
@@ -2153,11 +2175,19 @@
         ]),
         num,
         h('span', { class: 'step-chev', 'aria-hidden': 'true', text: '›' })
-      ])]);
+      ]), st.id === 'tn' && !CP_SECTION ? hdFocusNames() : null]);
     };
     $('#steps-last').replaceChildren.apply($('#steps-last'), STEPS.filter(function (st) { return st.band === 'last'; }).map(row));
     $('#steps-this').replaceChildren.apply($('#steps-this'), STEPS.filter(function (st) { return st.band === 'this'; }).map(row));
     if (view !== 'home') renderStepFoot();
+  }
+  // The Huddle's Focus names card lists the names right on it (Nov 20, 2026): one line each, tap to plan it.
+  function hdFocusNames() {
+    var rows = state.tn.map(function (a, i) { return { a: a, i: i }; }).filter(function (x) { return str(x.a.name).trim(); })
+      .map(function (x) { var li = personRow('hd', 'tn', x.i, x.a); li.classList.remove('swipe-li'); var sd = li.querySelector('.swipe-del'); if (sd) sd.remove(); return li; });
+    return h('div', { class: 'hd-tn-names' }, [
+      rows.length ? h('ul', { class: 'steps-list person-rows' }, rows) : h('p', { class: 'hd-tn-empty', text: 'No focus names yet. Ward Council chooses them.' }),
+      howHelpLink('focus')]);
   }
   // The sections in order, for Next and the link back: the Huddle's, or ward council's three lists.
   function footList() { return isWcList(view) ? WC_LISTS.map(function (l) { return { id: 'wc-' + l.id, title: l.title }; }) : STEPS; }
@@ -2216,7 +2246,9 @@
     $('#mode-title').textContent = wc ? 'Ward Council' : bw ? 'Before Ward Council' : af ? 'After the huddle' : 'Huddle';
     $('#hd-hero').hidden = all || view !== 'home'; // the Huddle's header card, with its one line on what to do there
     var stp = STEPS.filter(function (x) { return x.id === view; })[0] || WC_LISTS.filter(function (x) { return 'wc-' + x.id === view; })[0] || (view === 'wc-pick' ? { title: 'Find your focus names' } : null);
-    $('#step-title').textContent = person ? personTitle(personRef) : stp ? stp.title : '';
+    if (view !== 'rr') rrFromBar = false;
+    $('#step-title').textContent = person ? personTitle(personRef) : view === 'rr' && rrFromBar ? 'Assignments' : stp ? stp.title : '';
+    var nb = $('.nav-asg'); if (nb) nb.classList.toggle('is-here', view === 'rr' && rrFromBar);
     // Leaving a person's screen: drop a name left empty, then redraw the lists it appears on.
     if (isPerson(shownView) && !person) { cleanupPerson(); renderCP(); renderTN(); renderFN(); }
     // Names edited in ward council show up on the huddle's cards.
@@ -2398,6 +2430,15 @@
     var sh = swipeHint(rows); if (sh) rows.push(sh);
     if (!named.length) rows.push(h('li', { class: 'list-empty' }, [h('p', { class: 'list-empty-text', text: 'Choose up to three from the lists above.' })]));
     if (named.length < 3) rows.push(h('li', {}, [h('button', { type: 'button', class: 'nav-row add-row', 'data-action': 'add-focus', 'aria-label': 'Add a focus name' }, [icon('plus'), h('span', { text: 'Add a focus name' })])]));
+    // Fewer than three: the suggested names, to add right here (the user asked, Nov 20, 2026).
+    var sugs = named.length < 3 ? suggestedNames().slice(0, 3) : [];
+    var sugBox = sugs.length ? h('div', { class: 'wc-sugs' }, [h('p', { class: 'wc-sugs-k', text: 'Suggested focus names' }),
+      h('ul', { class: 'steps-list person-rows' }, sugs.map(function (x) {
+        return h('li', { class: 'pick-li flag-sug' }, [h('div', { class: 'nav-row pick-row' }, [initialsDot(x.name),
+          h('span', { class: 'step-text' }, [h('span', { class: 'step-title person-name', text: x.name }), h('span', { class: 'row-flag', text: x.why })]),
+          h('button', { type: 'button', class: 'btn-outline pick-add', 'data-action': 'pick-focus', 'data-a': x.gid, 'data-b': x.i, 'aria-label': 'Add ' + x.name + ' to focus names' }, ['Add'])])]);
+      }))]) : null;
+    var undo = done ? h('button', { type: 'button', class: 'btn-link wc-undone', 'data-action': 'tn-undone' }, ['Mark as not done']) : null;
     // The card's button: gray while a focus name needs a next ordinance (tapping opens it), then Keep these focus names.
     var needs = focusNeeds(), keep = null;
     if (named.length && !done) keep = needs.length
@@ -2413,7 +2454,19 @@
         h('span', { class: 'step-title', text: 'Focus names' }),
         h('span', { class: 'step-status' + (done ? ' ok' : ''), text: done ? 'Kept, with a next ordinance for each' : tnCountText() + ' · choose each one’s next ordinance' })
       ]), done ? icon('check', 'wc-done-tick') : null]), finds,
-      h('ul', { class: 'steps-list person-rows', 'data-wc': 'tn' }, rows), keep ? h('div', { class: 'wc-keep-wrap' }, [keep]) : null].filter(Boolean));
+      h('ul', { class: 'steps-list person-rows', 'data-wc': 'tn' }, rows), sugBox, keep ? h('div', { class: 'wc-keep-wrap' }, [keep]) : null,
+      h('div', { class: 'wc-card-foot' }, [howHelpLink('focus'), undo])].filter(Boolean));
+  }
+  // The names Huddle suggests as focus names (the red bar), not yet focus names: the most pressing first.
+  function suggestedNames() {
+    var out = [];
+    ['nm', 'rm', 'bt'].forEach(function (gid) {
+      state.cp[gid].forEach(function (a, i) {
+        var name = str(a.name).trim(); if (!name || focusIndex(name) >= 0) return;
+        var why = pressingReason(a, gid); if (why) out.push({ gid: gid, i: i, name: name, why: why });
+      });
+    });
+    return out;
   }
   // Find your focus names → the Covenant Path Report (the user asked, Nov 19, 2026, night): just each name, a Suggested
   // focus name tag with its reason (the temple countdown, a baptism date), and Add to focus names. No question, no
@@ -2594,7 +2647,15 @@
     $('.start-ward').classList.toggle('is-empty', !state.ward.trim());
     $('.start-ward').setAttribute('aria-label', state.ward.trim() ? 'Ward: ' + state.ward.trim() + '. Tap to change it.' : 'Add your ward');
     $('#start-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-    var send = $('.actionbar [data-action="send"]'); if (send) send.classList.toggle('not-ready', !state.verified.after);
+    var send = $('.actionbar [data-action="send"]');
+    if (send) {
+      // Ready to send: green, with one gentle pulse the moment it becomes ready (Nov 20, 2026).
+      var ready = !!state.verified.after, was = send.classList.contains('is-ready');
+      send.classList.toggle('not-ready', !ready); send.classList.toggle('is-ready', ready);
+      if (ready && !was && sendSeen) { send.classList.remove('pulse'); void send.offsetWidth; send.classList.add('pulse'); }
+      sendSeen = true;
+    }
+    updateAsgCount();
     var names = state.tn.filter(function (a) { return str(a.name).trim(); }).length + GROUPS.reduce(function (n, g) { return n + countNamed(g.id); }, 0);
     $('#door-wc-sub').textContent = names ? plural(names, 'name', 'names') + ' · next ordinances and needs' : 'Names, next ordinances and needs';
     var items = state.rr.filter(rrShown), marked = items.filter(function (r) { return r.happened; }).length;
@@ -2850,6 +2911,7 @@
       case 'make-focus': state.tnKept = true; makeFocus(a, +b); break;
       case 'pick-focus': state.tnKept = true; makeFocus(a, +b); renderWC(); break;
       case 'tn-keep-gate': { var nd = focusNeeds(); ask({ title: 'Choose a next ordinance first', body: nd.length === 1 ? str(nd[0].a.name).trim() + ' needs a next ordinance.' : nd.map(function (x) { return str(x.a.name).trim(); }).join(', ') + ' need a next ordinance.', primary: 'OK' }); break; }
+      case 'tn-undone': state.tnKept = false; saveDraft(); renderWC(); renderDoors(); renderHeroes(); break; // Mark as not done, under the green check
       case 'tn-keep': if (!focusNeeds().length) { state.tnKept = true; saveDraft(); renderWC(); renderDoors(); renderHeroes(); } break;
       case 'wc-ask-done': state.ask = state.ask || {}; state.ask.done = true; saveDraft(); renderStepFoot();
         { var hs1 = null; try { hs1 = history.state; } catch (e) { /* ignore */ } if (hs1 && isWcList(hs1.hv) && hs1.pushed) { try { history.back(); } catch (e) { showView('wc', 'replace'); } } else showView('wc', 'replace'); }
@@ -2873,7 +2935,8 @@
         break;
       }
       case 'list-open': listOpen(a); break;
-      case 'open-step': showView(a, 'push'); break;
+      case 'open-step': rrFromBar = false; showView(a, 'push'); break;
+      case 'open-assignments': rrFromBar = true; if (view === 'rr') applyView(); else showView('rr', 'push'); break; // one page: "Assignments" from here, "Return and Report" from the Huddle
       case 'open-wc': showView('wc', 'push'); break;
       case 'date-pick': pickDate(a, b); break;
       case 'open-wc-list': showView('wc-' + a, 'push'); break;
@@ -3232,11 +3295,19 @@
       }
       case 'clear':
         if (!$('#help-sheet').hidden) closeHelp();
-        if (isEmpty(state)) { toast('There’s nothing to erase.'); break; }
+        // Erase everything starts Huddle over as if it were new on this phone (Nov 20, 2026): the ward name and the
+        // first-time screens (the welcome, the guide, the tips) come back too. Only Appearance is kept.
         ask({
           title: 'Erase everything?',
-          body: 'Every name, need and assignment on this phone will be erased, along with the last huddle you sent. The ward name is kept. This can’t be undone.',
-          primary: 'Erase everything', onPrimary: function () { removeKey('localStorage', 'huddle-conducting'); clearForm(true); toast('Everything is erased. The ward name is kept.'); },
+          body: 'Every name, need and assignment on this phone will be erased, with the ward name and the last huddle you sent. Huddle starts over as if it were new. This can’t be undone.',
+          primary: 'Erase everything', onPrimary: function () {
+            var pre = LIVE_KEY.slice(0, LIVE_KEY.indexOf('-') + 1), keep = [THEME_KEEP, 'gate-test', 'gate-off', 'cards-open', 'cp-section', 'view-all'].map(function (k) { return pre + k; });
+            ['localStorage', 'sessionStorage'].forEach(function (where) {
+              try { var st = window[where], ks = []; for (var k = 0; k < st.length; k++) ks.push(st.key(k)); ks.forEach(function (k) { if (k && k.indexOf(pre) === 0 && keep.indexOf(k) < 0) st.removeItem(k); }); } catch (e) { /* storage blocked */ }
+            });
+            try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ignore */ }
+            location.reload();
+          },
           secondary: 'Cancel'
         });
         break;

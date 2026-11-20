@@ -986,3 +986,34 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
   Tapping an idea no longer jumps to Assigned to.
 - Up next and Start here are green (#1E8A4C): the badge and the card's border, on the opening screen, Ward Council and the
   Huddle.
+
+## The Nov 20, 2026 list (v262)
+
+- **The Huddle's sections are cards of their own**, like Ward Council's: Return and Report and Sacrament attendance, then
+  "This week's plan" over Opportunities to invite and Focus names. The one Up next has a green outline and a green Up next
+  badge; a done one has a green check and a green border.
+- **The Huddle's Focus names card lists the focus names** right on it, one row each: the name, the list they came from
+  ("New member", "Returning member", "Being taught", found by name on the Covenant Path Report; nothing if they aren't
+  on it), then their assignment, who and when with a green check, or "Needs an assignment" in red. Tapping a name opens
+  their screen. A focus name's screen says "Focus name · New member" (and so on) at the top, and no longer has the
+  "Huddle · How & When" label above Assignment.
+- **How can we help? is one list**, opened from the Focus names card in Ward Council and in the Huddle: a header for
+  Helping new members, Helping returning members and Helping those being taught, then their questions (Preach My
+  Gospel, chapter 13, with its source line). The Covenant Path Report lists no longer have their own links, and the
+  chapter 3 lessons and "Review My Covenant Path progress" questions came out.
+- **Ward Council's Focus names card**: with fewer than three focus names, "Suggested focus names" lists the names with a
+  red bar (their reason under each) and an Add button. Once kept, "Mark as not done" sits beside How can we help? and
+  takes the check off.
+- **Assignments, on the left of the bottom bar**, with a red count of last huddle's assignments not marked yet. It opens
+  Return and Report's page, titled "Assignments"; from the Huddle the same page is titled "Return and Report". It doesn't
+  change the huddle's date.
+- **Send turns green** once all four steps are done, with one gentle pulse the moment it becomes ready (none with
+  Reduce Motion).
+- **Doesn't apply on the priesthood steps** already stops the Priesthood advancement suggestion (Suggested: … under Next
+  ordinance); `test/nov20.js` checks it.
+- **Tips for opportunities to invite** (was Tips for Finding New People to Teach): one line of our own first ("For each
+  event, plan who will invite and how. These ideas help members love, share and invite."), then the source's tips word for
+  word, the event ones first.
+- **Erase everything** starts Huddle over as if it were new: every saved key on this phone except Appearance (and the
+  test-only flags), the ward name and the first-time screens included, then the page reloads.
+- `test/nov20.js` covers all of these.

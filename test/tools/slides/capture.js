@@ -59,9 +59,6 @@ module.exports = (async () => {
   // Ask ward council: the Covenant Path Report's lists, to check off steps the council knows about
   await p.click('#wc-step-ask [data-action="open-wc-list"]'); await wait(500);
   await shot('s09-wc-cp', '#wc-list .ask-q', { scroll: false });
-  await p.click('[data-wc="nm"] [data-action="how-help"]'); await wait(500);
-  await shot('s18-howhelp');
-  await p.click('#howhelp-sheet [data-action="close-how-help"]'); await wait(400);
   await p.click('[data-wc="nm"] [data-action="row-toggle"] >> nth=0'); await wait(500); // its open steps, right in the list
   await p.click('[data-wc="nm"] .exp-body [data-action="check-item"][aria-checked="false"]'); await wait(300);
   await shot('s10-wc-person', '[data-wc="nm"] .exp-li.is-open', { block: 'start' });
@@ -69,11 +66,15 @@ module.exports = (async () => {
   // Find names: the Covenant Path Report button in the Focus names card, then Add to focus names
   await shot('s12a-wc-finds', '#wc-step-tn .wc-finds', { block: 'center' });
   await p.click('#wc-step-tn [data-a="pick"]'); await wait(500);
-  const hasSug = !!(await p.$('.pick-li.flag-sug [data-action="pick-focus"]'));
-  const pickLi = hasSug ? '.pick-li.flag-sug:has([data-action="pick-focus"])' : '.pick-li:has([data-action="pick-focus"])';
+  const hasSug = !!(await p.$('#wc-list .pick-li.flag-sug [data-action="pick-focus"]'));
+  const pickLi = hasSug ? '#wc-list .pick-li.flag-sug:has([data-action="pick-focus"])' : '#wc-list .pick-li:has([data-action="pick-focus"])';
   if (await p.isVisible(pickLi)) { await shot('s12p-wc-pick', pickLi); await p.click(pickLi + ' [data-action="pick-focus"] >> nth=0'); await wait(500); }
   else console.log('note: no name to add in the picker');
   await back();
+  // How can we help?: one list, from the Focus names card (Nov 20, 2026)
+  await p.click('#wc-step-tn [data-action="how-help"]'); await wait(500);
+  await shot('s18-howhelp');
+  await p.click('#howhelp-sheet [data-action="close-how-help"]'); await wait(400);
   // The focus names sit right on Ward Council: a next ordinance for each, then Keep these focus names
   for (let k = 0; k < 6; k++) {
     const row = await p.$('#wc-step-tn .person-row:has(.fold-tag.due)'); if (!row) break;
