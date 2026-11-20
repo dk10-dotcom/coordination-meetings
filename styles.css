@@ -1124,6 +1124,7 @@ body.handoff-open main.wrap { display: none; }
 .tile-cp { --tile: #2E5597; }
 .tile-tn { --tile: #B5790A; }
 .tile-fn { --tile: #0E7C82; }
+.tile-ask { --tile: #6E2F7E; }
 .tile-mr { --tile: #B23A5E; }
 .nav-row:has(.row-icon), .nav-row:has(.avatar) { gap: 12px; }
 .steps-list > li + li:has(.row-icon)::before { margin-left: 60px; }
@@ -1698,3 +1699,39 @@ body[data-view="start"] .title-text .title-sub { margin-top: 8px; font-size: 13p
 .after-upd-ck .ck-box { display: inline-flex; align-items: center; justify-content: center; }
 .after-upd-ck.is-done .ck-box { background: #1F6B3A; border-color: #1F6B3A; color: #FFFFFF; }
 .after-upd-ck.is-done .ck-box svg { width: 14px; height: 14px; }
+
+/* Ward Council: the Find your focus names box is a tool (no check); Focus names has its Keep button */
+.wc-find .wc-group-k { margin: 2px 4px 0; }
+.wc-keep-wrap { padding: 10px 14px 14px; border-top: 1px solid #E3E7EE; }
+.wc-keep { min-height: 48px; font-size: 16px; }
+.wc-keep.is-blocked { background: #C9D3E6; border-color: #C9D3E6; color: #2E4A7E; box-shadow: none; }
+.ord-done { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 15px; font-weight: 600; color: #1F6B3A; }
+.ord-done svg { flex: none; width: 16px; height: 16px; }
+.row-due { color: #B3261E; font-weight: 600; }
+/* Ward Council's Covenant Path Report: the Ask ward council question, and a quiet link to the report */
+.ask-head { display: flex; flex-direction: column; gap: 6px; margin: 0 4px 2px; }
+.ask-q { margin: 0; font-size: 15.5px; line-height: 1.4; color: var(--text); }
+.quiet-link { align-self: flex-start; font-size: 14.5px; font-weight: 600; color: var(--accent); text-decoration: none; padding: 4px 0; }
+.quiet-link:active { opacity: .6; }
+
+/* Every list of names is one plain white card (the user asked, Nov 19, 2026, evening), like Ward Council's focus names:
+   a small heading inside (a dot in the list's color, its name and count), then the rows. */
+.list-panel.rows { background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; box-shadow: 0 1px 2px rgba(27,43,75,.05); gap: 0; overflow: hidden; }
+.list-panel.rows .list-head { border-left: 0; background: none; border-radius: 0; padding: 13px 14px 9px 16px; align-items: center; }
+.list-panel.rows .list-title { display: inline-flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 700; color: var(--ink); }
+.list-panel.rows .list-title::before { content: ''; flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--list-ink); }
+.list-panel.rows .list-count { font-size: 13.5px; font-weight: 500; color: var(--muted); }
+.list-panel.rows > .steps-list { border: 0; border-radius: 0; box-shadow: none; border-top: 1px solid #E3E7EE; }
+.list-panel.rows .list-head .how-help { min-height: 34px; margin: -2px 0 -6px; font-size: 14px; color: var(--accent); }
+.list-panel.rows + .list-panel.rows { margin-top: 14px; }
+@media (max-width: 359px) { .list-panel.rows .list-title { font-size: 16px; } }
+/* Return and Report: a plain white card per assignment; its status still colors the card once marked */
+.rr-card { border-left: 1px solid var(--card-line); }
+.rr-card .card-kicker { display: none; }
+.rr-card .prefill { background: none; border: 0; padding: 0; }
+.rr-card[data-status="yes"], .rr-card[data-status="partly"], .rr-card[data-status="no"] { border-left-width: 1px; }
+.bw-note[hidden] { display: none; }
+.list-panel.rows .list-head + .person-rows, .list-panel.rows .list-head + .info-text + .person-rows { border: 0; border-top: 1px solid #E3E7EE; border-radius: 0; }
+.card-grid > .ord-done { grid-column: 1 / -1; }
+/* An event's own screen: its fields in a white block, like a person's screen */
+#person-view .opp-screen > .card-grid { background: var(--card); border-radius: 12px; padding: 14px 16px; margin-top: 14px; }

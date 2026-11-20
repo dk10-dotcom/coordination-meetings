@@ -99,8 +99,8 @@ The bottom bar (a round Home in the middle, Send on the right) floats on every s
 section, step 4) is pinned just above it, green with a check once done; the green Done keeps it done and goes back,
 and a small Mark as not done link under it undoes it; on the opening screen Home scrolls back to the top. Each
 training slide shows which part of the week it is in (1-4 and Week).
-`wccards.js` tests Ward Council's cards (Up next, Done or No upcoming events, the Find your focus names box, the focus names right on
-the screen, a name's plain screen with its next steps, Event date). `flow.js` tests the week's flow: the opening screen, the
+`wccards.js` tests Ward Council's cards (Up next, Done or No upcoming events, Ask ward council, the Find your focus names tool box,
+the focus names right on the screen with Keep these focus names, next ordinance only on focus names, Event date). `flow.js` tests the week's flow: the opening screen, the
 "i" instructions, the Huddle's Mark done waiting for what's needed and going on to the next section, After the huddle's
 Updated in the report ticks, Hand off under the steps and the ward asked first.
 `howhelp.js` tests the How can we help? panels, the list names' bands and the source links.

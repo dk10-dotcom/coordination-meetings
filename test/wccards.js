@@ -22,10 +22,11 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const view = () => p.evaluate(() => document.body.dataset.view);
   await p.goto(BASE); await w(900); await p.click('[data-action="dismiss-install"]').catch(() => {});
   await p.click('.door-wc'); await w(500);
-  ok(await nextId() === 'wc-step-fn' && await doneIds() === 'wc-find', 'Opportunities to invite is Up next; the Find your focus names box has its check once focus names are chosen');
-  ok(await p.isVisible('#wc-find-tick') && await p.locator('#wc-step-cp .wc-done-tick').count() === 0 && /Done once you choose a focus name\./.test(await p.textContent('#wc-find')), 'the check sits by Find your focus names (not on the Covenant Path Report row), with a line saying what finishes it');
+  ok(await nextId() === 'wc-step-fn' && await doneIds() === '', 'a new week: Opportunities to invite is Up next and nothing is checked yet');
+  ok(await p.evaluate(() => Array.from(document.querySelectorAll('#wc-rows > [id]')).map(e => e.id).join('|')) === 'wc-step-fn|wc-step-ask|wc-find|wc-step-tn' && /Has anyone completed a step on their Covenant Path this week\?/.test(await p.textContent('#wc-step-ask')), 'the cards in order: Opportunities to invite, Ask ward council, Find your focus names, Focus names');
+  ok(await p.locator('#wc-find .wc-done-tick, #wc-find-tick').count() === 0 && !(await p.evaluate(() => document.querySelector('#wc-find').classList.contains('is-next'))), 'Find your focus names is a tool box, with no check of its own');
   ok(await p.evaluate(() => !!document.querySelector('#wc-find #wc-step-cp') && !!document.querySelector('#wc-find #wc-pmf')), 'the Covenant Path Report and Open Part-Member Families share the box');
-  ok(/Opportunities to invite not done yet/.test(await p.textContent('#wc-hero .hero-count')), 'the header card says Opportunities to invite isn’t done yet');
+  ok(/0 of 3 done · next: Opportunities to invite/.test(await p.textContent('#wc-hero .hero-count')), 'the header card says what’s next: ' + await p.textContent('#wc-hero .hero-count'));
   ok(await fits(), 'Ward Council fits a 320 px screen');
   // Opportunities to invite: one button at the bottom
   await p.click('[data-action="open-wc-list"][data-a="fn"]'); await w(500);
@@ -34,7 +35,18 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   await p.click('#fn-list .info-i[data-a="opp-what"]'); await w(150);
   ok(/Ward activities, special meetings and other events to invite friends to\./.test(await p.textContent('#fn-list [data-info="opp-what"]')) && await p.isVisible('#fn-list [data-info="opp-what"]'), 'tapping the i shows what an opportunity is');
   await p.click('#step-done-btn'); await w(500);
-  ok(await view() === 'wc' && await nextId() === 'wc-step-tn' && /wc-step-fn/.test(await doneIds()) && /No upcoming events/.test(await p.textContent('#wc-step-fn')), 'No upcoming events goes back to Ward Council: Opportunities to invite has its check and Focus names is Up next');
+  ok(await view() === 'wc' && await nextId() === 'wc-step-ask' && /wc-step-fn/.test(await doneIds()) && /No upcoming events/.test(await p.textContent('#wc-step-fn')), 'No upcoming events goes back to Ward Council: Opportunities to invite has its check and Ask ward council is Up next');
+  // Ask ward council: the Covenant Path Report's lists, with No changes this week, or Done once a step is checked off
+  await p.click('#wc-step-ask [data-action="open-wc-list"]'); await w(400);
+  ok(await view() === 'wc-cp' && /Ask ward council/.test(await p.textContent('#wc-list .ask-q')) && (await p.textContent('#step-done-btn')).trim() === 'No changes this week' && await p.locator('#wc-list .btn-tools').count() === 0 && await p.isVisible('#wc-list .quiet-link'), 'Ask ward council opens the lists with its question, a quiet link to the report, and No changes this week');
+  ok(!/next ordinance/i.test(await p.textContent('#wc-list')), 'the Covenant Path Report lists say nothing about a next ordinance');
+  await p.click('#wc-list [data-wc="nm"] [data-action="open-person"][data-b="0"]'); await w(400);
+  ok(await p.locator('#person-card [data-bind$=".ordinance"]').count() === 0 && await p.isVisible('#person-card .ns-list'), 'a Covenant Path name has no next ordinance here; its next steps are open to check off');
+  await p.click('#person-card .ns-list [data-action="check-item"][data-b="calling"]'); await w(250);
+  await p.click('#person-card .person-done'); await w(400);
+  ok((await p.textContent('#step-done-btn')).trim() === 'Done', 'once a step is checked off, the button says Done');
+  await p.click('#step-done-btn'); await w(500);
+  ok(await view() === 'wc' && await nextId() === 'wc-step-tn' && /wc-step-ask/.test(await doneIds()), 'Done goes back to Ward Council: Ask ward council has its check and Focus names is Up next');
   ok(!(await p.evaluate(() => document.querySelector('.door-wc').classList.contains('tl-done'))), 'Ward Council isn’t done while a focus name has no next ordinance');
   // Reopen with the data saved
   await p.reload(); await w(900);
@@ -56,7 +68,9 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const opts = await p.$$eval('#person-card [data-bind$=".ordinance"] option', o => o.map(x => x.value).filter(Boolean));
   await p.selectOption('#person-card [data-bind$=".ordinance"]', opts[0]); await w(200);
   await p.click('#person-card .person-done'); await w(500);
-  ok(await view() === 'wc' && await p.evaluate(() => document.querySelector('#wc-step-tn').classList.contains('is-done')) && await nextId() === '', 'Done returns to Ward Council; the focus names card is green and nothing is left Up next');
+  ok(await view() === 'wc' && !(await p.evaluate(() => document.querySelector('#wc-step-tn').classList.contains('is-done'))) && (await p.textContent('#wc-step-tn .wc-keep')).trim() === 'Keep these focus names', 'with every next ordinance chosen, the card offers Keep these focus names (it starts unchecked each week)');
+  await p.click('#wc-step-tn .wc-keep'); await w(400);
+  ok(await p.evaluate(() => document.querySelector('#wc-step-tn').classList.contains('is-done')) && await nextId() === '', 'Keep these focus names turns the card green; nothing is left Up next');
   ok(/Ward Council is done/.test(await p.textContent('#wc-hero .hero-count')), 'the header card says Ward Council is done');
   // A new member's Ward Council screen: the baptism date is a plain line
   await p.click('[data-action="open-wc-list"][data-a="cp"]'); await w(400);

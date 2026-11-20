@@ -57,28 +57,27 @@ module.exports = (async () => {
   await p.evaluate(() => document.activeElement && document.activeElement.blur()); await wait(300);
   await shot('s12b-wc-opp', '#person-card [data-bind$=".date"]', { block: 'center' });
   await back(); await p.click('#step-done-btn'); await wait(600); // Done: back to Ward Council
-  // Find your focus names
-  await p.click('[data-action="open-wc-list"][data-a="cp"]'); await wait(500);
-  await shot('s09-wc-cp', '[data-wc="nm"] [data-action="open-person"][data-b="0"]', { scroll: false });
+  // Ask ward council: the Covenant Path Report's lists, to check off steps the council knows about
+  await p.click('#wc-step-ask [data-action="open-wc-list"]'); await wait(500);
+  await shot('s09-wc-cp', '#wc-list .ask-q', { scroll: false });
   await p.click('[data-wc="nm"] [data-action="how-help"]'); await wait(500);
   await shot('s18-howhelp');
   await p.click('#howhelp-sheet [data-action="close-how-help"]'); await wait(400);
   await p.click('[data-wc="nm"] [data-action="open-person"][data-b="0"]'); await wait(500); await p.evaluate(() => scrollTo(0, 0));
+  await p.click('#person-card .ns-list [data-action="check-item"][aria-checked="false"]'); await wait(300);
   await shot('s10-wc-person', '#person-card [data-action="make-focus"]');
   await p.click('#person-card [data-action="make-focus"]'); await wait(500);
-  await back(); await back();
-  // The focus names sit right on Ward Council
-  await p.click('#wc-step-tn [data-action="open-person"][data-b="1"]'); await wait(500); await p.evaluate(() => scrollTo(0, 0));
-  await p.selectOption('#person-card [data-bind$=".ordinance"]', 'Baptism'); await wait(200);
-  await shot('s11-wc-focus-person', '#person-card [data-bind$=".ordinance"]');
-  await back();
-  for (let k = 0; k < 6; k++) { // every focus name gets a next ordinance, so the card turns green
+  await back(); await p.click('#step-done-btn'); await wait(600); // Done: back to Ward Council
+  // The focus names sit right on Ward Council: a next ordinance for each, then Keep these focus names
+  for (let k = 0; k < 6; k++) {
     const row = await p.$('#wc-step-tn .person-row:has(.fold-tag.due)'); if (!row) break;
-    await row.click(); await wait(400);
+    await row.click(); await wait(400); await p.evaluate(() => scrollTo(0, 0));
     const opts = await p.$$eval('#person-card [data-bind$=".ordinance"] option', o => o.map(x => x.value).filter(Boolean));
     await p.selectOption('#person-card [data-bind$=".ordinance"]', opts[0]); await wait(200);
+    if (!k) await shot('s11-wc-focus-person', '#person-card [data-bind$=".ordinance"]');
     await back();
   }
+  if (await p.isVisible('#wc-step-tn .wc-keep')) { await p.click('#wc-step-tn .wc-keep'); await wait(500); } // (making a focus name already counts)
   await shot('s12-wc-done', '#wc-step-tn', { block: 'center' });
   await start();
   // Step 3

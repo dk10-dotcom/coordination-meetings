@@ -15,8 +15,8 @@
  },
  {
   "kicker": "Step 1 · Before Ward Council",
-  "title": "Open the Covenant Path Report",
-  "body": "Open the report in Member Tools and make this list match it: add or remove names so everyone is listed.",
+  "title": "Match Member Tools",
+  "body": "Open the Covenant Path Report in Member Tools and make this list match it: add or remove names so everyone is listed.",
   "color": "#4F5A8C",
   "img": "03.jpg"
  },
@@ -63,9 +63,9 @@
   "img": "09.jpg"
  },
  {
-  "kicker": "Step 2 · Find your focus names",
-  "title": "Suggested focus names",
-  "body": "Look in the Covenant Path Report and the Part-Member Families list. Pressing names are marked red: a new member who hasn’t been to the temple, or someone with a baptism or missionary appointment coming up.",
+  "kicker": "Step 2 · Ask ward council",
+  "title": "What has anyone heard?",
+  "body": "Ask the council: has anyone completed a step on their Covenant Path this week? Before Ward Council matched the report in Member Tools; this is for what people know.",
   "color": "#2F5DA6",
   "img": "10.jpg"
  },
@@ -77,23 +77,23 @@
   "img": "11.jpg"
  },
  {
-  "kicker": "Step 2 · Ward Council",
-  "title": "Make focus name",
-  "body": "Tap it, and the huddle plans their assignment. Below it, their next steps on the Covenant Path Report can be checked off.",
+  "kicker": "Step 2 · Ask ward council",
+  "title": "Check off, or make a focus name",
+  "body": "Tap a name to check off a step that’s done. Make focus name adds them to this week’s focus names. Then tap Done, or No changes this week.",
   "color": "#2F5DA6",
   "img": "12.jpg"
  },
  {
   "kicker": "Step 2 · Focus names",
   "title": "Give each a next ordinance",
-  "body": "Your focus names sit right on Ward Council. Tap one and choose its next ordinance. Tap Suggested to use the one their report points to.",
+  "body": "Only focus names get a next ordinance. Tap one and choose it, or tap Suggested. When the report shows it done, Ward Council chooses the next.",
   "color": "#2F5DA6",
   "img": "13.jpg"
  },
  {
   "kicker": "Step 2 · Focus names",
-  "title": "Focus names done",
-  "body": "Once every focus name has a next ordinance, the card turns green. Swipe a name left to remove it.",
+  "title": "Keep these focus names",
+  "body": "Each week, look at the focus names again. Tap Keep these focus names (or add or remove one) and the card turns green.",
   "color": "#2F5DA6",
   "img": "14.jpg"
  },

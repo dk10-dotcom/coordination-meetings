@@ -877,3 +877,33 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
   Next steps, Ward Council and Before Ward Council as step names, "Invite" as the huddle report's side label for
   opportunities, and **Send the huddle report** on the send panel's button.
 
+
+## Changes on Nov 19, 2026, later evening: one clean look, and Ward Council asks (the user asked)
+
+- **One look for every list of names.** Ward Council's Covenant Path Report, Before Ward Council's lists, the Huddle's
+  Sacrament attendance and Focus names (and Opportunities to invite's list) are each one plain white card: a small
+  heading inside (a dot in the list's color, its name and count), then the rows. Return and Report's cards are plain
+  white too (no colored left edge or kicker). Each name shows **one tag at most** (Not updated in 4 weeks, ★ Focus
+  name or Suggested focus name, in that order); the temple countdown ("Temple: 19 days left", in red), a baptism
+  date, an appointment and "✓ Sacrament" go into the gray line under the name.
+- **Ward Council, in order:** Opportunities to invite; **Ask ward council** ("Has anyone completed a step on their
+  Covenant Path this week?"); **Find your focus names** (a tool box: the Covenant Path Report and Open Part-Member
+  Families, with no check of its own); **Focus names**. Up next moves through the three cards with checks.
+- **Ask ward council** opens the Covenant Path Report's lists, with the question at the top (its **i**: "Before Ward
+  Council matches the report in Member Tools. This is for what people in ward council know that the report doesn't
+  show yet.") and a quiet link to open the report (no big button: that's step 1's job). Tapping a name opens its next
+  steps, open to check off, and Make focus name. The button at the bottom says **No changes this week**, or **Done**
+  once a step was checked off in Ward Council; either checks the card and goes back. (`ask.done`, `ask.changed`.)
+- **The next ordinance is chosen only for focus names.** It is gone from every Covenant Path Report screen and row
+  (Before Ward Council, Ward Council and the Huddle), whose gray line now says how far along the report is ("2 of 11
+  done"), and from those people's blocks in the huddle report. The Huddle's screen for a focus name still shows it.
+- **Focus names starts unchecked each week.** Its button: gray "Marcus Bell needs a next ordinance" (tapping opens
+  him) until every focus name has one, then **Keep these focus names**. Making, adding or removing a focus name counts
+  as keeping them. (`tnKept`.)
+- **A next ordinance that's done:** when the Covenant Path Report shows a focus name's next ordinance done (checked
+  off in Before Ward Council or Ward Council: baptisms for the dead, priesthood advancement, endowment, sealing,
+  sacrament), the row says "Endowment is done" with **Choose the next ordinance**, their screen says "Endowment is
+  done. Choose the next one.", and the card isn't done until a new one is chosen. Sending never changes it.
+- **Words:** Before Ward Council says **Match Member Tools** (step 1's line, its instructions and Help), so it reads
+  as copying the official report, and Ask ward council as asking people.
+- An event's own screen keeps its fields in a white block, like a person's screen.

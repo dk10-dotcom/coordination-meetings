@@ -95,6 +95,20 @@ const flags = ['huddle-tour-seen', 'huddle-help-seen', 'huddle-names-hint-seen',
   ok(await q.evaluate(() => JSON.parse(localStorage.getItem('huddle-agenda-v1')).stepsDone.fn === true), 'it marks the section done');
   await d.close();
 
+  // A focus name whose next ordinance shows as done on their Covenant Path Report: Ward Council chooses the next one
+  const g = await b.newContext({ ...devices['iPhone SE'] });
+  const st3 = { ward: 'Sample Ward', ask: { done: true }, tnKept: true, cp: { nm: [], rm: [{ name: 'Olivia Chen', checks: { endow: true } }], bt: [] }, tn: [{ name: 'Olivia Chen', ordinance: 'Endowment' }], find: { none: true } };
+  await g.addInitScript(([s3, f]) => { try { f.forEach(k => localStorage.setItem(k, '1')); if (!localStorage.getItem('__seeded')) { localStorage.setItem('huddle-agenda-v1', s3); localStorage.setItem('__seeded', '1'); } } catch (e) {} }, [JSON.stringify(st3), flags]);
+  const u = await g.newPage();
+  await u.goto(BASE); await u.waitForTimeout(900); await u.click('[data-action="dismiss-install"]').catch(() => {});
+  await u.click('.door-wc'); await u.waitForTimeout(500);
+  ok(/Endowment is done/.test(await u.textContent('#wc-step-tn')) && /Choose the next ordinance/.test(await u.textContent('#wc-step-tn')) && !(await u.evaluate(() => document.querySelector('#wc-step-tn').classList.contains('is-done'))), 'a next ordinance done on the report: Ward Council shows it and asks for the next one');
+  await u.click('#wc-step-tn .person-row'); await u.waitForTimeout(400);
+  ok(/Endowment is done\. Choose the next one\./.test(await u.textContent('#person-card')), 'the focus name’s screen says so too');
+  await u.selectOption('#person-card [data-bind$=".ordinance"]', 'Sealing'); await u.click('#person-card .person-done'); await u.waitForTimeout(400);
+  ok(await u.evaluate(() => document.querySelector('#wc-step-tn').classList.contains('is-done')), 'choosing the next one finishes the card again');
+  await g.close();
+
   // The first time from the Home Screen: the ward name first, then the welcome
   const e = await b.newContext({ ...devices['iPhone SE'] });
   await e.addInitScript(() => { Object.defineProperty(Navigator.prototype, 'webdriver', { get: () => false }); try { localStorage.setItem('huddle-gate-off', '1'); } catch (x) {} Object.defineProperty(Navigator.prototype, 'standalone', { get: () => true }); });
