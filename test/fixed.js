@@ -26,7 +26,7 @@ async function sendAnyway(pg) { await pg.waitForTimeout(150); if (await pg.isVis
   const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#share-btn')]);
   await dl.saveAs(__dirname + '/out-fixed.pdf');
   const t = execSync(`pdftotext -layout "${__dirname}/out-fixed.pdf" -`).toString();
-  ok(/Olivia Chen[\s\S]{0,80}Next ordinance\s+Baptism/.test(t), 'PDF shows Baptism for being taught');
+  ok(!/Olivia Chen[\s\S]{0,80}Next ordinance/.test(t), 'PDF: no next ordinance for a Covenant Path name (only focus names have one, Nov 19, 2026)');
   ok(/Attended\s+High Councilor/.test(t), 'PDF lists High Councilor as attended');
   ok(!/Relief Society|Elders Quorum|Primary presidency/.test(t), 'PDF leaves out the people who did not attend');
   ok(!errs.length, 'no errors ' + errs.join('; '));

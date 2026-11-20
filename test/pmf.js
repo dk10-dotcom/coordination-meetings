@@ -21,7 +21,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   const cpB = await p.locator('#wc-step-cp').boundingBox(), boxB = await p.locator('#wc-find').boundingBox(), lb = await link.boundingBox();
   ok(await link.evaluate(e => !!e.closest('#wc-find')) && lb.y >= cpB.y + cpB.height - 1 && lb.y + lb.height <= boxB.y + boxB.height + 1 && /Find your focus names/i.test(await p.textContent('#wc-find-k')), 'a button in the Find your focus names box, under the Covenant Path Report');
   ok(await p.evaluate(() => document.documentElement.scrollWidth) <= 320, 'fits a 320 px screen');
-  await p.locator('[data-action="open-wc-list"][data-a="cp"]').click(); await p.waitForTimeout(400);
+  await p.locator('#wc-step-cp [data-action="open-wc-list"]').click(); await p.waitForTimeout(400);
   ok(!(await link.isVisible()), 'hidden on a list of names');
   await p.goBack(); await p.waitForTimeout(500);
   ok(await link.isVisible(), 'back on Ward council, it shows again');

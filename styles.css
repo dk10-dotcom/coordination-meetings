@@ -1722,7 +1722,8 @@ body[data-view="start"] .title-text .title-sub { margin-top: 8px; font-size: 13p
 .list-panel.rows .list-title::before { content: ''; flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--list-ink); }
 .list-panel.rows .list-count { font-size: 13.5px; font-weight: 500; color: var(--muted); }
 .list-panel.rows > .steps-list { border: 0; border-radius: 0; box-shadow: none; border-top: 1px solid #E3E7EE; }
-.list-panel.rows .list-head .how-help { min-height: 34px; margin: -2px 0 -6px; font-size: 14px; color: var(--accent); }
+.list-panel.rows .list-head .how-help { min-height: 40px; margin: 0; font-size: 14px; color: var(--accent); }
+.list-panel.rows .list-head:has(.how-help) { padding-bottom: 2px; }
 .list-panel.rows + .list-panel.rows { margin-top: 14px; }
 @media (max-width: 359px) { .list-panel.rows .list-title { font-size: 16px; } }
 /* Return and Report: a plain white card per assignment; its status still colors the card once marked */

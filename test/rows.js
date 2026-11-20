@@ -64,9 +64,9 @@ const seed = () => ({
     ok((await rowNames('#cp-groups', 'nm')).join('|') === 'Daniel Rivera|Emma Walsh' && (await rowNames('#cp-groups', 'rm')).join('|') === 'Olivia Chen' && (await rowNames('#cp-groups', 'bt')).join('|') === 'Marcus Hill', tag + ': each list shows its names, one row each');
     ok(/^Temple prep lesson · Sis\. Park · Wed(, [A-Z][a-z]{2} \d{1,2})?$/.test(await rowSub('#cp-groups', 'rm', 0)) && await p.locator(row('#cp-groups', 'rm', 0) + ' .step-status.warn').count() === 0, tag + ': a row with an action shows the action, who and when');
     const danTags = await rowTags('#cp-groups', 'nm', 0), emmaTags = await rowTags('#cp-groups', 'nm', 1), marcusTags = await rowTags('#cp-groups', 'bt', 0);
-    ok(danTags.join('|') === 'Suggested focus name|Temple: 20 days left', tag + ': a new member’s row counts down the 30-day temple goal: ' + danTags.join('|'));
+    ok(danTags.join('|') === 'Suggested focus name' && (await rowSub('#cp-groups', 'nm', 0)).includes('Temple: 20 days left'), tag + ': a new member’s row counts down the 30-day temple goal in its gray line (one tag at most): ' + danTags.join('|') + ' / ' + await rowSub('#cp-groups', 'nm', 0));
     ok(emmaTags.includes('Not updated in 4 weeks'), tag + ': a name not updated in 4 weeks says so on its row: ' + emmaTags.join('|'));
-    ok(marcusTags.some(t => t.startsWith('Committed to baptism')), tag + ': someone committed to baptism says so on their row: ' + marcusTags.join('|'));
+    ok((await rowSub('#cp-groups', 'bt', 0)).includes('Committed to baptism'), tag + ': someone committed to baptism says so on their row: ' + await rowSub('#cp-groups', 'bt', 0));
     ok(await p.locator('#cp-groups .temple-goal').count() === 1 && await vis('#cp-groups [data-group="nm"] .temple-goal'), tag + ': the 30-day temple goal is stated once, under New members');
     ok(await noOverflow(), tag + ': the lists fit the phone');
     await p.screenshot({ path: `${OUT}/${tag}-huddle-list.png`, fullPage: true });
@@ -90,7 +90,7 @@ const seed = () => ({
     await p.click('#person-card .temple-box'); await p.waitForTimeout(150);
     await back();
     const danAfter = await rowTags('#cp-groups', 'nm', 0);
-    ok(danAfter.join('|') === '✓ Sacrament', tag + ': after checking sacrament and temple, the row shows Sacrament and drops the temple count: ' + danAfter.join('|'));
+    ok(danAfter.length === 0 && (await rowSub('#cp-groups', 'nm', 0)).includes('✓ Sacrament') && !(await rowSub('#cp-groups', 'nm', 0)).includes('Temple:'), tag + ': after checking sacrament and temple, the row shows Sacrament and drops the temple count: ' + await rowSub('#cp-groups', 'nm', 0));
 
     // ---- Not updated in 4 weeks: open the name, Keep
     await openPerson('#cp-groups', 'nm', 1);
@@ -145,13 +145,13 @@ const seed = () => ({
     await p.click('.door-wc'); await p.waitForTimeout(250);
     ok(!(await vis('[data-action="open-wc-list"][data-a="mr"]')), tag + ': ward council has no Missionary Referrals row');
     await p.click('[data-action="open-wc-list"][data-a="cp"]'); await p.waitForTimeout(300);
-    ok((await rowTags('#wc-list', 'rm', 0)).includes('Not updated in 4 weeks') && await rowSub('#wc-list', 'rm', 0) === 'Next: Endowment', tag + ': ward council’s row shows the next ordinance and the 4-week flag');
+    ok((await rowTags('#wc-list', 'rm', 0)).includes('Not updated in 4 weeks') && /of \d+ done/.test(await rowSub('#wc-list', 'rm', 0)) && !/Next:/.test(await rowSub('#wc-list', 'rm', 0)), tag + ': ward council’s row shows how far along the report is (no next ordinance) and the 4-week flag');
     await openPerson('#wc-list', 'rm', 0);
     ok(await vis('#person-card .stale-note'), tag + ': ward council’s screen asks the 4-week question too');
     await p.click('#person-card [data-action="stale-remove"]'); await p.waitForTimeout(450);
     ok(!(await vis('#person-view')) && await vis('#wc-list') && (await rowNames('#wc-list', 'rm')).length === 0 && (await saved()).cp.rm.every(a => !a.name), tag + ': Remove takes the name off and returns to ward council’s list');
     await openPerson('#wc-list', 'nm', 0);
-    await fill('cp.nm.0.name', 'Daniel Rivera Jr'); await p.locator('[data-bind="cp.nm.0.ordinance"]').focus(); await p.waitForTimeout(300);
+    await fill('cp.nm.0.name', 'Daniel Rivera Jr'); await p.evaluate(() => document.activeElement && document.activeElement.blur()); await p.waitForTimeout(300);
     ok(await vis('#confirm-sheet') && (await p.textContent('#confirm-title')).includes('Is this the same person?'), tag + ': changing a name with a last-huddle assignment asks if it’s the same person');
     await p.click('#confirm-primary'); await p.waitForTimeout(300);
     ok((await p.textContent('#step-title')) === 'Daniel Rivera Jr' && JSON.stringify((await saved()).rr).includes('Daniel Rivera Jr'), tag + ': Same person keeps the last assignment under the corrected name (Ward Council’s screen no longer shows it)');

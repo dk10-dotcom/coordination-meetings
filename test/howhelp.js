@@ -82,15 +82,15 @@ const huddle = {
     const heads = await p.evaluate(() => ['nm', 'rm', 'bt'].map(g => {
       const head = document.querySelector('[data-group="' + g + '"] .list-head'), t = head.querySelector('.list-title'), c = head.querySelector('.list-count'), l = head.querySelector('[data-action="how-help"]');
       const cs = getComputedStyle(t), hs = getComputedStyle(head), tr = t.getBoundingClientRect(), cr = c.getBoundingClientRect(), lr = l ? l.getBoundingClientRect() : null, hr = head.getBoundingClientRect();
-      return { g, title: t.textContent, size: parseFloat(cs.fontSize), weight: +cs.fontWeight, upper: cs.textTransform, ink: cs.color, band: hs.backgroundColor, edge: parseFloat(hs.borderLeftWidth),
+      return { g, title: t.textContent, size: parseFloat(cs.fontSize), weight: +cs.fontWeight, upper: cs.textTransform, ink: cs.color, dot: getComputedStyle(t, '::before').backgroundColor, band: hs.backgroundColor, edge: parseFloat(hs.borderLeftWidth),
         countBeside: cr.top < tr.bottom && cr.left > tr.right, link: l ? l.textContent : '', linkA: l ? l.getAttribute('data-a') : '', under: lr ? lr.top >= tr.bottom - 1 && lr.bottom <= hr.bottom + 1 : false, tall: lr ? lr.height : 0, tag: l ? l.tagName : '' };
     }));
     ok(heads.map(x => x.title).join('|') === 'New members|Returning members|Those being taught', tag + ': the three lists are New members, Returning members, Those being taught');
     ok(heads.every(x => x.link.replace('›', '').trim() === 'How can we help?' && x.linkA === x.g && x.tag === 'BUTTON'), tag + ': each has a "How can we help?" link for its own list');
-    ok(heads.every(x => x.under), tag + ': the link sits right under the list’s name, inside its band');
+    ok(heads.every(x => x.under), tag + ': the link sits right under the list’s name, inside its heading');
     ok(heads.every(x => x.tall >= 40), tag + ': the link is tall enough to tap (' + heads.map(x => Math.round(x.tall)).join() + ' px)');
-    ok(heads.every(x => x.size >= 18 && x.weight >= 700 && x.upper === 'none'), tag + ': the names are large and bold (' + heads.map(x => x.size + '/' + x.weight).join() + ')');
-    ok(heads.every(x => x.band !== 'rgba(0, 0, 0, 0)' && x.edge >= 4) && new Set(heads.map(x => x.band)).size === 3 && new Set(heads.map(x => x.ink)).size === 3, tag + ': each sits on a band of its own color');
+    ok(heads.every(x => x.size >= 16 && x.weight >= 700 && x.upper === 'none'), tag + ': the names are bold (' + heads.map(x => x.size + '/' + x.weight).join() + ')');
+    ok(new Set(heads.map(x => x.dot)).size === 3 && heads.every(x => x.dot !== 'rgba(0, 0, 0, 0)'), tag + ': each has a dot of its own color (the lists are plain white cards now, Nov 19, 2026)');
     ok(heads.every(x => x.countBeside), tag + ': the count stays beside the name on all three');
     ok((await linksShown()) === 3 && await noOverflow(), tag + ': three links on the page, and it fits the screen');
     await p.screenshot({ path: `${OUT}/${tag}-1-lists.png`, fullPage: true });
@@ -143,14 +143,14 @@ const huddle = {
     await p.click('[data-action="open-wc-list"][data-a="cp"]'); await p.waitForTimeout(350);
     const wcHeads = await p.evaluate(() => ['nm', 'rm', 'bt'].map(g => { const head = document.querySelector('[data-wc="' + g + '"] .list-head'); return { band: getComputedStyle(head).backgroundColor, size: parseFloat(getComputedStyle(head.querySelector('.list-title')).fontSize), link: !!head.querySelector('[data-action="how-help"]') }; }));
     ok(wcHeads.every(x => x.link) && (await linksShown()) === 3, tag + ': Ward council’s three lists have the link too');
-    ok(wcHeads.every(x => x.band !== 'rgba(0, 0, 0, 0)' && x.size >= 18) && await noOverflow(), tag + ': Ward council’s lists have the same bold names on bands');
+    ok(wcHeads.every(x => x.size >= 16) && await noOverflow(), tag + ': Ward council’s lists have the same bold names');
     await p.goBack(); await p.waitForTimeout(300);
     await p.click('[data-action="open-wc-list"][data-a="fn"]'); await p.waitForTimeout(350);
     ok((await p.evaluate(() => document.body.dataset.view)) === 'wc-fn' && (await linksShown()) === 0 && await p.isVisible('[data-action="find-tips"]'), tag + ': Ward council’s Opportunities to invite has no How can we help? either, just Tips');
     await p.goBack(); await p.waitForTimeout(300); await p.goBack(); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(200);
     await p.click('#before-box'); await p.waitForTimeout(350);
     const bwHeads = await p.evaluate(() => ['nm', 'rm', 'bt'].map(g => { const head = document.querySelector('[data-bw="' + g + '"] .list-head'); return head ? { band: getComputedStyle(head).backgroundColor, link: !!head.querySelector('[data-action="how-help"]') } : null; }));
-    ok(bwHeads.every(x => x && !x.link && x.band !== 'rgba(0, 0, 0, 0)') && (await linksShown()) === 0 && await noOverflow(), tag + ': Before ward council’s lists have the bands and no link');
+    ok(bwHeads.every(x => x && !x.link) && (await linksShown()) === 0 && await noOverflow(), tag + ': Before ward council’s lists have no link');
     await p.goBack(); await p.waitForSelector('#start-home:not([hidden])'); await p.waitForTimeout(200);
 
     // ----- How to use and the tour say so, and Sources lists all three -----

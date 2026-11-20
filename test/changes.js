@@ -60,7 +60,7 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   // A person's name header opens the name to edit
   await p.locator('#wc-list [data-action="open-person"]').first().click(); await w(500);
   ok(await p.isVisible('#person-view .avatar-pencil'), 'the initials carry a small pencil');
-  ok(await p.evaluate(() => !document.querySelector('#person-card .need-note') && !!document.querySelector('#person-card [data-bind$=".ordinance"], #person-card .fixed-value')), 'Ward Council: no confidential reminder under Next ordinance (nothing is typed there; the user decided, Nov 19, 2026)');
+  ok(await p.evaluate(() => !document.querySelector('#person-card .need-note') && !document.querySelector('#person-card [data-bind$=".ordinance"]')), 'Ward Council: no confidential reminder and no next ordinance on a Covenant Path name (only focus names have one; Nov 19, 2026)');
   await p.click('.person-head'); await w(600);
   ok(await p.evaluate(() => { const a = document.activeElement; return !!a && a.tagName === 'INPUT' && /\.name$/.test(a.getAttribute('data-bind') || '') && a.value === 'Daniel Rivera'; }), 'tapping the name header puts the cursor in the name box');
   await p.evaluate(() => document.activeElement.blur()); await w(600);
