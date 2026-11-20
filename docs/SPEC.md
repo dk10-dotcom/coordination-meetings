@@ -813,7 +813,9 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
 - **iPhone and iPad Safari show only the way to the Home Screen app.** What's typed in Safari is kept apart from the
   Home Screen app, so a full screen says "Open Huddle from your Home Screen" with the Add to Home Screen steps (the
   ··· or Share button, Add to Home Screen, Add) and "Already added? Close Safari and tap the Huddle icon", and a
-  gold arrow bobs toward Safari's toolbar (bottom right on iPhone, top right on iPad). Nothing else of the app shows.
+  gold arrow bobs toward the button that opens Share: on iOS 26 the ≡ at the left of the address bar (just past Back),
+  on iOS 18 and earlier Share in the middle of the bottom toolbar, otherwise bottom right; top right on iPad. Step 1 shows all three
+  buttons (≡, ••• and Share) and says to tap whichever the arrow points to. Nothing else of the app shows.
   A handoff link still opens its page in Safari, and "Use it in Safari this once" lets that visit run in Safari.
   Android and computers are not blocked. (Tests turn the screen on with the `huddle-gate-test` flag; it is off while
   a test browser runs.)

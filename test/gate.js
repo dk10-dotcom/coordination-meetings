@@ -7,14 +7,24 @@ let failed = 0, passed = 0;
 const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { failed++; console.log('FAIL ' + m); } };
 (async () => {
   const b = await chromium.launch();
-  const page = async (dev, init) => { const c = await b.newContext({ ...devices[dev] }); await c.addInitScript(init || (() => {})); const p = await c.newPage(); p.errs = []; p.on('pageerror', e => p.errs.push(e.message)); return p; };
+  const page = async (dev, init, ua) => { const c = await b.newContext({ ...devices[dev], ...(ua ? { userAgent: ua } : {}) }); await c.addInitScript(init || (() => {})); const p = await c.newPage(); p.errs = []; p.on('pageerror', e => p.errs.push(e.message)); return p; };
 
   // iPhone Safari: the Home Screen steps only, with the arrow at the bottom right
   const p = await page('iPhone SE', () => { localStorage.setItem('huddle-gate-test', '1'); });
   await p.goto(BASE); await p.waitForTimeout(1800);
   ok(await p.isVisible('#safari-gate') && /Open Huddle from your Home Screen/.test(await p.textContent('#safari-gate')) && /Add to Home Screen/.test(await p.textContent('#safari-gate')), 'iPhone Safari shows only “Open Huddle from your Home Screen”, with the steps');
-  const arrow = await p.$eval('.gate-arrow', e => { const r = e.getBoundingClientRect(); return { right: innerWidth - r.right, bottom: innerHeight - r.bottom }; });
-  ok(arrow.right < 40 && arrow.bottom < 40, 'the arrow points to Safari’s toolbar at the bottom right');
+  // The arrow points where that Safari keeps Share: iOS 26 the ≡ at the left of the address bar, iOS 18 the middle
+  const arrowAt = async (pg) => pg.$eval('.gate-arrow', e => { const r = e.getBoundingClientRect(); return { left: r.left, mid: r.left + r.width / 2 - innerWidth / 2, bottom: innerHeight - r.bottom }; });
+  const UA = v => `Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/${v} Mobile/15E148 Safari/604.1`;
+  const p26 = await page('iPhone SE', () => { localStorage.setItem('huddle-gate-test', '1'); }, UA('26.1'));
+  await p26.goto(BASE); await p26.waitForTimeout(1500);
+  const a26 = await arrowAt(p26);
+  ok(a26.left > 70 && a26.left < 100 && a26.bottom < 40, 'iOS 26: the arrow points to the ≡ at the left of the address bar (' + Math.round(a26.left) + ')');
+  const p18 = await page('iPhone SE', () => { localStorage.setItem('huddle-gate-test', '1'); }, UA('18.5'));
+  await p18.goto(BASE); await p18.waitForTimeout(1500);
+  const a18 = await arrowAt(p18);
+  ok(Math.abs(a18.mid) < 4 && a18.bottom < 40, 'iOS 18: the arrow points to Share in the middle of the toolbar');
+  ok(await p.locator('#safari-gate .gate-steps li:first-child .gate-ic').count() === 3, 'step 1 shows the three buttons it could be (≡, ••• and Share)');
   ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'it fits a small iPhone');
   ok(!(await p.isVisible('#help-sheet')) && !(await p.isVisible('#confirm-sheet')), 'nothing opens over it');
   ok(!p.errs.length, 'no page errors ' + p.errs.join('; '));

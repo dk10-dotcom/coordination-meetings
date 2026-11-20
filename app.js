@@ -4928,6 +4928,11 @@
     if (gated) {
       $('#safari-gate').hidden = false; document.body.classList.add('gated');
       $('#safari-gate').classList.toggle('is-ipad', /iPad/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+      // Where Safari keeps Share (Nov 19, 2026): iOS 26 puts the page menu (≡) at the left of the address bar;
+      // iOS 18 and earlier put Share in the middle of the bottom toolbar.
+      var sv = /Version\/(\d+)/.exec(navigator.userAgent), sMajor = sv ? +sv[1] : 0;
+      $('#safari-gate').classList.toggle('is-ios26', sMajor >= 26);
+      $('#safari-gate').classList.toggle('is-ios18', sMajor > 0 && sMajor < 26);
     }
     // Instructions: open on the first visit on this device, or when the link ends in #help.
     // First visit on a device: in a phone’s browser, Help & training opens (it starts with Add to Home Screen).

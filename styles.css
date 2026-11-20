@@ -1631,6 +1631,9 @@ body.gated { overflow: hidden; }
 .gate-ic { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 26px; margin: 0 2px; border-radius: 7px; background: rgba(255, 255, 255, .16); vertical-align: -6px; }
 .gate-fine { margin: 18px 0 0; font-size: 13px; color: #9FB3D9; }
 .gate-arrow { position: fixed; right: 18px; bottom: max(12px, env(safe-area-inset-bottom, 0px)); color: #FFD25A; }
+/* iOS 26: over the ≡ at the left of the address bar (just past Back); iOS 18 and earlier: over Share in the middle */
+.safari-gate.is-ios26 .gate-arrow { right: auto; left: 84px; }
+.safari-gate.is-ios18 .gate-arrow { right: auto; left: calc(50% - 22px); }
 .safari-gate.is-ipad .gate-arrow { bottom: auto; top: 6px; right: 30px; transform: rotate(180deg); }
 @media (prefers-reduced-motion: no-preference) {
   .gate-arrow svg { animation: gate-bob 1.1s ease-in-out infinite; }
