@@ -18,7 +18,7 @@ const huddle = {
   },
   cpNone: {}, tn: [card({ name: 'Emma Walsh', ordinance: 'Endowment' }), card({ name: 'Olivia Chen', ordinance: 'Sealing', action: 'Sit with her family\nVisit them as a family', assigned: 'Sister Diaz', when: '2026-11-18' }), card({ touched: '' })],
   find: { items: [], opps: [] }, referrals: [],
-  verified: { before: true, after: false }, stepsDone: {}, tnKept: true
+  verified: { before: true, after: false }, stepsDone: { tn: true, rr: true }, tnKept: true // saved checked before the rules: they come off
 };
 (async () => {
   const b = await chromium.launch();
@@ -51,6 +51,7 @@ const huddle = {
   // ----- The Huddle: each section its own card; Up next outlined in green; Focus names lists its names -----
   await p.click('.nav-home'); await w(400); await p.click('.door-hd'); await w(500);
   ok(await p.locator('#steps-home li.hd-card').count() === 4, 'the Huddle’s four sections are cards of their own');
+  ok(await p.locator('#steps-home li.hd-card.is-done').count() === 0, 'a huddle saved with Focus names and Return and Report checked loses those checks while a name isn’t marked done and an assignment isn’t marked');
   await p.click('[data-action="open-step"][data-a="rr"]'); await w(400);
   ok((await p.textContent('#step-title')).trim() === 'Return and Report' && await p.isVisible('#step-done-btn'), 'from the Huddle, the same page is titled Return and Report, with Mark done');
   await p.goBack(); await w(400);

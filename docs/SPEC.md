@@ -1028,3 +1028,5 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
   not done.)
 - **Return and Report's Mark done waits** until every assignment is marked Yes, Partly or No: gray, with "Mark each
   assignment Yes, Partly or No first." above it; tapping it says how many aren't marked.
+- Both checks follow the marks whenever the Huddle draws, so a huddle saved earlier with Focus names or Return and Report
+  checked loses the check while a name isn't marked done or an assignment isn't marked.

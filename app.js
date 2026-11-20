@@ -2165,6 +2165,7 @@
   // Sections open in any order; a finished one gets a green check.
   function renderSteps() {
     if (!$('#steps-home')) return;
+    syncTnDone(); // what's checked follows the names and the marks, also for a huddle saved before these rules
     renderHeroes();
     var fc = $('#fn-count'); if (fc) fc.textContent = plural(state.find.items.filter(function (x) { return str(x.task).trim(); }).length, 'assignment', 'assignments');
     // Up next (the user asked, Nov 19, 2026, night): Attendees, then each section in order; the first not done is highlighted.
@@ -2379,8 +2380,11 @@
   // Opportunities to invite needs one event with an assignment, unless there are no upcoming events.
   // The Huddle's Focus names is done once every focus name is marked done (the user decided, Nov 20, 2026).
   function syncTnDone() {
-    var named = focusNamed(); if (!named.length) return;
-    if (named.every(function (x) { return x.a.hdDone; })) state.stepsDone.tn = true; else delete state.stepsDone.tn;
+    if (CP_SECTION) return;
+    var named = focusNamed();
+    if (named.length) { if (named.every(function (x) { return x.a.hdDone; })) state.stepsDone.tn = true; else delete state.stepsDone.tn; }
+    // Return and Report isn't done while an assignment still has no Yes, Partly or No (a huddle saved before the rule, too).
+    if (state.stepsDone.rr && state.rr.filter(rrShown).some(function (r) { return !r.happened; })) delete state.stepsDone.rr;
   }
   function focusMissing() { return state.tn.map(function (a, i) { return { a: a, i: i }; }).filter(function (x) { return str(x.a.name).trim() && !(str(x.a.action).trim() && str(x.a.assigned).trim() && str(x.a.when).trim()); }); }
   function stepGate(id) {
