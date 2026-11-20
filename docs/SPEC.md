@@ -963,3 +963,6 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
 - Under the PDF's "Covenant Path Report · For reference" heading, a light blue box: "Ward council organizations: As you help
   the people on this list take their next steps, please let the ward mission leader know so he can mark them off on the
   Covenant Path Report and keep our efforts aligned." (`WC_NOTE` in app.js; `test/checklist.js` checks it.)
+- Nov 20, 2026, later: the guide is now an overview in 10 slides (the user's limit): title, one slide per step (two for
+  Ward Council, two for the Huddle), Send, During the week, and the closing message. Each says what the step is for,
+  not every tap. `test/help.js` checks there are ten at most.
