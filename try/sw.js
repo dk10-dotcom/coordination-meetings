@@ -1,5 +1,5 @@
 /* Offline support: caches the page's own files only. It never stores form data. */
-var CACHE = 'huddle-test-v24';
+var CACHE = 'huddle-test-v25';
 var FILES = [
   './',
   'index.html',
@@ -25,7 +25,7 @@ self.addEventListener('install', function (e) {
 self.addEventListener('activate', function (e) {
   e.waitUntil(caches.keys().then(function (keys) {
     // Only the test copy's own old caches: the live app keeps its own (huddle-v…).
-    return Promise.all(keys.filter(function (k) { return k !== CACHE && /^huddle-test-v24\d+$/.test(k); }).map(function (k) { return caches.delete(k); }));
+    return Promise.all(keys.filter(function (k) { return k !== CACHE && /^huddle-test-v25\d+$/.test(k); }).map(function (k) { return caches.delete(k); }));
   }).then(function () { return self.clients.claim(); }));
 });
 

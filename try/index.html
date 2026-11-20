@@ -175,7 +175,7 @@
 
   <section class="start-home" id="start-home" aria-label="Where to start" hidden>
     <button type="button" class="check-box tl-step" id="before-box" data-action="open-before" data-tl="1">
-      <span class="tl-mark" aria-hidden="true"><span class="tl-num">1</span><svg class="tl-check" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><span class="row-icon tile-step1" aria-hidden="true" data-tile="bw"></span><span class="up-next" aria-hidden="true">Up next</span><span class="check-text"><span class="cpr-step-k">Step 1</span><span class="check-line">Before Ward Council</span><span class="check-sub" id="before-sub">Update each person from the Covenant Path Report</span></span>
+      <span class="tl-mark" aria-hidden="true"><span class="tl-num">1</span><svg class="tl-check" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><span class="row-icon tile-step1" aria-hidden="true" data-tile="bw"></span><span class="up-next" aria-hidden="true">Up next</span><span class="check-text"><span class="cpr-step-k">Step 1</span><span class="check-line">Before Ward Council</span><span class="check-sub" id="before-sub">Match Member Tools</span></span>
       <span class="check-tick" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span>
       <span class="step-chev" aria-hidden="true">›</span>
     </button>
@@ -201,19 +201,16 @@
     <div class="hero hero-wc" data-hero="wc" id="wc-hero" hidden>
       <p class="hero-top"><span class="hero-kicker">Step 2 · Who &amp; What</span><span class="hero-date"></span></p>
       <p class="hero-ward"></p>
-      <p class="page-intro" id="wc-intro" data-info="intro-wc" hidden>Add any upcoming opportunities to invite. Then identify focus names from the Covenant Path Report, the Part-Member Families list, or anyone else ward council feels to focus on.</p>
+      <p class="page-intro" id="wc-intro" data-info="intro-wc" hidden>Add any upcoming opportunities to invite and ask ward council about steps completed this week. Then identify focus names and choose each one’s next ordinance.</p>
       <div class="hero-progress" hidden><span class="hero-bar" aria-hidden="true"><span class="hero-fill"></span></span><span class="hero-count"></span></div>
     </div>
-    <!-- Ward Council's parts, in order, each its own card: the next one is marked Up next, a finished one gets a green check -->
+    <!-- Ward Council's parts, in order, each its own card: the next one is marked Up next, a finished one gets a green check.
+         Find your focus names is a tool box (no check): the two places to look for focus names (Nov 19, 2026, evening). -->
     <div class="wc-cards" id="wc-rows" hidden>
       <ul class="steps-list wc-step" id="wc-step-fn"></ul>
-      <!-- The two lists focus names come from, in one box under its heading (the user asked, Nov 19, 2026) -->
-      <section class="wc-step wc-find" id="wc-find" aria-labelledby="wc-find-k">
-        <div class="wc-find-head">
-          <p class="wc-group-k" id="wc-find-k">Find your focus names</p>
-          <span class="wc-done-tick" id="wc-find-tick" aria-label="Done" hidden><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span>
-        </div>
-        <p class="wc-find-sub">Done once you choose a focus name.</p>
+      <ul class="steps-list wc-step" id="wc-step-ask"></ul>
+      <section class="wc-find" id="wc-find" aria-labelledby="wc-find-k">
+        <p class="wc-group-k" id="wc-find-k">Find your focus names</p>
         <ul class="steps-list" id="wc-step-cp"></ul>
         <a class="wc-pmf" id="wc-pmf" href="https://lcr.churchofjesuschrist.org/mlt/report/part-member-households?lang=eng" target="_blank" rel="noopener noreferrer">
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 3h6v6"/><path d="M17 3l-8 8"/><path d="M15 12v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4"/></svg>
@@ -230,7 +227,7 @@
     <div class="hero hero-bw" data-hero="bw" id="bw-hero">
       <p class="hero-top"><span class="hero-kicker">Step 1</span><span class="hero-date"></span></p>
       <p class="hero-ward"></p>
-      <p class="page-intro bw-intro" id="bw-intro" data-info="intro-bw" hidden>Open the Covenant Path Report in Member Tools and make this list match it: add or remove names so everyone is listed, and check off each person’s items that are done there.</p>
+      <p class="page-intro bw-intro" id="bw-intro" data-info="intro-bw" hidden>Match Member Tools: open the Covenant Path Report there and make this list match it. Add or remove names so everyone is listed, and check off each person’s items that are done there.</p>
     </div>
     <a class="btn-tools" data-tools-link href="https://lcr.churchofjesuschrist.org/one-work/progress-record?lang=eng">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 3h6v6"/><path d="M17 3l-8 8"/><path d="M15 12v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4"/></svg>
@@ -641,7 +638,7 @@
     <h3 class="help-band">Every week</h3>
     <ul class="steps-list help-list">
       <li><details class="help-item">
-        <summary class="nav-row"><span class="help-num" aria-hidden="true">1</span><span class="step-text"><span class="step-title">Before Ward Council</span><span class="step-status">Mirror the Covenant Path Report</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
+        <summary class="nav-row"><span class="help-num" aria-hidden="true">1</span><span class="step-text"><span class="step-title">Before Ward Council</span><span class="step-status">Match Member Tools</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
         <ul class="help-body">
           <li>Tap <strong>Home</strong> at the bottom, then <strong>Before Ward Council</strong>, then <strong>Open the Covenant Path Report</strong>.</li>
           <li>Tap each name; add dates and check off what’s done.</li>
@@ -653,10 +650,10 @@
         <summary class="nav-row"><span class="help-num" aria-hidden="true">2</span><span class="step-text"><span class="step-title">Ward Council</span><span class="step-status">What’s coming up, focus names and next ordinances</span></span><span class="step-chev" aria-hidden="true">›</span></summary>
         <ul class="help-body">
           <li>Tap <strong>Home</strong>, then <strong>Ward Council</strong>. Work down the cards; the next one says <strong>Up next</strong>.</li>
-          <li><strong>Opportunities to invite:</strong> tap <strong>Add an event</strong> and set its <strong>Event date</strong>. Then tap <strong>Done</strong>, or <strong>No upcoming events</strong> if there are none.</li>
+          <li><strong>Opportunities to invite:</strong> tap <strong>Add an event</strong>, then <strong>Done</strong> (or <strong>No upcoming events</strong>).</li>
+          <li><strong>Ask ward council:</strong> check off steps done this week (tap How can we help? for questions), then <strong>Done</strong>.</li>
           <li><strong>Find your focus names:</strong> in a list or <strong>Open Part-Member Families</strong>, then <strong>Make focus name</strong> or <strong>Add a focus name</strong>.</li>
-          <li>Tap a focus name, choose its next ordinance and check off next steps that are done.</li>
-          <li>For ideas, tap <strong>How can we help?</strong> It all shows in the Huddle.</li>
+          <li><strong>Focus names:</strong> tap each one and choose its next ordinance, then tap <strong>Keep these focus names</strong>.</li>
         </ul>
       </details></li>
       <li><details class="help-item">
