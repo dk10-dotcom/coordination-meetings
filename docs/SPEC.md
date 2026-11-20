@@ -949,6 +949,6 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
 ## Step-by-step guide wording (Nov 20, 2026)
 
 - The guide speaks to the person using the app: what to tap and why. It leaves out how the app works inside.
-- 26 slides (was 34). Merged or dropped: the second check-off slide, Who and what, How and when, One person at a time,
+- 28 slides (was 34). Focus names has three: Find your focus names (Covenant Path Report and Part-Member Families), Watch for suggested names (the red bar, Add to focus names) and Keep these focus names. Merged or dropped: the second check-off slide, Who and what, How and when, One person at a time,
   A plan for every focus name, Up next: After the huddle, the second Mark it done, and All four steps done.
 - It still carries "Never add confidential information to this huddle report." and the sharing rule word for word.

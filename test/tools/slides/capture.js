@@ -67,8 +67,12 @@ module.exports = (async () => {
   await shot('s10-wc-person', '[data-wc="nm"] .exp-li.is-open', { block: 'start' });
   await p.click('#step-done-btn'); await wait(600); // Done: back to Ward Council
   // Find names: the Covenant Path Report button in the Focus names card, then Add to focus names
+  await shot('s12a-wc-finds', '#wc-step-tn .wc-finds', { block: 'center' });
   await p.click('#wc-step-tn [data-a="pick"]'); await wait(500);
-  if (await p.isVisible('[data-action="pick-focus"]')) { await p.click('[data-action="pick-focus"] >> nth=0'); await wait(500); }
+  const hasSug = !!(await p.$('.pick-li.flag-sug [data-action="pick-focus"]'));
+  const pickLi = hasSug ? '.pick-li.flag-sug:has([data-action="pick-focus"])' : '.pick-li:has([data-action="pick-focus"])';
+  if (await p.isVisible(pickLi)) { await shot('s12p-wc-pick', pickLi); await p.click(pickLi + ' [data-action="pick-focus"] >> nth=0'); await wait(500); }
+  else console.log('note: no name to add in the picker');
   await back();
   // The focus names sit right on Ward Council: a next ordinance for each, then Keep these focus names
   for (let k = 0; k < 6; k++) {
