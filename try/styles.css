@@ -1799,5 +1799,12 @@ li.flag-focus .row-flag { color: #8A5A00; }
 .cal-day.is-sel { background: var(--accent); color: #FFFFFF; font-weight: 700; box-shadow: none; }
 .cal-picked { margin: 2px 0 0; text-align: center; font-size: 14px; font-weight: 600; color: var(--muted); }
 
+/* Up next and Start here in green, so they stand out (the user asked, Nov 20, 2026) */
+.tl-step.tl-next .up-next, .wc-up-next, .row-next, .details-summary.is-next::after { background: #1E8A4C; color: #FFFFFF; box-shadow: 0 2px 6px -2px rgba(30, 138, 76, .55); }
+.idea-chip.is-on { border-color: var(--green-line); background: var(--green-soft); color: var(--green-ink); font-weight: 700; }
+.action-chips .idea-chip::before { content: '+ '; font-weight: 700; color: var(--accent); }
+.action-chips .idea-chip.is-on::before { content: '✓ '; color: var(--green-ink); }
+.tl-step.tl-next, .wc-step.is-next, .details-summary.is-next { border-color: #1E8A4C; box-shadow: 0 10px 22px -14px #1E8A4C; }
+
 /* Test copy only */
 .test-tag { color: #FFD5D5; }

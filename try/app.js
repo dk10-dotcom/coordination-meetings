@@ -857,13 +857,14 @@
   function actionChips(base) {
     var a = getPath(base.replace(/\.$/, '')); if (!a || !str(a.name).trim()) return null;
     var m = /^cp\.(\w+)\./.exec(base), src = m ? { a: a, gid: m[1] } : cpOfName(a.name);
-    var open = src ? openChecks(src.a, src.gid).map(function (c) { return c.help; }) : [];
+    var open = []; // no "Next steps on their Covenant Path Report" here (Nov 20, 2026): only ideas for the next ordinance
     var ord = src && FIXED_ORD[src.gid] ? FIXED_ORD[src.gid] : str(a.ordinance).trim(), oi = ORD_IDEAS[ord];
     var done = src ? (CHECKLISTS[src.gid] || []).filter(function (c) { return checkOf(src.a, src.gid, c) !== false; }).map(function (c) { return c.help; }) : [];
     var ideas = oi ? oi.items.filter(function (t) { return open.indexOf(t) < 0 && done.indexOf(t) < 0; }) : []; // nothing they've already done
     if (!open.length && !ideas.length) return null;
-    var chipsFor = function (list) { return h('div', { class: 'idea-chips' }, list.map(function (t) { return h('button', { type: 'button', class: 'idea-chip', 'data-action': 'help-chip', 'data-a': base + 'action', 'data-b': t, text: t }); })); };
-    return h('div', { class: 'full help-chips action-chips', hidden: !!str(a.action).trim() }, [
+    var have = str(a.action).split('\n').map(function (x) { return x.trim(); });
+    var chipsFor = function (list) { return h('div', { class: 'idea-chips' }, list.map(function (t) { var on = have.indexOf(t) >= 0; return h('button', { type: 'button', class: 'idea-chip' + (on ? ' is-on' : ''), 'aria-pressed': on ? 'true' : 'false', 'data-action': 'help-chip', 'data-a': base + 'action', 'data-b': t, text: t }); })); };
+    return h('div', { class: 'full help-chips action-chips' }, [ // they stay after one is tapped, to add another (Nov 20, 2026)
       open.length ? h('p', { class: 'idea-k', text: 'Next steps on their Covenant Path Report' }) : null, open.length ? chipsFor(open) : null,
       ideas.length ? h('p', { class: 'idea-k', text: oi.label }) : null, ideas.length ? chipsFor(ideas) : null]);
   }
@@ -1015,7 +1016,7 @@
       isTn ? ordSuggest(base) : null // no confidential note here: nothing is typed (the user decided, Nov 19, 2026)
     ].filter(Boolean));
     return h('div', { class: 'card wc-card person-wc g-' + g }, [
-      focusBox(g, r.i, a), h('div', { class: 'card-zone wc-plain-zone' }, [wc, nextStepsBox(r, a)]),
+      focusBox(g, r.i, a), h('div', { class: 'card-zone wc-plain-zone' }, [wc, isTn ? null : nextStepsBox(r, a)]), // a focus name: no next steps list (Nov 20, 2026)
       g === 'bt' ? h('button', { type: 'button', class: 'btn-convert', 'data-action': 'convert-nm', 'data-a': r.i }, ['Move to New members']) : null
     ]);
   }
@@ -3162,8 +3163,13 @@
         break;
       }
       case 'help-chip': case 'ord-suggest': { // a tapped suggestion fills the Action item (or What will help); a suggested ordinance fills Next ordinance
-        setPath(a, b); saveDraft(); renderPerson(); renderTN(); renderCP();
-        if (/\.action$/.test(a)) { var tb = a.replace(/action$/, ''); refreshTextButton(tb); setTimeout(function () { var af = document.querySelector('#person-card [data-bind="' + tb + 'assigned"]'); if (af) af.focus(); }, 60); }
+        if (/\.action$/.test(a)) { // the Assignment can hold more than one: each tapped idea is a line of its own; tapping it again takes it out
+          var lines = str(getPath(a)).split('\n').filter(function (x) { return x.trim(); }), at = lines.map(function (x) { return x.trim(); }).indexOf(b);
+          if (at >= 0) lines.splice(at, 1); else lines.push(b);
+          setPath(a, lines.join('\n'));
+        } else setPath(a, b);
+        saveDraft(); renderPerson(); renderTN(); renderCP();
+        if (/\.action$/.test(a)) refreshTextButton(a.replace(/action$/, '')); // the ideas stay in view to add another (no jump to Assigned to)
         break;
       }
       case 'open-asg': case 'add-asg': { // from an opportunity's card in the Huddle: open it with that one assignment open
