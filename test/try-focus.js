@@ -53,12 +53,13 @@ const ok = (c, m) => { if (c) { passed++; console.log('PASS ' + m); } else { fai
   ok(!(await p.isVisible('[data-action="open-wc-list"][data-a="mr"]')), 'Ward council has no Missionary Referrals');
   await p.click('[data-action="open-wc-list"][data-a="cp"]'); await w(400);
   ok(await p.isVisible('#wc-list .wc-report-link') && /Open the Covenant Path Report/.test(await p.textContent('#wc-list .wc-report-link')), 'Ward council’s Covenant Path Report list has Open the Covenant Path Report');
+  // Names become focus names in the picker: Focus names card → Covenant Path Report → Add to focus names (Nov 19, 2026)
+  await p.click('[data-action="steps-home"]'); await w(400);
+  await p.click('#wc-step-tn [data-a="pick"]'); await w(400);
+  ok(/Not yet to the temple/.test(await p.textContent('#wc-list [data-pick="nm"] .pick-li:nth-child(2)')), 'a new member with no baptism date says Not yet to the temple'); await p.screenshot({ path: OUT + '/wc-pressing.png' });
   for (const [g, i] of [['bt', 0], ['nm', 1], ['bt', 1]]) {
-    await p.click(`#wc-list [data-wc="${g}"] [data-b="${i}"]`); await w(500);
-    if (g === 'nm') { ok(/Not yet to the temple/.test(await p.textContent('#person-card .focus-why')), 'a new member with no baptism date says Not yet to the temple'); await p.screenshot({ path: OUT + '/wc-pressing.png' }); }
-    await p.click('#person-card [data-action="make-focus"]'); await w(400);
-    ok(await p.isVisible('#person-card .focus-on'), 'Make focus name: the screen now says it is a focus name');
-    await p.click('#person-view .person-done'); await w(400);
+    await p.click(`#wc-list [data-action="pick-focus"][data-a="${g}"][data-b="${i}"]`); await w(400);
+    ok(await p.locator(`#wc-list [data-action="pick-focus"][data-a="${g}"][data-b="${i}"]`).count() === 0, 'Add to focus names: the row now says it is a focus name');
   }
   let st = await saved();
   ok(st.tn.map(t => t.name).filter(Boolean).join('|') === 'Grace Thompson|Marcus Hill|Emma Walsh|Samuel Ortiz', 'focus names fill the open spots, then go past three: ' + st.tn.map(t => t.name).join('|'));
