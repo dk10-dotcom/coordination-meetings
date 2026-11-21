@@ -3,7 +3,7 @@
 // An overview (the user decided, Nov 20, 2026): ten slides at most, what each step is for, main points only,
 // nothing said twice, for the person using the app (not how the app works).
 module.exports = [
-  { shot: 's02-start-step1', kind: 'title', title: 'Huddle', sub: '', body: 'Each week follows four steps. Up next shows where you are, and the (i) on any step says what to do there.', t: 8 },
+  { shot: 's02-start-step1', kind: 'title', title: 'Huddle', sub: '', body: 'Each week follows four steps. Up next shows where you are, and the (i) on any step says what to do.', t: 8 },
   { shot: 's04-bw-list', k: 'Step 1 · Before Ward Council', c: 'slate', title: 'Start with the report', body: 'Prepare for the day by bringing your lists up to date with the Covenant Path Report in Member Tools. Names with a red bar are suggested focus names.', t: 8 },
   { shot: 's10-wc-person', k: 'Step 2 · Ward Council', c: 'blue', title: 'Counsel together', body: 'Plan for upcoming events, and counsel together about steps people on the Covenant Path Report took this week.', t: 8 },
   { shot: 's12p-wc-pick', k: 'Step 2 · Focus names', c: 'blue', title: 'Choose your focus names', body: 'Use the Covenant Path Report and the Part-Member Families report to help identify focus names. Names with a red bar are suggested.', t: 8 },
