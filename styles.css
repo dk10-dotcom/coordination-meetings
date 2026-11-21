@@ -1855,3 +1855,10 @@ li.flag-focus .row-flag { color: #8A5A00; }
 /* Before Ward Council and After the huddle: Mark done sits at the end of the list, so it never covers a name (Nov 20, 2026) */
 #before-done-btn, #after-done-btn { position: static; margin-top: 6px; box-shadow: none; }
 .exp-li { scroll-margin-top: 78px; }
+
+/* Assignments (from the bottom bar): one group per person assigned, their name in bold (Nov 20, 2026) */
+.asg-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px; }
+.asg-who { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 6px 4px 0; font-size: 19px; font-weight: 800; color: var(--ink); }
+.asg-n { flex: none; font-size: 13px; font-weight: 600; color: var(--muted); }
+.feedback-btn { margin-top: 18px; }
+.feedback-note { margin: 6px 0 0; text-align: center; font-size: 13px; color: var(--muted); }

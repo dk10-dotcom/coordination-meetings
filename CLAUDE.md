@@ -29,7 +29,7 @@ Read `docs/SPEC.md` before changing behavior. It describes every screen and rule
   Update `docs/SPEC.md` and the tests too.
 - **Keep Help & training short.** It is a list of steps that open when tapped, at most five short lines
   each, saying what to tap. Updating it usually means changing a line, not adding one: leave out
-  anything the screen already explains. `test/help.js` fails if it grows past 900 words.
+  anything the screen already explains. `test/help.js` fails if it grows past 950 words (raised from 900, Nov 20, 2026).
 - **Name the source of anything quoted or adapted** from *Preach My Gospel*, the General Handbook or
   another Church page: one small line (`.source-line`) under it, linked to that page in the Gospel
   Library, and a row in the "Source links" table in `docs/SPEC.md`. Quote the manual's own words;

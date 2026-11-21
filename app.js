@@ -631,6 +631,18 @@
     }
     // One item can be removed too when names are rows (taking the last one off brings the line back).
     var many = rowsOn || state.rr.length > 1;
+    if (rrFromBar && rowsOn) { // Assignments (the bottom bar): grouped by who each is assigned to, to follow up (Nov 20, 2026)
+      var groups = {}, order = [];
+      state.rr.forEach(function (r, i) { if (!rrShown(r)) return; var who = str(r.assigned).trim() || ''; var k = norm(who) || '~';
+        if (!groups[k]) { groups[k] = { who: who, items: [] }; order.push(k); } groups[k].items.push(i); });
+      order.sort(function (x, y) { return x === '~' ? 1 : y === '~' ? -1 : groups[x].who.localeCompare(groups[y].who); });
+      list.replaceChildren.apply(list, order.map(function (k) {
+        var g = groups[k];
+        return h('section', { class: 'asg-group' }, [h('h3', { class: 'asg-who' }, [g.who || 'Not assigned to anyone', h('span', { class: 'asg-n', text: plural(g.items.length, 'assignment', 'assignments') })])]
+          .concat(g.items.map(function (i) { return rrCard(state.rr[i], i, many); })));
+      }));
+      renderLoadState(); return;
+    }
     list.replaceChildren.apply(list, state.rr.map(function (r, i) { return rrCard(r, i, many); }));
     renderLoadState();
   }
@@ -672,7 +684,7 @@
           })() : null
         ].filter(Boolean);
         body = h('div', { class: 'prefill' }, [
-          gid && gid !== 'fn' ? h('span', { class: 'group-tag', text: listName(gid) }) : null, // (a finding assignment's title already says so)
+          gid && gid !== 'fn' ? h('span', { class: 'group-tag', text: listName(gid) + (gid === 'tn' && cpOfName(pname) ? ' · ' + tnOrigin({ name: pname }) : '') }) : null, // (a finding assignment's title already says so)
           // Name and next ordinance share a line; a long name pushes the tag to the next line.
           ordTag ? h('div', { class: 'person-line' }, [ordTag]) : null,
           facts.length ? h('div', { class: 'facts' }, facts) : null,
@@ -1336,6 +1348,21 @@
     var a = state.tn[personRef.i]; if (!a) return;
     var old = $('#person-card > .person-done'), oldU = $('#person-card > .person-undone'), nd = nameDoneEls(personRef, a);
     if (old) old.replaceWith(nd[0]); if (oldU) oldU.remove(); if (nd[1]) nd[0].after(nd[1]);
+  }
+  // Send feedback (Help & training): an email to the app's maker with the ward and the app's version filled in. Nothing
+  // leaves the phone unless they send it; the version is read from this phone's offline copy (no network).
+  var FEEDBACK_TO = 'darrenkirkham@mac.com';
+  function sendFeedback() {
+    var go = function (ver) {
+      var body = 'Add a screenshot if it helps. Please leave out names and anything confidential.\n\nWhat happened, or what would help:\n\n\n\n—\nWard: ' + (state.ward.trim() || 'not set') + '\nHuddle version: ' + (ver || 'unknown');
+      var url = 'mailto:' + FEEDBACK_TO + '?subject=' + encodeURIComponent('Huddle feedback') + '&body=' + encodeURIComponent(body);
+      if (navigator.webdriver) { window.__huddleMail = url; return; } // (tests read it instead of opening Mail)
+      location.href = url;
+    };
+    try {
+      if (window.caches && caches.keys) caches.keys().then(function (ks) { var n = ks.map(function (k) { var m = /^huddle(?:test)?-(?:test-)?v(\d+)$/.exec(k); return m ? +m[1] : 0; }).sort(function (x, y) { return y - x; })[0]; go(n ? 'v' + n : ''); }, function () { go(''); });
+      else go('');
+    } catch (e) { go(''); }
   }
   // Which Covenant Path Report list a focus name is on: "New member", "Returning member" or "Being taught".
   function tnOrigin(a) {
@@ -2284,6 +2311,7 @@
     $('#step-title').textContent = person ? personTitle(personRef) : att ? 'Huddle Attendees' : view === 'rr' && rrFromBar ? 'Assignments' : stp ? stp.title : '';
     var nb = $('.nav-asg'); if (nb) nb.classList.toggle('is-here', view === 'rr' && rrFromBar);
     if (view === 'rr' && $('#step-done-btn')) renderStepFoot();
+    var rih = $('.rr-intro-hd'), ria = $('.rr-intro-asg'); if (rih && ria) { rih.hidden = view === 'rr' && rrFromBar; ria.hidden = !(view === 'rr' && rrFromBar); }
     // Leaving a person's screen: drop a name left empty, then redraw the lists it appears on.
     if (isPerson(shownView) && !person) { cleanupPerson(); renderCP(); renderTN(); renderFN(); }
     // Names edited in ward council show up on the huddle's cards.
@@ -2995,7 +3023,8 @@
       }
       case 'list-open': listOpen(a); break;
       case 'open-step': rrFromBar = false; showView(a, 'push'); break;
-      case 'open-assignments': rrFromBar = true; if (view === 'rr') applyView(); else showView('rr', 'push'); break; // one page: "Assignments" from here, "Return and Report" from the Huddle
+      case 'feedback': sendFeedback(); break;
+      case 'open-assignments': rrFromBar = true; if (view === 'rr') applyView(); else showView('rr', 'push'); renderRR(); break; // one page: "Assignments" from here, "Return and Report" from the Huddle
       case 'open-wc': showView('wc', 'push'); break;
       case 'date-pick': pickDate(a, b); break;
       case 'open-wc-list': showView('wc-' + a, 'push'); break;

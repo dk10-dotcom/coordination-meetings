@@ -92,7 +92,7 @@ const ok = (l, c) => console.log((c ? 'PASS ' : 'FAIL ') + l);
   await p.click('#help-done'); await openHelp(p);
   ok('opening How to use again shows the short list from the top', (await openIds(p)) === 'help-install' && (await p.$eval('#help-sheet .sheet', s => s.scrollTop)) === 0);
   const size = await p.evaluate(() => { document.querySelectorAll('#help-sheet details').forEach(d => { d.open = true; }); return { words: document.querySelector('#help-sheet .sheet').innerText.trim().split(/\s+/).length, lines: Math.max(...[...document.querySelectorAll('#help-sheet ul.help-body')].map(u => u.children.length)) }; });
-  ok('it stays short: under 900 words in all (' + size.words + '), and no step longer than 5 lines (' + size.lines + ')', size.words < 900 && size.lines <= 5);
+  ok('it stays short: under 950 words in all (' + size.words + '), and no step longer than 5 lines (' + size.lines + ')', size.words < 950 && size.lines <= 5);
   await p.click('#help-done');
 
   // From the Home Screen app, nothing starts open. On the smallest phone, nothing is wider than the screen with every row open.

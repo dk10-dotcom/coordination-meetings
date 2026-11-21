@@ -37,6 +37,9 @@ const huddle = {
   ok(await p.isVisible('.actionbar [data-action="open-assignments"]') && (await p.textContent('#asg-count')).trim() === '2', 'the bottom bar has Assignments, with 2 not marked yet');
   await p.click('.actionbar [data-action="open-assignments"]'); await w(500);
   ok((await p.evaluate(() => document.body.dataset.view)) === 'rr' && (await p.textContent('#step-title')).trim() === 'Assignments', 'Assignments opens Return and Report’s page, titled Assignments');
+  const groups = await p.$$eval('#rr-list .asg-who', e => e.map(x => x.firstChild.textContent));
+  ok(groups.join('|') === 'Sister Diaz|Sister Nguyen', 'Assignments groups them by who they’re assigned to, in bold: ' + groups.join('|'));
+  ok(await p.isVisible('.rr-intro-asg') && !(await p.isVisible('.rr-intro-hd')) && /Follow up with each person this week/.test(await p.textContent('.rr-intro-asg')), 'its line at the top says to follow up with each person this week');
   ok(!(await p.isVisible('#step-done-btn')) && !(await p.isVisible('#step-foot .undone-link')), 'from Assignments there is no Mark done (marks are kept as they’re tapped)');
   await p.click('[data-action="happened"][data-a="0"][data-b="Yes"]'); await w(400);
   ok((await p.textContent('#asg-count')).trim() === '1', 'marking one leaves 1 in the count');
@@ -144,6 +147,13 @@ const huddle = {
   const send = await p.evaluate(() => { const b = document.querySelector('.actionbar [data-action="send"]'); return { ready: b.classList.contains('is-ready'), color: getComputedStyle(b).color }; });
   ok(send.ready && send.color === 'rgb(30, 138, 76)', 'Send is green once After the huddle is done');
 
+  // ----- Send feedback: an email to the app's maker, with the ward and the version -----
+  await p.click('[data-action="help"]'); await w(400);
+  ok(await p.isVisible('#help-sheet [data-action="feedback"]') && /Add a screenshot if it helps/.test(await p.textContent('#help-sheet .feedback-note')), 'Help & training has Send feedback, saying a screenshot helps');
+  await p.click('#help-sheet [data-action="feedback"]'); await w(500);
+  const mail = decodeURIComponent(await p.evaluate(() => window.__huddleMail || ''));
+  ok(/^mailto:darrenkirkham@mac\.com\?subject=Huddle feedback&body=Add a screenshot if it helps\./.test(mail) && /Ward: Sample Ward/.test(mail) && /Huddle version: /.test(mail) && /leave out names and anything confidential/.test(mail), 'it opens an email to the app’s maker with the ward and the version, asking for a screenshot and no confidential details');
+  await p.keyboard.press('Escape'); await w(300); if (await p.isVisible('#help-sheet')) { await p.click('#help-done').catch(() => {}); await w(300); }
   // ----- Tips for opportunities to invite -----
   await p.evaluate(() => document.querySelector('[data-action="find-tips"]').click()); await w(400);
   ok((await p.textContent('#find-tips-title')).trim() === 'Tips for opportunities to invite' && /For each event, plan who will invite and how/.test(await p.textContent('#find-tips-sheet')), 'the Tips are titled for opportunities to invite, and start with planning each event');

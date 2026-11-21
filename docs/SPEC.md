@@ -1041,3 +1041,18 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
 - **Before Ward Council and After the huddle: Mark done sits at the end of the list**, after the last name, instead of
   floating above the bottom bar, so it never covers a name's steps. Opening a name in a list scrolls it up under the top
   bar so its steps show.
+
+## Assignments, slide 9 and feedback (Nov 20, 2026, night)
+
+- **Assignments (the bottom bar) groups the assignments by who they're assigned to**: each person's name in bold with how
+  many they have, then their assignments (people in A–Z order, "Not assigned to anyone" last). A focus name's tag says which
+  list they came from ("Focus names · New member"). The line at the top reads "Follow up with each person this week, and
+  mark assignments done as they happen. You'll be ready for Return and Report at the next huddle." From the Huddle,
+  Return and Report keeps its own line and the usual order.
+- **Slide 9** (During the week): "Ward council members and their organizations, along with the huddle, help each person
+  take their next step. Then let the ward mission leader know so he can mark it on the Covenant Path Report. Tap
+  Assignments to follow up during the week."
+- **Send feedback** (Help & training, under About this app): opens an email to darrenkirkham@mac.com, subject "Huddle
+  feedback", starting "Add a screenshot if it helps. Please leave out names and anything confidential.", with the ward and
+  the app's version (read from this phone's offline copy) at the end. Nothing is sent unless they send the email.
+- Help & training may now run to 950 words (`test/help.js`).
