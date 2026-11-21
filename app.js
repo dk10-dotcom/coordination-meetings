@@ -1235,7 +1235,9 @@
     slideAt = Math.max(0, Math.min(slides.length - 1, i));
     var s = slides[slideAt], img = $('#slide-img');
     $('#slide-kicker').textContent = s.kicker; $('#slide-kicker').style.color = s.color;
-    $('#slide-title').textContent = s.title; $('#slide-body').textContent = s.body;
+    $('#slide-title').textContent = s.title;
+    // "(i)" in a slide's words shows as the app's own i icon (the user asked, Nov 21, 2026)
+    var sb = $('#slide-body'), parts = String(s.body || '').split('(i)'); sb.replaceChildren(); parts.forEach(function (t, k) { if (k) sb.appendChild(h('span', { class: 'info-i slide-i', role: 'img', 'aria-label': 'the i button' })); sb.appendChild(document.createTextNode(t)); });
     $('#slide-fine').hidden = !s.fine; $('#slide-fine').textContent = s.fine || '';
     img.hidden = false; img.src = 'media/slides/' + s.img; img.alt = 'The app: ' + s.title;
     $('#slides-count').textContent = (slideAt + 1) + ' of ' + slides.length;
