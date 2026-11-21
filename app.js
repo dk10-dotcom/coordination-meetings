@@ -285,7 +285,7 @@
       keys.forEach(function (k) { o[k] = str(x[k]); });
       o.sac = !!x.sac; o.temple = !!x.temple; o.committed = !!x.committed; o.actionCarried = !!x.actionCarried; o.texted = !!x.texted;
       o.lastSac = x.lastSac === true ? true : x.lastSac === false ? false : null;
-      o.doneMid = !!x.doneMid; o.hdDone = !!x.hdDone; o.touched = parseISO(str(x.touched)) ? str(x.touched) : '';
+      o.doneMid = !!x.doneMid; o.hdDone = !!x.hdDone; o.from = x.from === 'pmf' || x.from === 'other' ? x.from : ''; o.touched = parseISO(str(x.touched)) ? str(x.touched) : '';
       o.checks = cleanChecks(x.checks);
       return o;
     });
@@ -1027,7 +1027,10 @@
       g === 'nm' ? h('p', { class: 'after-fact full wc-bap' + (bap ? '' : ' unset') }, [h('span', { class: 'after-k', text: 'Baptized' }), bap || 'No date yet (add it in Before Ward Council)']) : null,
       isTn && ordDone(a) ? h('p', { class: 'full ord-done' }, [icon('check'), h('span', { text: str(a.ordinance).trim() + ' is done. Choose the next one.' })]) : null,
       isTn ? ordField('Next ordinance', base + 'ordinance', { full: true }) : null,
-      isTn ? ordSuggest(base) : null // no confidential note here: nothing is typed (the user decided, Nov 19, 2026)
+      isTn ? ordSuggest(base) : null, // no confidential note here: nothing is typed (the user decided, Nov 19, 2026)
+      isTn && str(a.name).trim() && !cpOfName(a.name) ? h('div', { class: 'field full tn-from' }, [h('span', { text: 'Where is this name from?' }),
+        h('div', { class: 'seg', role: 'group', 'aria-label': 'Where is this name from?' }, [['pmf', 'Part-member family'], ['other', 'Other']].map(function (o) {
+          return h('button', { type: 'button', 'data-action': 'tn-from', 'data-a': r.i, 'data-b': o[0], 'aria-pressed': a.from === o[0] ? 'true' : 'false', text: o[1] }); }))]) : null
     ].filter(Boolean));
     return h('div', { class: 'card wc-card person-wc g-' + g }, [
       focusBox(g, r.i, a), h('div', { class: 'card-zone wc-plain-zone' }, [wc, isTn ? null : nextStepsBox(r, a)]), // a focus name: no next steps list (Nov 20, 2026)
@@ -1369,8 +1372,10 @@
   }
   // Which Covenant Path Report list a focus name is on: "New member", "Returning member" or "Being taught".
   function tnOrigin(a) {
-    var src = cpOfName(a.name); return src ? { nm: 'New member', rm: 'Returning member', bt: 'Being taught' }[src.gid] || '' : '';
+    var src = cpOfName(a.name); if (src) return { nm: 'New member', rm: 'Returning member', bt: 'Being taught' }[src.gid] || '';
+    return FROM_LABEL[a.from] || ''; // a name typed in Ward Council: Part-member family or Other (Nov 21, 2026)
   }
+  var FROM_LABEL = { pmf: 'Part-member family', other: 'Other' };
   // A list as rows, grouped the way an iPhone groups a list: the names, then "Add a name" as the last row.
   // kind 'hd' = the huddle's list (an empty one can be confirmed as "none this week"), 'wc' = ward council's,
   // 'bw' = Before ward council's (the same names, with what the Covenant Path Report says about each).
@@ -3000,6 +3005,7 @@
         tnd.hdDone = true; saveDraft(); renderTN();
         var allDone = focusNamed().every(function (x) { return x.a.hdDone; });
         leavePerson(); toast(allDone ? (STEPS.every(function (x) { return state.stepsDone[x.id]; }) ? 'Step 3 done. Next: After the huddle.' : 'Every focus name is done. Focus names is marked done.') : str(tnd.name).trim() + ' marked done.', 6000, { label: 'Undo', run: function () { tnd.hdDone = false; saveDraft(); renderTN(); renderSteps(); } }); break; }
+      case 'tn-from': { var tf = state.tn[+a]; if (tf) { tf.from = tf.from === b ? '' : b; saveDraft(); renderPerson(); renderWC(); } break; }
       case 'tn-name-undone': { var tnu = state.tn[+a]; if (!tnu) break; tnu.hdDone = false; saveDraft(); renderTN(); renderPerson(); break; }
       case 'tn-undone': state.tnKept = false; saveDraft(); renderWC(); renderDoors(); renderHeroes(); break; // Mark as not done, under the green check
       case 'tn-keep': if (!focusNeeds().length) { state.tnKept = true; saveDraft(); renderWC(); renderDoors(); renderHeroes(); } break;
@@ -4477,6 +4483,11 @@
       }
       if (gid === 'bt' && apptNote(a)) tags.push({ text: apptNote(a), color: GROUP_PDF.bt.ink });
       if (a.sac) tags.push({ text: 'Attended sacrament meeting', color: STATUS_PDF.Yes, check: true });
+      if (gid === 'tn' && name) { // which list a focus name is from (Nov 21, 2026)
+        var og = null; GROUPS.forEach(function (g) { (s.cp[g.id] || []).forEach(function (c) { if (!og && norm(c.name) === norm(name)) og = g.id; }); });
+        var ot = og ? { nm: 'New member', rm: 'Returning member', bt: 'Being taught' }[og] : FROM_LABEL[a.from];
+        if (ot) tags.unshift({ text: ot, color: og ? GROUP_PDF[og].ink : C.gray });
+      }
       var ord = ordOf(a, gid), need = str(a.need).trim(), act = str(a.action).trim(), note = str(a.hneed).trim();
       var who = [str(a.assigned).trim(), whenShow(a.when)].filter(Boolean).join(' · ');
       var rows = titleLines(name, 'No name').concat(tagLines(tags), [space(3)]);

@@ -1058,3 +1058,12 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
 - Help & training may now run to 950 words (`test/help.js`).
 - **The step-by-step guide's Send slide isn't part of step 4** (Nov 21, 2026): it lights none of 1–4 or Week and says
   SEND above its title, in red. It no longer says "and include yourself".
+
+## Where a focus name is from, on the report (Nov 21, 2026)
+
+- On the huddle report, each focus name's block has a small line under the name saying which list they're on: "New
+  member", "Returning member" or "Being taught" (in that list's color), found by name on the Covenant Path Report.
+- A focus name typed in Ward Council who isn't on any list is asked once, on their Ward Council screen: "Where is this
+  name from?" with **Part-member family** and **Other** (tap again to clear). The choice is kept with the name (`from`:
+  `pmf` or `other`) and shows in the Huddle, in Assignments and on the report (in gray). Names on the lists are never
+  asked. Older reports and handoff links without it still load.

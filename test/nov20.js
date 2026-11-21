@@ -141,6 +141,19 @@ const huddle = {
   ok(!/Priesthood/.test(ordSug), 'with both priesthood steps marked Doesn’t apply, Olivia isn’t suggested Priesthood advancement (' + (ordSug || 'no suggestion') + ')');
   await p.click('#person-view .person-done'); await w(400);
 
+  // ----- A focus name typed in Ward Council: where is this name from? -----
+  await p.click('#wc-step-tn .person-row:has-text("Grace Thompson")'); await w(500);
+  ok(await p.isVisible('#person-card .tn-from') && /Where is this name from\?/.test(await p.textContent('#person-card .tn-from')), 'a focus name who isn’t on any list asks where the name is from');
+  await p.click('#person-card .tn-from [data-b="pmf"]'); await w(400);
+  ok((await saved()).tn[1].from === 'pmf' && (await p.getAttribute('#person-card .tn-from [data-b="pmf"]', 'aria-pressed')) === 'true', 'Part-member family is kept with the name');
+  await p.click('#person-view .person-done'); await w(400);
+  await p.click('#wc-step-tn .person-row:has-text("Olivia Chen")'); await w(400);
+  ok(await p.locator('#person-card .tn-from').count() === 0, 'a name on the Covenant Path Report isn’t asked');
+  await p.click('#person-view .person-done'); await w(400);
+  await p.click('.nav-home'); await w(300); await p.click('.door-hd'); await w(500);
+  ok(/Part-member family/.test(await p.textContent(tnCard + ' .person-row:has-text("Grace Thompson")')), 'the Huddle shows Part-member family under the name');
+  await p.click('.nav-home'); await w(300);
+
   // ----- Send: green once all four steps are done -----
   await p.evaluate(() => { const s = JSON.parse(localStorage.getItem('huddle-agenda-v1')); s.verified = { before: true, after: true }; localStorage.setItem('__seed', JSON.stringify(s)); });
   await p.reload(); await w(900);

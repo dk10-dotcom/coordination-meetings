@@ -1863,3 +1863,4 @@ li.flag-focus .row-flag { color: #8A5A00; }
 .feedback-btn { margin-top: 18px; }
 .feedback-note { margin: 6px 0 0; text-align: center; font-size: 13px; color: var(--muted); }
 .slide-i { margin: 0 2px; cursor: default; opacity: 1; transform: translateY(-1px); }
+.tn-from .seg button { flex: 1 1 0; }
