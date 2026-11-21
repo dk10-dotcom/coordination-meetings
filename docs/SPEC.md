@@ -1056,3 +1056,5 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
   feedback", starting "Add a screenshot if it helps. Please leave out names and anything confidential.", with the ward and
   the app's version (read from this phone's offline copy) at the end. Nothing is sent unless they send the email.
 - Help & training may now run to 950 words (`test/help.js`).
+- **The step-by-step guide's Send slide isn't part of step 4** (Nov 21, 2026): it lights none of 1–4 or Week and says
+  SEND above its title, in red. It no longer says "and include yourself".

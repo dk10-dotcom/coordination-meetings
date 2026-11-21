@@ -1241,8 +1241,9 @@
     $('#slide-fine').hidden = !s.fine; $('#slide-fine').textContent = s.fine || '';
     img.hidden = false; img.src = 'media/slides/' + s.img; img.alt = 'The app: ' + s.title;
     $('#slides-count').textContent = (slideAt + 1) + ' of ' + slides.length;
-    // Where this slide is in the week: the four steps (Send belongs to step 4), then During the week
-    var m = /^Step (\d)/.exec(s.kicker || ''), ph = m ? +m[1] : s.kicker === 'Send' ? 4 : s.kicker === 'During the week' ? 5 : 0;
+    // Where this slide is in the week: the four steps, then During the week. Send isn't a step (the user decided, Nov 21, 2026):
+    // its slide lights no step and says Send above its title.
+    var m = /^Step (\d)/.exec(s.kicker || ''), ph = m ? +m[1] : s.kicker === 'During the week' ? 5 : 0;
     Array.prototype.forEach.call(document.querySelectorAll('#slides-steps li'), function (li) {
       var p = +li.getAttribute('data-p'); li.classList.toggle('is-now', p === ph); li.classList.toggle('is-past', ph > 0 && p < ph);
       if (p === ph) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
