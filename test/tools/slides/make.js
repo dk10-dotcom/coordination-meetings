@@ -48,7 +48,7 @@ const PH = 640, SCALE = PH / 664, PW = Math.round(390 * SCALE); // the phone scr
     await p.screenshot({ path: path.join(OUT, file), type: 'jpeg', quality: 78, omitBackground: true });
     if (sc.pair) await p.setViewportSize({ width: PW + 20, height: PH + 20 });
     slides.push(sc.kind === 'title'
-      ? { kicker: 'Huddle', title: 'One by One', body: sc.sub + '. ' + sc.body, color: '#2F5DA6', img: file }
+      ? { kicker: 'Huddle', title: 'One by One', body: (sc.sub ? sc.sub + '. ' : '') + sc.body, color: '#2F5DA6', img: file }
       : sc.kind === 'end'
       ? { kicker: 'Huddle', title: sc.title, body: sc.body, color: '#2F5DA6', img: file }
       : { kicker: sc.k, title: sc.title, body: sc.body, color: col, img: file });

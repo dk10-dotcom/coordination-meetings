@@ -1,5 +1,5 @@
 /* Offline support: caches the page's own files only. It never stores form data. */
-var CACHE = 'huddle-v269';
+var CACHE = 'huddle-v270';
 var FILES = [
   './',
   'index.html',
