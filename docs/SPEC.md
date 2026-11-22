@@ -1067,3 +1067,6 @@ handoff link without it loads with no referrals (referrals are no longer shown, 
   name from?" with **Part-member family** and **Other** (tap again to clear). The choice is kept with the name (`from`:
   `pmf` or `other`) and shows in the Huddle, in Assignments and on the report (in gray). Names on the lists are never
   asked. Older reports and handoff links without it still load.
+- **On the report, this week's assignments stand out** (Nov 21, 2026): each focus name's and each opportunity's assignment
+  sits in a light orange box with ASSIGNMENT, the assignment in bold, then "Assigned to … · when" and any gray note.
+  Return and Report keeps the plain lines. The sample report is now 5 pages.

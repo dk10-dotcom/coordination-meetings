@@ -96,7 +96,7 @@ function words(v) { return v.replace(/[“”]/g, '').split(/\s+/).filter(Boolea
     // Fixed agenda text
     const fixed = ['Keep this huddle report secure', 'Weekly', 'Huddle Report', 'Return and Report', 'LOOKING BACK', 'Did it happen?', 'LOOKING AHEAD · NOV 1 HUDDLE',
       'Covenant Path Report', 'Focus names', 'Opportunities to invite', 'This week’s plan',
-      'NEW MEMBERS', 'RETURNING MEMBERS', 'THOSE BEING TAUGHT', 'Next ordinance', 'Assignment'];
+      'NEW MEMBERS', 'RETURNING MEMBERS', 'THOSE BEING TAUGHT', 'Next ordinance', 'ASSIGNMENT'];
     const fixedMissing = fixed.filter(f => !text.includes(f));
     ok('all section headings printed', fixedMissing.length === 0, fixedMissing.join(' | '));
     ok('how-to lines left off the PDF', !text.includes('Open the Covenant Path Report') && !text.includes('Open the 3 Names Next Ordinance spreadsheet') && !text.includes('Make a plan'));

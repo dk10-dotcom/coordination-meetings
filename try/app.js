@@ -4426,6 +4426,23 @@
       });
     }
     // One labeled value: a small gray label, the value beside it, and smaller gray lines under it (who and when).
+    // This week's assignment, made to stand out (the user asked, Nov 21, 2026): a light box with ASSIGNMENT, the
+    // assignment in bold, then who and when, then any gray notes (carried forward, from an earlier huddle).
+    function asgBox(text, who, notes, quiet) {
+      var x0 = L + IN, pad = 9, w = R - x0, tw = w - pad * 2, ts = 13, tl = 16;
+      var tf = quiet ? F.ital : F.bold, tc = quiet ? C.gray : C.dark;
+      var tLines = wrap(str(text).trim() || '—', tf, ts, tw), wLines = str(who).trim() ? wrap('Assigned to ' + str(who).trim(), F.reg, 11, tw) : [];
+      var nLines = []; (notes || []).forEach(function (m) { if (m && str(m.text).trim()) wrap(m.text, m.ital ? F.ital : F.reg, MS, tw).forEach(function (ln) { nLines.push({ t: ln, f: m.ital ? F.ital : F.reg }); }); });
+      var hh = pad + 11 + 4 + tLines.length * tl + (wLines.length ? 2 + wLines.length * 14 : 0) + nLines.length * MLH + pad;
+      return [line(hh, function (top) {
+        rbox(x0, top, w, hh, 7, rgb(0.996, 0.957, 0.925));
+        page.drawRectangle({ x: x0, y: H - top - hh, width: 3, height: hh, color: C.hudInk });
+        var y0 = top + pad + 8; tx(x0 + pad + 2, y0, 'ASSIGNMENT', F.bold, 8, C.hudInk); y0 += 4;
+        tLines.forEach(function (ln) { y0 += tl; tx(x0 + pad + 2, y0 - 3, ln, tf, ts, tc); });
+        if (wLines.length) { y0 += 2; wLines.forEach(function (ln) { y0 += 14; tx(x0 + pad + 2, y0 - 3, ln, F.reg, 11, C.dark); }); }
+        nLines.forEach(function (n) { y0 += MLH; tx(x0 + pad + 2, y0 - 2, n.t, n.f, MS, C.gray); });
+      }), space(4)];
+    }
     function field(label, value, metas, quiet) {
       var x = L + IN + LBL, maxW = R - x, rows = [];
       function add(hh, base, draw) {
@@ -4498,7 +4515,7 @@
       if (gid === 'tn') { var src = (function () { var n = norm(a.name), hit = null; GROUPS.forEach(function (g) { (s.cp[g.id] || []).forEach(function (c) { if (!hit && n && norm(c.name) === n) hit = { a: c, gid: g.id }; }); }); return hit; })();
         var dw = src ? doneThisWeek(src.a, src.gid, s.bwSnap) : [];
         if (dw.length) rows = rows.concat(field('Done this week', dw.join(', '))); }
-      if (gid === 'tn' || act) rows = rows.concat(field('Assignment', act || 'None yet', [{ text: who }, { text: a.actionCarried && act ? carriedText(s) : '', ital: true }], !act)); // action items are for focus names
+      if (gid === 'tn' || act) rows = rows.concat(asgBox(act || 'None yet', act ? who : '', [{ text: a.actionCarried && act ? carriedText(s) : '', ital: true }], !act)); // action items are for focus names
       if (note) rows = rows.concat(field('Huddle notes', note));
       block(rows, GROUP_PDF[gid].ink, gid);
     }
@@ -4619,7 +4636,7 @@
     if (!fOpps.length && !fItems.length) emptyRow('None this week');
     var fnAssign = function (x) {
       var t = str(x.task).trim();
-      block(field('Assignment', t || '—', [{ text: [str(x.who).trim(), whenShow(x.when)].filter(Boolean).join(' · ') }, { text: x.past ? 'From an earlier huddle · ' + ({ Yes: 'Done', Partly: 'Partly done', No: 'Not done' }[x.status] || 'Pending') : '' }, { text: x.carried && t ? carriedText(s) : '', ital: true }]), GROUP_PDF.fn.ink, 'fn');
+      block(asgBox(t || '—', [str(x.who).trim(), whenShow(x.when)].filter(Boolean).join(' · '), [{ text: x.past ? 'From an earlier huddle · ' + ({ Yes: 'Done', Partly: 'Partly done', No: 'Not done' }[x.status] || 'Pending') : '' }, { text: x.carried && t ? carriedText(s) : '', ital: true }], !t), GROUP_PDF.fn.ink, 'fn');
     };
     fOpps.forEach(function (o) { // each opportunity, then the assignments for it
       var mine = fItems.filter(function (x) { return x.opp === o.id; });
